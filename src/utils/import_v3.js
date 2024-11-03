@@ -30,32 +30,26 @@ function approximateFloat(value, maxDenominator = 1000) {
  * someone implemented a magic number,
  * more positional parameters cannot be bound to statements
  */
-function insert_max_32766_rows_at_a_time(tbl, cols, arr, plain_text = false) {
-  const sql_beginning = `insert into ${tbl} (${cols}) values`;
-
-  if (plain_text) {
-    const values = arr.map((row) => `(${row.join(",")})`);
-    db.run(`${sql_beginning} ${values.join(",")};`);
-    return;
-  }
-
+function insert_max_32766_rows_at_a_time(tbl, cols, arr) {
   const vars_per_row = cols.split(/, */).length;
   const max_rows_at_a_time = Math.floor(32766 / vars_per_row);
 
   while (arr.length !== 0) {
     let splice = arr.splice(0, max_rows_at_a_time);
 
-    let sql = `${sql_beginning} ${splice
-      .map(() => `(${cols.replaceAll(/\w+/g, "?")})`)
-      .join(",")};`;
-
-    db.run(sql, splice.flat(), function (err) {
-      if (err) {
-        console.error(err.message);
-      } else {
-        console.log(`Rows inserted into ${tbl}: ${this.changes}`);
+    db.run(
+      `insert into ${tbl} (${cols}) values ${splice
+        .map(() => `(${cols.replaceAll(/\w+/g, "?")})`)
+        .join(",")};`,
+      splice.flat(),
+      function (err) {
+        if (err) {
+          console.error(err.message);
+        } else {
+          console.log(`Rows inserted into ${tbl}: ${this.changes}`);
+        }
       }
-    });
+    );
   }
 }
 
@@ -176,7 +170,6 @@ function import_v3(path_to_csv) {
       });
 
       db.serialize(() => {
-        // there were about 4 users at the time of import
         db.run(
           `insert into users(user_id, user_name) values ${users
             .map(() => "(?,?)")
@@ -191,7 +184,6 @@ function import_v3(path_to_csv) {
           }
         );
 
-        // about 30 categories
         db.run(
           `insert into categories(cat_id, cat_name) values ${categories
             .map(() => "(?,?)")
@@ -206,7 +198,6 @@ function import_v3(path_to_csv) {
           }
         );
 
-        // about 1200 receipts
         insert_max_32766_rows_at_a_time(
           "receipts",
           "rcpt_id,added_on,added_by,paid_on,paid_by",
@@ -219,14 +210,12 @@ function import_v3(path_to_csv) {
           ])
         );
 
-        // and 13000 items
         insert_max_32766_rows_at_a_time(
           "items",
           "item_id,rcpt_id,cat_id,cost,notes",
           items.map((i, idx) => [idx, i.rcpt_id, i.cat_id, i.cost, i.notes])
         );
 
-        // idk how many
         insert_max_32766_rows_at_a_time(
           "item_shares",
           "item_id,item_share_of,item_share",
