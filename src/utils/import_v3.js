@@ -27,10 +27,11 @@ function approximateFloat(value, maxDenominator = 1000) {
 }
 
 /**
- * someone implemented a magic number,
- * more positional parameters cannot be bound to statements
+ * the maximum value of a host parameter number is
+ * SQLITE_MAX_VARIABLE_NUMBER, which defaults to
+ * 32766 for SQLite versions after 3.32.0.
  */
-function insert_max_32766_rows_at_a_time(tbl, cols, arr) {
+function insert_in_batches(tbl, cols, arr) {
   const vars_per_row = cols.split(/, */).length;
   const max_rows_at_a_time = Math.floor(32766 / vars_per_row);
 
@@ -170,35 +171,19 @@ function import_v3(path_to_csv) {
       });
 
       db.serialize(() => {
-        db.run(
-          `insert into users(user_id, user_name) values ${users
-            .map(() => "(?,?)")
-            .join(",")};`,
-          users.flatMap((name, idx) => [idx, name]),
-          function (err) {
-            if (err) {
-              console.error(err.message);
-            } else {
-              console.log(`Rows inserted into users: ${this.changes}`);
-            }
-          }
+        insert_in_batches(
+          "users",
+          "user_id,user_name",
+          users.map((name, idx) => [idx, name])
         );
 
-        db.run(
-          `insert into categories(cat_id, cat_name) values ${categories
-            .map(() => "(?,?)")
-            .join(",")};`,
-          categories.flatMap((name, idx) => [idx, name]),
-          function (err) {
-            if (err) {
-              console.error(err.message);
-            } else {
-              console.log(`Rows inserted into categories: ${this.changes}`);
-            }
-          }
+        insert_in_batches(
+          "categories",
+          "cat_id,cat_name",
+          categories.map((name, idx) => [idx, name])
         );
 
-        insert_max_32766_rows_at_a_time(
+        insert_in_batches(
           "receipts",
           "rcpt_id,added_on,added_by,paid_on,paid_by",
           receipts.map((r, r_id) => [
@@ -210,13 +195,13 @@ function import_v3(path_to_csv) {
           ])
         );
 
-        insert_max_32766_rows_at_a_time(
+        insert_in_batches(
           "items",
           "item_id,rcpt_id,cat_id,cost,notes",
           items.map((i, idx) => [idx, i.rcpt_id, i.cat_id, i.cost, i.notes])
         );
 
-        insert_max_32766_rows_at_a_time(
+        insert_in_batches(
           "item_shares",
           "item_id,item_share_of,item_share",
           item_shares.map((i) => [i.item_id, i.item_share_of, i.item_share])
