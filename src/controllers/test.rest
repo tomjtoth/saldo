@@ -1,0 +1,33 @@
+POST http://localhost:3000/api/categories
+content-type: application/json
+
+[
+    {
+        "cat_name": "test3"
+    },
+    {
+        "cat_name": "test6"
+    }
+]
+
+###
+
+DELETE http://localhost:3000/api/users
+content-type: application/json
+
+[
+    {
+        "user_id": 0
+    }
+]
+
+###
+
+PUT http://localhost:3000/api/users
+content-type: application/json
+
+{
+    "user_id": 0 ,
+    "user_status": 2,
+    "user_name": "Tamás"
+}
