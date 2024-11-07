@@ -8,11 +8,10 @@ if (IMPORT_CSV) import_v3(IMPORT_CSV);
 const app = express();
 
 app.use(express.json());
-app.use("/api/users", generic_route("users"));
-app.use("/api/categories", generic_route("categories"));
-app.use("/api/receipts", generic_route("receipts"));
-app.use("/api/items", generic_route("items"));
-
+app.use(
+  /\/api\/(?<tbl>(?:users|categories|receipts|items)(?:_history)?)/,
+  generic_route
+);
 
 app.start = () => {
   app.listen(PORT);
