@@ -1,58 +1,8 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 const db = require("../db");
-
-function approximateFloat(value, maxDenominator = 1000) {
-  if (value == 0.5) return [1, 2];
-
-  let bestNumerator = 1;
-  let bestDenominator = 1;
-  let bestDifference = Math.abs(value - bestNumerator / bestDenominator);
-
-  for (let denominator = 1; denominator <= maxDenominator; denominator++) {
-    let numerator = Math.round(value * denominator);
-    let difference = Math.abs(value - numerator / denominator);
-
-    if (difference < bestDifference) {
-      bestNumerator = numerator;
-      bestDenominator = denominator;
-      bestDifference = difference;
-    }
-
-    // Early exit if we find an exact match
-    if (bestDifference === 0) break;
-  }
-
-  return [bestNumerator, bestDenominator];
-}
-
-/**
- * the maximum value of a host parameter number is
- * SQLITE_MAX_VARIABLE_NUMBER, which defaults to
- * 32766 for SQLite versions after 3.32.0.
- */
-function insert_in_batches(tbl, cols, arr) {
-  const vars_per_row = cols.split(/, */).length;
-  const max_rows_at_a_time = Math.floor(32766 / vars_per_row);
-
-  while (arr.length !== 0) {
-    let splice = arr.splice(0, max_rows_at_a_time);
-
-    db.run(
-      `insert into ${tbl} (${cols}) values ${splice
-        .map(() => `(${cols.replaceAll(/\w+/g, "?")})`)
-        .join(",")};`,
-      splice.flat(),
-      function (err) {
-        if (err) {
-          console.error(err.message);
-        } else {
-          console.log(`Rows inserted into ${tbl}: ${this.changes}`);
-        }
-      }
-    );
-  }
-}
+const approximate_float = require("./approximate_float");
+const insert_in_batches = require("./insert_in_batches");
 
 /**
  * v3.0 of saldo handled multiple users by a `user1 -> user2` syntax
