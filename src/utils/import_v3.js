@@ -14,8 +14,9 @@ const insert_in_batches = require("./insert_in_batches");
  *
  * @param {string} path_to_csv
  */
-function import_v3(path_to_csv) {
+module.exports = function (path_to_csv) {
   const csv_rows = [],
+    statuses = ["current"],
     users = [],
     categories = [],
     receipts = [],
@@ -70,8 +71,8 @@ function import_v3(path_to_csv) {
         }
 
         const cost = Math.round(
-          // omitting "€" sign
-          parseFloat(str_cost.replace("€", "").replace(",", ".")) * 100
+          // `select sum(item_cost) from items` comes €0,22 near the value in Google Sheets
+          parseFloat(str_cost.replaceAll(/[\s€]/g, "").replace(",", ".")) * 100
         );
 
         const item_id =
@@ -88,32 +89,32 @@ function import_v3(path_to_csv) {
           if (paid_by === 0 && ratio === 0) {
             item_shares.push({
               item_id,
-              item_share_of: paid_to,
-              item_share: 1,
+              user_id: paid_to,
+              share: 1,
             });
           }
 
           if (paid_by >= 1 && ratio === 1) {
             item_shares.push({
               item_id,
-              item_share_of: 0,
-              item_share: 1,
+              user_id: 0,
+              share: 1,
             });
           }
 
           if (![0, 1].includes(ratio)) {
-            const [user0_share, total_shares] = approximateFloat(ratio);
+            const [user0_share, total_shares] = approximate_float(ratio);
 
             item_shares.push(
               {
                 item_id,
-                item_share_of: 0,
-                item_share: user0_share,
+                user_id: 0,
+                share: user0_share,
               },
               {
                 item_id,
-                item_share_of: paid_to > 0 ? paid_to : paid_by,
-                item_share: total_shares - user0_share,
+                user_id: paid_to > 0 ? paid_to : paid_by,
+                share: total_shares - user0_share,
               }
             );
           }
@@ -121,44 +122,44 @@ function import_v3(path_to_csv) {
       });
 
       db.serialize(() => {
+        db.run("insert into statuses(status) values ('current')");
+
         insert_in_batches(
           "users",
-          "user_id,user_name",
-          users.map((name, idx) => [idx, name])
+          "id,name,email,status_id",
+          users.map((name, idx) => [idx, name, `${name}@just.imported`, 0])
         );
 
         insert_in_batches(
           "categories",
-          "cat_id,cat_name",
-          categories.map((name, idx) => [idx, name])
+          "id,category,status_id",
+          categories.map((name, idx) => [idx, name, 0])
         );
 
         insert_in_batches(
           "receipts",
-          "rcpt_id,added_on,added_by,paid_on,paid_by",
+          "id,added_on,added_by,paid_on,paid_by,status_id",
           receipts.map((r, r_id) => [
             r_id,
             r.added_on,
             r.added_by || r.paid_by,
             r.paid_on,
             r.paid_by,
+            0,
           ])
         );
 
         insert_in_batches(
           "items",
-          "item_id,rcpt_id,cat_id,cost,notes",
-          items.map((i, idx) => [idx, i.rcpt_id, i.cat_id, i.cost, i.notes])
+          "id,rcpt_id,cat_id,cost,notes,status_id",
+          items.map((i, idx) => [idx, i.rcpt_id, i.cat_id, i.cost, i.notes, 0])
         );
 
         insert_in_batches(
           "item_shares",
-          "item_id,item_share_of,item_share",
-          item_shares.map((i) => [i.item_id, i.item_share_of, i.item_share])
+          "item_id,user_id,share,status_id",
+          item_shares.map((i) => [i.item_id, i.user_id, i.share, 0])
         );
       });
-      // process.exit(0);
     });
-}
-
-module.exports = import_v3;
+};
