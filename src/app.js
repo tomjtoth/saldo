@@ -1,6 +1,6 @@
 const express = require("express");
 const { PORT, IMPORT_CSV } = require("./utils/config");
-const generic_route = require("./controllers");
+const generic_route = require("./controllers/generic");
 const import_v3 = require("./utils/import_v3");
 
 if (IMPORT_CSV) import_v3(IMPORT_CSV);
