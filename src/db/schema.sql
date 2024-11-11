@@ -42,14 +42,14 @@ create table revisions
 
 create table users_history
 (
-    user_id integer references users(id),
+    id integer references users(id),
     status_id integer references statuses(id),
     name text not null,
     password_hash text,
     email text not null,
 
     rev_id integer references revisions(id),
-    primary key(user_id, rev_id)
+    primary key(id, rev_id)
 
 );
 
@@ -64,12 +64,12 @@ create table categories
 
 create table categories_history
 (
-    cat_id integer references categories(id),
+    id integer references categories(id),
     status_id integer references statuses(id),
     category text,
 
     rev_id integer references revisions(id),
-    primary key(cat_id, rev_id)
+    primary key(id, rev_id)
 );
 
 
@@ -86,7 +86,7 @@ create table receipts
 
 create table receipts_history
 (
-    rcpt_id integer references receipts(id),
+    id integer references receipts(id),
     status_id integer references statuses(id),
     added_on datetime,
     added_by integer references users(id),
@@ -94,7 +94,7 @@ create table receipts_history
     paid_by integer references users(id),
     
     rev_id integer references revisions(id),
-    primary key(rcpt_id, rev_id)
+    primary key(id, rev_id)
 );
 
 
@@ -111,7 +111,7 @@ create table items
 
 create table items_history
 (
-    item_id integer references items(id),
+    id integer references items(id),
     status_id integer references statuses(id),
     rcpt_id integer references receipts(id),
     cat_id integer references categories(id),
@@ -119,7 +119,7 @@ create table items_history
     notes text,
 
     rev_id integer references revisions(id),
-    primary key(item_id, rev_id)
+    primary key(id, rev_id)
 );
 
 
@@ -127,7 +127,7 @@ create table item_shares
 (
     item_id integer references items(id),
     user_id integer references users(id),
-    status_id integer references statuses(id),
+    status_id integer default 0 references statuses(id),
     share integer,
 
     primary key (item_id, user_id)
@@ -151,21 +151,21 @@ without rowid;
 -- view definitions below
 
 
-create view log as
-select
-    r.id as rcpt_id,
+create view log AS
+SELECT
+    r.id AS rcpt_id,
     added_on,
-    uab.name as added_by,
+    uab.name AS added_by,
     paid_on,
-    upb.name as paid_by,
-    i.id as item_id,
+    upb.name AS paid_by,
+    i.id AS item_id,
     c.category,
     notes,
     cost / 100.0 as item_cost,
     cost / 100.0 * coalesce(share * 1.0 /
         sum(share) over (partition by i.id),
         1) as share,
-    coalesce(ush.name, upb.name) as paid_to
+    coalesce(ush.name, upb.name) AS paid_to
 from receipts r
 inner join users uab on r.added_by = uab.id
 inner join users upb on r.paid_by = upb.id
@@ -177,16 +177,16 @@ where r.status_id = 0 and  i.status_id  = 0
 order by paid_on;
 
 
-create view balance_detailed as
-SELECT paid_by, paid_to, paid_on, sum(share) as daily_sum
+CREATE VIEW balance_detailed AS
+SELECT paid_by, paid_to, paid_on, sum(share) AS daily_sum
 FROM log
-WHERE paid_by != share_of
+WHERE paid_by != paid_to
 GROUP BY paid_on, paid_by, paid_to
 order by paid_by, paid_to, paid_on;
 
 
 CREATE VIEW balance_total AS
-SELECT paid_by, paid_to, sum(daily_sum) as balance
+SELECT paid_by, paid_to, sum(daily_sum) AS balance
 FROM balance_detailed
 GROUP BY paid_by, paid_to;
 

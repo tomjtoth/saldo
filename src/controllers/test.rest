@@ -3,21 +3,34 @@ content-type: application/json
 
 [
     {
-        "cat_name": "test3"
+        "category": "test3.2"
     },
     {
-        "cat_name": "test6"
+        "category": "test6.2"
     }
 ]
 
+
 ###
 
-DELETE http://localhost:3000/api/users
+DELETE http://localhost:3000/api/categories/0
+
+
+###
+
+PUT http://localhost:3000/api/categories
 content-type: application/json
 
 [
     {
-        "user_id": 0
+        "id": 3,
+        "category": "asd33",
+        "status_id": 5
+    },
+    {
+        "id": 4,
+        "category": "asd44",
+        "status_id": 0
     }
 ]
 

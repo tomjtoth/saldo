@@ -3,7 +3,13 @@ const csv = require("csv-parser");
 const db = require("../db");
 const approximate_float = require("./approximate_float");
 const insert_in_batches = require("./insert_in_batches");
-
+const {
+  users: User,
+  categories: Category,
+  items: Item,
+  receipts: Receipt,
+  item_shares: ItemShare,
+} = require("../models");
 /**
  * v3.0 of saldo handled multiple users by a `user1 -> user2` syntax
  * 1 item could not belong to more than 2 users
@@ -16,7 +22,6 @@ const insert_in_batches = require("./insert_in_batches");
  */
 module.exports = function (path_to_csv) {
   const csv_rows = [],
-    statuses = ["current"],
     users = [],
     categories = [],
     receipts = [],
@@ -37,19 +42,34 @@ module.exports = function (path_to_csv) {
           ratio: str_ratio,
         } = row;
 
-        const cat_id = categories.includes(str_cat)
-          ? categories.indexOf(str_cat)
-          : categories.push(str_cat) - 1;
-
         // entries contain sometimes only 1 name
         const [str_paid_by, str_paid_to = null] = row.direction.split("->");
 
-        if (!users.includes(str_paid_by)) users.push(str_paid_by);
-        if (str_paid_to && !users.includes(str_paid_to))
-          users.push(str_paid_to);
+        const paid_by_user = users.find((u) => u.name === str_paid_by);
+        const paid_by = paid_by_user
+          ? paid_by_user.id
+          : users.push(
+              new User({
+                id: users.length,
+                name: str_paid_by,
+                email: str_paid_by + "@just.imported",
+              })
+            ) - 1;
 
-        const paid_by = users.indexOf(str_paid_by);
-        const paid_to = str_paid_to ? users.indexOf(str_paid_to) : -1;
+        let paid_to = -1;
+
+        if (str_paid_to) {
+          const paid_to_user = users.find((u) => u.name === str_paid_to);
+          paid_to = paid_to_user
+            ? paid_to_user.id
+            : users.push(
+                new User({
+                  id: users.length,
+                  name: str_paid_to,
+                  email: str_paid_to + "@just.imported",
+                })
+              ) - 1;
+        }
 
         const added_on = new Date(str_added_on).toISOString();
         const paid_on = str_paid_on.split(".", 3).join("-");
@@ -62,13 +82,26 @@ module.exports = function (path_to_csv) {
           added_on !== last_r.added_on ||
           paid_by !== last_r.paid_by
         ) {
-          receipts.push({
-            added_on,
-            paid_on,
-            paid_by,
-          });
-          rcpt_id++;
+          rcpt_id =
+            receipts.push(
+              new Receipt({
+                id: receipts.length,
+                added_on,
+                added_by: paid_by,
+                paid_on,
+                paid_by,
+              })
+            ) - 1;
         }
+
+        const cat_id = categories.find((c) => c.category === str_cat)
+          ? categories.findIndex((c) => c.category === str_cat)
+          : categories.push(
+              new Category({
+                id: categories.length,
+                category: str_cat,
+              })
+            ) - 1;
 
         const cost = Math.round(
           // `select sum(item_cost) from items` comes €0,22 near the value in Google Sheets
@@ -76,46 +109,53 @@ module.exports = function (path_to_csv) {
         );
 
         const item_id =
-          items.push({
-            rcpt_id,
-            cat_id,
-            cost,
-            notes: str_notes == "" ? null : str_notes,
-          }) - 1;
+          items.push(
+            new Item({
+              id: items.length,
+              rcpt_id,
+              cat_id,
+              cost,
+              notes: str_notes == "" ? null : str_notes,
+            })
+          ) - 1;
 
         const ratio = parseFloat(str_ratio) / 100;
 
         if (!(paid_by === 0 && ratio === 1) || !(paid_by >= 1 && ratio === 0)) {
           if (paid_by === 0 && ratio === 0) {
-            item_shares.push({
-              item_id,
-              user_id: paid_to,
-              share: 1,
-            });
+            item_shares.push(
+              new ItemShare({
+                item_id,
+                user_id: paid_to,
+                share: 1,
+              })
+            );
           }
 
           if (paid_by >= 1 && ratio === 1) {
-            item_shares.push({
-              item_id,
-              user_id: 0,
-              share: 1,
-            });
+            item_shares.push(
+              new ItemShare({
+                item_id,
+                user_id: 0,
+                share: 1,
+              })
+            );
           }
 
           if (![0, 1].includes(ratio)) {
             const [user0_share, total_shares] = approximate_float(ratio);
 
             item_shares.push(
-              {
+              new ItemShare({
                 item_id,
                 user_id: 0,
                 share: user0_share,
-              },
-              {
+              }),
+              new ItemShare({
                 item_id,
                 user_id: paid_to > 0 ? paid_to : paid_by,
                 share: total_shares - user0_share,
-              }
+              })
             );
           }
         }
@@ -124,42 +164,11 @@ module.exports = function (path_to_csv) {
       db.serialize(() => {
         db.run("insert into statuses(status) values ('current')");
 
-        insert_in_batches(
-          "users",
-          "id,name,email,status_id",
-          users.map((name, idx) => [idx, name, `${name}@just.imported`, 0])
-        );
-
-        insert_in_batches(
-          "categories",
-          "id,category,status_id",
-          categories.map((name, idx) => [idx, name, 0])
-        );
-
-        insert_in_batches(
-          "receipts",
-          "id,added_on,added_by,paid_on,paid_by,status_id",
-          receipts.map((r, r_id) => [
-            r_id,
-            r.added_on,
-            r.added_by || r.paid_by,
-            r.paid_on,
-            r.paid_by,
-            0,
-          ])
-        );
-
-        insert_in_batches(
-          "items",
-          "id,rcpt_id,cat_id,cost,notes,status_id",
-          items.map((i, idx) => [idx, i.rcpt_id, i.cat_id, i.cost, i.notes, 0])
-        );
-
-        insert_in_batches(
-          "item_shares",
-          "item_id,user_id,share,status_id",
-          item_shares.map((i) => [i.item_id, i.user_id, i.share, 0])
-        );
+        insert_in_batches("users", users);
+        insert_in_batches("categories", categories);
+        insert_in_batches("receipts", receipts);
+        insert_in_batches("items", items);
+        insert_in_batches("item_shares", item_shares);
       });
     });
 };

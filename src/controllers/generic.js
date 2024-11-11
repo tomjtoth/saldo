@@ -27,7 +27,7 @@ router.delete(
   body_validator,
   ({ body, params: { tbl, id } }, res) => {
     svc
-      .delete(tbl, id ? [{ tbl_id }] : body)
+      .delete(tbl, id ? [{ id: Number(id) }] : body)
       .then((rows) => res.json(rows))
       .catch((err) => res.status(400).send(err));
   }
