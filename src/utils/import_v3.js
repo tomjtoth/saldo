@@ -163,6 +163,9 @@ module.exports = function (path_to_csv) {
 
       db.serialize(() => {
         db.run("insert into statuses(id, status) values (0, 'current')");
+        // db.run("PRAGMA foreign_keys = OFF;");
+        // db.run("insert into revisions(id, rev_by) values (0, 0)");
+        // db.run("PRAGMA foreign_keys = ON;");
 
         insert_in_batches("users", users);
         insert_in_batches("categories", categories);
