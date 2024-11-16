@@ -1,13 +1,15 @@
 class ValidationError extends Error {}
 
 class GenericModel {
-  // item_share overrides this
   get _ids() {
     return {
       id: {
         type: Number,
       },
       status_id: {
+        type: Number,
+      },
+      rev_id: {
         type: Number,
       },
     };

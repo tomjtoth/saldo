@@ -9,6 +9,7 @@ const {
   items: Item,
   receipts: Receipt,
   item_shares: ItemShare,
+  revisions: Revision,
 } = require("../models");
 /**
  * v3.0 of saldo handled multiple users by a `user1 -> user2` syntax
@@ -22,6 +23,7 @@ const {
  */
 module.exports = function (path_to_csv) {
   const csv_rows = [],
+    revisions = [],
     users = [],
     categories = [],
     receipts = [],
@@ -42,6 +44,17 @@ module.exports = function (path_to_csv) {
           ratio: str_ratio,
         } = row;
 
+        const added_on = new Date(str_added_on).toISOString();
+
+        let rev_id = revisions.length - 1;
+        const last_rev =
+          revisions[rev_id] ||
+          new Revision({
+            id: 0,
+            rev_by: 0,
+            rev_on: added_on,
+          });
+
         // entries contain sometimes only 1 name
         const [str_paid_by, str_paid_to = null] = row.direction.split("->");
 
@@ -51,6 +64,7 @@ module.exports = function (path_to_csv) {
           : users.push(
               new User({
                 id: users.length,
+                rev_id,
                 name: str_paid_by,
                 email: str_paid_by + "@just.imported",
               })
@@ -65,29 +79,27 @@ module.exports = function (path_to_csv) {
             : users.push(
                 new User({
                   id: users.length,
+                  rev_id,
                   name: str_paid_to,
                   email: str_paid_to + "@just.imported",
                 })
               ) - 1;
         }
 
-        const added_on = new Date(str_added_on).toISOString();
         const paid_on = str_paid_on.split(".", 3).join("-");
 
         let rcpt_id = receipts.length - 1;
-        const last_r = receipts[rcpt_id];
+        const last_rcpt = receipts[rcpt_id];
         if (
-          !last_r ||
-          paid_on !== last_r.paid_on ||
-          added_on !== last_r.added_on ||
-          paid_by !== last_r.paid_by
+          !last_rcpt ||
+          paid_on !== last_rcpt.paid_on ||
+          rev_id !== last_rcpt.rev_id
         ) {
           rcpt_id =
             receipts.push(
               new Receipt({
                 id: receipts.length,
-                added_on,
-                added_by: paid_by,
+                rev_id,
                 paid_on,
                 paid_by,
               })
@@ -99,6 +111,7 @@ module.exports = function (path_to_csv) {
           : categories.push(
               new Category({
                 id: categories.length,
+                rev_id,
                 category: str_cat,
               })
             ) - 1;
@@ -112,6 +125,7 @@ module.exports = function (path_to_csv) {
           items.push(
             new Item({
               id: items.length,
+              rev_id,
               rcpt_id,
               cat_id,
               cost,
@@ -127,6 +141,7 @@ module.exports = function (path_to_csv) {
               new ItemShare({
                 item_id,
                 user_id: paid_to,
+                rev_id,
                 share: 1,
               })
             );
@@ -137,6 +152,7 @@ module.exports = function (path_to_csv) {
               new ItemShare({
                 item_id,
                 user_id: 0,
+                rev_id,
                 share: 1,
               })
             );
@@ -149,11 +165,13 @@ module.exports = function (path_to_csv) {
               new ItemShare({
                 item_id,
                 user_id: 0,
+                rev_id,
                 share: user0_share,
               }),
               new ItemShare({
                 item_id,
                 user_id: paid_to > 0 ? paid_to : paid_by,
+                rev_id,
                 share: total_shares - user0_share,
               })
             );
@@ -162,9 +180,10 @@ module.exports = function (path_to_csv) {
       });
 
       db.serialize(() => {
+        db.run("begin");
         db.run("insert into statuses(id, status) values (0, 'current')");
         // db.run("PRAGMA foreign_keys = OFF;");
-        // db.run("insert into revisions(id, rev_by) values (0, 0)");
+        db.run("insert into revisions(id, rev_by) values (0, 0)");
         // db.run("PRAGMA foreign_keys = ON;");
 
         insert_in_batches("users", users);
@@ -172,6 +191,7 @@ module.exports = function (path_to_csv) {
         insert_in_batches("receipts", receipts);
         insert_in_batches("items", items);
         insert_in_batches("item_shares", item_shares);
+        db.run("commit");
       });
     });
 };

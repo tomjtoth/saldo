@@ -1,11 +1,3 @@
-create table statuses
-(
-    id integer primary key,
-    -- probably 'default|disabled|revoked|expired'
-    status text not null
-);
-
-
 -- for database migrations
 create table migrations
 (
@@ -13,6 +5,14 @@ create table migrations
     migration text not null,
     status_id integer default 0 references statuses(id),
     applied datetime default current_timestamp
+);
+
+
+create table statuses
+(
+    id integer primary key,
+    -- probably 'default|disabled|revoked|expired'
+    status text not null
 );
 
 
@@ -24,124 +24,73 @@ create table revisions
 );
 
 
--- table_name holds current data speeding up most frequent queries
--- upon revision the current data is moved below
--- table_name_history holds redundantly each revision for simpler & faster queries
-
-
 create table users
 (
-    id integer primary key,
+    id integer,
+    rev_id integer references revisions(id),
     status_id integer default 0 references statuses(id),
+    
     name text not null,
     pw_hash text,
-    email text not null unique
-);
+    email text not null unique,
 
-
-create table users_history
-(
-    id integer references users(id),
-    status_id integer references statuses(id),
-    name text not null,
-    password_hash text,
-    email text not null,
-
-    rev_id integer references revisions(id),
     primary key(id, rev_id)
-
-);
+)
+without rowid;
 
 
 create table categories
 (
-    id integer primary key,
-    status_id integer default 0 references statuses(id),
-    category text not null
-);
-
-
-create table categories_history
-(
-    id integer references categories(id),
-    status_id integer references statuses(id),
-    category text,
-
+    id integer,
     rev_id integer references revisions(id),
+    status_id integer default 0 references statuses(id),
+
+    category text not null,
+
     primary key(id, rev_id)
-);
+)
+without rowid;
 
-
+    
 create table receipts
 (
-    id integer primary key,
-    status_id integer default 0 references statuses(id),
-    added_on datetime default current_timestamp,
-    added_by integer references users(id),
-    paid_on date default current_date,
-    paid_by integer references users(id)
-);
-
-
-create table receipts_history
-(
-    id integer references receipts(id),
+    id integer,
+    rev_id integer references revisions(id),
     status_id integer references statuses(id),
-    added_on datetime,
-    added_by integer references users(id),
+
     paid_on date,
     paid_by integer references users(id),
     
-    rev_id integer references revisions(id),
     primary key(id, rev_id)
-);
+)
+without rowid;
 
 
 create table items
 (
-    id integer primary key,
-    status_id integer default 0 references statuses(id),
-    rcpt_id integer references receipts(id),
-    cat_id integer references categories(id),
-    cost integer,
-    notes text
-);
-
-
-create table items_history
-(
-    id integer references items(id),
+    id integer,
+    rev_id integer references revisions(id),
     status_id integer references statuses(id),
     rcpt_id integer references receipts(id),
     cat_id integer references categories(id),
+
     cost integer,
     notes text,
 
-    rev_id integer references revisions(id),
     primary key(id, rev_id)
-);
+)
+without rowid;
 
 
 create table item_shares
 (
     item_id integer references items(id),
     user_id integer references users(id),
-    status_id integer default 0 references statuses(id),
-    share integer,
-
-    primary key (item_id, user_id)
-)
-without rowid;
-
-
-create table item_shares_history
-(
-    item_id integer references items(id),
-    user_id integer references users(id),
-    status_id integer references statuses(id),
-    share integer,
-
     rev_id integer references revisions(id),
+    status_id integer references statuses(id),
+
+    share integer,
+
     primary key (item_id, user_id, rev_id)
 )
 without rowid;
@@ -149,7 +98,7 @@ without rowid;
 
 -- view definitions below
 
-
+/*
 create view log AS
 SELECT
     r.id AS rcpt_id,
@@ -195,3 +144,4 @@ select paid_to, category, sum(share) AS share
 from log
 GROUP BY category, paid_to
 ORDER BY paid_to, share desc;
+*/
