@@ -16,6 +16,14 @@ create table migrations
 );
 
 
+create table revisions
+(
+    id integer primary key,
+    rev_on datetime default current_timestamp,
+    rev_by integer references users(id)
+);
+
+
 -- table_name holds current data speeding up most frequent queries
 -- upon revision the current data is moved below
 -- table_name_history holds redundantly each revision for simpler & faster queries
@@ -28,15 +36,6 @@ create table users
     name text not null,
     pw_hash text,
     email text not null unique
-);
-
-
--- this must be defined here as rev_by references users(id) below
-create table revisions
-(
-    id integer primary key,
-    rev_on datetime default current_timestamp,
-    rev_by integer references users(id)
 );
 
 

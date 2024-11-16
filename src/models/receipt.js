@@ -1,6 +1,6 @@
-const Validator = require("./generic");
+const GenericModel = require("./generic");
 
-class Receipt extends Validator {
+class Receipt extends GenericModel {
   get _validations() {
     return {
       added_on: {

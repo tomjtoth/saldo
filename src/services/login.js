@@ -1,3 +1,3 @@
 module.exports = {
-  curr_uid: () => -1,
+  curr_uid: () => 0,
 };

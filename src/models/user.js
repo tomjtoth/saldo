@@ -1,6 +1,6 @@
-const Validator = require("./generic");
+const GenericModel = require("./generic");
 
-class User extends Validator {
+class User extends GenericModel {
   get _validations() {
     return {
       name: {
@@ -13,12 +13,17 @@ class User extends Validator {
         required: true,
         pattern: /\w+@\w+\.[a-z]{2,}/,
       },
+      password: {
+        type: String,
+        pattern: /.{8,}/,
+        write_to_db: false,
+      },
     };
   }
 
   toJSON() {
-    const { pw_hash, ...rest } = this;
-    return rest;
+    delete this.pw_hash;
+    return this;
   }
 }
 

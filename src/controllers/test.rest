@@ -1,19 +1,27 @@
-POST http://localhost:3000/api/categories
+PUT http://localhost:3000/api/users
 content-type: application/json
 
-[
+{"entities":[
+
     {
-        "category": "test3.2"
+        "id":6,
+        "status_id": 0,
+        "name": "test3.2",
+        "email": "asdf@asd11f.com",
+        "password": "asdsadsadsa"
     },
-    {
-        "category": "test6.2"
+    { "id":7,
+        "status_id": 0,
+        "name": "test6.2",
+        "email": "asdf@asdf3322.com",
+        "password": "trewtfdsggfgfgf"
     }
-]
+]}
 
 
 ###
 
-DELETE http://localhost:3000/api/categories/0
+DELETE http://localhost:3000/api/categories
 
 
 ###
@@ -21,7 +29,7 @@ DELETE http://localhost:3000/api/categories/0
 PUT http://localhost:3000/api/categories
 content-type: application/json
 
-[
+{"entities":[
     {
         "id": 3,
         "category": "asd33",
@@ -32,15 +40,17 @@ content-type: application/json
         "category": "asd44",
         "status_id": 0
     }
-]
+]}
 
 ###
 
 PUT http://localhost:3000/api/users
 content-type: application/json
 
+{"entities":[
 {
-    "user_id": 0 ,
-    "user_status": 2,
-    "user_name": "Tamás"
+    "id": 0 ,
+    "status_id": 2,
+    "name": "Tamás"
 }
+]}

@@ -162,7 +162,7 @@ module.exports = function (path_to_csv) {
       });
 
       db.serialize(() => {
-        db.run("insert into statuses(status) values ('current')");
+        db.run("insert into statuses(id, status) values (0, 'current')");
 
         insert_in_batches("users", users);
         insert_in_batches("categories", categories);

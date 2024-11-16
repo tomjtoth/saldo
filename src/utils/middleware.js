@@ -12,13 +12,11 @@ function auth_checker(req, res, next) {
   return next();
 }
 
-function body_validator(req, _res, next) {
-  const {
-    params: { tbl },
-    body,
-  } = req;
-  if (!tbl.endsWith("_history") && Array.isArray(body))
-    req.body = body.map((entity) => new validators[tbl](entity));
+function body_validator({ body, params: { tbl } }, _res, next) {
+  if (!body.hasOwnProperty("entities")) body.entities = [];
+
+  if (!tbl.endsWith("_history"))
+body.entities = body.entities.map((entity) => new validators[tbl](entity));
 
   next();
 }

@@ -1,7 +1,7 @@
-const Validator = require("./generic");
+const GenericModel = require("./generic");
 
-class ItemShare extends Validator {
-  get _validations() {
+class ItemShare extends GenericModel {
+  get _ids() {
     return {
       item_id: {
         type: Number,
@@ -11,6 +11,11 @@ class ItemShare extends Validator {
         type: Number,
         required: true,
       },
+    };
+  }
+
+  get _validations() {
+    return {
       share: {
         type: Number,
         required: true,
