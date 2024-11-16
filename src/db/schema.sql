@@ -16,6 +16,22 @@ create table migrations
 );
 
 
+-- table_name holds current data speeding up most frequent queries
+-- upon revision the current data is moved below
+-- table_name_history holds redundantly each revision for simpler & faster queries
+
+
+create table users
+(
+    id integer primary key,
+    status_id integer default 0 references statuses(id),
+    name text not null,
+    pw_hash text,
+    email text not null unique
+);
+
+
+-- this must be defined here as rev_by references users(id) below
 create table revisions
 (
     id integer primary key,
@@ -24,62 +40,87 @@ create table revisions
 );
 
 
-create table users
+create table users_history
 (
-    id integer,
-    rev_id integer references revisions(id),
-
-    status_id integer default 0 references statuses(id),
+    id integer references users(id),
+    status_id integer references statuses(id),
     name text not null,
     password_hash text,
     email text not null,
 
+    rev_id integer references revisions(id),
     primary key(id, rev_id)
-)
-without rowid;
+
+);
 
 
 create table categories
 (
-    id integer,
-    rev_id integer references revisions(id),
-
+    id integer primary key,
     status_id integer default 0 references statuses(id),
+    category text not null
+);
+
+
+create table categories_history
+(
+    id integer references categories(id),
+    status_id integer references statuses(id),
     category text,
 
+    rev_id integer references revisions(id),
     primary key(id, rev_id)
-)
-without rowid;
+);
 
 
 create table receipts
 (
-    id integer,
-    rev_id integer references revisions(id),
-
+    id integer primary key,
     status_id integer default 0 references statuses(id),
+    added_on datetime default current_timestamp,
+    added_by integer references users(id),
     paid_on date default current_date,
-    paid_by integer references users(id),
+    paid_by integer references users(id)
+);
 
+
+create table receipts_history
+(
+    id integer references receipts(id),
+    status_id integer references statuses(id),
+    added_on datetime,
+    added_by integer references users(id),
+    paid_on date,
+    paid_by integer references users(id),
+    
+    rev_id integer references revisions(id),
     primary key(id, rev_id)
-)
-without rowid;
+);
 
 
 create table items
 (
-    id integer,
-    rev_id integer references revisions(id),
-
+    id integer primary key,
     status_id integer default 0 references statuses(id),
+    rcpt_id integer references receipts(id),
+    cat_id integer references categories(id),
+    cost integer,
+    notes text
+);
+
+
+create table items_history
+(
+    id integer references items(id),
+    status_id integer references statuses(id),
     rcpt_id integer references receipts(id),
     cat_id integer references categories(id),
     cost integer,
     notes text,
 
+    rev_id integer references revisions(id),
     primary key(id, rev_id)
-)
-without rowid;
+);
 
 
 create table item_shares
@@ -87,6 +128,18 @@ create table item_shares
     item_id integer references items(id),
     user_id integer references users(id),
     status_id integer default 0 references statuses(id),
+    share integer,
+
+    primary key (item_id, user_id)
+)
+without rowid;
+
+
+create table item_shares_history
+(
+    item_id integer references items(id),
+    user_id integer references users(id),
+    status_id integer references statuses(id),
     share integer,
 
     rev_id integer references revisions(id),
@@ -97,7 +150,7 @@ without rowid;
 
 -- view definitions below
 
-/*
+
 create view log AS
 SELECT
     r.id AS rcpt_id,
@@ -143,4 +196,3 @@ select paid_to, category, sum(share) AS share
 from log
 GROUP BY category, paid_to
 ORDER BY paid_to, share desc;
-*/
