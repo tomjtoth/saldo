@@ -56,7 +56,7 @@ create table receipts
 (
     id integer,
     rev_id integer references revisions(id),
-    status_id integer references statuses(id),
+    status_id integer default 0 references statuses(id),
 
     paid_on date,
     paid_by integer references users(id),
@@ -70,7 +70,7 @@ create table items
 (
     id integer,
     rev_id integer references revisions(id),
-    status_id integer references statuses(id),
+    status_id integer default 0 references statuses(id),
     rcpt_id integer references receipts(id),
     cat_id integer references categories(id),
 
@@ -87,7 +87,7 @@ create table item_shares
     item_id integer references items(id),
     user_id integer references users(id),
     rev_id integer references revisions(id),
-    status_id integer references statuses(id),
+    status_id integer default 0 references statuses(id),
 
     share integer,
 

@@ -11,6 +11,9 @@ class ItemShare extends GenericModel {
         type: Number,
         required: true,
       },
+      rev_id: {
+        type: Number,
+      },
     };
   }
 

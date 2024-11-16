@@ -47,13 +47,16 @@ module.exports = function (path_to_csv) {
         const added_on = new Date(str_added_on).toISOString();
 
         let rev_id = revisions.length - 1;
-        const last_rev =
-          revisions[rev_id] ||
-          new Revision({
-            id: 0,
+        let last_rev = revisions[rev_id];
+
+        if (!last_rev || last_rev.rev_on !== added_on) {
+          last_rev = new Revision({
+            id: revisions.length,
             rev_by: 0,
             rev_on: added_on,
           });
+          rev_id = revisions.push(last_rev) - 1;
+        }
 
         // entries contain sometimes only 1 name
         const [str_paid_by, str_paid_to = null] = row.direction.split("->");
@@ -70,6 +73,7 @@ module.exports = function (path_to_csv) {
               })
             ) - 1;
 
+        last_rev.rev_by = paid_by;
         let paid_to = -1;
 
         if (str_paid_to) {
@@ -180,18 +184,14 @@ module.exports = function (path_to_csv) {
       });
 
       db.serialize(() => {
-        db.run("begin");
         db.run("insert into statuses(id, status) values (0, 'current')");
-        // db.run("PRAGMA foreign_keys = OFF;");
-        db.run("insert into revisions(id, rev_by) values (0, 0)");
-        // db.run("PRAGMA foreign_keys = ON;");
 
+        insert_in_batches("revisions", revisions);
         insert_in_batches("users", users);
         insert_in_batches("categories", categories);
         insert_in_batches("receipts", receipts);
         insert_in_batches("items", items);
         insert_in_batches("item_shares", item_shares);
-        db.run("commit");
       });
     });
 };
