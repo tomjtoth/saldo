@@ -9,13 +9,17 @@ const all = promisify(db.all.bind(db));
 
 module.exports = {
   query: function (tbl, opts = null) {
-    let sql = `select * from ${tbl} where status_id != -1`;
+    const params = [];
+    let sql = `select * from ${tbl} where 1`;
 
     if (opts) {
-      sql += ` `;
+      if (opts.where !== undefined) sql += ` and (${opts.where})`;
+      if (opts.params) params.push(...opts.params);
     }
 
-    return all(sql).then((rows) => rows.map((r) => new models[tbl](r)));
+    return all(sql, ...params).then((rows) =>
+      rows.map((r) => new models[tbl](r))
+    );
   },
 
   create: function (tbl, entities) {
@@ -59,9 +63,9 @@ module.exports = {
         await run("COMMIT");
 
         resolve(updated_entities);
-      } catch (error) {
+      } catch (err) {
         await run("ROLLBACK");
-        reject(`Transaction failed: ${error.message}`);
+        reject(`Transaction failed: ${err.message}`);
       }
     });
   },
@@ -103,10 +107,10 @@ module.exports = {
         await run("COMMIT");
 
         resolve(updated_entities);
-      } catch (error) {
+      } catch (err) {
         // this will remove the rev_id from revisions
         await run("ROLLBACK");
-        reject(`Transaction failed: ${error.message}`);
+        reject(`Transaction failed: ${err.message}`);
       }
     });
   },

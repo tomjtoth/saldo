@@ -44,7 +44,7 @@ create table users_history
     id integer references users(id),
     status_id integer references statuses(id),
     name text not null,
-    password_hash text,
+    pw_hash text,
     email text not null,
 
     rev_id integer references revisions(id),

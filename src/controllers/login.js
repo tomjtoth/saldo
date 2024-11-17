@@ -1,31 +1,33 @@
 const jwt = require("jsonwebtoken");
 const { compare } = require("bcrypt");
 const router = require("express").Router();
-const User = require("../models/user");
+
 const svc = require("../services");
+const { SECRET } = require("../utils/config");
 
 router.post("/", async ({ body: { email, password } }, res, next) => {
-  const user = await svc.query("users", {
+  const [user = null] = await svc.query("users", {
     where: "email = ?",
     params: [email],
   });
+
   if (!user)
     return next({
-      name: "AuthErr",
+      name: "auth",
       message: "user not found",
     });
 
-  const { _id: id, username, passwordHash, name } = user;
+  const { id, pw_hash, name } = user;
 
-  if (!(await compare(password, passwordHash)))
+  if (!(await compare(password, pw_hash)))
     return next({
-      name: "AuthErr",
+      name: "auth",
       message: "wrong password",
     });
 
-  const token = jwt.sign({ username, id }, process.env.SECRET);
+  const token = jwt.sign({ id }, SECRET);
 
-  res.status(200).send({ token, username, name });
+  res.status(200).send({ token, name, email });
 });
 
 module.exports = router;

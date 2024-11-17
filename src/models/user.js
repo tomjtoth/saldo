@@ -18,6 +18,9 @@ class User extends GenericModel {
         pattern: /.{8,}/,
         write_to_db: false,
       },
+      pw_hash: {
+        type: String,
+      },
     };
   }
 

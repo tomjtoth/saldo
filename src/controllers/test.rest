@@ -1,50 +1,58 @@
-PUT http://localhost:3000/api/users
+POST http://localhost:3000/api/users
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiaWF0IjoxNzMxODUxNzEyfQ.A1gV9F3wTyH5OWZxWxIQemErCeeG805DhR_n8qesDz0
 content-type: application/json
 
 {"entities":[
 
     {
-        "id":6,
-        "status_id": 0,
-        "name": "test3.2",
-        "email": "asdf@asd11f.com",
-        "password": "asdsadsadsa"
-    },
-    { "id":7,
-        "status_id": 0,
-        "name": "test6.2",
-        "email": "asdf@asdf3322.com",
-        "password": "trewtfdsggfgfgf"
+        "name": "tomjtoth",
+        "email": "tomjtoth@gmail.com2",
+        "password": "qqqqqqqq"
     }
 ]}
+
+
+### log in to existing user
+
+POST http://localhost:3000/login
+content-type: application/json
+
+{
+        "email": "tomjtoth@gmail.com2",
+        "password": "qqqqqqqq"
+    
+}
 
 
 ###
 
 DELETE http://localhost:3000/api/categories
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiaWF0IjoxNzMxODUxNzEyfQ.A1gV9F3wTyH5OWZxWxIQemErCeeG805DhR_n8qesDz0
 
 
-###
+### update categories
 
 PUT http://localhost:3000/api/categories
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiaWF0IjoxNzMxODUxNzEyfQ.A1gV9F3wTyH5OWZxWxIQemErCeeG805DhR_n8qesDz0
 content-type: application/json
 
 {"entities":[
     {
         "id": 3,
-        "category": "asd33",
-        "status_id": 5
+        "category": "33333",
+        "status_id": 11
     },
     {
         "id": 4,
-        "category": "asd44",
-        "status_id": 0
+        "category": "44444",
+        "status_id": 22
     }
 ]}
 
 ###
 
 PUT http://localhost:3000/api/users
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiaWF0IjoxNzMxODUxNzEyfQ.A1gV9F3wTyH5OWZxWxIQemErCeeG805DhR_n8qesDz0
 content-type: application/json
 
 {"entities":[

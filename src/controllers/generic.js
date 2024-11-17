@@ -7,11 +7,8 @@ const router = require("express").Router({ mergeParams: true });
 const svc = require("../services");
 const { auth_checker, body_validator } = require("../utils/middleware");
 
-router.get(/\/(?<id>\d+)?/, ({ params: { tbl, id } }, res) => {
-  svc
-    .query(tbl, id ? { where: { id } } : null)
-    .then((rows) => res.json(rows))
-    .catch((err) => res.status(400).send(err));
+router.get(/\/(?<id>\d+)?/, async ({ params: { tbl, id } }, res) => {
+  res.send(await svc.query(tbl, id ? { where: "id = ?", params: [id] } : null));
 });
 
 router.post(
@@ -28,10 +25,8 @@ router.post(
         })
       );
     }
-    svc
-      .create(tbl, entities)
-      .then((rows) => res.json(rows))
-      .catch((err) => res.status(400).send(err));
+
+    res.send(await svc.create(tbl, entities));
   }
 );
 
@@ -39,16 +34,12 @@ router.delete(
   /\/(?<id>\d+)?/,
   auth_checker,
   body_validator,
-  ({ body: { entities }, params: { tbl, id } }, res) => {
+  async ({ body: { entities }, params: { tbl, id } }, res, next) => {
     // allow deletion via path
     if (id !== undefined) entities.push({ id });
 
-    if (entities.length > 0)
-      svc
-        .delete(tbl, entities)
-        .then((rows) => res.json(rows))
-        .catch((err) => res.status(400).send(err));
-    else res.status(400).send("nothing to delete");
+    if (entities.length > 0) res.send(await svc.delete(tbl, entities));
+    else next({ name: "malformed body", message: "nothing to delete" });
   }
 );
 
@@ -56,13 +47,9 @@ router.put(
   "/",
   auth_checker,
   body_validator,
-  ({ body: { entities }, params: { tbl } }, res) => {
-    if (entities.length > 0)
-      svc
-        .update(tbl, entities)
-        .then((rows) => res.json(rows))
-        .catch((err) => res.status(400).send(err));
-    else res.status(400).send("nothing to update");
+  async ({ body: { entities }, params: { tbl } }, res, next) => {
+    if (entities.length > 0) res.send(await svc.update(tbl, entities));
+    else next({ name: "malformed body", message: "nothing to update" });
   }
 );
 

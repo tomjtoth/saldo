@@ -1,4 +1,6 @@
-class ValidationError extends Error {}
+class ValidationError extends Error {
+  name = "model field validation";
+}
 
 class GenericModel {
   // item_share overrides this
@@ -76,7 +78,7 @@ class GenericModel {
     if (raw_data.status_id !== undefined) this.status_id = raw_data.status_id;
 
     Object.entries(this._all_validations).forEach(
-      ([field, { type, required, pattern }]) => {
+      ([field, { type, required, pattern, def_val }]) => {
         const val = raw_data[field];
 
         if (val !== undefined) {
@@ -99,6 +101,8 @@ class GenericModel {
           this[field] = val;
         } else if (required) {
           throw new ValidationError(`field ${model}.${field} is missing`);
+        } else if (def_val !== undefined) {
+          this[field] = typeof def_val === "function" ? def_val() : def_val;
         }
       }
     );

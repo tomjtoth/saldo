@@ -4,8 +4,8 @@ class Receipt extends GenericModel {
   get _validations() {
     return {
       added_on: {
-        required: true,
         type: String,
+        def_val: () => new Date().toISOString(),
       },
       added_by: {
         required: true,
