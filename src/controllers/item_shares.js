@@ -2,7 +2,7 @@
  * `primary key(item_id, user_id)`
  */
 const router = require("express").Router({ mergeParams: true });
-const svc = require("../services");
+const { item_shares: svc } = require("../services");
 const { auth_checker, body_validator } = require("../utils/middleware");
 
 router.get(

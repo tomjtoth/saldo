@@ -1,5 +1,5 @@
 const router = require("express").Router({ mergeParams: true });
-const svc = require("../services");
+const { generic: svc } = require("../services");
 const { auth_checker } = require("../utils/middleware");
 const {
   receipts: Receipt,

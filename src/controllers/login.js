@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const { compare } = require("bcrypt");
 const router = require("express").Router();
 
-const svc = require("../services");
+const { generic: svc } = require("../services");
 const { SECRET } = require("../utils/config");
 
 router.post("/", async ({ body: { email, password } }, res, next) => {
