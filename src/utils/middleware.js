@@ -1,17 +1,34 @@
 const jwt = require("jsonwebtoken");
+const { hash } = require("bcrypt");
 const models = require("../models");
 const { SECRET } = require("../utils/config");
 const { generic: svc } = require("../services");
 
-const token_extractor = (req, _res, next) => {
+function token_extractor(req, _res, next) {
   const auth = req.get("authorization");
   if (auth && auth.startsWith("Bearer ")) {
     req.token = auth.slice(7);
   }
   next();
-};
+}
 
-const user_extractor = async (req, _res, next) => {
+async function passwd_hasher(
+  { params: { tbl }, body: { entities } },
+  _res,
+  next
+) {
+  if (tbl === "users") {
+    const saltRounds = 10;
+    await Promise.all(
+      entities.map(async (user) => {
+        user.passwd = await hash(user.passwd, saltRounds);
+      })
+    );
+  }
+  next();
+}
+
+async function user_extractor(req, _res, next) {
   if (req.token) {
     const { id } = jwt.verify(req.token, SECRET);
 
@@ -31,13 +48,13 @@ const user_extractor = async (req, _res, next) => {
     req.user = user;
   }
   next();
-};
+}
 
 function auth_checker({ params: { tbl }, method, user }, _res, next) {
   if (!user && !(tbl === "users" && method === "POST"))
     return next({
       name: "auth",
-      message: `must be signed in in order to ${
+      message: `You must be signed in in order to ${
         method === "PUT" ? "update" : method.toLowerCase()
       } ${tbl}`,
     });
@@ -70,6 +87,7 @@ function error_handler(error, _req, res, next) {
 module.exports = {
   token_extractor,
   user_extractor,
+  passwd_hasher,
   auth_checker,
   body_validator,
   error_handler,

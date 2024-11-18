@@ -40,14 +40,14 @@ module.exports = {
    * as they were validated via either the body_validator middleware
    * or the path regex of the router
    */
-  delete: function (tbl, entities, curr_uid) {
+  delete: function (tbl, entities, user) {
     const ids = entities.map((x) => x.id).join(",");
 
     return new Promise(async (resolve, reject) => {
       try {
         await run("BEGIN");
 
-        await run(`INSERT INTO revisions (rev_by) SELECT ${curr_uid}`);
+        await run(`INSERT INTO revisions (rev_by) SELECT ${user.id}`);
 
         await run(`
           INSERT INTO ${tbl}_history
@@ -69,7 +69,7 @@ module.exports = {
     });
   },
 
-  update: function (tbl, entities, curr_uid) {
+  update: function (tbl, entities, user) {
     const ids = entities.map((x) => x.id).join(",");
     const { columns } = entities[0].cols_n_phs({
       omit_id: true,
@@ -80,7 +80,7 @@ module.exports = {
       try {
         await run("BEGIN");
 
-        await run(`INSERT INTO revisions (rev_by) SELECT ${curr_uid}`);
+        await run(`INSERT INTO revisions (rev_by) SELECT ${user.id}`);
 
         await run(`INSERT INTO ${tbl}_history
                   SELECT *, last_insert_rowid()

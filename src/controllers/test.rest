@@ -1,5 +1,5 @@
 POST http://localhost:3000/api/users
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiaWF0IjoxNzMxODUxNzEyfQ.A1gV9F3wTyH5OWZxWxIQemErCeeG805DhR_n8qesDz0
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MCwiaWF0IjoxNzMxOTEwODk0fQ.23TO7D0c385lmTJeHCNM8Q7cOF1kEsUbXDc21vduBeQ
 content-type: application/json
 
 {"entities":[
@@ -18,8 +18,8 @@ POST http://localhost:3000/login
 content-type: application/json
 
 {
-        "email": "tomjtoth@gmail.com2",
-        "password": "qqqqqqqq"
+        "email": "tomjtoth@gmail.com",
+        "password": "qwer1234"
     
 }
 
@@ -27,13 +27,13 @@ content-type: application/json
 ###
 
 DELETE http://localhost:3000/api/categories
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiaWF0IjoxNzMxODUxNzEyfQ.A1gV9F3wTyH5OWZxWxIQemErCeeG805DhR_n8qesDz0
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MCwiaWF0IjoxNzMxOTEwODk0fQ.23TO7D0c385lmTJeHCNM8Q7cOF1kEsUbXDc21vduBeQ
 
 
 ### update categories
 
 PUT http://localhost:3000/api/categories
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiaWF0IjoxNzMxODUxNzEyfQ.A1gV9F3wTyH5OWZxWxIQemErCeeG805DhR_n8qesDz0
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MCwiaWF0IjoxNzMxOTEwODk0fQ.23TO7D0c385lmTJeHCNM8Q7cOF1kEsUbXDc21vduBeQ
 content-type: application/json
 
 {"entities":[
@@ -52,13 +52,15 @@ content-type: application/json
 ###
 
 PUT http://localhost:3000/api/users
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiaWF0IjoxNzMxODUxNzEyfQ.A1gV9F3wTyH5OWZxWxIQemErCeeG805DhR_n8qesDz0
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MCwiaWF0IjoxNzMxOTEwODk0fQ.23TO7D0c385lmTJeHCNM8Q7cOF1kEsUbXDc21vduBeQ
 content-type: application/json
 
 {"entities":[
 {
-    "id": 0 ,
-    "status_id": 2,
-    "name": "Tamás"
+    "id": 1 ,
+    "status_id": 0,
+    "name": "Hanna",
+    "passwd": "qwer1234",
+    "email": "joku@muu.fi"
 }
 ]}

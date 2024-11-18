@@ -34,7 +34,7 @@ create table users
     id integer primary key,
     status_id integer default 0 references statuses(id),
     name text not null,
-    pw_hash text,
+    passwd text,
     email text not null unique
 );
 
@@ -44,7 +44,7 @@ create table users_history
     id integer references users(id),
     status_id integer references statuses(id),
     name text not null,
-    pw_hash text,
+    passwd text,
     email text not null,
 
     rev_id integer references revisions(id),

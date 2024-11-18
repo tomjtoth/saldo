@@ -1,4 +1,5 @@
-const { hash } = require("bcrypt");
+// TODO: migrate to a class so item_shares can simply overwrite this?
+const { passwd_hasher } = require("../utils/middleware");
 
 /**
  * column `id` is the primary key
@@ -15,17 +16,8 @@ router.post(
   "/",
   auth_checker,
   body_validator,
+  passwd_hasher,
   async ({ body: { entities }, params: { tbl }, user }, res) => {
-    if (tbl === "users") {
-      const saltRounds = 10;
-      entities = await Promise.all(
-        entities.map(async (user) => {
-          user.pw_hash = await hash(user.password, saltRounds);
-          return user;
-        })
-      );
-    }
-
     res.send(await svc.create(tbl, entities, user));
   }
 );
@@ -47,6 +39,7 @@ router.put(
   "/",
   auth_checker,
   body_validator,
+  passwd_hasher,
   async ({ body: { entities }, params: { tbl }, user }, res, next) => {
     if (entities.length > 0) res.send(await svc.update(tbl, entities, user));
     else next({ name: "malformed body", message: "nothing to update" });

@@ -17,9 +17,9 @@ router.post("/", async ({ body: { email, password } }, res, next) => {
       message: "user not found",
     });
 
-  const { id, pw_hash, name } = user;
+  const { id, passwd, name } = user;
 
-  if (!(await compare(password, pw_hash)))
+  if (!(await compare(password, passwd)))
     return next({
       name: "auth",
       message: "wrong password",

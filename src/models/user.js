@@ -11,21 +11,17 @@ class User extends GenericModel {
       email: {
         type: String,
         required: true,
-        pattern: /\w+@\w+\.[a-z]{2,}/,
+        pattern: /[\w\.-]+@\w+\.[a-z]{2,}/,
       },
-      password: {
+      passwd: {
         type: String,
         pattern: /.{8,}/,
-        write_to_db: false,
-      },
-      pw_hash: {
-        type: String,
       },
     };
   }
 
   toJSON() {
-    delete this.pw_hash;
+    delete this.passwd;
     return this;
   }
 }
