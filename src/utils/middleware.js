@@ -51,6 +51,7 @@ async function user_extractor(req, _res, next) {
 }
 
 function auth_checker({ params: { tbl }, method, user }, _res, next) {
+  // after importing use a breakpoint here to override `user` while updating the 1st email:passwd
   if (!user && !(tbl === "users" && method === "POST"))
     return next({
       name: "auth",

@@ -64,3 +64,14 @@ content-type: application/json
     "email": "joku@muu.fi"
 }
 ]}
+
+###
+
+POST http://localhost:3000/api/mailing
+content-type: application/json
+
+{
+    "to": "tomjtoth@gmail.com",
+    "subject": "promisify test2",
+    "html": "<h2>SUCCESS    2</h2>"
+}

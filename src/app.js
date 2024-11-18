@@ -1,7 +1,13 @@
 const express = require("express");
 const { PORT, IMPORT_CSV } = require("./utils/config");
 const import_v3 = require("./utils/import_v3");
-const { item_shares, generic, add_rcpt, login } = require("./controllers");
+const {
+  item_shares,
+  generic,
+  add_rcpt,
+  login,
+  mailing,
+} = require("./controllers");
 const {
   token_extractor,
   user_extractor,
@@ -20,6 +26,7 @@ app.use(
 app.use(/\/api\/(?<tbl>item_shares(?:_history)?)/, item_shares);
 app.use("/api/add_rcpt", add_rcpt);
 app.use("/login", login);
+app.use("/api/mailing", mailing);
 
 app.use(error_handler);
 
