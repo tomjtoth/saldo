@@ -9,3 +9,4 @@ A multi-user expense tracker supporting `one-to-many` sharing of items
 - [ ] convert frontend to TS
 - [ ] convert backend to Rust
 - [ ] convert frontend to Rust + wasm
+  - [yew](https://yew.rs/) perhaps?
