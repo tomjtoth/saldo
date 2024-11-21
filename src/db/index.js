@@ -84,7 +84,7 @@ class ModelBackend {
     return this.from(await all(sql, ...params));
   }
 
-  static async insert(entities) {
+  static async insert({ entities }) {
     const { columns, placeholders } = entities[0]._cols_n_phs();
     const cols_str = `(${columns.join(",")})`;
 
@@ -116,7 +116,7 @@ class ModelBackend {
     )[0];
   }
 
-  static async delete(entities, user) {
+  static async delete({ entities }, user) {
     const ids = entities.map((x) => x.id).join(",");
 
     return this.from(
@@ -152,7 +152,7 @@ class ModelBackend {
     return model.delete([this])[0];
   }
 
-  static async update(entities, user) {
+  static async update({ entities }, user) {
     const ids = entities.map((x) => x.id).join(",");
     const { columns } = entities[0]._cols_n_phs({
       omit_id: true,

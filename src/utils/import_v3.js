@@ -166,11 +166,11 @@ module.exports = function (path_to_csv) {
       db.serialize(() => {
         db.run("insert into statuses(id, status) values (0, 'current')");
 
-        operations.push(User.insert(users));
-        operations.push(Category.insert(categories));
-        operations.push(Receipt.insert(receipts));
-        operations.push(Item.insert(items));
-        operations.push(ItemShare.insert(item_shares));
+        operations.push(User.insert({ entities: users }));
+        operations.push(Category.insert({ entities: categories }));
+        operations.push(Receipt.insert({ entities: receipts }));
+        operations.push(Item.insert({ entities: items }));
+        operations.push(ItemShare.insert({ entities: item_shares }));
       });
 
       Promise.all(operations).then((results) => {
@@ -179,6 +179,7 @@ module.exports = function (path_to_csv) {
             `inserted ${res.length} rows into ${res[0].constructor._tbl}`
           )
         );
+        console.log("\n\n\tsuccesfully imported\n");
         process.exit(0);
       });
     });
