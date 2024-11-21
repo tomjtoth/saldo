@@ -7,8 +7,7 @@ const { SECRET } = require("../utils/config");
 
 router.post("/", async ({ body: { email, password } }, res, next) => {
   const [user = null] = await svc.query("users", {
-    where: "email = ?",
-    params: [email],
+    where: { email },
   });
 
   if (!user)

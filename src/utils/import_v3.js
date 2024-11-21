@@ -1,8 +1,7 @@
 const fs = require("fs");
 const csv = require("csv-parser");
-const db = require("../db");
+const { db } = require("../db");
 const approximate_float = require("./approximate_float");
-const insert_in_batches = require("./insert_in_batches");
 const {
   users: User,
   categories: Category,
@@ -10,6 +9,7 @@ const {
   receipts: Receipt,
   item_shares: ItemShare,
 } = require("../models");
+
 /**
  * v3.0 of saldo handled multiple users by a `user1 -> user2` syntax
  * 1 item could not belong to more than 2 users
@@ -163,11 +163,12 @@ module.exports = function (path_to_csv) {
 
       db.serialize(() => {
         db.run("insert into statuses(id, status) values (0, 'current')");
-        insert_in_batches("users", users);
-        insert_in_batches("categories", categories);
-        insert_in_batches("receipts", receipts);
-        insert_in_batches("items", items);
-        insert_in_batches("item_shares", item_shares);
+
+        User.insert(users);
+        Category.insert(categories);
+        Receipt.insert(receipts);
+        Item.insert(items);
+        ItemShare.insert(item_shares);
       });
     });
 };

@@ -103,7 +103,7 @@ create table items
     status_id integer default 0 references statuses(id),
     rcpt_id integer references receipts(id),
     cat_id integer references categories(id),
-    cost integer,
+    cost integer not null,
     notes text
 );
 
@@ -114,7 +114,7 @@ create table items_history
     status_id integer references statuses(id),
     rcpt_id integer references receipts(id),
     cat_id integer references categories(id),
-    cost integer,
+    cost integer not null,
     notes text,
 
     rev_id integer references revisions(id),

@@ -1,7 +1,9 @@
 const GenericModel = require("./generic");
 
 class ItemShare extends GenericModel {
-  get _ids() {
+  static _tbl = "item_shares";
+
+  static get _ids() {
     return {
       item_id: {
         type: Number,
@@ -11,10 +13,13 @@ class ItemShare extends GenericModel {
         type: Number,
         required: true,
       },
+      status_id: {
+        type: Number,
+      },
     };
   }
 
-  get _validations() {
+  static get _validations() {
     return {
       share: {
         type: Number,

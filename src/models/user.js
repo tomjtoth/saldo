@@ -1,23 +1,31 @@
 const GenericModel = require("./generic");
 
+const salt_rounds = 10;
+
 class User extends GenericModel {
-  get _validations() {
+  static _tbl = "users";
+
+  static get _validations() {
     return {
       name: {
         type: String,
         required: true,
-        pattern: /\w{3,}/,
+        validator: /\w{3,}/,
       },
       email: {
         type: String,
         required: true,
-        pattern: /[\w\.-]+@\w+\.[a-z]{2,}/,
+        validator: /[\w\.-]+@\w+\.[a-z]{2,}/,
       },
       passwd: {
         type: String,
-        pattern: /.{8,}/,
+        // validator: /.{8,}/,
       },
     };
+  }
+
+  async hash() {
+    this.passwd = await hash(this.passwd, salt_rounds);
   }
 
   toJSON() {

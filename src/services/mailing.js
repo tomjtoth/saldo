@@ -12,7 +12,7 @@ const transporter = require("nodemailer").createTransport({
 const send_mail = promisify(transporter.sendMail.bind(transporter));
 
 module.exports = {
-  send: async ({ from, ...opts }) => {
+  send: ({ from, ...opts }) => {
     return send_mail({ from: EMAIL_FROM, ...opts });
   },
 };

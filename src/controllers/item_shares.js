@@ -1,3 +1,4 @@
+//TODO: merge this into generic as well
 /**
  * `primary key(item_id, user_id)`
  */

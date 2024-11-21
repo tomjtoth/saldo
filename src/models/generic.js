@@ -1,10 +1,14 @@
+const { ModelBackend } = require("../db");
+
 class ValidationError extends Error {
   name = "model field validation";
 }
 
-class GenericModel {
+const qt = (val) => JSON.stringify(val);
+
+class GenericModel extends ModelBackend {
   // item_share overrides this
-  get _ids() {
+  static get _ids() {
     return {
       id: {
         type: Number,
@@ -18,11 +22,11 @@ class GenericModel {
   /**
    * SpecificModels override this
    */
-  get _validations() {
+  static get _validations() {
     return {};
   }
 
-  get _all_validations() {
+  static get _all_validations() {
     return { ...this._ids, ...this._validations };
   }
 
@@ -32,43 +36,8 @@ class GenericModel {
     );
   }
 
-  /**
-   * called once before an update/insert statement
-   * @param {*} opts
-   * @returns `{columns, placeholders}`
-   */
-  cols_n_phs(opts = undefined) {
-    let omit_id = false;
-
-    if (opts && opts.omit_id !== undefined) omit_id = opts.omit_id;
-
-    const columns = [],
-      placeholders = [];
-
-    for (const [field, validation] of Object.entries(this._all_validations)) {
-      if (omit_id && field === "id") continue;
-
-      const { write_to_db = true } = validation;
-
-      if (write_to_db && this[field] !== undefined) {
-        columns.push(field);
-        placeholders.push("?");
-      }
-    }
-
-    return { columns, placeholders: `(${placeholders.join(",")})` };
-  }
-
-  /**
-   * called repeatedly for each entity during an insert/update statement
-   * @param {*} columns
-   * @returns
-   */
-  as_sql_params(columns) {
-    return columns.map((field) => this[field]);
-  }
-
   constructor(raw_data) {
+    super();
     const model = this.constructor.name;
 
     // necessary during update
@@ -77,8 +46,8 @@ class GenericModel {
     // is the below actually necessary?
     if (raw_data.status_id !== undefined) this.status_id = raw_data.status_id;
 
-    Object.entries(this._all_validations).forEach(
-      ([field, { type, required, pattern, def_val }]) => {
+    Object.entries(this.constructor._all_validations).forEach(
+      ([field, { type, required, validator, def_val }]) => {
         const val = raw_data[field];
 
         if (val !== undefined) {
@@ -87,14 +56,16 @@ class GenericModel {
             const val_type = typeof val;
             if (val && val_type !== model_type) {
               throw new ValidationError(
-                `${model}.${field}=${val} is not of type ${model_type}`
+                `${model}.${field}=${qt(val)} is not of type ${model_type}`
               );
             }
           }
 
-          if (pattern && !pattern.test(val)) {
+          if (validator && !validator.test(val)) {
             throw new ValidationError(
-              `${model}.${field}="${val}" did not satisfy ${pattern.toString()}`
+              `${model}.${field}=${qt(
+                val
+              )} did not satisfy ${validator.toString()}`
             );
           }
 

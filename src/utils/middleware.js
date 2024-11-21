@@ -1,8 +1,6 @@
 const jwt = require("jsonwebtoken");
-const { hash } = require("bcrypt");
 const models = require("../models");
 const { SECRET } = require("../utils/config");
-const { generic: svc } = require("../services");
 
 function token_extractor(req, _res, next) {
   const auth = req.get("authorization");
@@ -18,12 +16,7 @@ async function passwd_hasher(
   next
 ) {
   if (tbl === "users") {
-    const saltRounds = 10;
-    await Promise.all(
-      entities.map(async (user) => {
-        user.passwd = await hash(user.passwd, saltRounds);
-      })
-    );
+    await Promise.all(entities.map((u) => u.hash()));
   }
   next();
 }
@@ -38,7 +31,8 @@ async function user_extractor(req, _res, next) {
         message: "invalid token",
       });
 
-    const [user] = await svc.query("users", { where: "id = ?", params: [id] });
+    const [user] = await models.users.select({ where: { id } });
+
     if (!user)
       return next({
         name: "auth",
@@ -63,11 +57,19 @@ function auth_checker({ params: { tbl }, method, user }, _res, next) {
   next();
 }
 
-function body_validator({ body, params: { tbl } }, _res, next) {
-  if (!body.hasOwnProperty("entities")) body.entities = [];
+function body_validator(req, _res, next) {
+  const {
+    body,
+    params: { tbl },
+    method,
+  } = req;
+  if (body.entities === undefined) body.entities = [];
 
-  if (!tbl.endsWith("_history"))
-    body.entities = body.entities.map((entity) => new models[tbl](entity));
+  if (!tbl.endsWith("_history")) {
+    if (method === "POST" && tbl === "receipts") {
+      // do nothing as the controller takes care of everything?
+    } else body.entities = models[tbl].from(body.entities);
+  }
 
   next();
 }

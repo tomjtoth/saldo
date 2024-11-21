@@ -1,5 +1,5 @@
 const { readFileSync, existsSync, readdirSync } = require("fs");
-const db = require("..");
+const { db } = require("..");
 
 const migrate = () => {
   db.all("select * from migrations", function (_err, rows) {

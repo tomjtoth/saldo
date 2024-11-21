@@ -1,11 +1,13 @@
 const GenericModel = require("./generic");
 
 class Item extends GenericModel {
-  get _validations() {
+  static _tbl = "items";
+
+  static get _validations() {
     return {
       rcpt_id: {
         required: true,
-        pattern: /\d+/,
+        type: Number,
       },
       cat_id: {
         required: true,
