@@ -142,7 +142,7 @@ module.exports = function (path_to_csv) {
             );
           }
 
-          if (![0, 1].includes(ratio)) {
+          if (ratio !== 0 && ratio !== 1) {
             const [user0_share, total_shares] = approximate_float(ratio);
 
             item_shares.push(
@@ -161,14 +161,25 @@ module.exports = function (path_to_csv) {
         }
       });
 
+      const operations = [];
+
       db.serialize(() => {
         db.run("insert into statuses(id, status) values (0, 'current')");
 
-        User.insert(users);
-        Category.insert(categories);
-        Receipt.insert(receipts);
-        Item.insert(items);
-        ItemShare.insert(item_shares);
+        operations.push(User.insert(users));
+        operations.push(Category.insert(categories));
+        operations.push(Receipt.insert(receipts));
+        operations.push(Item.insert(items));
+        operations.push(ItemShare.insert(item_shares));
+      });
+
+      Promise.all(operations).then((results) => {
+        results.map((res) =>
+          console.log(
+            `inserted ${res.length} rows into ${res[0].constructor._tbl}`
+          )
+        );
+        process.exit(0);
       });
     });
 };
