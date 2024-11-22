@@ -1,32 +1,10 @@
 const GenericModel = require("./generic");
+const { get, begin, commit, rollback } = require("../db");
+const Item = require("./item");
+const ItemShare = require("./item_share");
 
 class Receipt extends GenericModel {
   static _tbl = "receipts";
-
-  static async TODO_insert(entities) {
-    const { columns, placeholders } = entities[0]._cols_n_phs();
-    const cols_str = `(${columns.join(",")})`;
-
-    const max_rows_at_a_time = Math.floor(
-      SQLITE_MAX_VARIABLE_NUMBER / columns.length
-    );
-
-    const statements = [];
-
-    while (entities.length !== 0) {
-      const splice = entities.splice(0, max_rows_at_a_time);
-      statements.push(
-        all(
-          `insert into ${this._tbl} ${cols_str} values ${splice
-            .map(() => placeholders)
-            .join(",")} returning *`,
-          splice.flatMap((e) => e._as_sql_params(columns))
-        )
-      );
-    }
-
-    return this.from((await Promise.all(statements)).flat());
-  }
 
   static get _validations() {
     return {
@@ -52,6 +30,56 @@ class Receipt extends GenericModel {
         type: Number,
       },
     };
+  }
+
+  static async insert({ entities, paid_by, paid_on }, { id: added_by }) {
+    const idx_of_items_with_shares = entities
+      .map(({ shares }, idx) => [shares !== undefined, idx])
+      .filter(([has_shares]) => has_shares);
+
+    try {
+      await begin();
+
+      const rcpt = new this(
+        await get(
+          `insert into receipts(paid_by, paid_on, added_by) values (?,?,?) returning *`,
+          [paid_by, paid_on, added_by]
+        )
+      );
+
+      const items = await Item.insert({
+        // validating user input via `Model.from()`
+        entities: Item.from(
+          // trimming shares from each row
+          entities.map(({ shares, ...item }) => ({
+            ...item,
+            rcpt_id: rcpt.id,
+          }))
+        ),
+      });
+
+      const item_shares = await ItemShare.insert({
+        entities:
+          // validating user input via `Model.from()`
+          ItemShare.from(
+            idx_of_items_with_shares.flatMap(([_has_shares, idx]) => {
+              const item_id = items[idx].id;
+              const shares = entities[idx].shares;
+
+              return shares
+                .map((share, user_id) => ({ share, user_id, item_id }))
+                .filter(({ share }) => share !== null);
+            })
+          ),
+      });
+
+      commit();
+
+      return { rcpt, items, item_shares };
+    } catch (err) {
+      rollback();
+      throw new Error(`complex receipt insertion failed: ${err.message}`);
+    }
   }
 }
 

@@ -206,5 +206,10 @@ class ModelBackend {
 
 module.exports = {
   db,
+  get,
+  all,
+  begin,
+  commit,
+  rollback,
   ModelBackend,
 };
