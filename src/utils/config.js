@@ -1,15 +1,16 @@
 require("dotenv").config();
 const { v4: uuid } = require("uuid");
 
-const u = undefined;
+// defaults and fallbacks
 const config = {
+  NODE_ENV: "prod",
   PORT: 3000,
   DB_PATH: "prod.db",
-  IMPORT_CSV: u,
-  MIGRATE_DB: u,
+  IMPORT_CSV: false,
+  MIGRATE_DB: undefined,
   SECRET: uuid(),
-  EMAIL_PASS: u,
-  EMAIL_FROM: u,
+  EMAIL_PASS: undefined,
+  EMAIL_FROM: undefined,
 };
 
 Object.keys(config).forEach((key) => {

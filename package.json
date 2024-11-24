@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test DB_PATH=:memory: jest",
     "dev": "DB_PATH=dev.db nodemon index.js",
     "rm-db": "rm dev.db && sqlite3 dev.db < src/db/schema.sql",
     "import": "npm run rm-db && DB_PATH=dev.db IMPORT_CSV=~/saldo_v3.csv nodemon index.js"
@@ -23,6 +23,8 @@
     "uuid": "^11.0.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.2"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.2",
+    "supertest": "^7.0.0"
   }
 }

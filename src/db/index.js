@@ -1,8 +1,8 @@
 const { promisify } = require("util");
 const sqlite3 = require("sqlite3").verbose();
-const { DB_PATH } = require("../utils/config");
+const { DB_PATH, NODE_ENV } = require("../utils/config");
 
-const db = new sqlite3.Database(DB_PATH);
+const db = new sqlite3.Database(NODE_ENV === "test" ? ":memory:" : DB_PATH);
 
 const run = promisify(db.run.bind(db));
 const get = promisify(db.get.bind(db));
