@@ -72,8 +72,10 @@ class ModelBackend {
   }
 
   _as_sql_params(columns) {
-    return columns.map((field) =>
-      this[field] === undefined ? null : this[field]
+    return columns.map(
+      (field) =>
+        // TODO must be verified here
+        this[field] //=== undefined ? null : this[field]
     );
   }
 

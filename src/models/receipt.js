@@ -9,21 +9,21 @@ class Receipt extends GenericModel {
   static get _validations() {
     return {
       added_on: {
-        type: String,
+        type: Number,
         validator: {
           test: (val) => new Date(val) <= new Date(),
           toString: () => "cannot be in the future",
         },
-        def_val: () => new Date().toISOString(),
+        def_val: () => new Date().epoch(),
       },
       added_by: {
         required: true,
         type: Number,
       },
       paid_on: {
-        def_val: () => new Date().toISOString().slice(0, 10),
-        type: String,
-        validator: /^\d{4}-\d{2}-\d{2}$/,
+        type: Number,
+        validator: /^\d{5}$/,
+        def_val: () => new Date().epoch_date(),
       },
       paid_by: {
         required: true,
@@ -32,7 +32,11 @@ class Receipt extends GenericModel {
     };
   }
 
-  static async insert({ entities, paid_by, paid_on }, { id: added_by }) {
+  static async insert({ entities, paid_by, paid_on }, user) {
+    if (user === undefined) return super.insert({ entities });
+
+    const added_by = user.id;
+
     const idx_of_items_with_shares = entities
       .map(({ shares }, idx) => [shares !== undefined, idx])
       .filter(([has_shares]) => has_shares);

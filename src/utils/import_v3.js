@@ -71,8 +71,8 @@ module.exports = function (path_to_csv) {
               ) - 1;
         }
 
-        const added_on = new Date(str_added_on).toISOString();
-        const paid_on = str_paid_on.split(".", 3).join("-");
+        const added_on = new Date(str_added_on).epoch();
+        const paid_on = new Date(str_paid_on).epoch_date();
 
         let rcpt_id = receipts.length - 1;
         const last_r = receipts[rcpt_id];
@@ -179,7 +179,7 @@ module.exports = function (path_to_csv) {
             `inserted ${res.length} rows into ${res[0].constructor._tbl}`
           )
         );
-        console.log("\n\n\tsuccesfully imported\n");
+        console.log("\n\tSUCCESSFULLY IMPORTED V3\n");
         process.exit(0);
       });
     });

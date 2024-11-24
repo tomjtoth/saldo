@@ -50,7 +50,7 @@ class GenericModel extends ModelBackend {
       ([field, { type, required, validator, def_val }]) => {
         const val = raw_data[field];
 
-        if (val !== undefined) {
+        if (val !== undefined && val !== null) {
           if (type) {
             const model_type = type.name.toLowerCase();
             const val_type = typeof val;

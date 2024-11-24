@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "DB_PATH=dev.db nodemon index.js",
-    "import": "DB_PATH=dev.db IMPORT_CSV=~/saldo_v3.csv nodemon index.js"
+    "rm-db": "rm dev.db && sqlite3 dev.db < src/db/schema.sql",
+    "import": "npm run rm-db && DB_PATH=dev.db IMPORT_CSV=~/saldo_v3.csv nodemon index.js"
   },
   "author": "",
   "license": "ISC",

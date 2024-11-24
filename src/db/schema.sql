@@ -12,14 +12,14 @@ create table migrations
     id integer primary key,
     migration text not null,
     status_id integer default 0 references statuses(id),
-    applied datetime default current_timestamp
+    applied integer default (unixepoch())
 );
 
 
 create table revisions
 (
     id integer primary key,
-    rev_on datetime default current_timestamp,
+    rev_on integer default (unixepoch()),
     rev_by integer references users(id)
 );
 
@@ -76,9 +76,10 @@ create table receipts
 (
     id integer primary key,
     status_id integer default 0 references statuses(id),
-    added_on datetime default current_timestamp,
+    added_on integer default (unixepoch()),
     added_by integer references users(id),
-    paid_on date default current_date,
+    -- days since 1970-01-01
+    paid_on integer default (floor(unixepoch()/60/60/24)),
     paid_by integer references users(id)
 );
 
@@ -87,9 +88,9 @@ create table receipts_history
 (
     id integer references receipts(id),
     status_id integer references statuses(id),
-    added_on datetime,
+    added_on integer,
     added_by integer references users(id),
-    paid_on date,
+    paid_on integer,
     paid_by integer references users(id),
     
     rev_id integer references revisions(id),
@@ -153,9 +154,9 @@ without rowid;
 create view log AS
 SELECT
     r.id AS rcpt_id,
-    added_on,
+    datetime(added_on, 'unixepoch') as added_on,
     uab.name AS added_by,
-    paid_on,
+    date(paid_on*24*60*60, 'unixepoch') as paid_on,
     upb.name AS paid_by,
     i.id AS item_id,
     c.category,
