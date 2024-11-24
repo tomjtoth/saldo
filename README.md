@@ -1,3 +1,6 @@
+![example workflow](https://github.com/tomjtoth/saldo/actions/workflows/main.yml/badge.svg)
+[![codecov](https://codecov.io/gh/tomjtoth/saldo/graph/badge.svg?token=WKBLAW4XKP)](https://codecov.io/gh/tomjtoth/saldo)
+
 # Saldo
 
 A multi-user expense tracker supporting `one-to-many` sharing of items
