@@ -37,9 +37,11 @@ class Receipt extends GenericModel {
 
     const added_by = user.id;
 
-    const idx_of_items_with_shares = entities
-      .map(({ shares }, idx) => [shares !== undefined, idx])
-      .filter(([has_shares]) => has_shares);
+    const idx_of_items_with_shares = entities.reduce((arr, { shares }, idx) => {
+      if (shares !== undefined) arr.push(idx);
+
+      return arr;
+    }, []);
 
     try {
       await begin();
@@ -66,22 +68,28 @@ class Receipt extends GenericModel {
         entities:
           // validating user input via `Model.from()`
           ItemShare.from(
-            idx_of_items_with_shares.flatMap(([_has_shares, idx]) => {
+            idx_of_items_with_shares.reduce((arr1, idx) => {
               const item_id = items[idx].id;
               const shares = entities[idx].shares;
 
-              return shares
-                .map((share, user_id) => ({ share, user_id, item_id }))
-                .filter(({ share }) => share !== null);
-            })
+              const xx = shares.reduce((arr, share, user_id) => {
+                if (share !== null) arr.push({ share, user_id, item_id });
+
+                return arr;
+              }, []);
+
+              arr1.push(...xx);
+
+              return arr1;
+            }, [])
           ),
       });
 
-      commit();
+      await commit();
 
       return { rcpt, items, item_shares };
     } catch (err) {
-      rollback();
+      await rollback();
       throw new Error(`complex receipt insertion failed: ${err.message}`);
     }
   }

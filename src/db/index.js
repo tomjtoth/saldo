@@ -19,21 +19,24 @@ const rollback = () => run("rollback");
  */
 const SQLITE_MAX_VARIABLE_NUMBER = 32766;
 
-const where_clause = (crit = {}) => {
-  const { where } = crit;
+const where_clause = ({ where }) => {
   const params = [];
   const sql = Object.keys(where)
-    .filter((k) => where[k] !== undefined)
-    .map((key) => {
-      const val = where[key];
-      if (Array.isArray(val)) {
-        params.push(...val);
-        return `${key} in (${val.map((x) => "?").join(",")})`;
-      } else {
-        params.push(val);
-        return `${key} = ?`;
+    .reduce((arr, key) => {
+      if (where[key] !== undefined) {
+        const val = where[key];
+
+        if (Array.isArray(val)) {
+          params.push(...val);
+          arr.push(`${key} in (${val.map((x) => "?").join(",")})`);
+        } else {
+          params.push(val);
+          arr.push(`${key} = ?`);
+        }
       }
-    })
+
+      return arr;
+    }, [])
     .join(" and ");
 
   return { where: sql.length > 0 ? `where ${sql}` : "", params };

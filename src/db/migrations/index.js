@@ -7,10 +7,12 @@ const migrate = () => {
 
     // path relative to working_dir
     readdirSync("./src/db/migrations", { withFileTypes: true })
-      .filter(
-        (entry) => entry.isDirectory() && !alreadyDone.includes(entry.name)
-      )
-      .map(({ name }) => name)
+      .reduce((arr, entry) => {
+        if (entry.isDirectory() && !alreadyDone.includes(entry.name))
+          arr.push(entry.name);
+
+        return arr;
+      }, [])
       .sort()
       .forEach((dir) => {
         const script = `${dir}/up.sql`;
