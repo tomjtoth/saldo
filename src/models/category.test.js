@@ -34,7 +34,7 @@ test("field validations work", async () => {
   new Category({ category: " 1 x , .cow_ /" });
 });
 
-it("endpoints work", async () => {
+test("endpoints work", async () => {
   await api
     .post("/api/categories")
     .send([

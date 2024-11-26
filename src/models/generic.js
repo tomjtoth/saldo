@@ -1,4 +1,4 @@
-const { ModelBackend } = require("../db");
+const ModelBackend = require("./backend");
 
 class ValidationError extends Error {
   name = "model field validation";

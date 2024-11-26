@@ -60,13 +60,13 @@ async function body_validator(
   }
 
   if (!tbl.endsWith("_history")) {
-    if (method !== "POST" && tbl !== "receipts") {
+    if (!(method === "POST" && tbl === "receipts")) {
       body.entities = models[tbl].from(body.entities);
     }
   }
 
   if (tbl === "users") {
-    await Promise.all(entities.map((u) => u.hash()));
+    await Promise.all(body.entities.map((u) => u.hash()));
   }
 
   next();

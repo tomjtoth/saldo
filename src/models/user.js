@@ -1,3 +1,4 @@
+const { hash } = require("bcrypt");
 const GenericModel = require("./generic");
 
 const salt_rounds = 10;

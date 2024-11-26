@@ -68,19 +68,19 @@ class Receipt extends GenericModel {
         entities:
           // validating user input via `Model.from()`
           ItemShare.from(
-            idx_of_items_with_shares.reduce((arr1, idx) => {
+            idx_of_items_with_shares.reduce((arr, idx) => {
               const item_id = items[idx].id;
               const shares = entities[idx].shares;
 
-              const xx = shares.reduce((arr, share, user_id) => {
-                if (share !== null) arr.push({ share, user_id, item_id });
+              arr.push(
+                ...shares.reduce((arr, share, user_id) => {
+                  if (share !== null) arr.push({ share, user_id, item_id });
 
-                return arr;
-              }, []);
+                  return arr;
+                }, [])
+              );
 
-              arr1.push(...xx);
-
-              return arr1;
+              return arr;
             }, [])
           ),
       });

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test DB_PATH=:memory: jest",
+    "test": "NODE_ENV=test DB_PATH=:memory: jest --runInBand",
     "dev": "DB_PATH=dev.db nodemon index.js",
     "rm-db": "rm dev.db && sqlite3 dev.db < src/db/schema.sql",
     "import": "npm run rm-db && DB_PATH=dev.db IMPORT_CSV=~/saldo_v3.csv nodemon index.js"
