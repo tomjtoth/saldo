@@ -51,10 +51,10 @@ async function body_validator(
   _res,
   next
 ) {
-  if (method === "PUT" && id !== undefined) {
-    // we sent an object with a few fields to /some/route/:id
-    // body = { entities: [{ id, ...body }] };
-  }
+  // if (method === "PUT" && id !== undefined) {
+  //   // we sent an object with a few fields to /some/route/:id
+  //   // body = { entities: [{ id, ...body }] };
+  // }
   if (body.entities === undefined) {
     body.entities = [];
   }

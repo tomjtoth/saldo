@@ -1,7 +1,6 @@
 const supertest = require("supertest");
 const Category = require("./category");
-const { reset_db } = require("../db");
-const { register, login } = require("../utils/test_helpers");
+const { prep3 } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
 test("field validations work", async () => {
@@ -37,16 +36,13 @@ test("field validations work", async () => {
 
 let headers;
 
-describe("", () => {
+describe("/api/endpoint", () => {
   beforeEach(async () => {
-    await reset_db();
-    await register(api);
-    const res = await login(api);
-    headers = { Authorization: `Bearer ${res.body.token}` };
+    headers = await prep3(api);
   });
 
-  test("endpoints work", async () => {
-    const created_cats = (
+  test("can create", async () => {
+    const created = (
       await api
         .post("/api/categories")
         .set(headers)
@@ -58,8 +54,9 @@ describe("", () => {
           ],
         })
         .expect(200)
+        .expect("Content-Type", /application\/json/)
     ).body;
 
-    expect(created_cats).toHaveLength(3);
+    expect(created).toHaveLength(3);
   });
 });
