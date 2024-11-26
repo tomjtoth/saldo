@@ -151,21 +151,21 @@ without rowid;
 -- view definitions below
 
 
-create view log AS
-SELECT
-    r.id AS rcpt_id,
+create view log as
+select
+    r.id as rcpt_id,
     datetime(added_on, 'unixepoch') as added_on,
-    uab.name AS added_by,
+    uab.name as added_by,
     date(paid_on*24*60*60, 'unixepoch') as paid_on,
-    upb.name AS paid_by,
-    i.id AS item_id,
+    upb.name as paid_by,
+    i.id as item_id,
     c.category,
     notes,
     cost / 100.0 as item_cost,
     cost / 100.0 * coalesce(share * 1.0 /
         sum(share) over (partition by i.id),
         1) as share,
-    coalesce(ush.name, upb.name) AS paid_to
+    coalesce(ush.name, upb.name) as paid_to
 from receipts r
 inner join users uab on r.added_by = uab.id
 inner join users upb on r.paid_by = upb.id
@@ -177,22 +177,22 @@ where r.status_id = 0 and  i.status_id  = 0
 order by paid_on;
 
 
-CREATE VIEW balance_detailed AS
-SELECT paid_by, paid_to, paid_on, sum(share) AS daily_sum
-FROM log
-WHERE paid_by != paid_to
-GROUP BY paid_on, paid_by, paid_to
+create view balance_detailed as
+select paid_by, paid_to, paid_on, sum(share) as daily_sum
+from log
+where paid_by != paid_to
+group by paid_on, paid_by, paid_to
 order by paid_by, paid_to, paid_on;
 
 
-CREATE VIEW balance_total AS
-SELECT paid_by, paid_to, sum(daily_sum) AS balance
-FROM balance_detailed
-GROUP BY paid_by, paid_to;
+create view balance_total as
+select paid_by, paid_to, sum(daily_sum) as balance
+from balance_detailed
+group by paid_by, paid_to;
 
 
---CREATE VIEW consumption as --monthly view needed, with recursive cte somehow...
-select paid_to, category, sum(share) AS share
-from log
-GROUP BY category, paid_to
-ORDER BY paid_to, share desc;
+-- create view consumption as --monthly view needed, with recursive cte somehow...
+-- select paid_to, category, sum(share) as share
+-- from log
+-- group by category, paid_to
+-- order by paid_to, share desc;
