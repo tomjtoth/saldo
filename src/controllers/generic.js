@@ -2,9 +2,21 @@ const router = require("express").Router({ mergeParams: true });
 const { generic: svc } = require("../services");
 const { auth_checker, body_validator } = require("../utils/middleware");
 
-router.get(/\/(?<id>\d+)?/, async ({ params: { tbl, id } }, res) => {
-  res.send(await svc.query(tbl, { where: { id } }));
-});
+router.get(
+  /\/(?:(?<id>\d+)(?:\/(?<id2>\d+))?)?/,
+  async ({ params: { tbl, id, id2 } }, res) => {
+    const crit = { where: {} };
+    if (id !== undefined) {
+      if (id2 === undefined) crit.where.id = id;
+      else if (tbl === "item_shares") {
+        crit.where.item_id = id;
+        crit.where.user_id = id2;
+      }
+    }
+
+    res.send(await svc.query(tbl, crit));
+  }
+);
 
 router.post(
   "/",
