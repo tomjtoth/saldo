@@ -8,9 +8,9 @@ const DUMMY_USER = {
 };
 
 const register = (api, email = undefined) =>
-  api.post("/api/users").send({
-    entities: [{ ...DUMMY_USER, email: email || DUMMY_USER.email }],
-  });
+  api
+    .post("/api/users")
+    .send([{ ...DUMMY_USER, email: email || DUMMY_USER.email }]);
 
 const login = (api, email = undefined) =>
   api.post("/login").send({

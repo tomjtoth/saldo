@@ -37,7 +37,7 @@ test("field validations work", async () => {
 
 let headers;
 
-describe("/api/endpoint", () => {
+describe("via /api/endpoint", () => {
   beforeEach(async () => {
     headers = await prep3(api);
   });

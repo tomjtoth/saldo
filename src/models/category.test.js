@@ -36,7 +36,7 @@ test("field validations work", async () => {
 
 let headers;
 
-describe("/api/endpoint", () => {
+describe("via /api/endpoint", () => {
   beforeEach(async () => {
     headers = await prep3(api);
   });
@@ -46,13 +46,11 @@ describe("/api/endpoint", () => {
       await api
         .post("/api/categories")
         .set(headers)
-        .send({
-          entities: [
-            new Category({ category: "asdf" }),
-            new Category({ category: "qwer" }),
-            new Category({ category: "yxcv" }),
-          ],
-        })
+        .send([
+          { category: "asdf" },
+          { category: "qwer" },
+          { category: "yxcv" },
+        ])
         .expect(200)
         .expect("Content-Type", /application\/json/)
     ).body;

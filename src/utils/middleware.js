@@ -34,7 +34,10 @@ async function user_extractor(req, _res, next) {
 }
 
 function auth_checker({ params: { tbl }, method, user }, _res, next) {
-  // after importing use a breakpoint here to override `user` while updating the 1st email:passwd
+  // after `import_v3`
+  // use a breakpoint here
+  // to override `user`
+  // while updating the 1st email:passwd
   if (!user && !(tbl === "users" && method === "POST"))
     return next({
       name: "auth",
@@ -46,18 +49,34 @@ function auth_checker({ params: { tbl }, method, user }, _res, next) {
   next();
 }
 
-async function body_validator(
-  { body, params: { tbl, id }, method },
-  _res,
-  next
-) {
+async function body_validator(req, _res, next) {
+  const {
+    params: { tbl, id },
+    method,
+    user,
+  } = req;
+
+  if (!Array.isArray(req.body)) {
+    if (tbl === "receipts") {
+      const { paid_on, paid_by, entities } = req.body;
+
+      if (paid_by === undefined) req.body.paid_by = user.id;
+    } else if (tbl === "item_shares") {
+      // TODO
+    }
+
+    // expected to be there by the generic router
+    else req.body = { entities: [] };
+  } else {
+    req.body = { entities: req.body };
+  }
+
+  const { body } = req;
+
   // if (method === "PUT" && id !== undefined) {
   //   // we sent an object with a few fields to /some/route/:id
   //   // body = { entities: [{ id, ...body }] };
   // }
-  if (body.entities === undefined) {
-    body.entities = [];
-  }
 
   if (!tbl.endsWith("_history")) {
     if (!(method === "POST" && tbl === "receipts")) {
@@ -65,7 +84,7 @@ async function body_validator(
     }
   }
 
-  if (tbl === "users") {
+  if (tbl === "users" && method !== "DELETE") {
     await Promise.all(body.entities.map((u) => u.hash()));
   }
 
