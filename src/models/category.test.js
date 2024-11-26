@@ -46,11 +46,7 @@ describe("via /api/endpoint", () => {
       await api
         .post("/api/categories")
         .set(headers)
-        .send([
-          { category: "asdf" },
-          { category: "qwer" },
-          { category: "yxcv" },
-        ])
+        .send([{ category: "s" }, { category: "qwer" }, { category: "yxcv" }])
         .expect(200)
         .expect("Content-Type", /application\/json/)
     ).body;
