@@ -1,8 +1,10 @@
+const fs = require("fs");
 const { promisify } = require("util");
 const sqlite3 = require("sqlite3").verbose();
-const { DB_PATH, NODE_ENV } = require("../utils/config");
+const { DB_PATH } = require("../utils/config");
 
-const db = new sqlite3.Database(NODE_ENV === "test" ? ":memory:" : DB_PATH);
+const db = new sqlite3.Database(DB_PATH);
+const schema = fs.readFileSync("./src/db/schema.sql").toString();
 
 const run = promisify(db.run.bind(db));
 const get = promisify(db.get.bind(db));
@@ -19,8 +21,35 @@ const rollback = () => run("rollback");
  */
 const SQLITE_MAX_VARIABLE_NUMBER = 32766;
 
+const qry_mstr = (type) =>
+  all("select name from sqlite_master where type = ?", [type]);
+
+const reset_db = () => {
+  return new Promise((resolve) => {
+    db.serialize(async () => {
+      const tables = await qry_mstr("table");
+      const views = await qry_mstr("view");
+      await Promise.all(
+        tables
+          .map(({ name }) => run(`drop table ${name}`))
+          .concat(views.map(({ name }) => run(`drop view ${name}`)))
+      );
+
+      await Promise.all(
+        schema
+          .matchAll(/(?<=\n|^)create (?:.|\n)+?(?=create|$)/gis)
+          .map(([create_satement]) => run(create_satement))
+      );
+
+      resolve();
+    });
+  });
+};
+
 module.exports = {
   db,
+  reset_db,
+  qry_mstr,
   SQLITE_MAX_VARIABLE_NUMBER,
   run,
   get,

@@ -1,6 +1,7 @@
 const supertest = require("supertest");
 const Category = require("./category");
-
+const { reset_db } = require("../db");
+const { register, login } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
 test("field validations work", async () => {
@@ -34,13 +35,31 @@ test("field validations work", async () => {
   new Category({ category: " 1 x , .cow_ /" });
 });
 
-test("endpoints work", async () => {
-  await api
-    .post("/api/categories")
-    .send([
-      new Category({ category: "asdf" }),
-      new Category({ category: "qwer" }),
-      new Category({ category: "yxcv" }),
-    ])
-    .expect(401);
+let headers;
+
+describe("", () => {
+  beforeEach(async () => {
+    await reset_db();
+    await register(api);
+    const res = await login(api);
+    headers = { Authorization: `Bearer ${res.body.token}` };
+  });
+
+  test("endpoints work", async () => {
+    const created_cats = (
+      await api
+        .post("/api/categories")
+        .set(headers)
+        .send({
+          entities: [
+            new Category({ category: "asdf" }),
+            new Category({ category: "qwer" }),
+            new Category({ category: "yxcv" }),
+          ],
+        })
+        .expect(200)
+    ).body;
+
+    expect(created_cats).toHaveLength(3);
+  });
 });

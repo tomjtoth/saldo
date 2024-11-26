@@ -12,16 +12,14 @@ const where_clause = ({ where }) => {
   const params = [];
   const sql = Object.keys(where)
     .reduce((arr, key) => {
-      if (where[key] !== undefined) {
-        const val = where[key];
+      const val = where[key];
 
-        if (Array.isArray(val)) {
-          params.push(...val);
-          arr.push(`${key} in (${val.map((x) => "?").join(",")})`);
-        } else {
-          params.push(val);
-          arr.push(`${key} = ?`);
-        }
+      if (Array.isArray(val)) {
+        params.push(...val);
+        arr.push(`${key} in (${val.map((x) => "?").join(",")})`);
+      } else {
+        params.push(val);
+        arr.push(`${key} = ?`);
       }
 
       return arr;

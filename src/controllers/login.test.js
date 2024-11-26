@@ -1,35 +1,12 @@
 const supertest = require("supertest");
-const { reset_db } = require("../db/index.test");
-const { v4: uuid } = require("uuid");
-
-const DUMMY_USER = {
-  email: "dummy@test.user",
-  name: "Dummy user",
-  passwd: uuid(),
-};
+const { reset_db } = require("../db");
+const { login, register, DUMMY_USER } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
-const register = (email = null) => {
-  const { email: _s, ...rest } = DUMMY_USER;
-
-  return api.post("/api/users").send({
-    entities: [{ ...rest, email: email || DUMMY_USER.email }],
-  });
-};
-
-const login = (email = null) => {
-  return api.post("/login").send({
-    email: email || DUMMY_USER.email,
-    password: DUMMY_USER.passwd,
-  });
-};
-
-beforeEach(async () => {
-  await reset_db();
-});
+beforeEach(reset_db);
 
 test("can register in empty db", async () => {
-  const res = await register()
+  const res = await register(api)
     .expect(200)
     .expect("Content-Type", /application\/json/);
 
@@ -43,15 +20,10 @@ test("can register in empty db", async () => {
 
 describe("after dummy user registered", () => {
   beforeEach(async () => {
-    await register();
+    await register(api);
   });
 
   test("cannot register w/ same email", async () => {
-    await register().expect(400);
+    await register(api).expect(400);
   });
 });
-
-module.exports = {
-  register,
-  login,
-};
