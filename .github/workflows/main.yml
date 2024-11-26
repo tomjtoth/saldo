@@ -1,6 +1,9 @@
 name: Run tests and upload coverage
 
-on: push
+on:
+  push:
+    branches:
+      - dev
 
 jobs:
   test:
@@ -10,8 +13,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
-        with:
-          node-version: latest
 
       - run: npm install
 
@@ -21,3 +22,13 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Merge dev into main
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git merge --no-ff dev -m "Automated merge of dev into main"
+          git push origin main
