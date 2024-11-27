@@ -32,14 +32,15 @@ class Receipt extends GenericModel {
     };
   }
 
-  // the entities name must be use as import_v3 relies on it(?)
-  static async insert({ entities, paid_by, paid_on }, user) {
+  static async insert(arr, user) {
     // while import_v3 runs
-    if (user === undefined) return super.insert({ entities });
+    if (user === undefined) return super.insert(arr);
+
+    const { items: req_its, paid_by, paid_on } = arr;
 
     const added_by = user.id;
 
-    const idx_of_items_with_shares = entities.reduce((arr, { shares }, idx) => {
+    const idx_of_items_with_shares = req_its.reduce((arr, { shares }, idx) => {
       if (shares !== undefined) arr.push(idx);
 
       return arr;
@@ -48,47 +49,37 @@ class Receipt extends GenericModel {
     try {
       await begin();
 
-      const [rcpt] = await super.insert({
-        entities: [
-          new this({
-            paid_by,
-            paid_on,
-            added_by,
-          }),
-        ],
-      });
+      const [rcpt] = await super.insert([
+        {
+          paid_by,
+          paid_on,
+          added_by,
+        },
+      ]);
 
-      const items = await Item.insert({
-        // validating user input via `Model.from()`
-        entities: Item.from(
-          // trimming shares from each row
-          entities.map(({ shares, ...item }) => ({
-            ...item,
-            rcpt_id: rcpt.id,
-          }))
-        ),
-      });
+      const items = await Item.insert(
+        req_its.map(({ shares, ...item }) => ({
+          ...item,
+          rcpt_id: rcpt.id,
+        }))
+      );
 
-      const item_shares = await ItemShare.insert({
-        entities:
-          // validating user input via `Model.from()`
-          ItemShare.from(
-            idx_of_items_with_shares.reduce((arr, idx) => {
-              const item_id = items[idx].id;
-              const shares = entities[idx].shares;
+      const item_shares = await ItemShare.insert(
+        idx_of_items_with_shares.reduce((arr, idx) => {
+          const item_id = items[idx].id;
+          const shares = req_its[idx].shares;
 
-              arr.push(
-                ...shares.reduce((arr, share, user_id) => {
-                  if (share !== null) arr.push({ share, user_id, item_id });
-
-                  return arr;
-                }, [])
-              );
+          arr.push(
+            ...shares.reduce((arr, share, user_id) => {
+              if (share !== null) arr.push({ share, user_id, item_id });
 
               return arr;
             }, [])
-          ),
-      });
+          );
+
+          return arr;
+        }, [])
+      );
 
       await commit();
 

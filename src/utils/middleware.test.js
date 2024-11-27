@@ -16,7 +16,7 @@ describe("body_validator", () => {
 
     await body_validator(req, res, next);
 
-    expect(req.body.entities[0].passwd).not.toBe(unhashed_pw);
+    expect(req.body[0].passwd).not.toBe(unhashed_pw);
   });
 
   test("POST receipts", async () => {

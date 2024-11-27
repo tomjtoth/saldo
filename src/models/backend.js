@@ -72,8 +72,10 @@ module.exports = class Backend {
     return this.from(await all(sql, ...params));
   }
 
-  static async insert({ entities }) {
-    const { columns, placeholders } = entities[0]._cols_n_phs();
+  static async insert(arr) {
+    if (arr[0].constructor !== this) arr = this.from(arr);
+
+    const { columns, placeholders } = arr[0]._cols_n_phs();
     const cols_str = `(${columns.join(",")})`;
 
     const max_rows_at_a_time = Math.floor(
@@ -82,14 +84,16 @@ module.exports = class Backend {
 
     const statements = [];
 
-    while (entities.length !== 0) {
-      const splice = entities.splice(0, max_rows_at_a_time);
+    // TODO: for (let i = 0; i+=max_rows_at_a_time; i< entities.length)
+    while (arr.length !== 0) {
+      // TODO: slice!!!
+      const part = arr.splice(0, max_rows_at_a_time);
       statements.push(
         all(
-          `insert into ${this._tbl} ${cols_str} values ${splice
+          `insert into ${this._tbl} ${cols_str} values ${part
             .map(() => placeholders)
             .join(",")} returning *`,
-          splice.flatMap((e) => e._as_sql_params(columns))
+          part.flatMap((e) => e._as_sql_params(columns))
         )
       );
     }
@@ -97,15 +101,17 @@ module.exports = class Backend {
     return this.from((await Promise.all(statements)).flat());
   }
 
-  save() {
+  async save() {
     const model = this.constructor;
     return (
-      this.id === undefined ? model.insert([this]) : model.update([this])
+      this.id === undefined
+        ? await model.insert([this])
+        : await model.update([this])
     )[0];
   }
 
-  static async delete({ entities }, user) {
-    const ids = entities.map((x) => x.id).join(",");
+  static async delete(arr, user) {
+    const ids = arr.map((x) => x.id).join(",");
 
     return this.from(
       await new Promise(async (resolve, reject) => {
@@ -135,17 +141,19 @@ module.exports = class Backend {
     );
   }
 
-  delete() {
+  async delete() {
     const model = this.constructor;
-    return model.delete([this])[0];
+    return (await model.delete([this]))[0];
   }
 
-  static async update({ entities }, user) {
-    const ids = entities.map((x) => x.id).join(",");
-    const { columns } = entities[0]._cols_n_phs({
+  static async update(arr, user) {
+    if (arr[0].constructor !== this) arr = this.from(arr);
+
+    const ids = arr.map((x) => x.id).join(",");
+    const { columns } = arr[0]._cols_n_phs({
       omit_id: true,
     });
-    const params_as_arr = entities.map((e) => e._as_sql_params(columns));
+    const params_as_arr = arr.map((e) => e._as_sql_params(columns));
 
     return this.from(
       await new Promise(async (resolve, reject) => {
@@ -163,7 +171,7 @@ module.exports = class Backend {
            * then continuing when *all* of them returned
            */
           const updated_entities = await Promise.all(
-            entities.map(
+            arr.map(
               async ({ id }, ent_idx_in_arr) =>
                 await get(
                   // building `KEY = ?` for each col to be updated
@@ -187,7 +195,7 @@ module.exports = class Backend {
     );
   }
 
-  static from(entities) {
-    return entities.map((r) => new this(r));
+  static from(arr) {
+    return arr.map((r) => new this(r));
   }
 };

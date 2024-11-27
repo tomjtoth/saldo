@@ -24,12 +24,7 @@ router.post(
   body_validator,
   async ({ body, params: { tbl }, user }, res, next) => {
     if (tbl === "receipts") {
-      if (body.paid_by === undefined) {
-        return next({
-          name: "missing payer",
-          message: "who paid the bill?",
-        });
-      }
+      if (body.paid_by === undefined) body.paid_by = user.id;
     }
 
     res.status(201).send(await svc.create(tbl, body, user));
@@ -42,9 +37,9 @@ router.delete(
   body_validator,
   async ({ body, params: { tbl, id }, user }, res, next) => {
     // allow deletion via path
-    if (id !== undefined) body.entities.push({ id });
+    if (id !== undefined) body.push({ id });
 
-    if (body.entities.length == 0)
+    if (body.length == 0)
       return next({ name: "malformed body", message: "nothing to delete" });
 
     res.status(201).send(await svc.delete(tbl, body, user));
@@ -56,7 +51,7 @@ router.put(
   auth_checker,
   body_validator,
   async ({ body, params: { tbl }, user }, res, next) => {
-    if (body.entities.length == 0)
+    if (body.length == 0)
       return next({ name: "malformed body", message: "nothing to update" });
 
     res.status(201).send(await svc.update(tbl, body, user));

@@ -32,7 +32,7 @@ describe("via /api/endpoint", () => {
       headers,
       send: {
         paid_by: 1,
-        entities: [
+        items: [
           {
             cat_id: 3,
             cost: 100,

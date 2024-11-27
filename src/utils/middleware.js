@@ -51,41 +51,20 @@ function auth_checker({ params: { tbl }, method, user }, _res, next) {
 
 async function body_validator(req, _res, next) {
   const {
-    params: { tbl, id },
+    params: { tbl },
     method,
-    user,
   } = req;
 
-  if (!Array.isArray(req.body)) {
-    if (tbl === "receipts") {
-      const { paid_by } = req.body;
+  if (!(method === "POST" && tbl === "receipts")) {
+    if (!Array.isArray(req.body)) req.body = [];
 
-      if (paid_by === undefined) req.body.paid_by = user.id;
-    } else if (tbl === "item_shares") {
-      // TODO
-    }
-
-    // expected to be there by the generic router
-    else req.body = { entities: [] };
-  } else {
-    req.body = { entities: req.body };
-  }
-
-  const { body } = req;
-
-  // if (method === "PUT" && id !== undefined) {
-  //   // we sent an object with a few fields to /some/route/:id
-  //   // body = { entities: [{ id, ...body }] };
-  // }
-
-  if (!tbl.endsWith("_history")) {
-    if (!(method === "POST" && tbl === "receipts")) {
-      body.entities = models[tbl].from(body.entities);
+    if (!tbl.endsWith("_history")) {
+      req.body = models[tbl].from(req.body);
     }
   }
 
   if (tbl === "users" && method !== "DELETE") {
-    await Promise.all(body.entities.map((u) => u.hash()));
+    await Promise.all(req.body.map((u) => u.hash()));
   }
 
   next();

@@ -168,11 +168,11 @@ module.exports = function (path_to_csv) {
           "insert into statuses(id, status) values (0, 'default'), (1, 'deleted')"
         );
 
-        operations.push(User.insert({ entities: users }));
-        operations.push(Category.insert({ entities: categories }));
-        operations.push(Receipt.insert({ entities: receipts }));
-        operations.push(Item.insert({ entities: items }));
-        operations.push(ItemShare.insert({ entities: item_shares }));
+        operations.push(User.insert(users));
+        operations.push(Category.insert(categories));
+        operations.push(Receipt.insert(receipts));
+        operations.push(Item.insert(items));
+        operations.push(ItemShare.insert(item_shares));
       });
 
       Promise.all(operations).then((results) => {
