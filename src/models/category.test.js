@@ -1,6 +1,6 @@
 const supertest = require("supertest");
 const Category = require("./category");
-const { prep3, endpoint } = require("../utils/test_helpers");
+const { prep3, crud_works } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
 const DUMMIES = [
@@ -45,28 +45,7 @@ describe("via /api/endpoint", () => {
     headers = await prep3(api);
   });
 
-  test("POST, PUT, DELETE works", async () => {
-    const { body: created } = await endpoint(api, "/api/categories", {
-      send: DUMMIES,
-      method: "post",
-      headers,
-      code: 201,
-    });
-
-    expect(created).toHaveLength(3);
-
-    const { body: modified } = await endpoint(api, "/api/categories", {
-      send: created.map((cat) => {
-        cat.category += " modified";
-        return cat;
-      }),
-      method: "put",
-      headers,
-      code: 201,
-    });
-
-    modified.forEach(({ category }) =>
-      expect(category).toMatch(/.+ modified$/)
-    );
+  test("POST, PUT, DELETE, GET works", () => {
+    crud_works(api, "/api/categories", headers, DUMMIES);
   });
 });

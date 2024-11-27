@@ -164,7 +164,9 @@ module.exports = function (path_to_csv) {
       const operations = [];
 
       db.serialize(() => {
-        db.run("insert into statuses(id, status) values (0, 'current')");
+        db.run(
+          "insert into statuses(id, status) values (0, 'default'), (1, 'deleted')"
+        );
 
         operations.push(User.insert({ entities: users }));
         operations.push(Category.insert({ entities: categories }));

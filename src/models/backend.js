@@ -121,7 +121,7 @@ module.exports = class Backend {
             `);
 
           const updated_entities = await all(
-            `UPDATE ${this._tbl} SET status_id = -1 WHERE id IN (${ids}) RETURNING *`
+            `UPDATE ${this._tbl} SET status_id = 1 WHERE id IN (${ids}) RETURNING *`
           );
 
           await commit();
