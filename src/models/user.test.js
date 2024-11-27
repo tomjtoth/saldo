@@ -44,15 +44,11 @@ describe("via /api/endpoint", () => {
 
   test("can create 2nd user", async () => {
     const email = "xxx@yyy.zzz";
-    const created = (
-      await register(api, email)
-        .expect(200)
-        .expect("Content-Type", /application\/json/)
-    ).body;
+    const { body: registered } = await register(api, { email });
 
-    expect(created).toHaveLength(1);
-    const login_res = await login(api, email);
+    expect(registered).toHaveLength(1);
+    const { body: logged_in } = await login(api, { email });
 
-    expect(login_res.body.token.length).toBeGreaterThan(7);
+    expect(logged_in.token).toMatch(/^[\w-]+\.[\w-]+\.[\w-]+$/);
   });
 });
