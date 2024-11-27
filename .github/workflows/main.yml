@@ -32,5 +32,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
           git checkout main
-          git merge --allow-unrelated-histories dev
+          git merge -v --allow-unrelated-histories dev
           git push origin main
