@@ -1,5 +1,6 @@
 const supertest = require("supertest");
-const { prep3, login, DUMMY_USER } = require("../utils/test_helpers");
+const { prep3, login } = require("../utils/test_helpers");
+
 const api = supertest(require("../app"));
 
 beforeEach(async () => {

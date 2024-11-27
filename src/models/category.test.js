@@ -4,7 +4,7 @@ const { prep3, crud_works } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
 const DUMMIES = [
-  { category: "category 1", unread_key: 1243 },
+  { category: "category 1" },
   { category: "category 2" },
   { category: "category 3" },
 ];

@@ -32,7 +32,9 @@ class Receipt extends GenericModel {
     };
   }
 
+  // the entities name must be use as import_v3 relies on it(?)
   static async insert({ entities, paid_by, paid_on }, user) {
+    // while import_v3 runs
     if (user === undefined) return super.insert({ entities });
 
     const added_by = user.id;
@@ -46,12 +48,15 @@ class Receipt extends GenericModel {
     try {
       await begin();
 
-      const rcpt = new this(
-        await get(
-          `insert into receipts(paid_by, paid_on, added_by) values (?,?,?) returning *`,
-          [paid_by, paid_on, added_by]
-        )
-      );
+      const [rcpt] = await super.insert({
+        entities: [
+          new this({
+            paid_by,
+            paid_on,
+            added_by,
+          }),
+        ],
+      });
 
       const items = await Item.insert({
         // validating user input via `Model.from()`

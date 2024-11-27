@@ -30,7 +30,14 @@ const crud_works = async (api, route, headers, initial_payload) => {
     code: 201,
   });
 
-  expect(created).toHaveLength(3);
+  created.forEach((obj, i) => {
+    expect(obj).toStrictEqual({
+      ...initial_payload[i],
+      // SQLite3 starts from integer 1 as primary key
+      id: i + 1,
+      status_id: 0,
+    });
+  });
 
   const { body: modified } = await endpoint(api, route, {
     send: created.map((cat) => {
@@ -81,7 +88,7 @@ const register = (api, opts = {}) => {
 const login = (api, opts = {}) => {
   const { email, ...rest } = opts;
 
-  return endpoint(api, "/login", {
+  return endpoint(api, "/api/login", {
     method: "post",
     send: {
       email: email || DUMMY_USER.email,

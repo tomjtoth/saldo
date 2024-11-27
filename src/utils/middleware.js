@@ -58,7 +58,7 @@ async function body_validator(req, _res, next) {
 
   if (!Array.isArray(req.body)) {
     if (tbl === "receipts") {
-      const { paid_on, paid_by, entities } = req.body;
+      const { paid_by } = req.body;
 
       if (paid_by === undefined) req.body.paid_by = user.id;
     } else if (tbl === "item_shares") {

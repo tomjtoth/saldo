@@ -18,7 +18,7 @@ app.use(
   /\/api\/(?<tbl>(?:users|categories|receipts|item(?:_share)s)(?:_history)?)/,
   generic
 );
-app.use("/login", login);
+app.use("/api/login", login);
 app.use("/api/mailing", mailing);
 
 app.use(error_handler);

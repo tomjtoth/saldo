@@ -16,3 +16,19 @@ module.exports = {
     return send_mail({ from: EMAIL_FROM, ...opts });
   },
 };
+
+class A {
+  static method1() {
+    //stuff
+  }
+}
+
+class B extends A {
+  // other stuff
+}
+
+class C extends B {
+  static method1(input) {
+    this.method1(new this(input));
+  }
+}
