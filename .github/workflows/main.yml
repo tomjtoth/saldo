@@ -33,5 +33,8 @@ jobs:
           git fetch --all
           git checkout main
           git pull origin main
-          git merge --allow-unrelated-histories dev
+          git checkout dev
+          git pull origin dev
+          git checkout main
+          git merge dev
           git push origin main
