@@ -84,10 +84,8 @@ module.exports = class Backend {
 
     const statements = [];
 
-    // TODO: for (let i = 0; i+=max_rows_at_a_time; i< entities.length)
-    while (arr.length !== 0) {
-      // TODO: slice!!!
-      const part = arr.splice(0, max_rows_at_a_time);
+    for (let i = 0; i < arr.length; i += max_rows_at_a_time) {
+      const part = arr.slice(i, i + max_rows_at_a_time);
       statements.push(
         all(
           `insert into ${this._tbl} ${cols_str} values ${part
