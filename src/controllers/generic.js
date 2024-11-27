@@ -32,7 +32,7 @@ router.post(
       }
     }
 
-    res.send(await svc.create(tbl, body, user));
+    res.status(201).send(await svc.create(tbl, body, user));
   }
 );
 
@@ -47,7 +47,7 @@ router.delete(
     if (body.entities.length == 0)
       return next({ name: "malformed body", message: "nothing to delete" });
 
-    res.send(await svc.delete(tbl, body, user));
+    res.status(201).send(await svc.delete(tbl, body, user));
   }
 );
 
@@ -59,7 +59,7 @@ router.put(
     if (body.entities.length == 0)
       return next({ name: "malformed body", message: "nothing to update" });
 
-    res.send(await svc.update(tbl, body, user));
+    res.status(201).send(await svc.update(tbl, body, user));
   }
 );
 
