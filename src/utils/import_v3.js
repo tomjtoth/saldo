@@ -1,7 +1,7 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 const { v4: uuid } = require("uuid");
-const { db } = require("../db");
+const { db, reset_db } = require("../db");
 const approximate_float = require("./approximate_float");
 const {
   users: User,
@@ -32,7 +32,7 @@ module.exports = function (path_to_csv) {
   fs.createReadStream(path_to_csv)
     .pipe(csv())
     .on("data", (data) => csv_rows.push(data))
-    .on("end", () => {
+    .on("end", async () => {
       csv_rows.forEach((row) => {
         const {
           category: str_cat,
@@ -164,6 +164,7 @@ module.exports = function (path_to_csv) {
         }
       });
 
+      await reset_db();
       const operations = [];
 
       db.serialize(() => {
