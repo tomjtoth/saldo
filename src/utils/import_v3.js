@@ -165,6 +165,8 @@ module.exports = function (path_to_csv) {
       });
 
       await reset_db();
+      await Promise.all(users.map((u) => u.hash()));
+
       const operations = [];
 
       db.serialize(() => {
