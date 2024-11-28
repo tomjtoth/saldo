@@ -1,5 +1,5 @@
-const GenericModel = require("./generic");
-const { get, begin, commit, rollback } = require("../db");
+const Generic = require("./generic");
+const { begin, commit, rollback } = require("../db");
 const Item = require("./item");
 const ItemShare = require("./item_share");
 
@@ -14,7 +14,7 @@ class Receipt extends GenericModel {
           test: (val) => new Date(val) <= new Date(),
           toString: () => "cannot be in the future",
         },
-        def_val: () => new Date().epoch(),
+        defaults_to: () => new Date().epoch(),
       },
       added_by: {
         required: true,
@@ -23,7 +23,7 @@ class Receipt extends GenericModel {
       paid_on: {
         type: Number,
         validator: /^\d{5}$/,
-        def_val: () => new Date().epoch_date(),
+        defaults_to: () => new Date().epoch_date(),
       },
       paid_by: {
         required: true,

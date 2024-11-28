@@ -1,5 +1,6 @@
 const fs = require("fs");
 const csv = require("csv-parser");
+const { v4: uuid } = require("uuid");
 const { db } = require("../db");
 const approximate_float = require("./approximate_float");
 const {
@@ -53,6 +54,7 @@ module.exports = function (path_to_csv) {
                 id: users.length,
                 name: str_paid_by,
                 email: str_paid_by + "@just.imported",
+                passwd: uuid(),
               })
             ) - 1;
 
@@ -67,6 +69,7 @@ module.exports = function (path_to_csv) {
                   id: users.length,
                   name: str_paid_to,
                   email: str_paid_to + "@just.imported",
+                  passwd: uuid(),
                 })
               ) - 1;
         }

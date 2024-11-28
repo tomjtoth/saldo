@@ -39,24 +39,20 @@ module.exports = class Backend {
    * @param {*} opts
    * @returns
    */
-  _cols_n_phs(opts = {}) {
-    const { omit_id = false } = opts;
+  // TODO: simpler destructuring?
+  static _cols_n_phs(opts = {}) {
+    const { omit = [] } = opts;
 
-    const columns = [],
-      placeholders = [];
-
-    for (const [field, validation] of Object.entries(
-      this.constructor._all_validations
-    )) {
-      if (omit_id && field === "id") continue;
-
-      const { write_to_db = true } = validation;
-
-      if (write_to_db && this[field] !== undefined) {
-        columns.push(field);
-        placeholders.push("?");
-      }
-    }
+    const [columns, placeholders] = Object.keys(this._all_validations).reduce(
+      ([cols, phs], field) => {
+        if (!omit.includes(field)) {
+          cols.push(field);
+          phs.push("?");
+        }
+        return [cols, phs];
+      },
+      [[], []]
+    );
 
     return { columns, placeholders: `(${placeholders.join(",")})` };
   }
@@ -75,7 +71,7 @@ module.exports = class Backend {
   static async insert(arr) {
     if (arr[0].constructor !== this) arr = this.from(arr);
 
-    const { columns, placeholders } = arr[0]._cols_n_phs();
+    const { columns, placeholders } = this._cols_n_phs();
     const cols_str = `(${columns.join(",")})`;
 
     const max_rows_at_a_time = Math.floor(
@@ -148,8 +144,8 @@ module.exports = class Backend {
     if (arr[0].constructor !== this) arr = this.from(arr);
 
     const ids = arr.map((x) => x.id).join(",");
-    const { columns } = arr[0]._cols_n_phs({
-      omit_id: true,
+    const { columns } = this._cols_n_phs({
+      omit: ["id"],
     });
     const params_as_arr = arr.map((e) => e._as_sql_params(columns));
 

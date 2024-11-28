@@ -15,6 +15,7 @@ class ItemShare extends GenericModel {
       },
       status_id: {
         type: Number,
+        defaults_to: 0,
       },
     };
   }

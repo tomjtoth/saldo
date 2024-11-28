@@ -19,6 +19,7 @@ class Item extends GenericModel {
       },
       notes: {
         type: String,
+        defaults_to: null,
       },
     };
   }

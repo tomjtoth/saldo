@@ -20,7 +20,8 @@ class User extends GenericModel {
       },
       passwd: {
         type: String,
-        // validator: /.{8,}/,
+        required: true,
+validator: /.{8,}/,
       },
     };
   }

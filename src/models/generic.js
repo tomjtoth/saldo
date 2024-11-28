@@ -15,6 +15,7 @@ class GenericModel extends ModelBackend {
       },
       status_id: {
         type: Number,
+        defaults_to: 0,
       },
     };
   }
@@ -40,44 +41,40 @@ class GenericModel extends ModelBackend {
     super();
     const model = this.constructor.name;
 
-    // necessary during update
-    if (raw_data.id !== undefined) this.id = raw_data.id;
-
-    // is the below actually necessary?
-    if (raw_data.status_id !== undefined) this.status_id = raw_data.status_id;
-
     Object.entries(this.constructor._all_validations).forEach(
-      ([field, { type, required, validator, def_val }]) => {
-        const val = raw_data[field];
+      ([field, { type, required = false, validator, defaults_to }]) => {
+        const value = raw_data[field];
 
-        if (val !== undefined && val !== null) {
+        if (value === undefined) {
+          if (required) {
+            throw new ValidationError(`field ${model}.${field} is missing`);
+          } else if (defaults_to !== undefined) {
+            this[field] =
+              typeof defaults_to === "function" ? defaults_to() : defaults_to;
+          }
+          // else if (!primary_key) this[field] = null;
+        } else {
           if (type) {
             const model_type = type.name.toLowerCase();
-            const val_type = typeof val;
-            if (val && val_type !== model_type) {
+            const value_type = typeof value;
+            if (value && value_type !== model_type) {
               throw new ValidationError(
-                `${model}.${field}=${qt(val)} is not of type ${model_type}`
+                `${model}.${field}=${qt(value)} is not of type ${model_type}`
               );
             }
           }
 
-          if (validator && !validator.test(val)) {
+          if (validator && !validator.test(value)) {
             throw new ValidationError(
               `${model}.${field}=${qt(
-                val
+                value
               )} did not satisfy ${validator.toString()}`
             );
           }
 
-          this[field] = val;
-        } else if (required) {
-          throw new ValidationError(`field ${model}.${field} is missing`);
-        } else if (def_val !== undefined) {
-          this[field] = typeof def_val === "function" ? def_val() : def_val;
+          this[field] = value;
         }
       }
     );
   }
-}
-
-module.exports = GenericModel;
+};

@@ -26,7 +26,9 @@ describe("via /api/endpoint", () => {
   });
 
   test("POST new receipt works", async () => {
-    const { body: res } = await endpoint(api, "/api/receipts", {
+    const {
+      body: { rcpt, items, item_shares },
+    } = await endpoint(api, "/api/receipts", {
       method: "post",
       code: 201,
       headers,
@@ -59,8 +61,9 @@ describe("via /api/endpoint", () => {
       },
     });
 
-    expect(res.rcpt.paid_by).toBe(1);
-    expect(res.rcpt.added_by).toBe(1);
-    expect(res.items);
+    expect(rcpt.paid_by).toBe(1);
+    expect(rcpt.added_by).toBe(1);
+    expect(items[2].notes).toBeNull();
+    expect(item_shares[0].item_id).toBe(items[0].id);
   });
 });
