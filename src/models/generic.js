@@ -1,4 +1,4 @@
-const ModelBackend = require("./backend");
+const Backend = require("./backend");
 
 class ValidationError extends Error {
   name = "model field validation";
@@ -6,8 +6,7 @@ class ValidationError extends Error {
 
 const qt = (val) => JSON.stringify(val);
 
-class GenericModel extends ModelBackend {
-  // item_share overrides this
+module.exports = class Generic extends Backend {
   static get _ids() {
     return {
       id: {

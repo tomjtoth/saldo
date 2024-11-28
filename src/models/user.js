@@ -1,9 +1,9 @@
 const { hash } = require("bcrypt");
-const GenericModel = require("./generic");
+const Generic = require("./generic");
 
 const salt_rounds = 10;
 
-class User extends GenericModel {
+module.exports = class User extends Generic {
   static _tbl = "users";
 
   static get _validations() {
@@ -21,7 +21,7 @@ class User extends GenericModel {
       passwd: {
         type: String,
         required: true,
-validator: /.{8,}/,
+        validator: /.{8,}/,
       },
     };
   }
@@ -34,6 +34,4 @@ validator: /.{8,}/,
     delete this.passwd;
     return this;
   }
-}
-
-module.exports = User;
+};

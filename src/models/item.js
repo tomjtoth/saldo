@@ -1,6 +1,6 @@
-const GenericModel = require("./generic");
+const Generic = require("./generic");
 
-class Item extends GenericModel {
+module.exports = class Item extends Generic {
   static _tbl = "items";
 
   static get _validations() {
@@ -23,6 +23,4 @@ class Item extends GenericModel {
       },
     };
   }
-}
-
-module.exports = Item;
+};

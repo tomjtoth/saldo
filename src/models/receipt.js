@@ -3,7 +3,7 @@ const { begin, commit, rollback } = require("../db");
 const Item = require("./item");
 const ItemShare = require("./item_share");
 
-class Receipt extends GenericModel {
+module.exports = class Receipt extends Generic {
   static _tbl = "receipts";
 
   static get _validations() {
@@ -89,6 +89,4 @@ class Receipt extends GenericModel {
       throw new Error(`complex receipt insertion failed: ${err.message}`);
     }
   }
-}
-
-module.exports = Receipt;
+};

@@ -1,6 +1,6 @@
-const GenericModel = require("./generic");
+const Generic = require("./generic");
 
-class ItemShare extends GenericModel {
+module.exports = class ItemShare extends Generic {
   static _tbl = "item_shares";
 
   static get _ids() {
@@ -8,10 +8,12 @@ class ItemShare extends GenericModel {
       item_id: {
         type: Number,
         required: true,
+        primary_key: true,
       },
       user_id: {
         type: Number,
         required: true,
+        primary_key: true,
       },
       status_id: {
         type: Number,
@@ -28,6 +30,4 @@ class ItemShare extends GenericModel {
       },
     };
   }
-}
-
-module.exports = ItemShare;
+};
