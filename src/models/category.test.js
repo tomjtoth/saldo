@@ -46,6 +46,17 @@ describe("via /api/endpoint", () => {
   });
 
   test("POST, PUT, DELETE, GET works", () => {
-    crud_works(api, "/api/categories", headers, DUMMIES);
+    crud_works({
+      api,
+      route: "/api/categories",
+      headers,
+      initial_payload: DUMMIES,
+      modifier: (cat) => {
+        cat.category += " modified";
+        return cat;
+      },
+      modified_checker: ({ category }) =>
+        expect(category).toMatch(/.+ modified$/),
+    });
   });
 });

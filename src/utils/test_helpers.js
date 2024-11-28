@@ -22,7 +22,14 @@ const endpoint = (api, route, opts = {}) => {
   return api;
 };
 
-const crud_works = async (api, route, headers, initial_payload) => {
+const crud_works = async ({
+  api,
+  route,
+  headers,
+  initial_payload,
+  modifier,
+  modified_checker,
+}) => {
   const { body: created } = await endpoint(api, route, {
     send: initial_payload,
     method: "post",
@@ -40,16 +47,13 @@ const crud_works = async (api, route, headers, initial_payload) => {
   });
 
   const { body: modified } = await endpoint(api, route, {
-    send: created.map((cat) => {
-      cat.category += " modified";
-      return cat;
-    }),
+    send: created.map(modifier),
     method: "put",
     headers,
     code: 201,
   });
 
-  modified.forEach(({ category }) => expect(category).toMatch(/.+ modified$/));
+  modified.forEach(modified_checker);
 
   const { body: deleted } = await endpoint(api, route, {
     send: modified,

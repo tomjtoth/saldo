@@ -1,3 +1,4 @@
+const User = require("../models/user");
 const { body_validator } = require("./middleware");
 
 describe("body_validator", () => {
@@ -14,9 +15,12 @@ describe("body_validator", () => {
     const res = jest.fn();
     const next = jest.fn();
 
+    expect(req.body[0].constructor).toBe(Object);
     await body_validator(req, res, next);
+    expect(next).toHaveBeenCalled();
 
     expect(req.body[0].passwd).not.toBe(unhashed_pw);
+    expect(req.body[0].constructor).toBe(User);
   });
 
   test("POST receipts", async () => {

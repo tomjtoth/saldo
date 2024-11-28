@@ -16,6 +16,7 @@ module.exports = class Item extends Generic {
       cost: {
         required: true,
         type: Number,
+        validator: /^-?\d+$/,
       },
       notes: {
         type: String,
