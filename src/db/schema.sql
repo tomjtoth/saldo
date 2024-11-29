@@ -1,6 +1,6 @@
 create table statuses
 (
-    id smallint primary key generated always as identity,
+    id int2 primary key generated always as identity,
     -- probably 'default|disabled|revoked|expired'
     status text not null
 );
@@ -9,25 +9,25 @@ create table statuses
 -- for database migrations
 create table migrations
 (
-    id smallint primary key generated always as identity,
+    id int2 primary key generated always as identity,
     migration text not null,
-    status_id smallint default 1 references statuses(id),
+    status_id int2 default 1 references statuses(id),
     applied timestamp default current_timestamp
 );
 
 
 create table revisions
 (
-    id bigint primary key generated always as identity,
+    id int8 primary key generated always as identity,
     rev_on timestamp default current_timestamp
 );
 
 
 create table users
 (
-    id smallint primary key generated always as identity,
-    rev_id bigint references revisions(id),
-    status_id smallint default 1 references statuses(id),
+    id int2 primary key generated always as identity,
+    rev_id int8 references revisions(id),
+    status_id int2 default 1 references statuses(id),
     
     name text not null,
     passwd text,
@@ -38,14 +38,14 @@ create table users
 
 
 alter table revisions add column 
-rev_by smallint references users(id);
+rev_by int2 references users(id);
 
 
 create table categories
 (
-    id smallint primary key generated always as identity,
-    rev_id bigint references revisions(id),
-    status_id smallint default 1 references statuses(id),
+    id int2 primary key generated always as identity,
+    rev_id int8 references revisions(id),
+    status_id int2 default 1 references statuses(id),
 
     category text not null,
 
@@ -55,12 +55,12 @@ create table categories
     
 create table receipts
 (
-    id integer primary key generated always as identity,
-    rev_id bigint references revisions(id),
-    status_id smallint default 1 references statuses(id),
+    id int4 primary key generated always as identity,
+    rev_id int8 references revisions(id),
+    status_id int2 default 1 references statuses(id),
 
     paid_on date default current_date,
-    paid_by smallint references users(id),
+    paid_by int2 references users(id),
 
     unique(id, rev_id)
 );
@@ -68,13 +68,13 @@ create table receipts
 
 create table items
 (
-    id bigint primary key generated always as identity,
-    rev_id bigint references revisions(id),
-    status_id smallint default 1 references statuses(id),
-    rcpt_id integer references receipts(id),
-    cat_id smallint references categories(id),
+    id int8 primary key generated always as identity,
+    rev_id int8 references revisions(id),
+    status_id int2 default 1 references statuses(id),
+    rcpt_id int4 references receipts(id),
+    cat_id int2 references categories(id),
 
-    cost integer not null,
+    cost int4 not null,
     notes text,
 
     unique(id, rev_id)
@@ -83,12 +83,12 @@ create table items
 
 create table item_shares
 (
-    item_id bigint references items(id),
-    user_id smallint references users(id),
-    rev_id bigint references revisions(id),
-    status_id smallint default 1 references statuses(id),
+    item_id int8 references items(id),
+    user_id int2 references users(id),
+    rev_id int8 references revisions(id),
+    status_id int2 default 1 references statuses(id),
 
-    share smallint,
+    share int2,
 
     primary key (item_id, user_id, rev_id)
 );
