@@ -8,18 +8,6 @@ module.exports = class Receipt extends Generic {
 
   static get _validations() {
     return {
-      added_on: {
-        type: Number,
-        validator: {
-          test: (val) => new Date(val) <= new Date(),
-          toString: () => "cannot be in the future",
-        },
-        defaults_to: () => new Date().epoch(),
-      },
-      added_by: {
-        required: true,
-        type: Number,
-      },
       paid_on: {
         type: Number,
         validator: /^\d{5}$/,

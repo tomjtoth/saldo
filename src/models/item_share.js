@@ -19,6 +19,9 @@ module.exports = class ItemShare extends Generic {
         type: Number,
         defaults_to: 0,
       },
+      rev_id: {
+        type: Number,
+      },
     };
   }
 

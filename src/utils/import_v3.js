@@ -9,6 +9,7 @@ const {
   items: Item,
   receipts: Receipt,
   item_shares: ItemShare,
+  revisions: Revision,
 } = require("../models");
 
 /**
@@ -23,6 +24,7 @@ const {
  */
 module.exports = function (path_to_csv) {
   const csv_rows = [],
+    revisions = [],
     users = [],
     categories = [],
     receipts = [],
@@ -43,6 +45,20 @@ module.exports = function (path_to_csv) {
           ratio: str_ratio,
         } = row;
 
+        const rev_on = new Date(str_added_on).epoch();
+
+        let rev_id = revisions.length - 1;
+        let last_rev = revisions[rev_id];
+
+        if (!last_rev || last_rev.rev_on !== rev_on) {
+          last_rev = new Revision({
+            id: revisions.length,
+            rev_by: 0,
+            rev_on,
+          });
+          rev_id = revisions.push(last_rev) - 1;
+        }
+
         // entries contain sometimes only 1 name
         const [str_paid_by, str_paid_to = null] = row.direction.split("->");
 
@@ -52,12 +68,14 @@ module.exports = function (path_to_csv) {
           : users.push(
               new User({
                 id: users.length,
+                rev_id,
                 name: str_paid_by,
                 email: str_paid_by + "@just.imported",
                 passwd: uuid(),
               })
             ) - 1;
 
+        last_rev.rev_by = paid_by;
         let paid_to = -1;
 
         if (str_paid_to) {
@@ -67,6 +85,7 @@ module.exports = function (path_to_csv) {
             : users.push(
                 new User({
                   id: users.length,
+                  rev_id,
                   name: str_paid_to,
                   email: str_paid_to + "@just.imported",
                   passwd: uuid(),
@@ -74,23 +93,20 @@ module.exports = function (path_to_csv) {
               ) - 1;
         }
 
-        const added_on = new Date(str_added_on).epoch();
         const paid_on = new Date(str_paid_on).epoch_date();
 
         let rcpt_id = receipts.length - 1;
-        const last_r = receipts[rcpt_id];
+        const last_rcpt = receipts[rcpt_id];
         if (
-          !last_r ||
-          paid_on !== last_r.paid_on ||
-          added_on !== last_r.added_on ||
-          paid_by !== last_r.paid_by
+          !last_rcpt ||
+          paid_on !== last_rcpt.paid_on ||
+          rev_id !== last_rcpt.rev_id
         ) {
           rcpt_id =
             receipts.push(
               new Receipt({
                 id: receipts.length,
-                added_on,
-                added_by: paid_by,
+                rev_id,
                 paid_on,
                 paid_by,
               })
@@ -102,6 +118,7 @@ module.exports = function (path_to_csv) {
           : categories.push(
               new Category({
                 id: categories.length,
+                rev_id,
                 category: str_cat,
               })
             ) - 1;
@@ -115,6 +132,7 @@ module.exports = function (path_to_csv) {
           items.push(
             new Item({
               id: items.length,
+              rev_id,
               rcpt_id,
               cat_id,
               cost,
@@ -130,6 +148,7 @@ module.exports = function (path_to_csv) {
               new ItemShare({
                 item_id,
                 user_id: paid_to,
+                rev_id,
                 share: 1,
               })
             );
@@ -140,6 +159,7 @@ module.exports = function (path_to_csv) {
               new ItemShare({
                 item_id,
                 user_id: 0,
+                rev_id,
                 share: 1,
               })
             );
@@ -152,11 +172,13 @@ module.exports = function (path_to_csv) {
               new ItemShare({
                 item_id,
                 user_id: 0,
+                rev_id,
                 share: user0_share,
               }),
               new ItemShare({
                 item_id,
                 user_id: paid_to > 0 ? paid_to : paid_by,
+                rev_id,
                 share: total_shares - user0_share,
               })
             );
@@ -174,6 +196,7 @@ module.exports = function (path_to_csv) {
           "insert into statuses(id, status) values (0, 'default'), (1, 'deleted')"
         );
 
+        operations.push(Revision.insert(revisions));
         operations.push(User.insert(users));
         operations.push(Category.insert(categories));
         operations.push(Receipt.insert(receipts));

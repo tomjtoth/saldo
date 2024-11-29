@@ -35,6 +35,7 @@ test("field validations work", () => {
 
   const item = new Item({ cost: 1234, cat_id: 11, rcpt_id: 33 });
   expect(item.id).toBeUndefined();
+  expect(item.rev_id).toBeUndefined();
   expect(item.notes).toBeNull();
   expect(item.status_id).toBe(0);
 });
@@ -46,8 +47,8 @@ describe("via /api/endpoint", () => {
     headers = await prep3(api);
   });
 
-  test("POST, PUT, DELETE, GET works", () => {
-    crud_works({
+  test("POST, PUT, DELETE, GET works", async () => {
+    await crud_works({
       api,
       route: "/api/items",
       headers,

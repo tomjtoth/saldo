@@ -12,6 +12,9 @@ module.exports = class Generic extends Backend {
       id: {
         type: Number,
       },
+      rev_id: {
+        type: Number,
+      },
       status_id: {
         type: Number,
         defaults_to: 0,
