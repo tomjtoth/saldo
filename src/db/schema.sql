@@ -1,6 +1,6 @@
 create table statuses
 (
-    id integer primary key,
+    id smallint primary key generated always as identity,
     -- probably 'default|disabled|revoked|expired'
     status text not null
 );
@@ -9,42 +9,43 @@ create table statuses
 -- for database migrations
 create table migrations
 (
-    id integer primary key,
+    id smallint primary key generated always as identity,
     migration text not null,
-    status_id integer default 0 references statuses(id),
-    applied integer default (unixepoch())
+    status_id smallint default 1 references statuses(id),
+    applied timestamp default current_timestamp
 );
 
 
 create table revisions
 (
-    id integer primary key,
-    rev_on integer default (unixepoch()),
-    rev_by integer references users(id)
+    id bigint primary key generated always as identity,
+    rev_on timestamp default current_timestamp
 );
 
 
 create table users
 (
-    id integer,
-    rev_id integer references revisions(id),
-    status_id integer default 0 references statuses(id),
+    id smallint primary key generated always as identity,
+    rev_id bigint references revisions(id),
+    status_id smallint default 1 references statuses(id),
     
     name text not null,
     passwd text,
     email text not null,
 
-    unique(id, email)
-    primary key(id, rev_id)
-)
-without rowid;
+    unique(id, rev_id)
+);
+
+
+alter table revisions add column 
+rev_by smallint references users(id);
 
 
 create table categories
 (
-    id integer primary key,
-    rev_id integer references revisions(id),
-    status_id integer default 0 references statuses(id),
+    id smallint primary key generated always as identity,
+    rev_id bigint references revisions(id),
+    status_id smallint default 1 references statuses(id),
 
     category text not null,
 
@@ -54,25 +55,24 @@ create table categories
     
 create table receipts
 (
-    id integer primary key,
-    rev_id integer references revisions(id),
-    status_id integer default 0 references statuses(id),
+    id integer primary key generated always as identity,
+    rev_id bigint references revisions(id),
+    status_id smallint default 1 references statuses(id),
 
-    -- days since 1970-01-01
-    paid_on integer default (floor(unixepoch()/60/60/24)),
-    paid_by integer references users(id),
-    
+    paid_on date default current_date,
+    paid_by smallint references users(id),
+
     unique(id, rev_id)
 );
 
 
 create table items
 (
-    id integer primary key,
-    rev_id integer references revisions(id),
-    status_id integer default 0 references statuses(id),
+    id bigint primary key generated always as identity,
+    rev_id bigint references revisions(id),
+    status_id smallint default 1 references statuses(id),
     rcpt_id integer references receipts(id),
-    cat_id integer references categories(id),
+    cat_id smallint references categories(id),
 
     cost integer not null,
     notes text,
@@ -83,16 +83,15 @@ create table items
 
 create table item_shares
 (
-    item_id integer references items(id),
-    user_id integer references users(id),
-    rev_id integer references revisions(id),
-    status_id integer default 0 references statuses(id),
+    item_id bigint references items(id),
+    user_id smallint references users(id),
+    rev_id bigint references revisions(id),
+    status_id smallint default 1 references statuses(id),
 
-    share integer,
+    share smallint,
 
     primary key (item_id, user_id, rev_id)
-)
-without rowid;
+);
 
 
 -- view definitions below
@@ -101,9 +100,9 @@ without rowid;
 create view log_now as
 select
     r.id as rcpt_id,
-    datetime(rr.rev_on, 'unixepoch') as added_on,
+    rr.rev_on as added_on,
     uab.name as added_by,
-    date(paid_on*24*60*60, 'unixepoch') as paid_on,
+    paid_on,
     upb.name as paid_by,
     i.id as item_id,
     c.category,
@@ -121,7 +120,6 @@ inner join items i on r.id = i.rcpt_id
 inner join categories c on c.id = i.cat_id
 left join item_shares sh on sh.item_id = i.id
 left join users ush on sh.user_id  = ush.id
--- where r.status_id = 0 and  i.status_id  = 0
 order by paid_on;
 
 
