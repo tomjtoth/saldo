@@ -57,14 +57,6 @@ async function body_validator(req, _res, next) {
 
   if (!(method === "POST" && tbl === "receipts")) {
     if (!Array.isArray(req.body)) req.body = [];
-
-    if (!tbl.endsWith("_history")) {
-      req.body = models[tbl].from(req.body);
-    }
-  }
-
-  if (tbl === "users" && method !== "DELETE") {
-    await Promise.all(req.body.map((u) => u.hash()));
   }
 
   next();

@@ -27,7 +27,7 @@ router.post(
       if (body.paid_by === undefined) body.paid_by = user.id;
     }
 
-    res.status(201).send(await svc.create(tbl, body, user));
+    res.status(201).send(await svc.create(tbl, body, user ? user.id : null));
   }
 );
 
@@ -42,7 +42,7 @@ router.delete(
     if (body.length == 0)
       return next({ name: "malformed body", message: "nothing to delete" });
 
-    res.status(201).send(await svc.delete(tbl, body, user));
+    res.status(201).send(await svc.delete(tbl, body, user.id));
   }
 );
 
@@ -54,7 +54,7 @@ router.put(
     if (body.length == 0)
       return next({ name: "malformed body", message: "nothing to update" });
 
-    res.status(201).send(await svc.update(tbl, body, user));
+    res.status(201).send(await svc.update(tbl, body, user.id));
   }
 );
 

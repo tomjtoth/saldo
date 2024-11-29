@@ -42,26 +42,30 @@ test("field validations work", () => {
 
 let headers;
 
-describe("via /api/endpoint", () => {
-  beforeEach(async () => {
-    headers = await prep3(api);
-  });
+describe(
+  "via /api/endpoint",
+  () => {
+    beforeEach(async () => {
+      headers = await prep3(api);
+    }, 10 * 60 * 1000);
 
-  test("POST, PUT, DELETE, GET works", async () => {
-    await crud_works({
-      api,
-      route: "/api/items",
-      headers,
-      initial_payload: DUMMIES,
-      modifier: (item) => {
-        item.cost *= 2;
-        item.notes = `${item.notes} + modded notes`;
-        return item;
-      },
-      modified_checker: ({ cost, notes }, i) => {
-        expect(notes).toBe(`${DUMMIES[i].notes} + modded notes`);
-        expect(cost).toBe(DUMMIES[i].cost * 2);
-      },
+    test("POST, PUT, DELETE, GET works", async () => {
+      await crud_works({
+        api,
+        route: "/api/items",
+        headers,
+        initial_payload: DUMMIES,
+        modifier: (item) => {
+          item.cost *= 2;
+          item.notes = `${item.notes} + modded notes`;
+          return item;
+        },
+        modified_checker: ({ cost, notes }, i) => {
+          expect(notes).toBe(`${DUMMIES[i].notes} + modded notes`);
+          expect(cost).toBe(DUMMIES[i].cost * 2);
+        },
+      });
     });
-  });
-});
+  },
+  10 * 60 * 1000
+);

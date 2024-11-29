@@ -45,6 +45,8 @@ module.exports = function (path_to_csv) {
           ratio: str_ratio,
         } = row;
 
+        // TODO: revisions could be reduced, because some receipts were added in a batch
+        // last_rev = revisions.find(r => r.rev_on === rev_on)
         const rev_on = new Date(str_added_on).epoch();
 
         let rev_id = revisions.length - 1;
@@ -198,8 +200,11 @@ module.exports = function (path_to_csv) {
 
         operations.push(Revision.insert(revisions));
         operations.push(User.insert(users));
+
+        // TODO: don't you dare `PARGMA foreign_keys ON` here xD
+
         operations.push(Category.insert(categories));
-        operations.push(Receipt.insert(receipts));
+        operations.push(Receipt.insert(receipts, { importing_v3: true }));
         operations.push(Item.insert(items));
         operations.push(ItemShare.insert(item_shares));
       });

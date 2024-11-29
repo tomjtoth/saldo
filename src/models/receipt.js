@@ -20,9 +20,16 @@ module.exports = class Receipt extends Generic {
     };
   }
 
-  static async insert(arr, user) {
-    // while import_v3 runs
-    if (user === undefined) return super.insert(arr);
+  /**
+   * overrides the generic was of inserting entities into the DB
+   *
+   * @param {} arr
+   * @param {*} param1
+   * @returns
+   */
+  static async insert2(arr, { user, skip_cols = ["id", "status_id"] }) {
+    // import_v3 inserts receipts in a generic manner
+    if (user === undefined) return super.insert(arr, { user, skip_cols });
 
     const { items: req_its, paid_by, paid_on } = arr;
 
@@ -37,18 +44,18 @@ module.exports = class Receipt extends Generic {
     try {
       await begin();
 
-      const [rcpt] = await super.insert([
+      const [receipt] = await super.insert([
         {
           paid_by,
           paid_on,
-          added_by,
         },
       ]);
 
       const items = await Item.insert(
         req_its.map(({ shares, ...item }) => ({
           ...item,
-          rcpt_id: rcpt.id,
+          rev_id,
+          rcpt_id: receipt.id,
         }))
       );
 
@@ -59,19 +66,26 @@ module.exports = class Receipt extends Generic {
 
           arr.push(
             ...shares.reduce((arr, share, user_id) => {
-              if (share !== null) arr.push({ share, user_id, item_id });
+              if (share !== null)
+                arr.push({
+                  item_id,
+                  user_id,
+                  rev_id,
+                  share,
+                });
 
               return arr;
             }, [])
           );
 
           return arr;
-        }, [])
+        }, []),
+        { skip_cols: [] }
       );
 
       await commit();
 
-      return { rcpt, items, item_shares };
+      return { receipt, items, item_shares };
     } catch (err) {
       await rollback();
       throw new Error(`complex receipt insertion failed: ${err.message}`);

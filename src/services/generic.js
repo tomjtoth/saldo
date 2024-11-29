@@ -5,15 +5,15 @@ module.exports = {
     return models[tbl].select(crit);
   },
 
-  create: async (tbl, body, user) => {
-    return models[tbl].insert(body, user);
+  create: async (tbl, body, rev_by) => {
+    return models[tbl].insert(body, { rev_by });
   },
 
-  delete: async (tbl, body, user) => {
-    return models[tbl].delete(body, user);
+  delete: async (tbl, body, rev_by) => {
+    return models[tbl].delete(body, { rev_by });
   },
 
-  update: async (tbl, body, user) => {
-    return models[tbl].update(body, user);
+  update: async (tbl, body, rev_by) => {
+    return models[tbl].update(body, { rev_by });
   },
 };

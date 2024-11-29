@@ -89,16 +89,14 @@ const register = (api, opts = {}) => {
   });
 };
 
-const login = (api, opts = {}) => {
-  const { email, ...rest } = opts;
-
+const login = (api, { email, ...rest } = {}) => {
   return endpoint(api, "/api/login", {
     method: "post",
+    ...rest,
     send: {
       email: email || DUMMY_USER.email,
       password: DUMMY_USER.passwd,
     },
-    ...rest,
   });
 };
 

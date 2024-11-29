@@ -32,8 +32,9 @@ create table users
     
     name text not null,
     passwd text,
-    email text not null unique,
+    email text not null,
 
+    unique(id, email)
     primary key(id, rev_id)
 )
 without rowid;
@@ -41,20 +42,19 @@ without rowid;
 
 create table categories
 (
-    id integer,
+    id integer primary key,
     rev_id integer references revisions(id),
     status_id integer default 0 references statuses(id),
 
     category text not null,
 
-    primary key(id, rev_id)
-)
-without rowid;
+    unique(id, rev_id)
+);
 
     
 create table receipts
 (
-    id integer,
+    id integer primary key,
     rev_id integer references revisions(id),
     status_id integer default 0 references statuses(id),
 
@@ -62,14 +62,13 @@ create table receipts
     paid_on integer default (floor(unixepoch()/60/60/24)),
     paid_by integer references users(id),
     
-    primary key(id, rev_id)
-)
-without rowid;
+    unique(id, rev_id)
+);
 
 
 create table items
 (
-    id integer,
+    id integer primary key,
     rev_id integer references revisions(id),
     status_id integer default 0 references statuses(id),
     rcpt_id integer references receipts(id),
@@ -78,9 +77,8 @@ create table items
     cost integer not null,
     notes text,
 
-    primary key(id, rev_id)
-)
-without rowid;
+    unique(id, rev_id)
+);
 
 
 create table item_shares

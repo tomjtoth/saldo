@@ -17,7 +17,6 @@ module.exports = class Generic extends Backend {
       },
       status_id: {
         type: Number,
-        defaults_to: 0,
       },
     };
   }
