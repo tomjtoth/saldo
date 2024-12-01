@@ -1,12 +1,4 @@
-const {
-  SQLITE_MAX_VARIABLE_NUMBER,
-  begin,
-  commit,
-  rollback,
-  run,
-  all,
-  get,
-} = require("../db");
+const { MAX_POSITIONAL_PARAMS, sql } = require("../db");
 
 const where_clause = ({ where }) => {
   const params = [];
@@ -34,28 +26,17 @@ module.exports = class Backend {
     return {};
   }
 
-  /**
-   * columns and placeholders
-   * @param {*} opts
-   * @returns
-   */
-  static _columns({ skip_cols = [] } = {}) {
-    const placeholders = [];
-    const columns = Object.keys(this._all_validations).filter((col) => {
-      if (!skip_cols.includes(col)) {
-        placeholders.push("?");
-        return true;
-      }
-    });
-
-    return { columns, placeholders: `(${placeholders.join(",")})` };
+  static cols({ skip_cols = [] } = {}) {
+    return Object.keys(this._all_validations).filter(
+      (col) => !skip_cols.includes(col)
+    );
   }
 
   static async select(crit = {}) {
     const { params, where } = where_clause(crit);
-    const sql = `select * from ${this._tbl} ${where}`;
-
-    return this.from(await all(sql, ...params));
+    return from(
+      await sql`select * from ${sql.unsafe(this._tbl)} ${sql.unsafe(where)}`
+    );
   }
 
   static async insert(arr, { skip_cols = ["id", "status_id"], ...opts } = {}) {
@@ -77,7 +58,7 @@ module.exports = class Backend {
   static async in_batches(arr, { rev_by, skip_cols, ...fields }) {
     return new Promise(async (resolve, reject) => {
       try {
-        await begin();
+        await sql`begin`;
 
         arr = this.from(
           arr,
@@ -86,21 +67,20 @@ module.exports = class Backend {
               {
                 ...fields,
                 rev_id: (
-                  await get(
-                    "insert into revisions (rev_by) values (?) returning id",
-                    [rev_by]
-                  )
-                ).id,
+                  await sql`insert into revisions ${sql(
+                    rev_by,
+                    "rev_by"
+                  )} returning id`
+                )[0].id,
               }
             : //or import_v3
               {}
         );
 
-        const { columns, placeholders } = this._columns({ skip_cols });
-        const cols_str = `(${columns.join(",")})`;
+        const columns = this.cols({ skip_cols });
 
         const max_rows_at_a_time = Math.floor(
-          SQLITE_MAX_VARIABLE_NUMBER / columns.length
+          MAX_POSITIONAL_PARAMS / columns.length
         );
 
         const statements = [];
@@ -108,28 +88,22 @@ module.exports = class Backend {
         for (let i = 0; i < arr.length; i += max_rows_at_a_time) {
           const part = arr.slice(i, i + max_rows_at_a_time);
           statements.push(
-            all(
-              `insert into ${this._tbl} ${cols_str} values ${part
-                .map(() => placeholders)
-                .join(",")} returning *`,
-              part.flatMap((x) => x._as_sql_params(columns))
-            )
+            await sql`insert into ${sql.unsafe(this._tbl)} ${sql(
+              part,
+              columns
+            )} returning *`
           );
         }
 
         const results = this.from((await Promise.all(statements)).flat());
 
-        await commit();
+        await sql`commit`;
         resolve(results);
       } catch (err) {
-        await rollback();
+        await sql`rollback`;
         reject(err.message);
       }
     });
-  }
-
-  _as_sql_params(columns) {
-    return columns.map((col) => this[col]);
   }
 
   async save() {

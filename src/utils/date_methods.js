@@ -13,3 +13,11 @@ Date.prototype.epoch = function () {
 Date.prototype.epoch_date = function () {
   return Math.floor(this / 1000 / 60 / 60 / 24);
 };
+
+/**
+ *
+ * @returns days since 1970-01-01 as a Number
+ */
+Date.prototype.toISODate = function () {
+  return this.toISOString().slice(0, 10);
+};

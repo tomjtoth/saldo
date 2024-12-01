@@ -4,14 +4,28 @@ services:
   postgres:
     image: postgres:17.2-alpine3.20
     environment:
-      POSTGRES_DB: saldo
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+      POSTGRES_USER: ${PGUSERNAME}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
     volumes:
-      - ./${POSTGRES_DATA}:/var/lib/postgresql/data
+      - ./postgres:/var/lib/postgresql/data
       - ./src/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     restart: unless-stopped
 
     # uncomment for local dev
     ports:
       - 5432:5432
+
+  postgres-test:
+    image: postgres:17.2-alpine3.20
+    environment:
+      POSTGRES_DB: ${PGDATABASE}
+      POSTGRES_USER: ${PGUSERNAME}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+    volumes:
+      - ./src/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    restart: unless-stopped
+
+    # uncomment for local dev
+    ports:
+      - 54333:5432

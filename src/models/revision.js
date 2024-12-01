@@ -14,7 +14,8 @@ module.exports = class Revision extends Generic {
   static get _validations() {
     return {
       rev_on: {
-        type: Number,
+        type: String,
+        validator: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/,
       },
       rev_by: {
         required: true,

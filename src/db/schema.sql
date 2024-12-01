@@ -38,7 +38,7 @@ create table users
 
 
 alter table revisions add column 
-rev_by int2 references users(id);
+rev_by int2 references users(id) deferrable initially deferred;
 
 
 create table categories

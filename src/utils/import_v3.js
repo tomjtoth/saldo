@@ -1,7 +1,7 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 const { v4: uuid } = require("uuid");
-const { db, reset_db } = require("../db");
+const { sql, reset_db } = require("../db");
 const approximate_float = require("./approximate_float");
 const {
   users: User,
@@ -47,7 +47,7 @@ module.exports = function (path_to_csv) {
 
         // TODO: revisions could be reduced, because some receipts were added in a batch
         // last_rev = revisions.find(r => r.rev_on === rev_on)
-        const rev_on = new Date(str_added_on).epoch();
+        const rev_on = new Date(str_added_on).toISOString();
 
         let rev_id = revisions.length - 1;
         let last_rev = revisions[rev_id];
@@ -95,7 +95,8 @@ module.exports = function (path_to_csv) {
               ) - 1;
         }
 
-        const paid_on = new Date(str_paid_on).epoch_date();
+        // const paid_on = new Date(str_paid_on).epoch_date();
+        const paid_on = new Date(str_paid_on).toISODate();
 
         let rcpt_id = receipts.length - 1;
         const last_rcpt = receipts[rcpt_id];
@@ -173,13 +174,13 @@ module.exports = function (path_to_csv) {
             item_shares.push(
               new ItemShare({
                 item_id,
-                user_id: 0,
+                user_id: 1,
                 rev_id,
                 share: user0_share,
               }),
               new ItemShare({
                 item_id,
-                user_id: paid_to > 0 ? paid_to : paid_by,
+                user_id: paid_to > 1 ? paid_to : paid_by,
                 rev_id,
                 share: total_shares - user0_share,
               })
@@ -191,32 +192,31 @@ module.exports = function (path_to_csv) {
       await reset_db();
       await Promise.all(users.map((u) => u.hash()));
 
-      const operations = [];
+      const results = await sql.begin(
+        (sql) =>
+          sql`insert into statuses ${sql([
+            { id: 0, status: "default" },
+            { id: 1, status: "disabled" },
+          ])}`,
+        ...Object.entries({
+          revisions,
+          users,
+          categories,
+          receipts,
+          items,
+          item_shares,
+        }).map(
+          ([tbl, values]) =>
+            sql`insert into ${sql.unsafe(tbl)} ${sql.unsafe(
+              values[0].constructor.cols()
+            )} overriding system value ${sql(values)}`
+        )
+      );
 
-      db.serialize(() => {
-        db.run(
-          "insert into statuses(id, status) values (0, 'default'), (1, 'deleted')"
-        );
-
-        operations.push(Revision.insert(revisions));
-        operations.push(User.insert(users));
-
-        // TODO: don't you dare `PARGMA foreign_keys ON` here xD
-
-        operations.push(Category.insert(categories));
-        operations.push(Receipt.insert(receipts, { importing_v3: true }));
-        operations.push(Item.insert(items));
-        operations.push(ItemShare.insert(item_shares));
-      });
-
-      Promise.all(operations).then((results) => {
-        results.map((res) =>
-          console.log(
-            `inserted ${res.length} rows into ${res[0].constructor._tbl}`
-          )
-        );
-        console.log("\n\tSUCCESSFULLY IMPORTED V3\n");
-        process.exit(0);
-      });
+      results.map((res) =>
+        console.log(`inserted ${res.length} rows into dome table`)
+      );
+      console.log("\n\tSUCCESSFULLY IMPORTED V3\n");
+      process.exit(0);
     });
 };

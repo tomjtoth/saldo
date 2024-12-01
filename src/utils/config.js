@@ -3,12 +3,18 @@ const { v4: uuid } = require("uuid");
 
 // defaults and fallbacks
 const config = {
-  NODE_ENV: "prod",
-  PORT: 3000,
-  DB_PATH: "prod.db",
-  IMPORT_CSV: false,
-  MIGRATE_DB: undefined,
   SECRET: uuid(),
+  PORT: 3000,
+  NODE_ENV: "prod",
+
+  POSTGRES_HOST: undefined,
+  POSTGRES_PORT: 5432,
+  POSTGRES_USER: undefined,
+  POSTGRES_PASSWORD: undefined,
+  MIGRATE_DB: undefined,
+
+  IMPORT_CSV: false,
+
   EMAIL_PASS: undefined,
   EMAIL_FROM: undefined,
 };

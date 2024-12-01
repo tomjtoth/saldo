@@ -66,7 +66,7 @@ function error_handler(error, _req, res, next) {
   const { code, name, message } = error;
 
   if (
-    code === "SQLITE_CONSTRAINT" ||
+    // code === "SQLITE_CONSTRAINT" ||
     name === "model field validation" ||
     name === "missing payer"
   )

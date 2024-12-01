@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test DB_PATH=:memory: jest --runInBand",
+    "test": "PGPORT=54333 NODE_ENV=test jest --runInBand",
     "coverage": "npm run test -- --coverage",
-    "dev": "DB_PATH=dev.db nodemon index.js",
-    "import": "DB_PATH=dev.db IMPORT_CSV=~/saldo_v3.csv node index.js"
+    "dev": "NODE_ENV=dev nodemon index.js",
+    "import": "IMPORT_CSV=~/saldo_v3.csv node index.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,7 +19,7 @@
     "express": "^5.0.1",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.16",
-    "sqlite3": "^5.1.7",
+    "postgres": "^3.4.5",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
