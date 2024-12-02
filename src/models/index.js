@@ -1,5 +1,6 @@
 module.exports = new Proxy(
   [
+    require("./status"),
     require("./revision"),
     require("./user"),
     require("./category"),

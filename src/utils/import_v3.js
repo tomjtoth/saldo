@@ -1,9 +1,10 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 const { v4: uuid } = require("uuid");
-const { sql, reset_db } = require("../db");
+const { sql, reset_db, rows_at_a_time } = require("../db");
 const approximate_float = require("./approximate_float");
 const {
+  statuses: Status,
   users: User,
   categories: Category,
   items: Item,
@@ -24,6 +25,10 @@ const {
  */
 module.exports = function (path_to_csv) {
   const csv_rows = [],
+    statuses = [
+      new Status({ id: 0, status: "default" }),
+      new Status({ id: 1, status: "deleted" }),
+    ],
     revisions = [],
     users = [],
     categories = [],
@@ -174,13 +179,13 @@ module.exports = function (path_to_csv) {
             item_shares.push(
               new ItemShare({
                 item_id,
-                user_id: 1,
+                user_id: 0,
                 rev_id,
                 share: user0_share,
               }),
               new ItemShare({
                 item_id,
-                user_id: paid_to > 1 ? paid_to : paid_by,
+                user_id: paid_to > 0 ? paid_to : paid_by,
                 rev_id,
                 share: total_shares - user0_share,
               })
@@ -192,29 +197,32 @@ module.exports = function (path_to_csv) {
       await reset_db();
       await Promise.all(users.map((u) => u.hash()));
 
-      const results = await sql.begin(
-        (sql) =>
-          sql`insert into statuses ${sql([
-            { id: 0, status: "default" },
-            { id: 1, status: "disabled" },
-          ])}`,
-        ...Object.entries({
-          revisions,
-          users,
-          categories,
-          receipts,
-          items,
-          item_shares,
-        }).map(
-          ([tbl, values]) =>
-            sql`insert into ${sql.unsafe(tbl)} ${sql.unsafe(
-              values[0].constructor.cols()
-            )} overriding system value ${sql(values)}`
-        )
-      );
+      const results = await sql.begin((sql) => [
+        sql`insert into id.users ${sql(users, ["id"])}`,
+        sql`insert into id.categories ${sql(categories, ["id"])}`,
+        sql`insert into id.receipts ${sql(receipts, ["id"])}`,
+        sql`insert into id.items ${sql(items, ["id"])}`,
+
+        sql`insert into statuses ${sql(statuses)}`,
+        sql`insert into revisions ${sql(revisions)}`,
+        sql`insert into users ${sql(users)}`,
+        sql`insert into categories ${sql(categories)}`,
+
+        ...receipts
+          .toChunks(rows_at_a_time(Receipt.cols()))
+          .map((chunk) => sql`insert into receipts ${sql(chunk)}`),
+
+        ...items
+          .toChunks(rows_at_a_time(Item.cols()))
+          .map((chunk) => sql`insert into items ${sql(chunk)}`),
+
+        ...item_shares
+          .toChunks(rows_at_a_time(ItemShare.cols()))
+          .map((chunk) => sql`insert into item_shares ${sql(chunk)}`),
+      ]);
 
       results.map((res) =>
-        console.log(`inserted ${res.length} rows into dome table`)
+        console.log(`inserted ${res.length} rows into some table`)
       );
       console.log("\n\tSUCCESSFULLY IMPORTED V3\n");
       process.exit(0);
