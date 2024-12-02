@@ -1,7 +1,14 @@
+create schema id;
+create table id.users (id int2 primary key);
+create table id.categories (id int2 primary key);
+create table id.receipts (id int4 primary key);
+create table id.items (id int8 primary key);
+
+
 create table statuses
 (
-    id int2 primary key generated always as identity,
-    -- probably 'default|disabled|revoked|expired'
+    id int2 primary key,
+
     status text not null
 );
 
@@ -9,88 +16,82 @@ create table statuses
 -- for database migrations
 create table migrations
 (
-    id int2 primary key generated always as identity,
+    id int2 primary key,
+    status_id int2 default 0 references statuses(id),
+
     migration text not null,
-    status_id int2 default 1 references statuses(id),
     applied timestamp default current_timestamp
 );
 
 
 create table revisions
 (
-    id int8 primary key generated always as identity,
-    rev_on timestamp default current_timestamp
+    id int8 primary key,
+
+    rev_on timestamp default current_timestamp,
+    rev_by int2 references id.users(id)
 );
 
 
 create table users
 (
-    id int2 primary key generated always as identity,
+    id int2 references id.users,
     rev_id int8 references revisions(id),
-    status_id int2 default 1 references statuses(id),
-    
-    name text not null,
-    passwd text,
+    primary key(id, rev_id),
+    status_id int2 default 0 references statuses(id),
+
     email text not null,
-
-    unique(id, rev_id)
+    name text not null,
+    passwd text not null
 );
-
-
-alter table revisions add column 
-rev_by int2 references users(id) deferrable initially deferred;
 
 
 create table categories
 (
-    id int2 primary key generated always as identity,
+    id int2 references id.categories,
     rev_id int8 references revisions(id),
-    status_id int2 default 1 references statuses(id),
+    primary key(id, rev_id),
+    status_id int2 default 0 references statuses(id),
 
-    category text not null,
-
-    unique(id, rev_id)
+    category text not null
 );
 
-    
+
 create table receipts
 (
-    id int4 primary key generated always as identity,
+    id int4 references id.receipts,
     rev_id int8 references revisions(id),
-    status_id int2 default 1 references statuses(id),
+    primary key(id, rev_id),
+    status_id int2 default 0 references statuses(id),
 
     paid_on date default current_date,
-    paid_by int2 references users(id),
-
-    unique(id, rev_id)
+    paid_by int2 references id.users(id)
 );
 
 
 create table items
 (
-    id int8 primary key generated always as identity,
+    id int8 references id.items,
     rev_id int8 references revisions(id),
-    status_id int2 default 1 references statuses(id),
-    rcpt_id int4 references receipts(id),
-    cat_id int2 references categories(id),
+    primary key(id, rev_id),
+    status_id int2 default 0 references statuses(id),
 
+    rcpt_id int4 references id.receipts(id),
+    cat_id int2 references id.categories(id),
     cost int4 not null,
-    notes text,
-
-    unique(id, rev_id)
+    notes text
 );
 
 
 create table item_shares
 (
-    item_id int8 references items(id),
-    user_id int2 references users(id),
+    item_id int8 references id.items(id),
+    user_id int2 references id.users(id),
     rev_id int8 references revisions(id),
-    status_id int2 default 1 references statuses(id),
+    primary key (item_id, user_id, rev_id),
+    status_id int2 default 0 references statuses(id),
 
-    share int2,
-
-    primary key (item_id, user_id, rev_id)
+    share int2 not null
 );
 
 
@@ -119,7 +120,7 @@ inner join users upb on r.paid_by = upb.id
 inner join items i on r.id = i.rcpt_id
 inner join categories c on c.id = i.cat_id
 left join item_shares sh on sh.item_id = i.id
-left join users ush on sh.user_id  = ush.id
+left join users ush on sh.user_id = ush.id
 order by paid_on;
 
 
