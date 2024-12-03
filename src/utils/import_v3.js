@@ -221,9 +221,11 @@ module.exports = function (path_to_csv) {
           .map((chunk) => sql`insert into item_shares ${sql(chunk)}`),
       ]);
 
-      results.map((res) =>
-        console.log(`inserted ${res.count} rows into some table`)
-      );
+      results.map((res) => {
+        const op = res.statement.string.match(/(\S+) (\S+ \S+)/);
+
+        console.log(`${op[1]}ed ${res.count} rows ${op[2]}`);
+      });
       console.log("\n\tSUCCESSFULLY IMPORTED V3\n");
       process.exit(0);
     });
