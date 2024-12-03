@@ -1,4 +1,5 @@
-const { MAX_POSITIONAL_PARAMS, sql: imported_sql } = require("../db");
+// TODO: use `in_chunks` in all 3 write ops
+const { sql } = require("../db");
 
 // TODO: see if postgres has something better, than this SQLite related func
 const where_clause = ({ where }) => {
@@ -33,76 +34,55 @@ module.exports = class Backend {
     );
   }
 
-  static async select(crit = {}) {
-    const { params, where } = where_clause(crit);
-    return from(
-      await imported_sql`select * from ${imported_sql.unsafe(
-        this._tbl
-      )} ${imported_sql.unsafe(where)}`
+  static async select() {
+    return from(await sql`select * from ${sql.unsafe(this._tbl)}`);
+  }
+
+  static async insert(arr) {
+    return await sql.begin(async (sql) => {
+      const first_id =
+        (await sql`select max(id) from ${sql.unsafe(this._tbl)}`)[0].id + 1;
+
+      arr = this.from(arr, (row, i) => new this({ ...row, id: first_id + i }));
+
+      await sql`insert into id.${sql.unsafe(this._tbl)} ${sql(arr, ["id"])}`;
+
+      return await sql`insert into ${sql.unsafe(this._tbl)} ${sql(arr)}`;
+    });
+  }
+
+  static async simpler_insert(arr) {
+    return await sql.begin(async (sql) => {
+      const first_id =
+        (await sql`select max(id) from ${sql.unsafe(this._tbl)}`)[0].id + 1;
+
+      arr = this.from(arr, (row, i) => new this({ ...row, id: first_id + i }));
+
+      return await sql`insert into ${sql.unsafe(this._tbl)} ${sql(arr)}`;
+    });
+  }
+
+  static async delete(arr) {
+    return this.from(
+      await sql`insert into ${sql.unsafe(this._tbl)} ${sql(
+        this.from(arr, { status_id: 1 })
+      )} returning *`
     );
   }
 
-  static async insert(
-    arr,
-    { sql = imported_sql, skip_cols = ["status_id"], ...opts } = {}
-  ) {
-    // const [rowid] = await sql`select max(id) from ${sql.unsafe(this._tbl)}`;
-    return this.in_batches(arr, { sql, skip_cols, ...opts });
-  }
-
-  static async delete(arr, { sql = imported_sql, ...opts } = {}) {
-    return this.in_batches(arr, { sql, status_id: 1, ...opts });
-  }
-
-  static async update(arr, { sql = imported_sql, ...opts } = {}) {
-    return this.in_batches(arr, { sql, ...opts });
+  static async update(arr) {
+    return this.from(
+      await sql`insert into ${sql.unsafe(this._tbl)} ${sql(
+        this.from(arr)
+      )} returning *`
+    );
   }
 
   static from(arr, overrides = {}) {
-    return arr.map((row) => new this({ ...row, ...overrides }));
-  }
-
-  static async in_batches(arr, { sql, rev_by, skip_cols, ...fields }) {
-    return this.from(
-      (
-        await sql.begin((sql) => {
-          // arr = this.from(
-          //   arr,
-          //   rev_by !== undefined
-          //     ? // coming from a request
-          //       {
-          //         ...fields,
-          //         rev_id: (
-          //           await sql`insert into revisions ${sql(
-          //             rev_by,
-          //             "rev_by"
-          //           )} returning id`
-          //         )[0].id,
-          //       }
-          //     : //or import_v3
-          //       {}
-          // );
-
-          const columns = this.cols({ skip_cols });
-
-          const max_rows_at_a_time = Math.floor(
-            MAX_POSITIONAL_PARAMS / columns.length
-          );
-
-          const statements = [];
-
-          for (let i = 0; i < arr.length; i += max_rows_at_a_time) {
-            const part = arr.slice(i, i + max_rows_at_a_time);
-            statements.push(
-              sql`insert into ${sql.unsafe(this._tbl)} ${sql(
-                part,
-                columns
-              )} returning *`
-            );
-          }
-          return statements;
-        })
-      ).flat()
+    return arr.map(
+      typeof overrides === "function"
+        ? overrides
+        : (row) => new this({ ...row, ...overrides })
     );
   }
 
