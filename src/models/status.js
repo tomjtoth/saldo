@@ -19,6 +19,4 @@ module.exports = class Status extends Generic {
       },
     };
   }
-
-  static insert = this.simpler_insert;
 };

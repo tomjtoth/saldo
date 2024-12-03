@@ -23,6 +23,4 @@ module.exports = class Revision extends Generic {
       },
     };
   }
-
-  static insert = this.simpler_insert;
 };
