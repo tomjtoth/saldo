@@ -6,7 +6,7 @@
     "test": "PGPORT=54333 NODE_ENV=test jest --runInBand",
     "coverage": "npm run test -- --coverage",
     "dev": "NODE_ENV=dev nodemon index.js",
-    "import": "IMPORT_CSV=~/saldo_v3.csv node index.js"
+    "import": "IMPORT_CSV=~/saldo.csv node index.js"
   },
   "author": "",
   "license": "ISC",
