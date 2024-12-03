@@ -33,4 +33,6 @@ module.exports = class ItemShare extends Generic {
       },
     };
   }
+
+  static insert = this.simpler_insert;
 };
