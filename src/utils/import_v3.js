@@ -1,7 +1,7 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 const { v4: uuid } = require("uuid");
-const { sql, reset_db, rows_at_a_time } = require("../db");
+const { sql, reset_db, in_chunks } = require("../db");
 const approximate_float = require("./approximate_float");
 const {
   statuses: Status,
@@ -197,6 +197,7 @@ module.exports = function (path_to_csv) {
       await reset_db();
       await Promise.all(users.map((u) => u.hash()));
 
+      // keeping class Backend simple, that's why the raw sql here
       const results = await sql.begin((sql) => [
         sql`insert into id.users ${sql(users, ["id"])}`,
         sql`insert into id.categories ${sql(categories, ["id"])}`,
@@ -208,17 +209,15 @@ module.exports = function (path_to_csv) {
         sql`insert into users ${sql(users)}`,
         sql`insert into categories ${sql(categories)}`,
 
-        ...receipts
-          .toChunks(rows_at_a_time(Receipt.cols()))
-          .map((chunk) => sql`insert into receipts ${sql(chunk)}`),
-
-        ...items
-          .toChunks(rows_at_a_time(Item.cols()))
-          .map((chunk) => sql`insert into items ${sql(chunk)}`),
-
-        ...item_shares
-          .toChunks(rows_at_a_time(ItemShare.cols()))
-          .map((chunk) => sql`insert into item_shares ${sql(chunk)}`),
+        ...in_chunks(
+          receipts,
+          (chunk) => sql`insert into receipts ${sql(chunk)}`
+        ),
+        ...in_chunks(items, (chunk) => sql`insert into items ${sql(chunk)}`),
+        ...in_chunks(
+          item_shares,
+          (chunk) => sql`insert into item_shares ${sql(chunk)}`
+        ),
       ]);
 
       results.map((res) => {

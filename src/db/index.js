@@ -12,8 +12,11 @@ const MAX_POSITIONAL_PARAMS = 65534;
 
 const sql = postgres();
 
-function rows_at_a_time(cols) {
-  return Math.floor(MAX_POSITIONAL_PARAMS / cols.length);
+function in_chunks(arr, callback) {
+  const model = arr[0].constructor;
+  const chunk_size = Math.floor(MAX_POSITIONAL_PARAMS / model.cols().length);
+
+  return arr.toChunks(chunk_size).map(callback);
 }
 
 async function reset_db() {
@@ -30,5 +33,5 @@ async function reset_db() {
 module.exports = {
   sql,
   reset_db,
-  rows_at_a_time,
+  in_chunks,
 };
