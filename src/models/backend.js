@@ -38,25 +38,15 @@ module.exports = class Backend {
     return from(await sql`select * from ${sql.unsafe(this._tbl)}`);
   }
 
-  static async insert(arr) {
+  static async insert(arr, { update_ids = true } = {}) {
     return await sql.begin(async (sql) => {
       const first_id =
         (await sql`select max(id) from ${sql.unsafe(this._tbl)}`)[0].id + 1;
 
       arr = this.from(arr, (row, i) => new this({ ...row, id: first_id + i }));
 
-      await sql`insert into id.${sql.unsafe(this._tbl)} ${sql(arr, ["id"])}`;
-
-      return await sql`insert into ${sql.unsafe(this._tbl)} ${sql(arr)}`;
-    });
-  }
-
-  static async simpler_insert(arr) {
-    return await sql.begin(async (sql) => {
-      const first_id =
-        (await sql`select max(id) from ${sql.unsafe(this._tbl)}`)[0].id + 1;
-
-      arr = this.from(arr, (row, i) => new this({ ...row, id: first_id + i }));
+      if (update_ids)
+        await sql`insert into id.${sql.unsafe(this._tbl)} ${sql(arr, ["id"])}`;
 
       return await sql`insert into ${sql.unsafe(this._tbl)} ${sql(arr)}`;
     });

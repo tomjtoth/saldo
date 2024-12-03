@@ -19,4 +19,8 @@ module.exports = class Status extends Generic {
       },
     };
   }
+
+  static insert(arr) {
+    return super.insert(arr, { update_ids: false });
+  }
 };

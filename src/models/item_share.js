@@ -33,4 +33,8 @@ module.exports = class ItemShare extends Generic {
       },
     };
   }
+
+  static insert(arr) {
+    return super.insert(arr, { update_ids: false });
+  }
 };
