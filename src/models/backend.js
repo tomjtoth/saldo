@@ -1,5 +1,6 @@
-const { MAX_POSITIONAL_PARAMS, sql } = require("../db");
+const { MAX_POSITIONAL_PARAMS, sql: imported_sql } = require("../db");
 
+// TODO: see if postgres has something better, than this SQLite related func
 const where_clause = ({ where }) => {
   const params = [];
   const sql = Object.keys(where)
@@ -35,75 +36,74 @@ module.exports = class Backend {
   static async select(crit = {}) {
     const { params, where } = where_clause(crit);
     return from(
-      await sql`select * from ${sql.unsafe(this._tbl)} ${sql.unsafe(where)}`
+      await imported_sql`select * from ${imported_sql.unsafe(
+        this._tbl
+      )} ${imported_sql.unsafe(where)}`
     );
   }
 
-  static async insert(arr, { skip_cols = ["id", "status_id"], ...opts } = {}) {
-    return this.in_batches(arr, { skip_cols, ...opts });
+  static async insert(
+    arr,
+    { sql = imported_sql, skip_cols = ["status_id"], ...opts } = {}
+  ) {
+    // const [rowid] = await sql`select max(id) from ${sql.unsafe(this._tbl)}`;
+    return this.in_batches(arr, { sql, skip_cols, ...opts });
   }
 
-  static async delete(arr, opts = {}) {
-    return this.in_batches(arr, { status_id: 1, ...opts });
+  static async delete(arr, { sql = imported_sql, ...opts } = {}) {
+    return this.in_batches(arr, { sql, status_id: 1, ...opts });
   }
 
-  static async update(arr, opts = {}) {
-    return this.in_batches(arr, opts);
+  static async update(arr, { sql = imported_sql, ...opts } = {}) {
+    return this.in_batches(arr, { sql, ...opts });
   }
 
   static from(arr, overrides = {}) {
     return arr.map((row) => new this({ ...row, ...overrides }));
   }
 
-  static async in_batches(arr, { rev_by, skip_cols, ...fields }) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await sql`begin`;
+  static async in_batches(arr, { sql, rev_by, skip_cols, ...fields }) {
+    return this.from(
+      (
+        await sql.begin((sql) => {
+          // arr = this.from(
+          //   arr,
+          //   rev_by !== undefined
+          //     ? // coming from a request
+          //       {
+          //         ...fields,
+          //         rev_id: (
+          //           await sql`insert into revisions ${sql(
+          //             rev_by,
+          //             "rev_by"
+          //           )} returning id`
+          //         )[0].id,
+          //       }
+          //     : //or import_v3
+          //       {}
+          // );
 
-        arr = this.from(
-          arr,
-          rev_by !== undefined
-            ? // coming from a request
-              {
-                ...fields,
-                rev_id: (
-                  await sql`insert into revisions ${sql(
-                    rev_by,
-                    "rev_by"
-                  )} returning id`
-                )[0].id,
-              }
-            : //or import_v3
-              {}
-        );
+          const columns = this.cols({ skip_cols });
 
-        const columns = this.cols({ skip_cols });
-
-        const max_rows_at_a_time = Math.floor(
-          MAX_POSITIONAL_PARAMS / columns.length
-        );
-
-        const statements = [];
-
-        for (let i = 0; i < arr.length; i += max_rows_at_a_time) {
-          const part = arr.slice(i, i + max_rows_at_a_time);
-          statements.push(
-            await sql`insert into ${sql.unsafe(this._tbl)} ${sql(
-              part,
-              columns
-            )} returning *`
+          const max_rows_at_a_time = Math.floor(
+            MAX_POSITIONAL_PARAMS / columns.length
           );
-        }
 
-        const results = this.from((await Promise.all(statements)).flat());
+          const statements = [];
 
-        await sql`commit`;
-        resolve(results);
-      } catch (err) {
-        await sql`rollback`;
-        reject(err.message);
-      }
-    });
+          for (let i = 0; i < arr.length; i += max_rows_at_a_time) {
+            const part = arr.slice(i, i + max_rows_at_a_time);
+            statements.push(
+              sql`insert into ${sql.unsafe(this._tbl)} ${sql(
+                part,
+                columns
+              )} returning *`
+            );
+          }
+          return statements;
+        })
+      ).flat()
+    );
   }
 
   async save() {

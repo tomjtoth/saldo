@@ -222,7 +222,7 @@ module.exports = function (path_to_csv) {
       ]);
 
       results.map((res) =>
-        console.log(`inserted ${res.length} rows into some table`)
+        console.log(`inserted ${res.count} rows into some table`)
       );
       console.log("\n\tSUCCESSFULLY IMPORTED V3\n");
       process.exit(0);

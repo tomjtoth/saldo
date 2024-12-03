@@ -20,13 +20,7 @@ module.exports = class Receipt extends Generic {
     };
   }
 
-  /**
-   * overrides the generic was of inserting entities into the DB
-   *
-   * @param {} arr
-   * @param {*} param1
-   * @returns
-   */
+  // TODO: move this to a new Model that handles explicitly posted user inputs
   static async insert2(arr, { user, skip_cols = ["id", "status_id"] }) {
     // import_v3 inserts receipts in a generic manner
     if (user === undefined) return super.insert(arr, { user, skip_cols });

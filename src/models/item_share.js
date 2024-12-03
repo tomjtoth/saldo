@@ -33,8 +33,4 @@ module.exports = class ItemShare extends Generic {
       },
     };
   }
-
-  static async insert(arr, { skip_cols = ["status_id"], ...opts } = {}) {
-    return this.in_batches(arr, { skip_cols, ...opts });
-  }
 };

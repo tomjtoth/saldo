@@ -5,6 +5,9 @@ create table id.receipts (id int4 primary key);
 create table id.items (id int8 primary key);
 
 
+-- `generated always as identity` is not in use as it makes insertions more cumbersome in JS
+
+
 create table statuses
 (
     id int2 primary key,
@@ -16,7 +19,7 @@ create table statuses
 -- for database migrations
 create table migrations
 (
-    id int2 primary key,
+    id int2 primary key generated always as identity,
     status_id int2 default 0 references statuses(id),
 
     migration text not null,
@@ -43,6 +46,15 @@ create table users
     email text not null,
     name text not null,
     passwd text not null
+);
+
+
+create table sessions
+(
+    id int8 primary key generated always as identity,
+    status_id int2 default 0 references statuses(id),
+    user_id int2 references id.users(id),
+    ipv4 text not null
 );
 
 
