@@ -88,6 +88,7 @@ const register = (api, { email, ...opts } = {}) => {
 const login = (api, { email, ...rest } = {}) => {
   return endpoint(api, "/api/login", {
     ...rest,
+    code: 200,
     send: {
       email: email || DUMMY_USER.email,
       password: DUMMY_USER.passwd,
