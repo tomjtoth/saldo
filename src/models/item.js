@@ -24,4 +24,8 @@ module.exports = class Item extends Generic {
       },
     };
   }
+
+  static insert(arr, opts) {
+    return super.insert(arr, { ...opts, needs_rev: true });
+  }
 };

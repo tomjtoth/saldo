@@ -1,21 +1,23 @@
 const { v4: uuid } = require("uuid");
 const { reset_db } = require("../db");
 
-const endpoint = (api, route, opts = {}) => {
-  const {
+const endpoint = (
+  api,
+  route,
+  {
     method = "get",
     headers,
     code = 200,
     expect = [["Content-Type", /application\/json/]],
     send,
-  } = opts;
-
+  } = {}
+) => {
   api = api[method](route).expect(code);
 
-  if (expect)
-    expect.forEach(
-      (x) => (api = Array.isArray(x) ? api.expect(...x) : api.expect(x))
-    );
+  expect.forEach(
+    (x) => (api = Array.isArray(x) ? api.expect(...x) : api.expect(x))
+  );
+
   if (headers) api = api.set(headers);
   if (send) api = api.send(send);
 
@@ -37,11 +39,10 @@ const crud_works = async ({
     code: 201,
   });
 
-  created.forEach((obj, i) => {
+  created.forEach((obj, id) => {
     expect(obj).toStrictEqual({
-      ...initial_payload[i],
-      // SQLite3 starts from integer 1 as primary key
-      id: i + 1,
+      ...initial_payload[id],
+      id,
       status_id: 0,
     });
   });
@@ -78,14 +79,12 @@ const DUMMY_USER = {
   passwd: uuid(),
 };
 
-const register = (api, opts = {}) => {
-  const { email, ...rest } = opts;
-
+const register = (api, { email, ...opts } = {}) => {
   return endpoint(api, "/api/users", {
     method: "post",
     send: [{ ...DUMMY_USER, email: email || DUMMY_USER.email }],
     code: 201,
-    ...rest,
+    ...opts,
   });
 };
 

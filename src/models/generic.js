@@ -44,7 +44,7 @@ module.exports = class Generic extends Backend {
 
     Object.entries(this.constructor._all_validations).forEach(
       ([field, { type, required = false, validator, defaults_to }]) => {
-        const value = raw_data[field];
+        let value = raw_data[field];
 
         if (value === undefined) {
           if (required) {
@@ -59,9 +59,13 @@ module.exports = class Generic extends Backend {
             const model_type = type.name.toLowerCase();
             const value_type = typeof value;
             if (value && value_type !== model_type) {
-              throw new ValidationError(
-                `${model}.${field}=${qt(value)} is not of type ${model_type}`
-              );
+              const value_as_number = Number(value);
+              if (model_type === "number" && !isNaN(value_as_number))
+                value = value_as_number;
+              else
+                throw new ValidationError(
+                  `${model}.${field}=${qt(value)} is not of type ${model_type}`
+                );
             }
           }
 

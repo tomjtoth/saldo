@@ -1,5 +1,6 @@
 const { hash } = require("bcrypt");
 const Generic = require("./generic");
+const { sql } = require("../db");
 
 const salt_rounds = 10;
 
@@ -24,6 +25,53 @@ module.exports = class User extends Generic {
         validator: /.{8,}/,
       },
     };
+  }
+
+  static async insert(arr) {
+    return await sql.begin(async (sql) => {
+      const emails = await this.select({
+        what: "email",
+        where: { email: arr.map((u) => u.email), status_id: 0 },
+      });
+
+      if (emails.length > 1)
+        throw new Error(`emails ${emails.join(", ")} are already taken`);
+
+      if (emails.length > 0)
+        throw new Error(`email ${emails[0]} is already taken`);
+
+      const [first] = await sql`select
+          coalesce(max(mdl.id) + 1, 0)::int as mdl_id,
+          coalesce(max(rev.id) + 1, 0)::int as rev_id
+          from ${sql.unsafe(this._tbl)} mdl, revisions rev`;
+
+      await sql`insert into id.${sql.unsafe(this._tbl)} ${sql(
+        arr.map((_, i) => ({ id: first.mdl_id + i }))
+      )}`;
+
+      await sql`insert into revisions ${sql(
+        arr.map((_, i) => ({
+          id: first.rev_id + i,
+          rev_by: first.mdl_id + i,
+        }))
+      )}`;
+
+      arr = this.from(
+        arr,
+        (row, i) =>
+          new this({
+            ...row,
+            id: first.mdl_id + i,
+            rev_id: first.rev_id + i,
+          })
+      );
+
+      await Promise.all(arr.map((u) => u.hash()));
+
+      return this.from(
+        await sql`insert into ${sql.unsafe(this._tbl)} ${sql(arr)} returning *`
+      );
+    });
   }
 
   async hash() {

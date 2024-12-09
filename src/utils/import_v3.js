@@ -25,10 +25,6 @@ const {
  */
 module.exports = function (path_to_csv) {
   const csv_rows = [],
-    statuses = [
-      new Status({ id: 0, status: "default" }),
-      new Status({ id: 1, status: "deleted" }),
-    ],
     revisions = [],
     users = [],
     categories = [],
@@ -204,7 +200,6 @@ module.exports = function (path_to_csv) {
         sql`insert into id.receipts ${sql(receipts, ["id"])}`,
         sql`insert into id.items ${sql(items, ["id"])}`,
 
-        sql`insert into statuses ${sql(statuses)}`,
         sql`insert into revisions ${sql(revisions)}`,
         sql`insert into users ${sql(users)}`,
         sql`insert into categories ${sql(categories)}`,

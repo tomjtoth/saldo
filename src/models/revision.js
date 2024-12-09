@@ -23,8 +23,4 @@ module.exports = class Revision extends Generic {
       },
     };
   }
-
-  static insert(arr) {
-    return super.insert(arr, { update_ids: false });
-  }
 };

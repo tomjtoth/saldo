@@ -4,9 +4,7 @@ const { prep3, endpoint } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
 const DUMMY = {
-  added_on: new Date().valueOf(),
-  added_by: 1,
-  paid_on: 25000,
+  paid_on: "2020-01-01",
   paid_by: 0,
 };
 

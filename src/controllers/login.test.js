@@ -1,10 +1,12 @@
 const supertest = require("supertest");
-const { prep3, login } = require("../utils/test_helpers");
+const { reset_db } = require("../db");
+const { register, login } = require("../utils/test_helpers");
 
 const api = supertest(require("../app"));
 
 beforeEach(async () => {
-  await prep3(api);
+  await reset_db();
+  await register(api);
 });
 
 test("dummy user can log in", async () => {

@@ -32,13 +32,10 @@ router.post(
 );
 
 router.delete(
-  /\/(?<id>\d+)?/,
+  "/",
   auth_checker,
   body_validator,
   async ({ body, params: { tbl, id }, user }, res, next) => {
-    // allow deletion via path
-    if (id !== undefined) body.push({ id });
-
     if (body.length == 0)
       return next({ name: "malformed body", message: "nothing to delete" });
 

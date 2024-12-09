@@ -1,4 +1,5 @@
 const postgres = require("postgres");
+require("../utils/config");
 
 /**
  * in https://www.postgresql.org/docs/current/postgres-fdw.html reads:
@@ -19,19 +20,48 @@ function in_chunks(arr, callback) {
   return arr.toChunks(chunk_size).map(callback);
 }
 
-async function reset_db() {
-  return sql`truncate
+function recurse(arr, { lop = sql`and` } = {}) {
+  if (arr.length == 0) return sql``;
+
+  let [key, val] = arr.pop();
+
+  const col = sql.unsafe(key);
+  const op = Array.isArray(val) ? sql`in` : sql`=`;
+  val = Array.isArray(val) ? sql(val) : val;
+
+  return sql`${lop} (${col} ${op} ${val} ${recurse(arr)})`;
+}
+
+function what({ what = "*" }) {
+  return sql`${sql.unsafe(what)}`;
+}
+
+function where({ where = {} } = {}) {
+  return sql`where true ${recurse(Object.entries(where))}`;
+}
+
+function reset_db() {
+  return sql.begin((sql) => [
+    sql`truncate
     id.users,
     id.receipts,
     id.items,
     id.categories,
     revisions,
     statuses
-    cascade`;
+    cascade`,
+
+    sql`insert into statuses ${sql([
+      { id: 0, status: "default" },
+      { id: 1, status: "deleted" },
+    ])}`,
+  ]);
 }
 
 module.exports = {
   sql,
+  what,
+  where,
   reset_db,
   in_chunks,
 };
