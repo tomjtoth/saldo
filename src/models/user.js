@@ -41,9 +41,10 @@ module.exports = class User extends Generic {
         throw new Error(`email ${emails[0]} is already taken`);
 
       const [first] = await sql`select
-          coalesce(max(mdl.id) + 1, 0)::int as mdl_id,
-          coalesce(max(rev.id) + 1, 0)::int as rev_id
-          from ${sql.unsafe(this._tbl)} mdl, revisions rev`;
+        coalesce((select max(id) + 1 from ${sql.unsafe(
+          this._tbl
+        )}), 0)::int as mdl_id,
+        coalesce((select max(id) + 1 from revisions), 0)::int as rev_id`;
 
       await sql`insert into id.${sql.unsafe(this._tbl)} ${sql(
         arr.map((_, i) => ({ id: first.mdl_id + i }))

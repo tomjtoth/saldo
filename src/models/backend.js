@@ -23,9 +23,10 @@ module.exports = class Backend {
   static async insert(arr, { needs_rev = false, rev_by }) {
     return await sql.begin(async (sql) => {
       const [first] = await sql`select
-          coalesce(max(mdl.id) + 1, 0)::int as mdl_id,
-          coalesce(max(rev.id) + 1, 0)::int as rev_id
-          from ${sql.unsafe(this._tbl)} mdl, revisions rev`;
+        coalesce((select max(id) + 1 from ${sql.unsafe(
+          this._tbl
+        )}), 0)::int as mdl_id,
+        coalesce((select max(id) + 1 from revisions), 0)::int as rev_id`;
 
       arr = this.from(
         arr,
