@@ -31,6 +31,8 @@ const crud_works = async ({
   initial_payload,
   modifier,
   modified_checker,
+  // 0 is the registered user
+  rev_id = 1,
 }) => {
   const { body: created } = await endpoint(api, route, {
     send: initial_payload,
@@ -42,6 +44,7 @@ const crud_works = async ({
       ...initial_payload[id],
       id,
       status_id: 0,
+      rev_id,
     });
   });
 
@@ -60,7 +63,11 @@ const crud_works = async ({
   });
 
   deleted.forEach((deleted, i) => {
-    expect(deleted).toStrictEqual({ ...modified[i], status_id: 1 });
+    expect(deleted).toStrictEqual({
+      ...modified[i],
+      rev_id: modified[i].rev_id + 1,
+      status_id: 1,
+    });
   });
 
   const { body: queried } = await endpoint(api, route, {

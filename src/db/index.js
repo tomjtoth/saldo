@@ -37,7 +37,7 @@ function what({ what = "*" }) {
 }
 
 function where({ where = {} } = {}) {
-  return sql`where true ${recurse(Object.entries(where))}`;
+  return recurse(Object.entries(where));
 }
 
 function reset_db() {

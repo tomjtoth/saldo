@@ -1,13 +1,12 @@
 const supertest = require("supertest");
 const Category = require("./category");
 const { prep3, crud_works } = require("../utils/test_helpers");
-const { sql } = require("../db");
 const api = supertest(require("../app"));
 
 const DUMMIES = [
-  { id: 10, rev_id: 0, category: "category 1" },
-  { id: 11, rev_id: 0, category: "category 2" },
-  { id: 12, rev_id: 0, category: "category 3" },
+  { category: "category 1" },
+  { category: "category 2" },
+  { category: "category 3" },
 ];
 
 test("field validations work", async () => {
@@ -44,8 +43,6 @@ let headers;
 describe("via /api/endpoint", () => {
   beforeEach(async () => {
     headers = await prep3(api);
-
-    await sql`insert into revisions ${sql([{ id: 1, rev_by: 0 }])}`;
   });
 
   test("POST, PUT, DELETE, GET works", () => {
@@ -54,9 +51,9 @@ describe("via /api/endpoint", () => {
       route: "/api/categories",
       headers,
       initial_payload: DUMMIES,
-      modifier: (cat) => {
-        cat.category += " modified";
-        return cat;
+      modifier: ({ category, ...rest }) => {
+        category += " modified";
+        return { ...rest, category };
       },
       modified_checker: ({ category }) =>
         expect(category).toMatch(/.+ modified$/),

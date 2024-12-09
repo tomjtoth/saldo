@@ -12,11 +12,21 @@ module.exports = class Backend {
     );
   }
 
+  static _cte(before = new Date()) {
+    return sql`
+    with cte_${sql.unsafe(this._tbl)} as (
+      select mdl.*, rank() over (partition by mdl.id order by rev_on desc) as rnk
+      from ${sql.unsafe(this._tbl)} mdl
+      inner join revisions rev on rev.id = mdl.rev_id
+      where rev.rev_on <= ${before}
+    )`;
+  }
+
   static async select(crit = {}) {
     return this.from(
-      await sql`select ${what(crit)} from ${sql.unsafe(this._tbl)} ${where(
-        crit
-      )}`
+      await sql`${this._cte()} select ${what(crit)} from cte_${sql.unsafe(
+        this._tbl
+      )} where rnk = 1 ${where(crit)}`
     );
   }
 
@@ -53,20 +63,26 @@ module.exports = class Backend {
     });
   }
 
-  static async delete(arr, { rev_by }) {
-    return this.from(
-      await sql`insert into ${sql.unsafe(this._tbl)} ${sql(
-        this.from(arr, { status_id: 1, rev_by })
-      )} returning *`
-    );
+  static async update(arr, { rev_by, ...overrides }) {
+    return await sql.begin(async (sql) => {
+      const [first] =
+        await sql`select coalesce(max(id) + 1, 0)::int as rev_id from revisions`;
+
+      arr = this.from(arr, { ...overrides, rev_id: first.rev_id });
+
+      await sql`insert into revisions ${sql({
+        id: first.rev_id,
+        rev_by,
+      })}`;
+
+      return this.from(
+        await sql`insert into ${sql.unsafe(this._tbl)} ${sql(arr)} returning *`
+      );
+    });
   }
 
-  static async update(arr, { rev_by }) {
-    return this.from(
-      await sql`insert into ${sql.unsafe(this._tbl)} ${sql(
-        this.from(arr, { rev_by })
-      )} returning *`
-    );
+  static delete(arr, { rev_by }) {
+    return this.update(arr, { rev_by, status_id: 1 });
   }
 
   /**
