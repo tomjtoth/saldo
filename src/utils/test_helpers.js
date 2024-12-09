@@ -5,9 +5,9 @@ const endpoint = (
   api,
   route,
   {
-    method = "get",
+    method = "post",
     headers,
-    code = 200,
+    code = 201,
     expect = [["Content-Type", /application\/json/]],
     send,
   } = {}
@@ -34,9 +34,7 @@ const crud_works = async ({
 }) => {
   const { body: created } = await endpoint(api, route, {
     send: initial_payload,
-    method: "post",
     headers,
-    code: 201,
   });
 
   created.forEach((obj, id) => {
@@ -51,7 +49,6 @@ const crud_works = async ({
     send: created.map(modifier),
     method: "put",
     headers,
-    code: 201,
   });
 
   modified.forEach(modified_checker);
@@ -60,14 +57,16 @@ const crud_works = async ({
     send: modified,
     method: "delete",
     headers,
-    code: 201,
   });
 
   deleted.forEach((deleted, i) => {
     expect(deleted).toStrictEqual({ ...modified[i], status_id: 1 });
   });
 
-  const { body: queried } = await endpoint(api, route);
+  const { body: queried } = await endpoint(api, route, {
+    method: "get",
+    code: 200,
+  });
 
   expect(queried).toStrictEqual(deleted);
 };
@@ -81,16 +80,13 @@ const DUMMY_USER = {
 
 const register = (api, { email, ...opts } = {}) => {
   return endpoint(api, "/api/users", {
-    method: "post",
     send: [{ ...DUMMY_USER, email: email || DUMMY_USER.email }],
-    code: 201,
     ...opts,
   });
 };
 
 const login = (api, { email, ...rest } = {}) => {
   return endpoint(api, "/api/login", {
-    method: "post",
     ...rest,
     send: {
       email: email || DUMMY_USER.email,

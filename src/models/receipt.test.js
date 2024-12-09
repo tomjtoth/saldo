@@ -27,8 +27,6 @@ describe("via /api/endpoint", () => {
     const {
       body: { rcpt, items, item_shares },
     } = await endpoint(api, "/api/receipts", {
-      method: "post",
-      code: 201,
       headers,
       send: {
         paid_by: 1,
