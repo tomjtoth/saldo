@@ -11,7 +11,14 @@ require("../utils/config");
  */
 const MAX_POSITIONAL_PARAMS = 65534;
 
-const sql = postgres();
+const sql = postgres({
+  onnotice: (...args) => {
+    args.forEach((arg) => {
+      if (!arg.message.startsWith("truncate cascades to table"))
+        console.log(args);
+    });
+  },
+});
 
 function in_chunks(arr, callback) {
   const model = arr[0].constructor;
