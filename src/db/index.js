@@ -15,7 +15,7 @@ const sql = postgres({
   onnotice: (...args) => {
     args.forEach((arg) => {
       if (!arg.message.startsWith("truncate cascades to table"))
-        console.log(args);
+        console.log(arg);
     });
   },
 });
