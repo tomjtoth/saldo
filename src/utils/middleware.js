@@ -63,13 +63,9 @@ async function body_validator(req, _res, next) {
 }
 
 function error_handler(error, _req, res, next) {
-  const { code, name, message } = error;
+  const { name, message } = error;
 
-  if (
-    // code === "SQLITE_CONSTRAINT" ||
-    name === "model field validation" ||
-    name === "missing payer"
-  )
+  if (name === "model field validation" || name === "missing payer")
     return res.status(400).send(message);
 
   if (name === "auth" || name === "JsonWebTokenError")
