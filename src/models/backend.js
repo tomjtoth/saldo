@@ -32,10 +32,10 @@ module.exports = class Backend {
 
   static async insert(arr, { needs_rev = false, rev_by }) {
     return await sql.begin(async (sql) => {
-      const [first] = await sql`select
+      const [{ first_id, rev_id }] = await sql`select
         coalesce((select max(id) + 1 from ${sql.unsafe(
           this._tbl
-        )}), 0)::int as mdl_id,
+        )}), 0)::int as first_id,
         coalesce((select max(id) + 1 from revisions), 0)::int as rev_id`;
 
       arr = this.from(
@@ -43,8 +43,9 @@ module.exports = class Backend {
         (row, i) =>
           new this({
             ...row,
-            id: first.mdl_id + i,
-            rev_id: first.rev_id,
+            id: first_id + i,
+            // rev_id will be discarded when parsing models w/o it
+            rev_id,
           })
       );
 
@@ -52,7 +53,7 @@ module.exports = class Backend {
         await sql`insert into id.${sql.unsafe(this._tbl)} ${sql(arr, ["id"])}`;
 
         await sql`insert into revisions ${sql({
-          id: first.rev_id,
+          id: rev_id,
           rev_by,
         })}`;
       }
@@ -65,13 +66,13 @@ module.exports = class Backend {
 
   static async update(arr, { rev_by, ...overrides }) {
     return await sql.begin(async (sql) => {
-      const [first] =
+      const [{ rev_id }] =
         await sql`select coalesce(max(id) + 1, 0)::int as rev_id from revisions`;
 
-      arr = this.from(arr, { ...overrides, rev_id: first.rev_id });
+      arr = this.from(arr, { ...overrides, rev_id });
 
       await sql`insert into revisions ${sql({
-        id: first.rev_id,
+        id: rev_id,
         rev_by,
       })}`;
 
