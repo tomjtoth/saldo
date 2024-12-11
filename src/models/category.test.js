@@ -45,12 +45,20 @@ describe("via /api/endpoint", () => {
     headers = await prep3(api);
   });
 
-  test("POST, PUT, DELETE, GET works", () => {
-    crud_works({
+  test("POST, PUT, DELETE, GET works", async () => {
+    await crud_works({
       api,
       route: "/api/categories",
       headers,
       initial_payload: DUMMIES,
+      created_checker: (created, id) => {
+        expect(created).toStrictEqual({
+          ...DUMMIES[id],
+          id,
+          status_id: 0,
+          rev_id: 1,
+        });
+      },
       modifier: ({ category, ...rest }) => {
         category += " modified";
         return { ...rest, category };

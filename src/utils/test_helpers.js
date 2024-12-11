@@ -29,24 +29,16 @@ const crud_works = async ({
   route,
   headers,
   initial_payload,
+  created_checker,
   modifier,
   modified_checker,
-  // 0 is the registered user
-  rev_id = 1,
 }) => {
   const { body: created } = await endpoint(api, route, {
     send: initial_payload,
     headers,
   });
 
-  created.forEach((obj, id) => {
-    expect(obj).toStrictEqual({
-      ...initial_payload[id],
-      id,
-      status_id: 0,
-      rev_id,
-    });
-  });
+  created.forEach(created_checker);
 
   const { body: modified } = await endpoint(api, route, {
     send: created.map(modifier),

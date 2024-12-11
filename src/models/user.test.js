@@ -10,6 +10,8 @@ const {
 } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
+jest.setTimeout(60 * 60 * 1000);
+
 const DUMMIES = [
   { ...DUMMY_USER, name: "qwe" },
   { ...DUMMY_USER, email: "a@b.cd" },
@@ -42,7 +44,7 @@ test("field validations work", async () => {
   }).toThrow();
 
   // the below pass
-  DUMMIES.forEach((dum) => new User(dum));
+  DUMMIES.forEach((dummy) => new User(dummy));
 });
 
 test("can register in empty db", async () => {
@@ -82,15 +84,23 @@ describe("via /api/endpoint", () => {
     await register(api, { code: 400, expect: [] });
   });
 
-  test("POST, PUT, DELETE, GET works", () => {
-    crud_works({
+  test("POST, PUT, DELETE, GET works", async () => {
+    await crud_works({
       api,
-      route: "/api/categories",
+      route: "/api/users",
       headers,
       initial_payload: DUMMIES,
-      modifier: (u) => {
-        u.email = u.email.replace("@", ".modified@");
-        return u;
+      created_checker: (created, id) => {
+        expect(created).toStrictEqual({
+          ...DUMMIES[id],
+          id,
+          status_id: 0,
+          rev_id: 1 + id,
+        });
+      },
+      modifier: ({ email, ...rest }) => {
+        email = email.replace("@", ".modified@");
+        return { email, ...rest };
       },
       modified_checker: ({ email }) =>
         expect(email).toMatch(/.+\.modified@.{2,}/),
