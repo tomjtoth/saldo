@@ -1,10 +1,5 @@
 const Backend = require("./backend");
-
-class ValidationError extends Error {
-  name = "model field validation";
-}
-
-const qt = (val) => JSON.stringify(val);
+const { ValidationError, qt } = require("../utils/errors");
 
 module.exports = class Generic extends Backend {
   static get _ids() {
