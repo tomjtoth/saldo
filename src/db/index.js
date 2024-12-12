@@ -39,10 +39,6 @@ function recurse(arr, { lop = sql`and` } = {}) {
   return sql`${lop} (${col} ${op} ${val} ${recurse(arr)})`;
 }
 
-function what({ what = "*" }) {
-  return sql`${sql.unsafe(what)}`;
-}
-
 function where({ where = {} } = {}) {
   return recurse(Object.entries(where));
 }
@@ -67,7 +63,6 @@ function reset_db() {
 
 module.exports = {
   sql,
-  what,
   where,
   reset_db,
   in_chunks,

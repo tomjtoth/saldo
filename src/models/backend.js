@@ -1,5 +1,5 @@
 // TODO: use `in_chunks` in all 3 write ops
-const { sql, where, what } = require("../db");
+const { sql, where } = require("../db");
 
 module.exports = class Backend {
   static get _all_validations() {
@@ -24,7 +24,7 @@ module.exports = class Backend {
 
   static async select(crit = {}) {
     return this.from(
-      await sql`${this._cte()} select ${what(crit)} from cte_${sql.unsafe(
+      await sql`${this._cte()} select * from cte_${sql.unsafe(
         this._tbl
       )} where rnk = 1 ${where(crit)}`
     );
