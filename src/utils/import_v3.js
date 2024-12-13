@@ -195,11 +195,6 @@ module.exports = function (path_to_csv) {
 
       // keeping class Backend simple, that's why the raw sql here
       const results = await sql.begin((sql) => [
-        sql`insert into id.users ${sql(users, ["id"])}`,
-        sql`insert into id.categories ${sql(categories, ["id"])}`,
-        sql`insert into id.receipts ${sql(receipts, ["id"])}`,
-        sql`insert into id.items ${sql(items, ["id"])}`,
-
         sql`insert into revisions ${sql(revisions)}`,
         sql`insert into users ${sql(users)}`,
         sql`insert into categories ${sql(categories)}`,
