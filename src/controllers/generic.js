@@ -22,36 +22,30 @@ router.post(
   "/",
   auth_checker,
   body_validator,
-  async ({ body, params: { tbl }, user }, res, next) => {
+  async ({ body, params: { tbl }, user = {} }, res) => {
     if (tbl === "receipts") {
       if (body.paid_by === undefined) body.paid_by = user.id;
     }
 
-    res.status(201).send(await svc.create(tbl, body, user ? user.id : null));
+    res.status(201).send(await svc.create(tbl, body, user.id));
   }
 );
 
 router.delete(
-  "/",
+  /\/(?<id>\d+)/,
   auth_checker,
   body_validator,
-  async ({ body, params: { tbl, id }, user }, res, next) => {
-    if (body.length == 0)
-      return next({ name: "malformed body", message: "nothing to delete" });
-
-    res.status(201).send(await svc.delete(tbl, body, user.id));
+  async ({ params: { tbl, id }, user }, res) => {
+    res.status(201).send(await svc.delete(tbl, id, user.id));
   }
 );
 
 router.put(
-  /\/(?<id>\d+)?/,
+  /\/(?<id>\d+)/,
   auth_checker,
   body_validator,
-  async ({ body, params: { tbl }, user }, res, next) => {
-    if (body.length == 0)
-      return next({ name: "malformed body", message: "nothing to update" });
-
-    res.status(201).send(await svc.update(tbl, body, user.id));
+  async ({ body, params: { tbl, id }, user }, res) => {
+    res.status(201).send(await svc.update(tbl, id, body, user.id));
   }
 );
 

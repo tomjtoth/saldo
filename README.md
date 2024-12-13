@@ -8,6 +8,16 @@ A multi-user expense tracker supporting `one-to-many` sharing of items
 ## Roadmap
 
 - [ ] finish implementation in JS
+  - [ ] categories, users, items can be modified one at a time
+  - [ ]
+  - [ ]
+  - [ ]
+  - [ ]
+  - [ ]
+  - [ ]
+  - [ ]
+  - [ ]
+  - [ ]
 - [ ] convert backend to TS
 - [ ] convert frontend to TS
 - [ ] convert backend to Rust

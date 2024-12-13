@@ -28,55 +28,65 @@ const crud_works = async ({
   api,
   route,
   headers,
-  initial_payload,
-  created_checker,
-  modifier,
-  modified_checker,
-  deleter,
-  deleted_checker = (modified, deleted) => {
-    deleted.forEach((deleted, i) => {
-      expect(deleted).toStrictEqual({
-        ...modified[i],
-        rev_id: modified[i].rev_id + 1,
-        status_id: 1,
-      });
+  dummies,
+  comp_created = (i, dummy, created) => {
+    expect(created).toStrictEqual({
+      ...dummy,
+      id: 0 + i,
+      rev_id: 1 + i,
     });
   },
-  queried_checker = (deleted, queried) => {
-    queried.forEach((queried, i) => {
-      expect(queried).toStrictEqual(deleted[i]);
+  modifier,
+  comp_modified,
+  comp_deleted = (i, modified, deleted) => {
+    expect(deleted).toStricEqual({
+      ...modified,
+      status_id: 1,
+      rev_id: 2 + i,
     });
+  },
+  comp_queried = (i, deleted, queried) => {
+    expect(queried).toStricEqual(deleted);
   },
 }) => {
-  const { body: created } = await endpoint(api, route, {
-    send: initial_payload,
-    headers,
+  dummies.forEach(async (dummy, i) => {
+    const {
+      body: [created],
+    } = await endpoint(api, route, {
+      send: dummy,
+      headers,
+    });
+
+    comp_created(i, dummy, created);
+
+    const route_id = `${route}/${created.id}`;
+
+    const {
+      body: [modified],
+    } = await endpoint(api, route_id, {
+      send: modifier(created),
+      method: "put",
+      headers,
+    });
+
+    comp_modified(i, created, modified);
+
+    const {
+      body: [deleted],
+    } = await endpoint(api, route_id, {
+      method: "delete",
+      headers,
+    });
+
+    comp_deleted(i, modified, deleted);
+
+    const { body: queried } = await endpoint(api, route_id, {
+      method: "get",
+      code: 200,
+    });
+
+    comp_queried(i, deleted, queried);
   });
-
-  created.forEach(created_checker);
-
-  const { body: modified } = await endpoint(api, route, {
-    send: created.map(modifier),
-    method: "put",
-    headers,
-  });
-
-  modified.forEach(modified_checker);
-
-  const { body: deleted } = await endpoint(api, route, {
-    send: deleter ? deleter(modified) : modified,
-    method: "delete",
-    headers,
-  });
-
-  deleted_checker(modified, deleted);
-
-  const { body: queried } = await endpoint(api, route, {
-    method: "get",
-    code: 200,
-  });
-
-  queried_checker(deleted, queried);
 };
 
 const DUMMY_USER = {

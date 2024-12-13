@@ -82,7 +82,9 @@ module.exports = class Backend {
     });
   }
 
-  static delete(arr, { rev_by }) {
+  static async delete(ids, { rev_by }) {
+    const arr = await this.select({ where: { id: ids } });
+
     return this.update(arr, { rev_by, status_id: 1 });
   }
 

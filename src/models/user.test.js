@@ -89,7 +89,7 @@ describe("via /api/endpoint", () => {
       api,
       route: "/api/users",
       headers,
-      initial_payload: DUMMIES,
+      dummies: DUMMIES,
       created_checker: (created, id) => {
         const { passwd, ...dummy } = DUMMIES[id];
         expect(created).toStrictEqual({

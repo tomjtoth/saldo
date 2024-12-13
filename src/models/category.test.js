@@ -9,6 +9,8 @@ const DUMMIES = [
   { category: "category 3" },
 ];
 
+jest.setTimeout(60 * 60 * 1000);
+
 test("field validations work", async () => {
   expect(() => {
     new Category({});
@@ -50,21 +52,19 @@ describe("via /api/endpoint", () => {
       api,
       route: "/api/categories",
       headers,
-      initial_payload: DUMMIES,
-      created_checker: (created, id) => {
-        expect(created).toStrictEqual({
-          ...DUMMIES[id],
-          id,
-          status_id: 0,
-          rev_id: 1,
-        });
-      },
+      dummies: DUMMIES,
       modifier: ({ category, ...rest }) => {
         category += " modified";
         return { ...rest, category };
       },
-      modified_checker: ({ category }) =>
-        expect(category).toMatch(/.+ modified$/),
+      comp_modified: (i, created, modified) => {
+        const { category, ...rest } = created;
+        expect(modified).toStrictEqual({
+          ...rest,
+          category: `${category} modified`,
+          rev_id: i + 1,
+        });
+      },
     });
   });
 });

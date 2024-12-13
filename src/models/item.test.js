@@ -78,7 +78,7 @@ describe("via /api/endpoint", () => {
       api,
       route: "/api/items",
       headers,
-      initial_payload: DUMMIES,
+      dummies: DUMMIES,
       created_checker: (created, id) => {
         const { notes = null, discarded, ...item } = DUMMIES[id];
         expect(created).toStrictEqual({
