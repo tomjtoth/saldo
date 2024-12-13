@@ -1,4 +1,12 @@
-create schema history;
+create schema id;
+create table id.users (id int2 primary key);
+create table id.categories (id int2 primary key);
+create table id.receipts (id int4 primary key);
+create table id.items (id int8 primary key);
+
+
+-- `generated always as identity` is not in use as it makes insertions more cumbersome in JS
+
 
 create table statuses
 (
@@ -23,29 +31,17 @@ create table revisions
 (
     id int8 primary key,
 
-    rev_on timestamp default current_timestamp
+    rev_on timestamp default current_timestamp,
+    rev_by int2 references id.users(id)
 );
+
+
+create index on revisions(rev_on);
 
 
 create table users
 (
-    id int2 primary key,
-    rev_id int8 references revisions(id),
-    status_id int2 default 0 references statuses(id),
-
-    email text not null unique,
-    name text not null,
-    passwd text not null
-);
-
-
-alter table revisions add column
-rev_by int2 references users(id) deferrable initially deferred;
-
-
-create table history.users
-(
-    id int2 references users,
+    id int2 references id.users,
     rev_id int8 references revisions(id),
     primary key(id, rev_id),
     status_id int2 default 0 references statuses(id),
@@ -56,29 +52,18 @@ create table history.users
 );
 
 
-create table user_sessions
+create table sessions
 (
     id int8 primary key generated always as identity,
     status_id int2 default 0 references statuses(id),
-    user_id int2 references users(id),
-    -- 255_255_255_255 is a 32-bit integer, bitwise ops...
-    ipv4 integer not null
+    user_id int2 references id.users(id),
+    ipv4 text not null
 );
 
 
 create table categories
 (
-    id int2 primary key,
-    rev_id int8 references revisions(id),
-    status_id int2 default 0 references statuses(id),
-
-    category text not null
-);
-
-
-create table history.categories
-(
-    id int2 references categories,
+    id int2 references id.categories,
     rev_id int8 references revisions(id),
     primary key(id, rev_id),
     status_id int2 default 0 references statuses(id),
@@ -89,51 +74,25 @@ create table history.categories
 
 create table receipts
 (
-    id int4 primary key,
-    rev_id int8 references revisions(id),
-    status_id int2 default 0 references statuses(id),
-
-    paid_on date default current_date,
-    paid_by int2 references users(id)
-);
-
-
-create table history.receipts
-(
-    id int4 references receipts,
+    id int4 references id.receipts,
     rev_id int8 references revisions(id),
     primary key(id, rev_id),
     status_id int2 default 0 references statuses(id),
 
-    -- Math.floor is unnecessary as int division results in int in SQLite
-    -- paid_on integer default (unixepoch() / 60 / 60 / 24)
     paid_on date default current_date,
-    paid_by int2 references users(id)
+    paid_by int2 references id.users(id)
 );
 
 
 create table items
 (
-    id int8 primary key,
-    rev_id int8 references revisions(id),
-    status_id int2 default 0 references statuses(id),
-
-    rcpt_id int4 references receipts(id),
-    cat_id int2 references categories(id),
-    cost int4 not null,
-    notes text
-);
-
-
-create table history.items
-(
-    id int8 references items,
+    id int8 references id.items,
     rev_id int8 references revisions(id),
     primary key(id, rev_id),
     status_id int2 default 0 references statuses(id),
 
-    rcpt_id int4 references receipts(id),
-    cat_id int2 references categories(id),
+    rcpt_id int4 references id.receipts(id),
+    cat_id int2 references id.categories(id),
     cost int4 not null,
     notes text
 );
@@ -141,20 +100,8 @@ create table history.items
 
 create table item_shares
 (
-    item_id int8 references items(id),
-    user_id int2 references users(id),
-    rev_id int8 references revisions(id),
-    primary key (item_id, user_id),
-    status_id int2 default 0 references statuses(id),
-
-    share int2 not null
-);
-
-
-create table history.item_shares
-(
-    item_id int8 references items(id),
-    user_id int2 references users(id),
+    item_id int8 references id.items(id),
+    user_id int2 references id.users(id),
     rev_id int8 references revisions(id),
     primary key (item_id, user_id, rev_id),
     status_id int2 default 0 references statuses(id),

@@ -24,7 +24,9 @@ module.exports = class Backend {
 
   static async select(crit = {}) {
     return this.from(
-      await sql`select * from ${sql.unsafe(this._tbl)} ${where(crit)}`
+      await sql`${this._cte()} select * from cte_${sql.unsafe(
+        this._tbl
+      )} where rnk = 1 ${where(crit)}`
     );
   }
 
@@ -48,6 +50,8 @@ module.exports = class Backend {
       );
 
       if (needs_rev) {
+        await sql`insert into id.${sql.unsafe(this._tbl)} ${sql(arr, ["id"])}`;
+
         await sql`insert into revisions ${sql({
           id: rev_id,
           rev_by,

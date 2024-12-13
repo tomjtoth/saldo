@@ -40,12 +40,16 @@ function recurse(arr, { lop = sql`and` } = {}) {
 }
 
 function where({ where = {} } = {}) {
-  return sql`where true ${recurse(Object.entries(where))}`;
+  return recurse(Object.entries(where));
 }
 
 function reset_db() {
   return sql.begin((sql) => [
     sql`truncate
+    id.users,
+    id.receipts,
+    id.items,
+    id.categories,
     revisions,
     statuses
     cascade`,
