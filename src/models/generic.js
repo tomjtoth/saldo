@@ -48,7 +48,6 @@ module.exports = class Generic extends Backend {
             this[field] =
               typeof defaults_to === "function" ? defaults_to() : defaults_to;
           }
-          // else if (!primary_key) this[field] = null;
         } else {
           if (type) {
             const model_type = type.name.toLowerCase();

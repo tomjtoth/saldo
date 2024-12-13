@@ -36,6 +36,9 @@ create table revisions
 );
 
 
+create index on revisions(rev_on);
+
+
 create table users
 (
     id int2 references id.users,
@@ -110,11 +113,10 @@ create table item_shares
 -- view definitions below
 
 
-create view log_now as
+create view log as
 select
+    greatest(rr.rev_on, ir.rev_on, shr.rev_on) as rev_on,
     r.id as rcpt_id,
-    rr.rev_on as added_on,
-    uab.name as added_by,
     paid_on,
     upb.name as paid_by,
     i.id as item_id,
@@ -130,15 +132,17 @@ inner join revisions rr on rr.id = r.rev_id
 inner join users uab on rr.rev_by = uab.id
 inner join users upb on r.paid_by = upb.id
 inner join items i on r.id = i.rcpt_id
+inner join revisions ir on ir.id = i.rev_id
 inner join categories c on c.id = i.cat_id
 left join item_shares sh on sh.item_id = i.id
+left join revisions shr on shr.id = sh.rev_id
 left join users ush on sh.user_id = ush.id
 order by paid_on;
 
 
 create view balance_detailed as
 select paid_by, paid_to, paid_on, sum(share) as daily_sum
-from log_now
+from log
 where paid_by != paid_to
 group by paid_on, paid_by, paid_to
 order by paid_by, paid_to, paid_on;

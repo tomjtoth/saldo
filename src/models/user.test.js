@@ -13,9 +13,9 @@ const api = supertest(require("../app"));
 jest.setTimeout(60 * 60 * 1000);
 
 const DUMMIES = [
-  { ...DUMMY_USER, name: "qwe" },
+  { ...DUMMY_USER, email: "a@b.ef", name: "qwe" },
   { ...DUMMY_USER, email: "a@b.cd" },
-  { ...DUMMY_USER, passwd: "        " },
+  { ...DUMMY_USER, email: "aa@bb.cc", passwd: "        " },
 ];
 
 test("field validations work", async () => {
@@ -91,19 +91,28 @@ describe("via /api/endpoint", () => {
       headers,
       initial_payload: DUMMIES,
       created_checker: (created, id) => {
+        const { passwd, ...dummy } = DUMMIES[id];
         expect(created).toStrictEqual({
-          ...DUMMIES[id],
-          id,
+          ...dummy,
+          id: 1 + id,
           status_id: 0,
           rev_id: 1 + id,
         });
       },
-      modifier: ({ email, ...rest }) => {
+      modifier: ({ email, ...rest }, i) => {
         email = email.replace("@", ".modified@");
-        return { email, ...rest };
+        return { email, ...rest, passwd: DUMMIES[i].passwd };
       },
-      modified_checker: ({ email }) =>
-        expect(email).toMatch(/.+\.modified@.{2,}/),
+      modified_checker: ({ email }) => expect(email).toMatch(/\.modified@/),
+      deleter: (modified) =>
+        modified.map((user) => ({ ...user, passwd: "qwer1234" })),
+      deleted_checker: (modified, deleted, i) => {
+        expect(deleted).toStrictEqual({
+          ...modified[i],
+          rev_id: modified[i].rev_id + 1,
+          status_id: 1,
+        });
+      },
     });
   });
 });

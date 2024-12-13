@@ -1,5 +1,6 @@
 const { hash } = require("bcrypt");
 const Generic = require("./generic");
+const { ValidationError } = require("../utils/errors");
 const { sql } = require("../db");
 
 const salt_rounds = 10;
@@ -29,16 +30,19 @@ module.exports = class User extends Generic {
 
   static async insert(arr) {
     return await sql.begin(async (sql) => {
-      const emails = await this.select({
-        what: "email",
-        where: { email: arr.map((u) => u.email), status_id: 0 },
-      });
+      const emails = (
+        await this.select({
+          where: { email: arr.map((u) => u.email), status_id: 0 },
+        })
+      ).map((user) => user.email);
 
       if (emails.length > 1)
-        throw new Error(`emails ${emails.join(", ")} are already taken`);
+        throw new ValidationError(
+          `emails ${emails.join(", ")} are already taken`
+        );
 
       if (emails.length > 0)
-        throw new Error(`email ${emails[0]} is already taken`);
+        throw new ValidationError(`email ${emails[0]} is already taken`);
 
       const [first] = await sql`select
         coalesce((select max(id) + 1 from ${sql.unsafe(

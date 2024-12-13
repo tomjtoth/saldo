@@ -32,6 +32,21 @@ const crud_works = async ({
   created_checker,
   modifier,
   modified_checker,
+  deleter,
+  deleted_checker = (modified, deleted) => {
+    deleted.forEach((deleted, i) => {
+      expect(deleted).toStrictEqual({
+        ...modified[i],
+        rev_id: modified[i].rev_id + 1,
+        status_id: 1,
+      });
+    });
+  },
+  queried_checker = (deleted, queried) => {
+    queried.forEach((queried, i) => {
+      expect(queried).toStrictEqual(deleted[i]);
+    });
+  },
 }) => {
   const { body: created } = await endpoint(api, route, {
     send: initial_payload,
@@ -49,25 +64,19 @@ const crud_works = async ({
   modified.forEach(modified_checker);
 
   const { body: deleted } = await endpoint(api, route, {
-    send: modified,
+    send: deleter ? deleter(modified) : modified,
     method: "delete",
     headers,
   });
 
-  deleted.forEach((deleted, i) => {
-    expect(deleted).toStrictEqual({
-      ...modified[i],
-      rev_id: modified[i].rev_id + 1,
-      status_id: 1,
-    });
-  });
+  deleted_checker(modified, deleted);
 
   const { body: queried } = await endpoint(api, route, {
     method: "get",
     code: 200,
   });
 
-  expect(queried).toStrictEqual(deleted);
+  queried_checker(deleted, queried);
 };
 
 const DUMMY_USER = {

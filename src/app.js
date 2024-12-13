@@ -1,6 +1,7 @@
 const express = require("express");
 require("./utils/built_in_methods");
 const { PORT, IMPORT_CSV } = require("./utils/config");
+const { sql } = require("./db");
 const import_v3 = require("./utils/import_v3");
 const { generic, login, mailing } = require("./controllers");
 const {
@@ -19,6 +20,9 @@ app.use(
   generic
 );
 app.use("/api/login", login);
+app.use("/api/log", async (_req, res) =>
+  res.send(await sql`select * from log`)
+);
 app.use("/api/mailing", mailing);
 
 app.use(error_handler);
