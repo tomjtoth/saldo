@@ -48,7 +48,7 @@ module.exports = function (path_to_csv) {
 
         // TODO: revisions could be reduced, because some receipts were added in a batch
         // last_rev = revisions.find(r => r.rev_on === rev_on)
-        const rev_on = new Date(str_added_on).epoch();
+        const rev_on = new Date(str_added_on).to_epoch();
 
         let rev_id = revisions.length - 1;
         let last_rev = revisions[rev_id];
@@ -96,7 +96,7 @@ module.exports = function (path_to_csv) {
               ) - 1;
         }
 
-        const paid_on = new Date(str_paid_on).epoch_date();
+        const paid_on = new Date(str_paid_on).to_epoch_date();
 
         let rcpt_id = receipts.length - 1;
         const last_rcpt = receipts[rcpt_id];

@@ -11,7 +11,7 @@ module.exports = class Receipt extends Generic {
       paid_on: {
         type: Number,
         validator: /^-?\d+$/,
-        defaults_to: () => new Date().epoch_date(),
+        defaults_to: () => new Date().to_epoch_date(),
       },
       paid_by: {
         required: true,
@@ -91,5 +91,12 @@ module.exports = class Receipt extends Generic {
 
       return { receipt, items, item_shares };
     });
+  }
+
+  toJSON() {
+    return {
+      ...this,
+      paid_on: Date.from_epoch_date(this.paid_on).toISODate(),
+    };
   }
 };

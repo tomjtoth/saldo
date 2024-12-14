@@ -71,7 +71,7 @@ describe("via /api/endpoint", () => {
         {
           id: 0,
           rev_id: 0,
-          paid_on: new Date("2020-01-01").epoch_date(),
+          paid_on: new Date("2020-01-01").to_epoch_date(),
           paid_by: 0,
         },
       ])}`,
