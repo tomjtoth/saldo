@@ -7,9 +7,9 @@ module.exports = class Receipt extends Generic {
   static get _validations() {
     return {
       paid_on: {
-        type: String,
-        validator: /^\d{4}-\d{2}-\d{2}$/,
-        defaults_to: () => new Date().toISODate(),
+        type: Number,
+        validator: /^-?\d+$/,
+        defaults_to: () => new Date().epoch_date(),
       },
       paid_by: {
         required: true,

@@ -1,3 +1,11 @@
+-- probably not a good idea to store 32-bit ints instead of timestamps of 64-bit
+CREATE OR REPLACE FUNCTION epoch(start_year INTEGER)
+RETURNS BIGINT AS $$
+BEGIN
+    RETURN FLOOR(EXTRACT(EPOCH FROM (now() - TO_TIMESTAMP(start_year || '-01-01', 'YYYY-MM-DD'))));
+END;
+$$ LANGUAGE plpgsql;
+
 create schema history;
 
 create table statuses
@@ -15,7 +23,7 @@ create table migrations
     status_id int2 default 0 references statuses(id),
 
     migration text not null,
-    applied timestamp default current_timestamp
+    applied int4 default (epoch(2020))
 );
 
 
@@ -23,7 +31,7 @@ create table revisions
 (
     id int8 primary key,
 
-    rev_on timestamp default current_timestamp
+    rev_on int4 default (epoch(2020))
 );
 
 
@@ -93,7 +101,7 @@ create table receipts
     rev_id int8 references revisions(id),
     status_id int2 default 0 references statuses(id),
 
-    paid_on date default current_date,
+    paid_on int4 default (epoch(2020) / 60 / 60 / 24),
     paid_by int2 references users(id)
 );
 
@@ -103,11 +111,9 @@ create table history.receipts
     id int4 references receipts,
     rev_id int8 references revisions(id),
     primary key(id, rev_id),
-    status_id int2 default 0 references statuses(id),
+    status_id int2 references statuses(id),
 
-    -- Math.floor is unnecessary as int division results in int in SQLite
-    -- paid_on integer default (unixepoch() / 60 / 60 / 24)
-    paid_on date default current_date,
+    paid_on int4,
     paid_by int2 references users(id)
 );
 

@@ -68,7 +68,12 @@ describe("via /api/endpoint", () => {
       ])}`,
 
       sql`insert into receipts ${sql([
-        { id: 0, rev_id: 0, paid_on: "2020-01-01", paid_by: 0 },
+        {
+          id: 0,
+          rev_id: 0,
+          paid_on: new Date("2020-01-01").epoch_date(),
+          paid_by: 0,
+        },
       ])}`,
     ]);
   });
