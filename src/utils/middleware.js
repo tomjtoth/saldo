@@ -34,6 +34,12 @@ async function user_extractor(req, _res, next) {
 }
 
 function auth_checker({ params: { tbl }, method, user }, _res, next) {
+  if (method !== "get" && tbl.startsWith("history."))
+    return next({
+      name: "auth403",
+      message: "modifying historical data is not allowed",
+    });
+
   if (!user && !(tbl === "users" && method === "POST"))
     return next({
       name: "auth",
@@ -53,6 +59,10 @@ function error_handler(error, _req, res, next) {
 
   if (name === "auth" || name === "JsonWebTokenError")
     return res.status(401).send(message);
+
+  if (name === "auth403") {
+    return res.status(403).send(message);
+  }
 
   next(error);
 }
