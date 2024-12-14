@@ -14,9 +14,6 @@ module.exports = {
   },
 
   update: async (tbl, id, body, rev_by) => {
-    const model = models[tbl];
-    const [entity] = await model.select({ where: { id } });
-
-    return model.update([entity], { ...body, rev_by });
+    return models[tbl].update(id, { ...body, rev_by });
   },
 };

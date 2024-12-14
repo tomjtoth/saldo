@@ -61,9 +61,7 @@ const crud_works = async ({
 
   const route_id = `${route}/${created.id}`;
 
-  const {
-    body: [modified],
-  } = await endpoint(api, route_id, {
+  const { body: modified } = await endpoint(api, route_id, {
     send: modifier(created),
     method: "put",
     headers,
@@ -71,9 +69,7 @@ const crud_works = async ({
 
   comp_modified(created, modified);
 
-  const {
-    body: [deleted],
-  } = await endpoint(api, route_id, {
+  const { body: deleted } = await endpoint(api, route_id, {
     method: "delete",
     headers,
   });

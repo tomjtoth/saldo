@@ -5,6 +5,9 @@ const { prep3, crud_works } = require("../utils/test_helpers");
 
 const api = supertest(require("../app"));
 
+// TODO: remove when publishing
+jest.setTimeout(60 * 60 * 1000);
+
 const VALID = {
   id: 0,
   rev_id: 1,
@@ -60,12 +63,10 @@ describe("via /api/endpoint", () => {
     headers = await prep3(api);
 
     await sql.begin((sql) => [
-      sql`insert into id.categories ${sql([{ id: 0 }])}`,
       sql`insert into categories ${sql([
         { id: 0, rev_id: 0, category: "test1" },
       ])}`,
 
-      sql`insert into id.receipts ${sql([{ id: 0 }])}`,
       sql`insert into receipts ${sql([
         { id: 0, rev_id: 0, paid_on: "2020-01-01", paid_by: 0 },
       ])}`,

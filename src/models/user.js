@@ -50,10 +50,6 @@ module.exports = class User extends Generic {
         )}), 0)::int as mdl_id,
         coalesce((select max(id) + 1 from revisions), 0)::int as rev_id`;
 
-      await sql`insert into id.${sql.unsafe(this._tbl)} ${sql(
-        arr.map((_, i) => ({ id: first.mdl_id + i }))
-      )}`;
-
       await sql`insert into revisions ${sql(
         arr.map((_, i) => ({
           id: first.rev_id + i,

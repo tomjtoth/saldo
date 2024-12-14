@@ -24,36 +24,39 @@ describe("via /api/endpoint", () => {
   });
 
   test("POST new receipt works", async () => {
+    const paid_by = 1;
+    const DUMMIES = [
+      {
+        cat_id: 3,
+        cost: 100,
+        notes: "for user 2",
+        shares: [null, null, 1],
+      },
+      {
+        cat_id: 3,
+        cost: 200,
+        notes: "for users 0 & 2, but not user 1",
+        shares: [1, null, 1],
+      },
+      {
+        cat_id: 4,
+        cost: 300,
+      },
+      {
+        cat_id: 5,
+        cost: 400,
+        notes: "for user 0",
+        shares: [1],
+      },
+    ];
+
     const {
       body: { rcpt, items, item_shares },
     } = await endpoint(api, "/api/receipts", {
       headers,
       send: {
-        paid_by: 1,
-        items: [
-          {
-            cat_id: 3,
-            cost: 100,
-            notes: "for user 2",
-            shares: [null, null, 1],
-          },
-          {
-            cat_id: 3,
-            cost: 200,
-            notes: "for users 0 & 2, but not user 1",
-            shares: [1, null, 1],
-          },
-          {
-            cat_id: 4,
-            cost: 300,
-          },
-          {
-            cat_id: 5,
-            cost: 400,
-            notes: "for user 0",
-            shares: [1],
-          },
-        ],
+        paid_by,
+        items: DUMMIES,
       },
     });
 

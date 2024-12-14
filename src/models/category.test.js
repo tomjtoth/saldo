@@ -9,6 +9,7 @@ const DUMMIES = [
   { category: "category 3" },
 ];
 
+// TODO: remove when publishing
 jest.setTimeout(60 * 60 * 1000);
 
 test("field validations work", async () => {

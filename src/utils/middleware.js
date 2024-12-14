@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const models = require("../models");
+const User = require("../models/user");
 const { SECRET } = require("../utils/config");
 
 function token_extractor(req, _res, next) {
@@ -20,7 +20,7 @@ async function user_extractor(req, _res, next) {
         message: "invalid token",
       });
 
-    const [user] = await models.users.select({ where: { id } });
+    const [user] = await User.select({ where: { id } });
 
     if (!user)
       return next({

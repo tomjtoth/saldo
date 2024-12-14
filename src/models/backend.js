@@ -12,6 +12,7 @@ module.exports = class Backend {
     );
   }
 
+  // to be re-used when implementing looking at data at given point in time
   static _cte(before = new Date()) {
     return sql`
     with cte_${sql.unsafe(this._tbl)} as (
@@ -20,6 +21,9 @@ module.exports = class Backend {
       inner join revisions rev on rev.id = mdl.rev_id
       where rev.rev_on <= ${before}
     )`;
+
+    // below
+    // await sql`${this._cte()} select * from ${sql.unsafe(this._tbl)} ${where(crit)}`
   }
 
   static async select(crit = {}) {
@@ -28,8 +32,8 @@ module.exports = class Backend {
     );
   }
 
-  static async insert(arr, { needs_rev = false, rev_by }) {
-    return await sql.begin(async (sql) => {
+  static insert(arr, { needs_rev = false, rev_by }) {
+    return sql.begin(async (sql) => {
       const [{ first_id, rev_id }] = await sql`select
         coalesce((select max(id) + 1 from ${sql.unsafe(
           this._tbl
@@ -60,28 +64,39 @@ module.exports = class Backend {
     });
   }
 
-  static async update(arr, { rev_by, ...overrides }) {
-    return await sql.begin(async (sql) => {
+  static update(id, { rev_by, ...overrides }) {
+    return sql.begin(async (sql) => {
       const [{ rev_id }] =
         await sql`select coalesce(max(id) + 1, 0)::int as rev_id from revisions`;
 
-      arr = this.from(arr, { ...overrides, rev_id });
+      // moving current row to history
+      const [current] = await sql`
+        insert into history.${sql.unsafe(this._tbl)}
+        select * from ${sql.unsafe(this._tbl)} where id = ${id}
+        returning *`;
+
+      // updating props of object, validating user input, omitting id
+      const { id: _discarded_here, ...rest } = new this({
+        ...current,
+        ...overrides,
+        rev_id,
+      });
 
       await sql`insert into revisions ${sql({
         id: rev_id,
         rev_by,
       })}`;
 
-      return this.from(
-        await sql`insert into ${sql.unsafe(this._tbl)} ${sql(arr)} returning *`
-      );
+      const [updated] = await sql`update ${sql.unsafe(this._tbl)} set ${sql(
+        rest
+      )} where id = ${id} returning *`;
+
+      return new this(updated);
     });
   }
 
-  static async delete(ids, { rev_by }) {
-    const arr = await this.select({ where: { id: ids } });
-
-    return this.update(arr, { rev_by, status_id: 1 });
+  static delete(id, { rev_by }) {
+    return this.update(id, { rev_by, status_id: 1 });
   }
 
   /**
@@ -97,19 +112,5 @@ module.exports = class Backend {
         ? overrides
         : (row) => new this({ ...row, ...overrides })
     );
-  }
-
-  async save() {
-    const model = this.constructor;
-    return (
-      this.id === undefined
-        ? await model.insert([this])
-        : await model.update([this])
-    )[0];
-  }
-
-  async delete() {
-    const model = this.constructor;
-    return (await model.delete([this]))[0];
   }
 };

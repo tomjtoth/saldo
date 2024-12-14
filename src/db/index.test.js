@@ -3,14 +3,15 @@ const { reset_db, sql } = require(".");
 test("resetting DB works", async () => {
   await reset_db();
 
-  const [res] = await sql`select 
-    count(idu.*) + count(idc.*) + count(idr.*) + count(idi.*) +
-    count(s.*) + count(rev.*) + count(u.*) + count(c.*) +
-    count(r.*) + count(i.*) + count(ish.*)
-    as count
-    from id.users idu, id.categories idc, id.receipts idr, id.items idi,
-    statuses s, revisions rev, users u, categories c, receipts r, items i, 
-    item_shares ish`;
+  const [{ count }] = await sql`select (
+    (select count(*) from statuses) + 
+    (select count(*) from revisions) + 
+    (select count(*) from users) + 
+    (select count(*) from categories) +
+    (select count(*) from receipts) + 
+    (select count(*) from items) + 
+    (select count(*) from item_shares)
+  )::int as count`;
 
-  expect(res).toStrictEqual({ count: "0" });
+  expect(count).toBe(2);
 });
