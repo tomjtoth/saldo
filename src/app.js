@@ -16,7 +16,7 @@ const app = express();
 
 app.use(express.json(), token_extractor, user_extractor);
 app.use(
-  /\/api\/(?<tbl>(?:history\.)?(?:users|categories|receipts|item(?:_share)?s))/,
+  /\/api\/(?<hist>history\.)?(?<tbl>(?:users|categories|receipts|item(?:_share)?s))/,
   generic
 );
 app.use("/api/login", login);

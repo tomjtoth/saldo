@@ -4,8 +4,8 @@ const { auth_checker } = require("../utils/middleware");
 
 router.get(
   /\/(?:(?<id>\d+)(?:\/(?<id2>\d+))?)?/,
-  async ({ params: { tbl, id, id2 } }, res) => {
-    const crit = { where: {} };
+  async ({ params: { hist, tbl, id, id2 } }, res) => {
+    const crit = { hist, where: {} };
     if (id !== undefined) {
       if (id2 === undefined) crit.where.id = id;
       else if (tbl === "item_shares") {

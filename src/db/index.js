@@ -39,8 +39,8 @@ function recurse(arr, { lop = sql`and` } = {}) {
   return sql`${lop} (${col} ${op} ${val} ${recurse(arr)})`;
 }
 
-function where({ where = {} } = {}) {
-  return sql`where true ${recurse(Object.entries(where))}`;
+function where(crit = {}) {
+  return sql`where true ${recurse(Object.entries(crit))}`;
 }
 
 function reset_db() {

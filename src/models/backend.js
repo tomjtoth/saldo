@@ -26,9 +26,11 @@ module.exports = class Backend {
     // await sql`${this._cte()} select * from ${sql.unsafe(this._tbl)} ${where(crit)}`
   }
 
-  static async select(crit = {}) {
+  static async select({ hist = "", where: crit = {} } = {}) {
     return this.from(
-      await sql`select * from ${sql.unsafe(this._tbl)} ${where(crit)}`
+      await sql`select * from ${sql.unsafe(`${hist}${this._tbl}`)} ${where(
+        crit
+      )}`
     );
   }
 
