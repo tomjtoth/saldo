@@ -56,7 +56,7 @@ create table history.users
     id int2 references users,
     rev_id int8 references revisions(id),
     primary key(id, rev_id),
-    status_id int2 default 0 references statuses(id),
+    status_id int2 references statuses(id),
 
     email text not null,
     name text not null,
@@ -89,7 +89,7 @@ create table history.categories
     id int2 references categories,
     rev_id int8 references revisions(id),
     primary key(id, rev_id),
-    status_id int2 default 0 references statuses(id),
+    status_id int2 references statuses(id),
 
     category text not null
 );
@@ -136,7 +136,7 @@ create table history.items
     id int8 references items,
     rev_id int8 references revisions(id),
     primary key(id, rev_id),
-    status_id int2 default 0 references statuses(id),
+    status_id int2 references statuses(id),
 
     rcpt_id int4 references receipts(id),
     cat_id int2 references categories(id),
@@ -163,7 +163,7 @@ create table history.item_shares
     user_id int2 references users(id),
     rev_id int8 references revisions(id),
     primary key (item_id, user_id, rev_id),
-    status_id int2 default 0 references statuses(id),
+    status_id int2 references statuses(id),
 
     share int2 not null
 );
