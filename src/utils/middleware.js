@@ -34,10 +34,6 @@ async function user_extractor(req, _res, next) {
 }
 
 function auth_checker({ params: { tbl }, method, user }, _res, next) {
-  // after `import_v3`
-  // use a breakpoint here
-  // to override `user`
-  // while updating the 1st email:passwd
   if (!user && !(tbl === "users" && method === "POST"))
     return next({
       name: "auth",
@@ -45,19 +41,6 @@ function auth_checker({ params: { tbl }, method, user }, _res, next) {
         method === "PUT" ? "update" : method.toLowerCase()
       } ${tbl}`,
     });
-
-  next();
-}
-
-async function body_validator(req, _res, next) {
-  const {
-    params: { tbl },
-    method,
-  } = req;
-
-  if (!(method === "POST" && tbl === "receipts")) {
-    if (!Array.isArray(req.body)) req.body = [];
-  }
 
   next();
 }
@@ -78,6 +61,5 @@ module.exports = {
   token_extractor,
   user_extractor,
   auth_checker,
-  body_validator,
   error_handler,
 };

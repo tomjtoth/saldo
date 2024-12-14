@@ -89,27 +89,30 @@ describe("via /api/endpoint", () => {
       api,
       route: "/api/users",
       headers,
-      dummies: DUMMIES,
-      created_checker: (created, id) => {
-        const { passwd, ...dummy } = DUMMIES[id];
+      dummy: DUMMIES[0],
+      comp_created: (dummy, created) => {
+        const { passwd, ...rest } = dummy;
         expect(created).toStrictEqual({
-          ...dummy,
-          id: 1 + id,
+          ...rest,
+          id: 1,
           status_id: 0,
-          rev_id: 1 + id,
+          rev_id: 1,
         });
       },
-      modifier: ({ email, ...rest }, i) => {
+      modifier: ({ email, ...rest }) => {
         email = email.replace("@", ".modified@");
-        return { email, ...rest, passwd: DUMMIES[i].passwd };
+        return { email, ...rest, passwd: DUMMIES[0].passwd };
       },
-      modified_checker: ({ email }) => expect(email).toMatch(/\.modified@/),
-      deleter: (modified) =>
-        modified.map((user) => ({ ...user, passwd: "qwer1234" })),
-      deleted_checker: (modified, deleted, i) => {
+      comp_modified: (created, modified) =>
+        expect(modified).toStrictEqual({
+          ...created,
+          email: created.email.replace("@", ".modified@"),
+          rev_id: 2,
+        }),
+      comp_deleted: (modified, deleted) => {
         expect(deleted).toStrictEqual({
-          ...modified[i],
-          rev_id: modified[i].rev_id + 1,
+          ...modified,
+          rev_id: 3,
           status_id: 1,
         });
       },

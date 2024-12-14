@@ -6,7 +6,7 @@ module.exports = {
   },
 
   create: async (tbl, body, rev_by) => {
-    return models[tbl].insert(body, { rev_by });
+    return models[tbl].insert([body], { rev_by });
   },
 
   delete: async (tbl, id, rev_by) => {
@@ -17,6 +17,6 @@ module.exports = {
     const model = models[tbl];
     const [entity] = await model.select({ where: { id } });
 
-    return model.update([{ ...entity, ...body }], { rev_by });
+    return model.update([entity], { ...body, rev_by });
   },
 };

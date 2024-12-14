@@ -52,17 +52,17 @@ describe("via /api/endpoint", () => {
       api,
       route: "/api/categories",
       headers,
-      dummies: DUMMIES,
+      dummy: DUMMIES[0],
       modifier: ({ category, ...rest }) => {
         category += " modified";
         return { ...rest, category };
       },
-      comp_modified: (i, created, modified) => {
+      comp_modified: (created, modified) => {
         const { category, ...rest } = created;
         expect(modified).toStrictEqual({
           ...rest,
           category: `${category} modified`,
-          rev_id: i + 1,
+          rev_id: 2,
         });
       },
     });

@@ -28,65 +28,66 @@ const crud_works = async ({
   api,
   route,
   headers,
-  dummies,
-  comp_created = (i, dummy, created) => {
+  dummy,
+  comp_created = (dummy, created) => {
     expect(created).toStrictEqual({
       ...dummy,
-      id: 0 + i,
-      rev_id: 1 + i,
+      id: 0,
+      rev_id: 1,
+      status_id: 0,
     });
   },
   modifier,
   comp_modified,
-  comp_deleted = (i, modified, deleted) => {
-    expect(deleted).toStricEqual({
+  comp_deleted = (modified, deleted) => {
+    expect(deleted).toStrictEqual({
       ...modified,
+      rev_id: 3,
       status_id: 1,
-      rev_id: 2 + i,
     });
   },
-  comp_queried = (i, deleted, queried) => {
-    expect(queried).toStricEqual(deleted);
+  comp_queried = (deleted, queried) => {
+    expect(queried).toStrictEqual(deleted);
   },
 }) => {
-  dummies.forEach(async (dummy, i) => {
-    const {
-      body: [created],
-    } = await endpoint(api, route, {
-      send: dummy,
-      headers,
-    });
-
-    comp_created(i, dummy, created);
-
-    const route_id = `${route}/${created.id}`;
-
-    const {
-      body: [modified],
-    } = await endpoint(api, route_id, {
-      send: modifier(created),
-      method: "put",
-      headers,
-    });
-
-    comp_modified(i, created, modified);
-
-    const {
-      body: [deleted],
-    } = await endpoint(api, route_id, {
-      method: "delete",
-      headers,
-    });
-
-    comp_deleted(i, modified, deleted);
-
-    const { body: queried } = await endpoint(api, route_id, {
-      method: "get",
-      code: 200,
-    });
-
-    comp_queried(i, deleted, queried);
+  const {
+    body: [created],
+  } = await endpoint(api, route, {
+    send: dummy,
+    headers,
   });
+
+  comp_created(dummy, created);
+
+  const route_id = `${route}/${created.id}`;
+
+  const {
+    body: [modified],
+  } = await endpoint(api, route_id, {
+    send: modifier(created),
+    method: "put",
+    headers,
+  });
+
+  comp_modified(created, modified);
+
+  const {
+    body: [deleted],
+  } = await endpoint(api, route_id, {
+    method: "delete",
+    headers,
+  });
+
+  comp_deleted(modified, deleted);
+
+  const {
+    body: [queried],
+  } = await endpoint(api, route_id, {
+    method: "get",
+    code: 200,
+  });
+
+  comp_queried(deleted, queried);
 };
 
 const DUMMY_USER = {
@@ -98,7 +99,7 @@ const DUMMY_USER = {
 
 const register = (api, { email, ...opts } = {}) => {
   return endpoint(api, "/api/users", {
-    send: [{ ...DUMMY_USER, email: email || DUMMY_USER.email }],
+    send: { ...DUMMY_USER, email: email || DUMMY_USER.email },
     ...opts,
   });
 };
