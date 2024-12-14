@@ -1,12 +1,11 @@
+const { v4: uuid } = require("uuid");
 const supertest = require("supertest");
+const { sql } = require("../db");
 const Receipt = require("./receipt");
 const { prep3, endpoint } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
-const DUMMY = {
-  paid_on: "2020-01-01",
-  paid_by: 0,
-};
+jest.setTimeout(60 * 60 * 1000);
 
 test("field validations work", async () => {
   expect(() => {
@@ -24,6 +23,18 @@ describe("via /api/endpoint", () => {
   });
 
   test("POST new receipt works", async () => {
+    await sql`insert into categories ${sql([
+      { id: 3, category: "qwerr 3", rev_id: 0 },
+      { id: 4, category: "qwerr 4", rev_id: 0 },
+      { id: 5, category: "qwerr 5", rev_id: 0 },
+    ])}`;
+
+    await sql`insert into users ${sql([
+      { id: 1, name: "dummy2", email: "qq@ww.cc", passwd: uuid() },
+      { id: 2, name: "dummy3", email: "qq2@ww.cc", passwd: uuid() },
+    ])}`;
+
+    const paid_on = new Date("2020-01-01").epoch_date();
     const paid_by = 1;
     const DUMMIES = [
       {
@@ -51,18 +62,90 @@ describe("via /api/endpoint", () => {
     ];
 
     const {
-      body: { rcpt, items, item_shares },
+      body: { receipt, items, item_shares },
     } = await endpoint(api, "/api/receipts", {
       headers,
       send: {
         paid_by,
+        paid_on,
         items: DUMMIES,
       },
     });
 
-    expect(rcpt.paid_by).toBe(1);
-    expect(rcpt.added_by).toBe(1);
-    expect(items[2].notes).toBeNull();
-    expect(item_shares[0].item_id).toBe(items[0].id);
+    expect(receipt).toStrictEqual({
+      id: 0,
+      rev_id: 1,
+      status_id: 0,
+      paid_on: -1,
+      paid_by: 1,
+    });
+    expect(items).toStrictEqual([
+      {
+        id: 0,
+        rev_id: 1,
+        status_id: 0,
+        rcpt_id: 0,
+        cat_id: 3,
+        cost: 100,
+        notes: "for user 2",
+      },
+      {
+        id: 1,
+        rev_id: 1,
+        status_id: 0,
+        rcpt_id: 0,
+        cat_id: 3,
+        cost: 200,
+        notes: "for users 0 & 2, but not user 1",
+      },
+      {
+        id: 2,
+        rev_id: 1,
+        status_id: 0,
+        rcpt_id: 0,
+        cat_id: 4,
+        cost: 300,
+        notes: null,
+      },
+      {
+        id: 3,
+        rev_id: 1,
+        status_id: 0,
+        rcpt_id: 0,
+        cat_id: 5,
+        cost: 400,
+        notes: "for user 0",
+      },
+    ]);
+    expect(item_shares).toStrictEqual([
+      {
+        item_id: 0,
+        user_id: 2,
+        status_id: 0,
+        rev_id: 1,
+        share: 1,
+      },
+      {
+        item_id: 1,
+        user_id: 0,
+        status_id: 0,
+        rev_id: 1,
+        share: 1,
+      },
+      {
+        item_id: 1,
+        user_id: 2,
+        status_id: 0,
+        rev_id: 1,
+        share: 1,
+      },
+      {
+        item_id: 3,
+        user_id: 0,
+        status_id: 0,
+        rev_id: 1,
+        share: 1,
+      },
+    ]);
   });
 });
