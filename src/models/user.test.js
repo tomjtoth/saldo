@@ -6,7 +6,7 @@ const {
   register,
   login,
   DUMMY_USER,
-  crud_works,
+  crud,
 } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
@@ -85,7 +85,7 @@ describe("via /api/endpoint", () => {
   });
 
   test("POST, PUT, DELETE, GET works", async () => {
-    await crud_works({
+    await crud({
       api,
       route: "/api/users",
       headers,

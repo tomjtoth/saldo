@@ -1,6 +1,6 @@
 const supertest = require("supertest");
 const Category = require("./category");
-const { prep3, crud_works } = require("../utils/test_helpers");
+const { prep3, crud: crud } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
 const DUMMIES = [
@@ -46,7 +46,7 @@ describe("via /api/endpoint", () => {
   });
 
   test("POST, PUT, DELETE, GET works", async () => {
-    await crud_works({
+    await crud({
       api,
       route: "/api/categories",
       headers,

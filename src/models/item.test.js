@@ -1,7 +1,7 @@
 const supertest = require("supertest");
 const { sql } = require("../db");
 const Item = require("./item");
-const { prep3, crud_works } = require("../utils/test_helpers");
+const { prep3, crud } = require("../utils/test_helpers");
 
 const api = supertest(require("../app"));
 
@@ -78,7 +78,7 @@ describe("via /api/endpoint", () => {
   });
 
   test("POST, PUT, DELETE, GET works", async () => {
-    await crud_works({
+    await crud({
       api,
       route: "/api/items",
       headers,

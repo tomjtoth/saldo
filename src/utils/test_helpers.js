@@ -24,7 +24,7 @@ const endpoint = (
   return api;
 };
 
-const crud_works = async ({
+const crud = async ({
   api,
   route,
   headers,
@@ -131,6 +131,6 @@ module.exports = {
   register,
   prep3,
   endpoint,
-  crud_works,
+  crud,
   DUMMY_USER,
 };
