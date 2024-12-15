@@ -9,8 +9,6 @@ const DUMMIES = [
   { category: "category 3" },
 ];
 
-// TODO: remove when publishing
-
 test("field validations work", async () => {
   expect(() => {
     new Category({});
