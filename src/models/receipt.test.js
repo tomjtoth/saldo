@@ -5,8 +5,6 @@ const Receipt = require("./receipt");
 const { prep3, endpoint } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
-jest.setTimeout(60 * 60 * 1000);
-
 test("field validations work", async () => {
   expect(() => {
     new Receipt({});

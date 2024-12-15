@@ -11,7 +11,6 @@ const {
 const api = supertest(require("../app"));
 
 // TODO: remove when publishing
-jest.setTimeout(60 * 60 * 1000);
 
 const DUMMIES = [
   { ...DUMMY_USER, email: "a@b.ef", name: "qwe" },

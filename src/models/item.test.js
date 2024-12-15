@@ -6,7 +6,6 @@ const { prep3, crud_works } = require("../utils/test_helpers");
 const api = supertest(require("../app"));
 
 // TODO: remove when publishing
-jest.setTimeout(60 * 60 * 1000);
 
 const VALID = {
   id: 0,
