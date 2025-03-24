@@ -16,9 +16,35 @@ jobs:
         with:
           node-version: latest
 
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Start Docker Compose Services
+        run: |
+          docker-compose -f docker-compose.dev.yml up -d
+        env:
+          PGDATABASE: ${{ secrets.PGDATABASE }}
+          PGUSERNAME: ${{ secrets.PGUSERNAME }}
+          PGPASSWORD: ${{ secrets.PGPASSWORD }}
+
       - run: npm install
 
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until docker exec $(docker ps -qf "name=postgres-test") pg_isready -U ${PGUSERNAME}; do
+            echo "Waiting for PostgreSQL to start..."
+            sleep 1
+          done
+        env:
+          PGUSERNAME: ${{ secrets.PGUSERNAME }}
+
       - run: npm run coverage
+        env:
+          PGDATABASE: ${{ secrets.PGDATABASE }}
+          PGUSERNAME: ${{ secrets.PGUSERNAME }}
+          PGPASSWORD: ${{ secrets.PGPASSWORD }}
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v4
