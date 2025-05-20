@@ -5,8 +5,12 @@
   "scripts": {
     "test": "PGPORT=54333 NODE_ENV=test jest --runInBand",
     "coverage": "npm run test -- --coverage",
-    "dev": "NODE_ENV=dev nodemon index.js",
-    "import": "IMPORT_CSV=~/saldo.csv node index.js"
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "dev.old": "NODE_ENV=dev nodemon index.js",
+    "import": "IMPORT_CSV=~/saldo.csv next start"
   },
   "author": "",
   "license": "ISC",
@@ -20,11 +24,23 @@
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.16",
     "postgres": "^3.4.5",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "next": "15.3.2"
   },
   "devDependencies": {
     "jest": "^29.7.0",
     "nodemon": "^3.1.2",
-    "supertest": "^7.0.0"
+    "supertest": "^7.0.0",
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.2",
+    "@eslint/eslintrc": "^3"
   }
 }
