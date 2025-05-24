@@ -1,4 +1,4 @@
-module.exports = (value, maxDenominator = 1000) => {
+export function approxFloat(value: number, maxDenominator = 1000) {
   if (value == 0.5) return [1, 2];
 
   let bestNumerator = 1;
@@ -6,8 +6,8 @@ module.exports = (value, maxDenominator = 1000) => {
   let bestDifference = Math.abs(value - bestNumerator / bestDenominator);
 
   for (let denominator = 1; denominator <= maxDenominator; denominator++) {
-    let numerator = Math.round(value * denominator);
-    let difference = Math.abs(value - numerator / denominator);
+    const numerator = Math.round(value * denominator);
+    const difference = Math.abs(value - numerator / denominator);
 
     if (difference < bestDifference) {
       bestNumerator = numerator;
@@ -20,4 +20,9 @@ module.exports = (value, maxDenominator = 1000) => {
   }
 
   return [bestNumerator, bestDenominator];
-};
+}
+
+export function dateAsInt(date: Date = new Date()): number {
+  const YYYY_MM_DD = date.toISOString().slice(0, 10);
+  return parseInt(YYYY_MM_DD.replaceAll("-", ""));
+}
