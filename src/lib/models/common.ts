@@ -14,11 +14,11 @@ export const SeqInitOpts = {
   underscored: true,
 };
 
-const id = {
-  type: DataTypes.INTEGER,
-  primaryKey: true,
-  autoIncrement: true,
-};
+// const id = {
+//   type: DataTypes.INTEGER,
+//   primaryKey: true,
+//   autoIncrement: true,
+// };
 
 export type TRevision = {
   id: number;
