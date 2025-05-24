@@ -1,4 +1,4 @@
-import ImportButton from "./ImportButton";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -6,9 +6,8 @@ export default function Home() {
       <h2>Work in Progress</h2>
       <p>
         This <s className="text-gray-300">is</s> will be a multi-user expense
-        tracker app.
+        tracker app. Go to the <Link href="/import">import view</Link>.
       </p>
-      <ImportButton />
     </>
   );
 }
