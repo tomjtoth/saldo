@@ -1,0 +1,16 @@
+# variables are read from .env
+
+services:
+  app:
+    image: tomjtoth/saldo
+    build:
+      context: .
+      tags:
+        - tomjtoth/saldo
+    environment:
+      SECRET: ${SECRET}
+    volumes:
+      - ./data:/app/data
+    ports:
+      - 127.0.0.1:3000:3000
+    restart: unless-stopped
