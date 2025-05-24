@@ -25,19 +25,27 @@ describe("User", () => {
   it("cannot be added with non-unique email", async () => {
     await createUser(VALID_USER_DATA);
 
-    expect(async () => await createUser(VALID_USER_DATA)).rejects.toThrow();
+    await expect(
+      async () => await createUser(VALID_USER_DATA)
+    ).rejects.toThrow();
   });
 
   it("cannot be created without necessary fields", async () => {
     const { name, email, passwd } = VALID_USER_DATA;
 
-    expect(async () => await User.create({ name, email })).rejects.toThrow();
-    expect(async () => await User.create({ name, passwd })).rejects.toThrow();
-    expect(async () => await User.create({ email, passwd })).rejects.toThrow();
+    await expect(
+      async () => await User.create({ name, email })
+    ).rejects.toThrow();
+    await expect(
+      async () => await User.create({ name, passwd })
+    ).rejects.toThrow();
+    await expect(
+      async () => await User.create({ email, passwd })
+    ).rejects.toThrow();
   });
 
   it("cannot be created without proper email address", async () => {
-    expect(
+    await expect(
       async () =>
         await User.create({
           name: "user1",
