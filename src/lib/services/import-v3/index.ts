@@ -1,6 +1,6 @@
 "use server";
 
-import { CSV_PATH } from "../config";
+import { CSV_PATH } from "../../utils/config";
 import { parseCSV, parseData, TCsvRow, TDBData } from "./parsers";
 import {
   Revision,

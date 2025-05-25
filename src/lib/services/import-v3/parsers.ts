@@ -5,7 +5,7 @@ import csv from "csv-parser";
 import { hashSync } from "bcrypt";
 import { v4 as uuid } from "uuid";
 
-import { dateAsInt, approxFloat } from "..";
+import { dateAsInt, approxFloat } from "../../utils";
 import {
   TCrRevision,
   TCrUser,
