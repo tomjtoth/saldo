@@ -19,19 +19,20 @@ export async function importV3() {
 }
 
 async function insertData(data: TDBData) {
-  // drop ALL imported data
-  await Revision.truncate();
+  await atomic("importing from V3", async (transaction) => {
+    // drop ALL imported data
+    await Revision.truncate({ transaction, cascade: true });
 
-  const res = await atomic("Importing V3", async (transaction) => {
-    return Promise.all([
+    // these 2 can be run in parallel
+    await Promise.all([
       Revision.bulkCreate(data.revisions, { transaction }),
       User.bulkCreate(data.users, { transaction }),
-      Category.bulkCreate(data.categories, { transaction }),
-      Receipt.bulkCreate(data.receipts, { transaction }),
-      Item.bulkCreate(data.items, { transaction }),
-      ItemShare.bulkCreate(data.itemShares, { transaction }),
     ]);
-  });
 
-  console.log(res);
+    // the rest are to be inserted in strict order
+    await Category.bulkCreate(data.categories, { transaction });
+    await Receipt.bulkCreate(data.receipts, { transaction });
+    await Item.bulkCreate(data.items, { transaction });
+    await ItemShare.bulkCreate(data.itemShares, { transaction });
+  });
 }

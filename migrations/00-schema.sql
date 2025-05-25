@@ -13,9 +13,9 @@ CREATE TABLE revisions (
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,
-    rev_id INTEGER REFERENCES revisions (id)
+    rev_id INTEGER REFERENCES revisions (id) 
         ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-    status_id INTEGER REFERENCES statuses (id) DEFERRABLE INITIALLY DEFERRED,
+    status_id INTEGER REFERENCES statuses (id),
 
     email TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
@@ -25,8 +25,8 @@ CREATE TABLE users (
 CREATE TABLE users_archive (
     id INTEGER REFERENCES users,
     rev_id INTEGER REFERENCES revisions (id)
-        ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-    status_id INTEGER REFERENCES statuses (id) DEFERRABLE INITIALLY DEFERRED,
+        ON DELETE CASCADE,
+    status_id INTEGER REFERENCES statuses (id),
 
     email TEXT NOT NULL,
     name TEXT NOT NULL,
@@ -38,8 +38,8 @@ CREATE TABLE users_archive (
 CREATE TABLE categories (
     id INTEGER PRIMARY KEY,
     rev_id INTEGER REFERENCES revisions (id)
-        ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-    status_id INTEGER REFERENCES statuses (id) DEFERRABLE INITIALLY DEFERRED,
+        ON DELETE CASCADE,
+    status_id INTEGER REFERENCES statuses (id),
     
     description TEXT NOT NULL
 );
@@ -47,8 +47,8 @@ CREATE TABLE categories (
 CREATE TABLE categories_archive (
     id INTEGER REFERENCES categories,
     rev_id INTEGER REFERENCES revisions (id)
-        ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-    status_id INTEGER REFERENCES statuses (id) DEFERRABLE INITIALLY DEFERRED,
+        ON DELETE CASCADE,
+    status_id INTEGER REFERENCES statuses (id),
 
     description TEXT NOT NULL,
 
@@ -58,21 +58,21 @@ CREATE TABLE categories_archive (
 CREATE TABLE receipts (
     id INTEGER PRIMARY KEY,
     rev_id INTEGER REFERENCES revisions (id)
-        ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-    status_id INTEGER REFERENCES statuses (id) DEFERRABLE INITIALLY DEFERRED,
+        ON DELETE CASCADE,
+    status_id INTEGER REFERENCES statuses (id),
 
     paid_on INTEGER,
-    paid_by INTEGER REFERENCES users (id) DEFERRABLE INITIALLY DEFERRED
+    paid_by INTEGER REFERENCES users (id)
 );
 
 CREATE TABLE receipts_archive (
     id INTEGER REFERENCES receipts,
     rev_id INTEGER REFERENCES revisions (id)
-        ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-    status_id INTEGER REFERENCES statuses (id) DEFERRABLE INITIALLY DEFERRED,
+        ON DELETE CASCADE,
+    status_id INTEGER REFERENCES statuses (id),
     
     paid_on INTEGER,
-    paid_by INTEGER REFERENCES users (id) DEFERRABLE INITIALLY DEFERRED,
+    paid_by INTEGER REFERENCES users (id),
 
     PRIMARY KEY (id, rev_id)
 );
@@ -80,10 +80,10 @@ CREATE TABLE receipts_archive (
 CREATE TABLE items (
     id INTEGER PRIMARY KEY,
     rev_id INTEGER REFERENCES revisions (id)
-        ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-    rcpt_id INTEGER REFERENCES receipts (id) DEFERRABLE INITIALLY DEFERRED,
-    cat_id INTEGER REFERENCES categories (id) DEFERRABLE INITIALLY DEFERRED,
-    status_id INTEGER REFERENCES statuses (id) DEFERRABLE INITIALLY DEFERRED,
+        ON DELETE CASCADE,
+    rcpt_id INTEGER REFERENCES receipts (id),
+    cat_id INTEGER REFERENCES categories (id),
+    status_id INTEGER REFERENCES statuses (id),
 
     cost INTEGER NOT NULL,
     notes TEXT
@@ -92,10 +92,10 @@ CREATE TABLE items (
 CREATE TABLE items_archive (
     id INTEGER REFERENCES items,
     rev_id INTEGER REFERENCES revisions (id)
-        ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-    rcpt_id INTEGER REFERENCES receipts (id) DEFERRABLE INITIALLY DEFERRED,
-    cat_id INTEGER REFERENCES categories (id) DEFERRABLE INITIALLY DEFERRED,
-    status_id INTEGER REFERENCES statuses (id) DEFERRABLE INITIALLY DEFERRED,
+        ON DELETE CASCADE,
+    rcpt_id INTEGER REFERENCES receipts (id),
+    cat_id INTEGER REFERENCES categories (id),
+    status_id INTEGER REFERENCES statuses (id),
 
     cost INTEGER NOT NULL,
     notes TEXT,
@@ -104,11 +104,11 @@ CREATE TABLE items_archive (
 );
 
 CREATE TABLE item_shares (
-    item_id INTEGER REFERENCES items (id) DEFERRABLE INITIALLY DEFERRED,
-    user_id INTEGER REFERENCES users (id) DEFERRABLE INITIALLY DEFERRED,
+    item_id INTEGER REFERENCES items (id),
+    user_id INTEGER REFERENCES users (id),
     rev_id INTEGER REFERENCES revisions (id)
-        ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-    status_id INTEGER REFERENCES statuses (id) DEFERRABLE INITIALLY DEFERRED,
+        ON DELETE CASCADE,
+    status_id INTEGER REFERENCES statuses (id),
 
     share INTEGER NOT NULL,
 
@@ -116,11 +116,11 @@ CREATE TABLE item_shares (
 );
 
 CREATE TABLE item_shares_archive (
-    item_id INTEGER REFERENCES items (id) DEFERRABLE INITIALLY DEFERRED,
-    user_id INTEGER REFERENCES users (id) DEFERRABLE INITIALLY DEFERRED,
+    item_id INTEGER REFERENCES items (id),
+    user_id INTEGER REFERENCES users (id),
     rev_id INTEGER REFERENCES revisions (id)
-        ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-    status_id INTEGER REFERENCES statuses (id) DEFERRABLE INITIALLY DEFERRED,
+        ON DELETE CASCADE,
+    status_id INTEGER REFERENCES statuses (id),
 
     share INTEGER NOT NULL,
 
