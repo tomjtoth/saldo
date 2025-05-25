@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import { Sequelize } from "sequelize";
+import { Sequelize, Transaction } from "sequelize";
 import { Umzug } from "umzug";
 
 import { DB_PATH } from "@/lib/utils/config";
@@ -10,6 +10,26 @@ export const db = new Sequelize({
   storage: DB_PATH,
   pool: { max: 1, maxUses: Infinity, idle: Infinity },
 });
+
+export async function atomic<T>(
+  operation: string,
+  dbOps: (transaction: Transaction) => Promise<T>
+): Promise<T> {
+  const t = await db.transaction();
+
+  try {
+    const res = await dbOps(t);
+    await t.commit();
+
+    console.log(`\n\t${operation || "Transaction"} succeeded!\n`);
+    return res;
+  } catch (err) {
+    await t.rollback();
+
+    console.error(`\n\t${operation || "Transaction"} failed:`, err, "\n");
+    throw err;
+  }
+}
 
 const getRawSqlClient = () => ({
   query: async (sql: string, values?: unknown[]) =>
