@@ -89,6 +89,6 @@ let needsMigrate = true;
 
 if (needsMigrate) {
   needsMigrate = false;
-  console.log("\n\tDB migration triggered\n");
+  console.log("\n\tDB migrations triggered\n");
   await migrator.up();
 }
