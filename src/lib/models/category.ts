@@ -3,12 +3,11 @@ import { DataTypes, Model } from "sequelize";
 import {
   has3WordChars,
   SeqIdCols,
-  SeqInitOpts,
+  seqInitOpts,
   REV_ID_INTEGER_PK,
   TIDs,
+  TCrIDs,
 } from "./common";
-
-export type TCategory = TIDs & { description: string };
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
@@ -24,20 +23,29 @@ const COLS = {
   },
 };
 
-export class Category extends Model {}
+type TCategory = TIDs & { description: string };
+export type TCrCategory = TCrIDs & Pick<TCategory, "description">;
+
+export class Category extends Model<TCategory, TCrCategory> {
+  id!: number;
+  revId!: number;
+  statusId!: number;
+
+  description!: string;
+}
 Category.init(COLS, {
-  ...SeqInitOpts,
+  ...seqInitOpts,
   tableName: "categories",
 });
 
-export class CategoryArchive extends Model {}
+export class CategoryArchive extends Category {}
 CategoryArchive.init(
   {
     ...COLS,
     ...REV_ID_INTEGER_PK,
   },
   {
-    ...SeqInitOpts,
+    ...seqInitOpts,
     tableName: "categories_archive",
   }
 );

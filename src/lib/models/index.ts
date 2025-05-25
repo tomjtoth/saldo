@@ -14,8 +14,8 @@ export * from "./category";
 export * from "./receipt";
 export * from "./item";
 export * from "./item_share";
-export { Revision, Status };
-export type { TStatus, TRevision } from "./common";
+export { Revision };
+export type { TCrRevision } from "./common";
 
 export class UserSession extends Model {}
 UserSession.init(
@@ -36,6 +36,7 @@ UserSession.init(
 );
 
 // --- Associations ---
+// TODO: check all these
 
 Revision.belongsTo(User, { foreignKey: "revBy" });
 User.hasMany(Revision, { foreignKey: "revBy" });

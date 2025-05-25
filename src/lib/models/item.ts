@@ -1,15 +1,24 @@
 import { DataTypes, Model } from "sequelize";
 
-import { SeqIdCols, SeqInitOpts, REV_ID_INTEGER_PK, TIDs } from "./common";
-import { Receipt } from "./receipt";
+import {
+  SeqIdCols,
+  seqInitOpts,
+  REV_ID_INTEGER_PK,
+  TIDs,
+  TCrIDs,
+} from "./common";
 import { Category } from "./category";
+import { Receipt } from "./receipt";
 
-export type TItem = TIDs & {
+type TItem = TIDs & {
   rcptId: number;
   catId: number;
   cost: number;
   notes?: string;
 };
+
+export type TCrItem = TCrIDs &
+  Pick<TItem, "rcptId" | "catId" | "cost" | "notes">;
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
@@ -28,20 +37,29 @@ const COLS = {
   notes: { type: DataTypes.TEXT },
 };
 
-export class Item extends Model {}
+export class Item extends Model<TItem, TCrItem> {
+  id!: number;
+  revId!: number;
+  statusId!: number;
+
+  rcptId!: number;
+  catId!: number;
+  cost!: number;
+  notes?: string;
+}
 Item.init(COLS, {
-  ...SeqInitOpts,
+  ...seqInitOpts,
   modelName: "Item",
 });
 
-export class ItemArchive extends Model {}
+export class ItemArchive extends Item {}
 ItemArchive.init(
   {
     ...COLS,
     ...REV_ID_INTEGER_PK,
   },
   {
-    ...SeqInitOpts,
+    ...seqInitOpts,
     tableName: "items_archive",
   }
 );

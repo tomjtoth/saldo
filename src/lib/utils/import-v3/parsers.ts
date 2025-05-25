@@ -7,23 +7,23 @@ import { v4 as uuid } from "uuid";
 
 import { dateAsInt, approxFloat } from "..";
 import {
-  TRevision,
-  TUser,
-  TCategory,
-  TReceipt,
-  TItem,
-  TItemShare,
+  TCrRevision,
+  TCrUser,
+  TCrCategory,
+  TCrReceipt,
+  TCrItem,
+  TCrItemShare,
 } from "@/lib/models";
 
 export type TCsvRow = { [key: string]: string };
 
 export type TDBData = {
-  revisions: TRevision[];
-  users: TUser[];
-  categories: TCategory[];
-  receipts: TReceipt[];
-  items: TItem[];
-  itemShares: TItemShare[];
+  revisions: TCrRevision[];
+  users: TCrUser[];
+  categories: TCrCategory[];
+  receipts: TCrReceipt[];
+  items: TCrItem[];
+  itemShares: TCrItemShare[];
 };
 
 export function parseCSV(input: string, testing = false) {
@@ -84,7 +84,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       };
       dd.revisions.push(lastRev);
     }
-    const revId = lastRev.id;
+    const revId = lastRev.id!;
 
     const newUser = (user: string) =>
       dd.users.push({

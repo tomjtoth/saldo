@@ -1,17 +1,20 @@
 import { DataTypes, Model } from "sequelize";
 
-import { SeqIdCols, SeqInitOpts, REV_ID_INTEGER_PK } from "./common";
+import { SeqIdCols, seqInitOpts, REV_ID_INTEGER_PK } from "./common";
 import { Item } from "./item";
 import { User } from "./user";
 
-export type TItemShare = {
-  statusId?: number;
+type TItemShare = {
+  statusId: number;
   itemId: number;
   revId: number;
   userId: number;
 
   share: number;
 };
+
+export type TCrItemShare = Omit<TItemShare, "statusId"> &
+  Partial<Pick<TItemShare, "statusId">>;
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
@@ -33,20 +36,27 @@ const COLS = {
   share: { type: DataTypes.INTEGER, allowNull: false },
 };
 
-export class ItemShare extends Model {}
+export class ItemShare extends Model<TItemShare, TCrItemShare> {
+  statusId!: number;
+  itemId!: number;
+  revId!: number;
+  userId!: number;
+
+  share!: number;
+}
 ItemShare.init(COLS, {
-  ...SeqInitOpts,
+  ...seqInitOpts,
   modelName: "ItemShare",
 });
 
-export class ItemShareArchive extends Model {}
+export class ItemShareArchive extends ItemShare {}
 ItemShareArchive.init(
   {
     ...COLS,
     ...REV_ID_INTEGER_PK,
   },
   {
-    ...SeqInitOpts,
+    ...seqInitOpts,
     tableName: "item_shares_archive",
   }
 );

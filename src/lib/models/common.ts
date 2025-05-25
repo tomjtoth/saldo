@@ -3,33 +3,43 @@ import { DataTypes, Model } from "sequelize";
 import { db } from "./db";
 
 export type TIDs = {
-  id?: number;
+  id: number;
   revId: number;
-  statusId?: number;
+  statusId: number;
 };
 
-export const SeqInitOpts = {
+export type TCrIDs = Partial<Omit<TIDs, "revId">> & Pick<TIDs, "revId">;
+
+const id = {
+  type: DataTypes.INTEGER,
+  primaryKey: true,
+  autoIncrement: true,
+};
+
+export const seqInitOpts = {
   sequelize: db,
   timestamps: false,
   underscored: true,
 };
 
-// const id = {
-//   type: DataTypes.INTEGER,
-//   primaryKey: true,
-//   autoIncrement: true,
-// };
-
-export type TRevision = {
+type TRevision = {
   id: number;
   revOn: number;
   revBy: number;
 };
 
-export class Revision extends Model {}
+export type TCrRevision = Partial<Omit<TRevision, "revBy">> &
+  Pick<TRevision, "revBy">;
+
+export class Revision extends Model<TRevision, TCrRevision> {
+  id!: number;
+  revOn!: number;
+  revBy!: number;
+}
+
 Revision.init(
   {
-    // id,
+    id,
     revOn: {
       type: DataTypes.INTEGER,
       defaultValue: () => Date.now(),
@@ -41,31 +51,36 @@ Revision.init(
   },
 
   {
-    ...SeqInitOpts,
+    ...seqInitOpts,
     modelName: "Revision",
   }
 );
 
-export type TStatus = {
+type TStatus = {
   id: number;
   description: string;
 };
 
-export class Status extends Model {}
+type TCrStatus = Pick<TStatus, "description">; //&Partial<Pick<TStatus, "id">>
+
+export class Status extends Model<TStatus, TCrStatus> {
+  id!: number;
+  description!: string;
+}
 Status.init(
   {
-    // id,
+    id,
     description: { type: DataTypes.TEXT, allowNull: false },
   },
 
   {
-    ...SeqInitOpts,
+    ...seqInitOpts,
     modelName: "Status",
   }
 );
 
 export const SeqIdCols = {
-  // id,
+  id,
   revId: {
     type: DataTypes.INTEGER,
     references: { model: Revision, key: "id" },

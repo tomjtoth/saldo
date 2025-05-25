@@ -4,17 +4,17 @@ import type { TIDs } from "./common";
 import {
   has3WordChars,
   SeqIdCols,
-  SeqInitOpts,
+  seqInitOpts,
   REV_ID_INTEGER_PK,
-  Revision,
 } from "./common";
-import { db } from "./db";
 
-export type TUser = TIDs & {
+type TUser = TIDs & {
   email: string;
   name: string;
   passwd: string;
 };
+
+export type TCrUser = Partial<TIDs> & Pick<TUser, "email" | "name" | "passwd">;
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
@@ -45,36 +45,28 @@ const COLS = {
   },
 };
 
-export class User extends Model {}
+export class User extends Model<TUser, TCrUser> {
+  id!: number;
+  revId?: number;
+  statusId!: number;
 
+  email!: string;
+  name!: string;
+  passwd!: string;
+}
 User.init(COLS, {
-  ...SeqInitOpts,
+  ...seqInitOpts,
   modelName: "User",
 });
 
-export async function createUser(userData: Omit<TUser, "revId">) {
-  const transaction = await db.transaction();
-
-  const user = await User.create(userData, { transaction });
-  const rev = await Revision.create({ revBy: user.get("id") }, { transaction });
-  user.set({
-    revId: rev.get("id"),
-  });
-  user.save();
-
-  await transaction.commit();
-
-  return user;
-}
-
-export class UserArchive extends Model {}
+export class UserArchive extends User {}
 UserArchive.init(
   {
     ...COLS,
     ...REV_ID_INTEGER_PK,
   },
   {
-    ...SeqInitOpts,
+    ...seqInitOpts,
     tableName: "users_archive",
   }
 );
