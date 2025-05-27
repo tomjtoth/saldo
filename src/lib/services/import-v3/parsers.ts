@@ -136,7 +136,6 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const catId = cat.id!;
 
     const cost = Math.round(
-      // `select sum(item_cost) from items` comes €0,22 near the value in Google Sheets
       parseFloat(strCost.replaceAll(/[\s€]/g, "").replace(",", ".")) * 100
     );
 

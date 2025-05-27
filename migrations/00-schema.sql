@@ -15,6 +15,7 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY,
     rev_id INTEGER REFERENCES revisions (id) 
         ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+
     status_id INTEGER REFERENCES statuses (id),
 
     email TEXT NOT NULL UNIQUE,
@@ -26,6 +27,7 @@ CREATE TABLE users_archive (
     id INTEGER REFERENCES users,
     rev_id INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
+
     status_id INTEGER REFERENCES statuses (id),
 
     email TEXT NOT NULL,
@@ -39,6 +41,7 @@ CREATE TABLE categories (
     id INTEGER PRIMARY KEY,
     rev_id INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
+
     status_id INTEGER REFERENCES statuses (id),
     
     description TEXT NOT NULL
@@ -48,6 +51,7 @@ CREATE TABLE categories_archive (
     id INTEGER REFERENCES categories,
     rev_id INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
+
     status_id INTEGER REFERENCES statuses (id),
 
     description TEXT NOT NULL,
@@ -59,6 +63,7 @@ CREATE TABLE receipts (
     id INTEGER PRIMARY KEY,
     rev_id INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
+
     status_id INTEGER REFERENCES statuses (id),
 
     paid_on INTEGER,
@@ -69,6 +74,7 @@ CREATE TABLE receipts_archive (
     id INTEGER REFERENCES receipts,
     rev_id INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
+
     status_id INTEGER REFERENCES statuses (id),
     
     paid_on INTEGER,
@@ -81,6 +87,7 @@ CREATE TABLE items (
     id INTEGER PRIMARY KEY,
     rev_id INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
+
     rcpt_id INTEGER REFERENCES receipts (id),
     cat_id INTEGER REFERENCES categories (id),
     status_id INTEGER REFERENCES statuses (id),
@@ -93,6 +100,7 @@ CREATE TABLE items_archive (
     id INTEGER REFERENCES items,
     rev_id INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
+
     rcpt_id INTEGER REFERENCES receipts (id),
     cat_id INTEGER REFERENCES categories (id),
     status_id INTEGER REFERENCES statuses (id),
@@ -108,6 +116,7 @@ CREATE TABLE item_shares (
     user_id INTEGER REFERENCES users (id),
     rev_id INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
+
     status_id INTEGER REFERENCES statuses (id),
 
     share INTEGER NOT NULL,
@@ -120,6 +129,7 @@ CREATE TABLE item_shares_archive (
     user_id INTEGER REFERENCES users (id),
     rev_id INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
+        
     status_id INTEGER REFERENCES statuses (id),
 
     share INTEGER NOT NULL,

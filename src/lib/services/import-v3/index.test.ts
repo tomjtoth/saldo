@@ -7,6 +7,7 @@ describe("import-v3", async () => {
 
   describe("parsed", () => {
     it("users correctly", () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const pwlessUsers = data.users.map(({ passwd, ...u }) => u);
 
       expect(pwlessUsers).to.deep.equal([
