@@ -22,6 +22,7 @@
     "csv-parser": "^3.0.0",
     "jsonwebtoken": "^9.0.2",
     "next": "15.3.2",
+    "next-auth": "^5.0.0-beta.28",
     "nodemailer": "^6.9.16",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
