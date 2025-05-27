@@ -1,7 +1,6 @@
 "use server";
 
-import { CSV_PATH } from "../../utils/config";
-import { parseCSV, parseData, TCsvRow, TDBData } from "./parsers";
+import { parseCSV, parseData, TDBData } from "./parsers";
 import {
   Revision,
   User,
@@ -13,7 +12,7 @@ import {
 } from "@/lib/models";
 
 export async function importV3() {
-  const read = await parseCSV(CSV_PATH);
+  const read = await parseCSV(process.env.CSV_PATH || "data/saldo-v3.csv");
   const parsed = parseData(read);
   return await insertData(parsed);
 }

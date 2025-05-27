@@ -3,11 +3,13 @@ import fs from "fs";
 import { Sequelize, Transaction } from "sequelize";
 import { Umzug } from "umzug";
 
-import { DB_PATH } from "@/lib/utils/config";
-
 export const db = new Sequelize({
   dialect: "sqlite",
-  storage: DB_PATH,
+  storage:
+    process.env.NODE_ENV === "test"
+      ? ":memory:"
+      : process.env.DB_PATH ||
+        `data/${process.env.NODE_ENV === "production" ? "prod" : "dev"}.db`,
   pool: { max: 1, maxUses: Infinity, idle: Infinity },
 });
 
