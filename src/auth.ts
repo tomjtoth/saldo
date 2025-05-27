@@ -1,8 +1,9 @@
 import NextAuth from "next-auth";
-import Auth0 from "next-auth/providers/auth0";
+import Discord from "next-auth/providers/discord";
+import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import Spotify from "next-auth/providers/spotify";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  trustHost: true,
-  providers: [Auth0, Google],
+  providers: [Discord, GitHub, Google, Spotify],
 });

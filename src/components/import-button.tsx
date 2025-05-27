@@ -1,7 +1,9 @@
-"use client";
-
 import { importV3 } from "@/lib/services/import-v3";
 
 export default function ImportButton() {
-  return <button onClick={() => importV3()}>re-import V3</button>;
+  return (
+    <form action={importV3}>
+      <button type="submit">re-import V3</button>
+    </form>
+  );
 }
