@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import {
   SeqIdCols,
@@ -23,7 +23,7 @@ export type TCrItem = TCrIDs &
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
-const COLS = {
+const COLS: ModelAttributes<Item, TItem> = {
   ...SeqIdCols,
   rcptId: {
     type: DataTypes.INTEGER,
@@ -40,10 +40,11 @@ const COLS = {
 export class Item extends Model<TItem, TCrItem> {
   id!: number;
   revId!: number;
-  statusId!: number;
 
   rcptId!: number;
   catId!: number;
+  statusId!: number;
+
   cost!: number;
   notes?: string;
 }

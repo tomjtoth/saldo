@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import type { TIDs } from "./common";
 import {
@@ -19,7 +19,7 @@ export type TCrUser = Partial<TIDs> & Pick<TUser, "email" | "name" | "passwd">;
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
-const COLS = {
+const COLS: ModelAttributes<User, TUser> = {
   ...SeqIdCols,
 
   email: {

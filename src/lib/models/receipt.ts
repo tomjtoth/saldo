@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import { dateAsInt } from "@/lib/utils";
 import {
@@ -19,7 +19,7 @@ export type TCrReceipt = TCrIDs &
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
-const COLS = {
+const COLS: ModelAttributes<Receipt, TReceipt> = {
   ...SeqIdCols,
   paidOn: {
     type: DataTypes.INTEGER,

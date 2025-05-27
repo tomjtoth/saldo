@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import {
   has3WordChars,
@@ -12,7 +12,7 @@ import {
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
-const COLS = {
+const COLS: ModelAttributes<Category, TCategory> = {
   ...SeqIdCols,
   description: {
     type: DataTypes.TEXT,

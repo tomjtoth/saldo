@@ -1,14 +1,14 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import { SeqIdCols, seqInitOpts, REV_ID_INTEGER_PK } from "./common";
 import { Item } from "./item";
 import { User } from "./user";
 
 type TItemShare = {
-  statusId: number;
-  itemId: number;
   revId: number;
+  itemId: number;
   userId: number;
+  statusId: number;
 
   share: number;
 };
@@ -19,10 +19,7 @@ export type TCrItemShare = Omit<TItemShare, "statusId"> &
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
-const COLS = {
-  revId: SeqIdCols.revId,
-  statusId: SeqIdCols.statusId,
-
+const COLS: ModelAttributes<ItemShare, TItemShare> = {
   itemId: {
     type: DataTypes.INTEGER,
     references: { model: Item, key: "id" },
@@ -33,14 +30,18 @@ const COLS = {
     references: { model: User, key: "id" },
     primaryKey: true,
   },
+  revId: SeqIdCols.revId,
+
+  statusId: SeqIdCols.statusId,
+
   share: { type: DataTypes.INTEGER, allowNull: false },
 };
 
 export class ItemShare extends Model<TItemShare, TCrItemShare> {
-  statusId!: number;
   itemId!: number;
-  revId!: number;
   userId!: number;
+  revId!: number;
+  statusId!: number;
 
   share!: number;
 }
