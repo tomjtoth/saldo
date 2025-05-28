@@ -31,6 +31,6 @@ describe("Receipt", () => {
       paidBy: 1,
     });
 
-    expect(rcpt.paidOn).toEqual(dateAsInt(new Date()));
+    expect(rcpt.paidOn).toEqual(dateAsInt());
   });
 });

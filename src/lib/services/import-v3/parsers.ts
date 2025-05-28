@@ -1,11 +1,12 @@
 import fs from "fs";
 import { Readable } from "stream";
+import { DateTime } from "luxon";
 
 import csv from "csv-parser";
 import { hashSync } from "bcrypt";
 import { v4 as uuid } from "uuid";
 
-import { dateAsInt, approxFloat } from "../../utils";
+import { dateAsInt, approxFloat, LUXON_TZ } from "../../utils";
 import {
   TCrRevision,
   TCrUser,
@@ -71,7 +72,11 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       ratio: strRatio,
     } = row;
 
-    const revOn = new Date(strAddedOn).valueOf();
+    const revOn = DateTime.fromFormat(
+      strAddedOn,
+      "y.M.d. H:m:s",
+      LUXON_TZ
+    ).toMillis();
 
     let lastRev =
       dd.revisions.find((rev) => rev.revOn === revOn) ?? dd.revisions.at(-1);
@@ -108,7 +113,9 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       userId = paidToUser ? paidToUser.id! : newUser(strPaidTo);
     }
 
-    const paidOn = dateAsInt(new Date(strPaidOn));
+    const paidOn = dateAsInt(
+      DateTime.fromFormat(strPaidOn, "y.M.d.", LUXON_TZ)
+    );
 
     let lastRcpt = dd.receipts.at(-1);
     if (!lastRcpt || paidOn !== lastRcpt.paidOn || revId !== lastRcpt.revId) {

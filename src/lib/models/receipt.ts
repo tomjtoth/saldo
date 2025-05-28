@@ -46,21 +46,6 @@ Receipt.init(
     paidOn: {
       type: DataTypes.INTEGER,
       defaultValue: () => dateAsInt(),
-      // TODO: get Sequelize to handle my obfuscated data schemes
-      // get() {
-      //   const YYYYMMDD = `${this.getDataValue("paidOn")}`;
-      //   const YYYY = YYYYMMDD.slice(0, 4);
-      //   const MM = YYYYMMDD.slice(4, 6);
-      //   const DD = YYYYMMDD.slice(6);
-      //   const YYYY_MM_DD = `${YYYY}-${MM}-${DD}`;
-
-      //   return new Date(YYYY_MM_DD);
-      // },
-      // set(value: Date) {
-      //   const YYYY_MM_DD = value.toISOString().slice(0, 10);
-      //   const YYYYMMDD = parseInt(YYYY_MM_DD.replaceAll("-", ""));
-      //   this.setDataValue("paidOn", YYYYMMDD);
-      // },
     },
   },
   {
