@@ -1,0 +1,10 @@
+.*
+coverage/
+cypress/
+data/
+node_modules/
+
+cypress.config.ts
+docker-compose.yml
+Dockerfile
+README.md
