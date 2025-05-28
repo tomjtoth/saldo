@@ -50,7 +50,6 @@
     "jsdom": "^26.1.0",
     "sqlite3": "^5.1.7",
     "start-server-and-test": "^2.0.12",
-    "supertest": "^7.0.0",
     "tailwindcss": "^4",
     "ts-jest": "^29.3.4",
     "ts-node": "^10.9.2",
