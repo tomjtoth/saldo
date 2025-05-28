@@ -5,6 +5,5 @@ import Google from "next-auth/providers/google";
 import Spotify from "next-auth/providers/spotify";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  trustHost: true,
   providers: [Discord, GitHub, Google, Spotify],
 });
