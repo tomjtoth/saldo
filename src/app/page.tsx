@@ -10,7 +10,8 @@ export default function Home() {
       </p>
       {process.env.GIT_HASH && (
         <p>
-          This version is deployed from: <code>{process.env.GIT_HASH}</code>.
+          This version is deployed from:{" "}
+          <code>{process.env.GIT_HASH.substring(0, 7)}</code>.
         </p>
       )}
     </>
