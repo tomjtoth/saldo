@@ -7,10 +7,9 @@ services:
       context: .
       tags:
         - tomjtoth/saldo
-    environment:
-      SECRET: ${SECRET}
     volumes:
       - ./data:/app/data
+      - ./.env.local:/app/.env
     ports:
       - 127.0.0.1:3000:3000
     restart: unless-stopped

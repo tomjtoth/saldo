@@ -1,13 +1,10 @@
-.git/
-.github/
-.next/
-coverage
+.*
+coverage/
+cypress/
 data/
 node_modules/
 
-.dockerignore
-.env
-.gitignore
+cypress.config.ts
 docker-compose.yml
 Dockerfile
 README.md
