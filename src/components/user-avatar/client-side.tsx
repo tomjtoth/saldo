@@ -30,7 +30,7 @@ export default function UserAvatarClient({
               {avatar}
             </div>
             {open && (
-              <div className="absolute bg-white shadow-lg p-4 mt-2 right-0">
+              <div className="absolute border rounded bg-background shadow-lg p-4 mt-2 right-2">
                 <p>
                   Hi, {name}!
                   <br />({email})
