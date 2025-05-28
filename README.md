@@ -1,25 +1,6 @@
-![example workflow](https://github.com/tomjtoth/saldo/actions/workflows/main.yml/badge.svg)
+![CI/CD](https://github.com/tomjtoth/saldo/actions/workflows/deploy.yml/badge.svg)
 [![codecov](https://codecov.io/gh/tomjtoth/saldo/graph/badge.svg?token=WKBLAW4XKP)](https://codecov.io/gh/tomjtoth/saldo)
 
 # Saldo
 
-A multi-user expense tracker supporting `one-to-many` sharing of items
-
-## Roadmap
-
-- [ ] finish implementation in JS
-  - [ ] categories, users, items can be modified one at a time
-  - [ ]
-  - [ ]
-  - [ ]
-  - [ ]
-  - [ ]
-  - [ ]
-  - [ ]
-  - [ ]
-  - [ ]
-- [ ] convert backend to TS
-- [ ] convert frontend to TS
-- [ ] convert backend to Rust
-- [ ] convert frontend to Rust + wasm
-  - [yew](https://yew.rs/) perhaps?
+A _Work in Progress_ multi-user expense tracker supporting `one-to-many` sharing of items deployed [here](https://saldo.ttj.hu).
