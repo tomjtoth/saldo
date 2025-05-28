@@ -29,6 +29,11 @@ body {
 h2 {
   @apply text-2xl p-1;
 }
+
+a {
+  @apply text-blue-500;
+}
+
 button {
   @apply border rounded p-2 cursor-pointer;
 }
