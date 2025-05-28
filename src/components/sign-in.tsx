@@ -1,13 +1,8 @@
-import { signIn } from "@/auth";
+import { signInAction } from "@/lib/server";
 
 export default function SignInBtn() {
   return (
-    <form
-      action={async () => {
-        "use server";
-        await signIn();
-      }}
-    >
+    <form action={signInAction}>
       <button type="submit">Sign in</button>
     </form>
   );
