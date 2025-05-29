@@ -11,10 +11,9 @@ import {
 type TUser = TIDs & {
   email: string;
   name: string;
-  passwd: string;
 };
 
-export type TCrUser = Partial<TIDs> & Pick<TUser, "email" | "name" | "passwd">;
+export type TCrUser = Partial<TIDs> & Pick<TUser, "email" | "name">;
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
@@ -38,11 +37,6 @@ const COLS: ModelAttributes<User, TUser> = {
       has3WordChars,
     },
   },
-
-  passwd: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
 };
 
 export class User extends Model<TUser, TCrUser> {
@@ -52,7 +46,6 @@ export class User extends Model<TUser, TCrUser> {
 
   email!: string;
   name!: string;
-  passwd!: string;
 }
 User.init(COLS, {
   ...seqInitOpts,

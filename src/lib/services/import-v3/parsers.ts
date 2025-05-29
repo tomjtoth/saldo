@@ -3,8 +3,6 @@ import { Readable } from "stream";
 import { DateTime } from "luxon";
 
 import csv from "csv-parser";
-import { hashSync } from "bcrypt";
-import { v4 as uuid } from "uuid";
 
 import { dateAsInt, approxFloat, LUXON_TZ } from "../../utils";
 import {
@@ -97,7 +95,6 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
         revId,
         name: user,
         email: user + "@just.imported",
-        passwd: hashSync(uuid(), 10),
       });
 
     // entries contain sometimes only 1 name

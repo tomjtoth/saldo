@@ -14,7 +14,6 @@ describe("Item", () => {
     await User.create({
       name: "user2",
       email: "user2@gmail.com",
-      passwd: VALID_USER_DATA.passwd,
       revId: 1,
     });
 
