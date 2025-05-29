@@ -20,8 +20,10 @@ ARG GIT_HASH
 ENV GIT_HASH=${GIT_HASH}
 ENV NODE_ENV=production
 
+# the standalone output was missing sqlite3
+RUN npm install sqlite3
 RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs 
+RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
 
