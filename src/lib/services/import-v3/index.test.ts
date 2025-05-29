@@ -1,12 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { parseCSV, parseData } from "./parsers";
+import { insertData } from ".";
+import { Category, Item, ItemShare, Receipt, User } from "@/lib/models";
 
 describe("import-v3", async () => {
   const csv = await parseCSV(CSV_SAMPLE, true);
   const data = parseData(csv);
+  await insertData(data);
 
-  describe("parsed", () => {
-    it("users correctly", () => {
+  describe("parsed and iserted", () => {
+    it("users correctly", async () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const pwlessUsers = data.users.map(({ passwd, ...u }) => u);
 
@@ -24,9 +27,13 @@ describe("import-v3", async () => {
           email: "John@just.imported",
         },
       ]);
+
+      const users = await User.findAll();
+      expect(users[0].email).toEqual("Jane@just.imported");
+      expect(users[1].email).toEqual("John@just.imported");
     });
 
-    it("categories correctly", () => {
+    it("categories correctly", async () => {
       expect(data.categories).to.deep.equal([
         {
           id: 1,
@@ -79,9 +86,19 @@ describe("import-v3", async () => {
           description: "utilities",
         },
       ]);
+
+      const cats = await Category.findAll();
+      expect(cats).to.have.length(10);
+      expect(cats[0].description).toEqual("food");
+      expect(cats[6].description).toEqual("drinks");
     });
 
-    it("receipts correctly", () => {
+    it("receipts correctly", async () => {
+      const receipts = await Receipt.findAll();
+      expect(receipts).to.have.length(27);
+      expect(receipts[4].paidOn).toEqual(20201219);
+      expect(receipts[12].paidBy).toEqual(2);
+
       expect(data.receipts).to.deep.equal([
         {
           id: 1,
@@ -248,7 +265,10 @@ describe("import-v3", async () => {
       ]);
     });
 
-    it("items length correctly", () => {
+    it("items length correctly", async () => {
+      expect(await Item.findAll()).to.have.length(196);
+      expect(await ItemShare.findAll()).to.have.length(243);
+
       expect(data.items.length).toEqual(196);
       expect(data.itemShares.length).toEqual(243);
     });

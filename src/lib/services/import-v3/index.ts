@@ -17,7 +17,7 @@ export async function importV3() {
   return await insertData(parsed);
 }
 
-async function insertData(data: TDBData) {
+export async function insertData(data: TDBData) {
   await atomic("importing from V3", async (transaction) => {
     // drop ALL imported data
     await Revision.truncate({ transaction, cascade: true });
