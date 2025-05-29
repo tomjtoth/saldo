@@ -8,6 +8,7 @@ export default defineConfig({
     environment: "jsdom",
     coverage: {
       provider: "v8",
+      exclude: [".next", "cypress", "src/app"],
     },
   },
 });
