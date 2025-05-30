@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import { SignInBtn, SignOutBtn } from "../auth";
 import AvatarClientSide from "./client-side";
 
 export default async function UserAvatar() {
@@ -37,8 +36,6 @@ export default async function UserAvatar() {
       avatar={avatar}
       name={sess?.user?.name ?? ""}
       email={sess?.user?.email ?? ""}
-      SignInBtn={<SignInBtn />}
-      SignOutBtn={<SignOutBtn />}
     />
   );
 }

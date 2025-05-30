@@ -1,17 +1,15 @@
 "use client";
+
 import { useState } from "react";
+import { signIn, signOut } from "next-auth/react";
 
 export default function UserAvatarClient({
   authenticated,
-  SignInBtn,
-  SignOutBtn,
   avatar,
   name,
   email,
 }: {
   authenticated: boolean;
-  SignInBtn: React.ReactNode;
-  SignOutBtn: React.ReactNode;
   avatar: React.ReactNode;
   name: string;
   email: string;
@@ -35,12 +33,12 @@ export default function UserAvatarClient({
                   Hi, {name}!
                   <br />({email})
                 </p>
-                {SignOutBtn}
+                <button onClick={() => signOut()}>Sign out</button>
               </div>
             )}
           </>
         ) : (
-          SignInBtn
+          <button onClick={() => signIn()}>Sign in</button>
         )}
       </>
     </div>
