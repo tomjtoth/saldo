@@ -41,7 +41,7 @@
     "@vitest/coverage-v8": "^3.1.4",
     "cypress": "^14.4.0",
     "eslint": "^9",
-    "eslint-config-next": "15.3.2",
+    "eslint-config-next": "15.3.3",
     "jsdom": "^26.1.0",
     "start-server-and-test": "^2.0.12",
     "tailwindcss": "^4",
