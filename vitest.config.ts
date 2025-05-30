@@ -8,7 +8,18 @@ export default defineConfig({
     environment: "jsdom",
     coverage: {
       provider: "v8",
-      exclude: [".next", "cypress", "src/app"],
+      exclude: [
+        ".next",
+        "cypress",
+        "src/app",
+
+        "cypress.config.ts",
+        "eslint.config.mjs",
+        "next-env.d.ts",
+        "next.config.ts",
+        "postcss.config.mjs",
+        "vitest.config.ts",
+      ],
     },
   },
 });
