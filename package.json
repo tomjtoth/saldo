@@ -18,12 +18,14 @@
   "description": "",
   "dependencies": {
     "@auth/sequelize-adapter": "^2.9.1",
+    "@reduxjs/toolkit": "^2.8.2",
     "csv-parser": "^3.0.0",
     "luxon": "^3.6.1",
     "next": "15.3.2",
     "next-auth": "^5.0.0-beta.28",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7",
     "umzug": "^3.8.2"
