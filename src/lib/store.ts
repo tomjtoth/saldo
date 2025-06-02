@@ -1,8 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 
+import overlay from "./reducers/overlay";
+
 export const makeStore = () => {
   return configureStore({
-    reducer: {},
+    reducer: {
+      overlay,
+    },
   });
 };
 
