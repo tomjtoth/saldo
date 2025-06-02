@@ -33,7 +33,9 @@ export default function UserAvatarClient({
                   Hi, {name}!
                   <br />({email})
                 </p>
-                <button onClick={() => signOut()}>Sign out</button>
+                <button onClick={() => signOut({ redirectTo: "/" })}>
+                  Sign out
+                </button>
               </div>
             )}
           </>
