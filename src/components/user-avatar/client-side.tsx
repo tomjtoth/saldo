@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { signIn, signOut } from "next-auth/react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { showUserMenu } from "@/lib/reducers/overlay";
 
 export default function UserAvatarClient({
   authenticated,
@@ -14,16 +15,17 @@ export default function UserAvatarClient({
   name: string;
   email: string;
 }) {
-  const [open, setOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const open = useAppSelector((s) => s.overlay.userOptsOpened);
 
   return (
-    <div className="z-2 float-right">
+    <div className="float-right">
       <>
         {authenticated ? (
           <>
             <div
               className="w-10 h-10 overflow-hidden border-2 inline-block rounded-[50%] *:w-full *:h-full [&_img]:object-cover cursor-pointer"
-              onClick={() => setOpen((v) => !v)}
+              onClick={() => dispatch(showUserMenu())}
             >
               {avatar}
             </div>
