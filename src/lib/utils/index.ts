@@ -33,3 +33,7 @@ export function dateAsInt(date?: DateTime): number {
 export const LUXON_TZ = {
   zone: "Europe/Helsinki",
 };
+
+export async function sleep(ms: number) {
+  return new Promise<void>((done) => setTimeout(done, ms));
+}
