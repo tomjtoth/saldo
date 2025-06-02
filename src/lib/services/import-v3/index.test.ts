@@ -1,11 +1,20 @@
 import { describe, it, expect } from "vitest";
 import { parseCSV, parseData } from "./parsers";
 import { insertData } from ".";
-import { Category, Item, ItemShare, Receipt, User } from "@/lib/models";
+import {
+  Category,
+  Item,
+  ItemShare,
+  migrator,
+  Receipt,
+  User,
+} from "@/lib/models";
 
 describe("import-v3", async () => {
   const csv = await parseCSV(CSV_SAMPLE, true);
   const data = parseData(csv);
+
+  await migrator.up();
   await insertData(data);
 
   describe("parsed and iserted", () => {

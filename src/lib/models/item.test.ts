@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
 
 import { addUser } from "../services/user";
-import { Category, Item, Receipt, Revision, User } from ".";
+import { Category, Item, migrator, Receipt, Revision, User } from ".";
 import { VALID_USER_DATA } from "../test_helpers";
 
 describe("Item", () => {
   beforeEach(async () => {
+    await migrator.up();
     await Revision.truncate();
 
     // revId == 1 is created with this function call

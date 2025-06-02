@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
 
 import { addUser } from "../services/user";
-import { Category, Revision, User } from ".";
+import { Category, migrator, Revision, User } from ".";
 import { VALID_USER_DATA } from "../test_helpers";
 
 describe("Category", () => {
   beforeEach(async () => {
+    await migrator.up();
     await Revision.truncate({ cascade: true });
     await User.truncate();
     await Category.truncate();
