@@ -38,7 +38,7 @@ export default function RootLayout({
           <Sidepanel />
           <UserAvatar />
         </StoreProvider>
-        {children}
+        <div className="p-2">{children}</div>
       </body>
     </html>
   );
