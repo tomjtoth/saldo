@@ -1,4 +1,9 @@
-import { DataTypes, Model, ModelAttributes } from "sequelize";
+import {
+  BelongsToGetAssociationMixin,
+  DataTypes,
+  Model,
+  ModelAttributes,
+} from "sequelize";
 
 import {
   has3WordChars,
@@ -7,6 +12,7 @@ import {
   REV_ID_INTEGER_PK,
   TIDs,
   TCrIDs,
+  Status,
 } from "./common";
 
 /**
@@ -32,6 +38,9 @@ export class Category extends Model<TCategory, TCrCategory> {
   statusId!: number;
 
   description!: string;
+
+  declare getStatus: BelongsToGetAssociationMixin<Status>;
+  declare Status: Status;
 }
 Category.init(COLS, {
   ...seqInitOpts,
