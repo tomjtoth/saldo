@@ -14,21 +14,16 @@ export async function addUser(userData: TCrUser) {
   });
 }
 
-export async function registerUser(session: Session | null) {
-  const email = session?.user?.email;
+export async function currentUser(session: Session) {
+  const email = session?.user?.email!;
 
-  if (!email) return false;
-
-  const user = await User.findOne({ where: { email } });
+  let user = await User.findOne({ where: { email } });
   if (!user) {
-    try {
-      await addUser({
-        name: session.user?.name ?? `User #${await User.count()}`,
-        email,
-      });
-    } catch {
-      return false;
-    }
+    user = await addUser({
+      name: session?.user?.name ?? `User #${await User.count()}`,
+      email,
+    });
   }
-  return true;
+
+  return user;
 }
