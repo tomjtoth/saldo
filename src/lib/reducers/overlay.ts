@@ -27,20 +27,14 @@ const slice = createSlice({
 
 const sa = slice.actions;
 
-export const showUserMenu = () => {
-  return (dispatch: AppDispatch) => dispatch(sa.setUserMenu(true));
+export const showUserMenu = () => hideUserMenu(true);
+export const hideUserMenu = (setTo = false) => {
+  return (dispatch: AppDispatch) => dispatch(sa.setUserMenu(setTo));
 };
 
-export const hideUserMenu = () => {
-  return (dispatch: AppDispatch) => dispatch(sa.setUserMenu(false));
-};
-
-export const showSidepanel = () => {
-  return (dispatch: AppDispatch) => dispatch(sa.setSidepanel(true));
-};
-
-export const hideSidepanel = () => (dispatch: AppDispatch) => {
-  return dispatch(sa.setSidepanel(false));
+export const showSidepanel = () => hideSidepanel(true);
+export const hideSidepanel = (setTo = false) => {
+  return (dispatch: AppDispatch) => dispatch(sa.setSidepanel(setTo));
 };
 
 export default slice.reducer;
