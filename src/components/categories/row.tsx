@@ -63,7 +63,7 @@ export default function CliCategoryRow({
         onChange={async (ev) => {
           const asNum = Number(ev.target.value);
           const statusDescr = statuses.find(
-            (st) => st.id === statusId
+            (st) => st.id === asNum
           )!.description;
 
           const preFetchStatusId = statusId;
