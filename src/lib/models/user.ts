@@ -13,6 +13,7 @@ type TUser = TIDs & {
   name: string;
 };
 
+export type TCliUser = Omit<TUser, "revId" | "statusId">;
 export type TCrUser = Partial<TIDs> & Pick<TUser, "email" | "name">;
 
 /**

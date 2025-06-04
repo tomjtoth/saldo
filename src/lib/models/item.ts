@@ -17,6 +17,11 @@ type TItem = TIDs & {
   notes?: string;
 };
 
+export type TCliItem = Pick<TItem, "id" | "catId" | "notes"> & {
+  cost: number;
+  shares?: { userId: number; share: number };
+};
+
 export type TCrItem = TCrIDs &
   Pick<TItem, "rcptId" | "catId" | "cost" | "notes">;
 

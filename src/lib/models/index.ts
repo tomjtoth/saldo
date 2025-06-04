@@ -14,7 +14,7 @@ export * from "./category";
 export * from "./receipt";
 export * from "./item";
 export * from "./item_share";
-export { Revision };
+export { Revision, Status };
 export type { TCrRevision } from "./common";
 
 export class UserSession extends Model {}

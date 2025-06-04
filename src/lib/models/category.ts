@@ -30,6 +30,11 @@ const COLS: ModelAttributes<Category, TCategory> = {
 };
 
 type TCategory = TIDs & { description: string };
+
+export type TCliCategory = Omit<TCategory, "revId"> & {
+  Status?: Status;
+};
+
 export type TCrCategory = TCrIDs & Pick<TCategory, "description">;
 
 export class Category extends Model<TCategory, TCrCategory> {

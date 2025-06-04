@@ -56,7 +56,7 @@ Revision.init(
   }
 );
 
-type TStatus = {
+export type TStatus = {
   id: number;
   description: string;
 };
