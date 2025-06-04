@@ -37,3 +37,21 @@ export const LUXON_TZ = {
 export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));
 }
+
+type SendJsonOptions = {
+  method?: "POST" | "PUT";
+};
+
+export async function sendJSON(
+  endpoint: string,
+  payload: any,
+  options?: SendJsonOptions
+) {
+  return await fetch(endpoint, {
+    method: options?.method ?? "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+}
