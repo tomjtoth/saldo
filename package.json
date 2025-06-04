@@ -26,6 +26,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
+    "react-toastify": "^11.0.5",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7",
     "umzug": "^3.8.2"
