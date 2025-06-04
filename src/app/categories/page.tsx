@@ -5,7 +5,7 @@ import { Category, Status } from "@/lib/models";
 import CliCategoryRow from "@/components/categories/row";
 import CliCategoryAdder from "@/components/categories/adder";
 
-export default async function Categories() {
+export default async function CategoriesPage() {
   const [cats, statuses] = await Promise.all([
     Category.findAll({
       order: [[fn("LOWER", col("Category.description")), "ASC"]],

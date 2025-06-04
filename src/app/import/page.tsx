@@ -1,7 +1,7 @@
 import { Item, ItemShare, Receipt, Revision, User } from "@/lib/models";
 import ImportButton from "@/components/import-button";
 
-export default async function ImportView() {
+export default async function ImportPage() {
   const [users, revisions, receipts, items, itemShares] = await Promise.all([
     User.count(),
     Revision.count(),

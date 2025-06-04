@@ -1,4 +1,4 @@
-export default function Home() {
+export default function HomePage() {
   return (
     <>
       <h2>Work in Progress</h2>
