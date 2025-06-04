@@ -1,12 +1,8 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import type { TIDs } from "./common";
-import {
-  has3WordChars,
-  SeqIdCols,
-  seqInitOpts,
-  REV_ID_INTEGER_PK,
-} from "./common";
+import { SeqIdCols, seqInitOpts, REV_ID_INTEGER_PK } from "./common";
+import { has3WordChars } from "../utils";
 
 type TUser = TIDs & {
   email: string;

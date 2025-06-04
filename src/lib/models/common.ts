@@ -99,14 +99,3 @@ export const REV_ID_INTEGER_PK = {
     primaryKey: true,
   },
 };
-
-export function err(msg: string) {
-  throw new Error(msg);
-}
-
-const RE_3_CONSECUTIVE_WORD_CHARS = /\w{3,}/;
-
-export function has3WordChars(val: string) {
-  if (!val.match(RE_3_CONSECUTIVE_WORD_CHARS))
-    err("must have at least 3 consecutive characters from [0-9a-zA-Z_]");
-}

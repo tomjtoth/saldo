@@ -6,7 +6,6 @@ import {
 } from "sequelize";
 
 import {
-  has3WordChars,
   SeqIdCols,
   seqInitOpts,
   REV_ID_INTEGER_PK,
@@ -14,6 +13,7 @@ import {
   TCrIDs,
   Status,
 } from "./common";
+import { has3WordChars } from "../utils";
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
