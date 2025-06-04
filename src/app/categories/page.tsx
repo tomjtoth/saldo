@@ -17,7 +17,7 @@ export default async function Categories() {
     <>
       <h2>Categories</h2>
 
-      <div className="grid grid-cols-[auto_min-content] gap-2 *:p-1">
+      <div className="grid grid-cols-[auto_min-content] gap-2">
         {cats.map((cat) => (
           <CliCategoryRow
             key={cat.id}

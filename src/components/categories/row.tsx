@@ -24,7 +24,6 @@ export default function CliCategoryRow({
   return (
     <>
       <form
-        className="p-0"
         onSubmit={(ev) => {
           ev.preventDefault();
 
@@ -58,7 +57,7 @@ export default function CliCategoryRow({
       </form>
 
       <select
-        className="border rounded"
+        className="border rounded p-1"
         value={statusId}
         onChange={async (ev) => {
           const asNum = Number(ev.target.value);
