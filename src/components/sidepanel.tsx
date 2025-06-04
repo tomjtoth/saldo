@@ -12,7 +12,8 @@ type TLink = {
 
 const LINKS: TLink[] = [
   { href: "/", label: "home" },
-  { href: "/import" },
+  { href: "/import", label: "import from V3" },
+  { href: "/categories" },
   { href: "/receipts" },
 ];
 
