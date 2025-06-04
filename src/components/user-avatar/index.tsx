@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import AvatarClientSide from "./client-side";
+import CliUserAvatar from "./client-side";
 
 export default async function UserAvatar() {
   const sess = await auth();
@@ -31,7 +31,7 @@ export default async function UserAvatar() {
   );
 
   return (
-    <AvatarClientSide
+    <CliUserAvatar
       authenticated={!!sess}
       avatar={avatar}
       name={sess?.user?.name ?? ""}

@@ -1,10 +1,11 @@
 "use client";
 
 import { signIn, signOut } from "next-auth/react";
+
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { showUserMenu } from "@/lib/reducers/overlay";
 
-export default function UserAvatarClient({
+export default function CliUserAvatar({
   authenticated,
   avatar,
   name,
