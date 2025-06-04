@@ -34,7 +34,7 @@ export default function Sidepanel() {
       <nav
         className={`absolute h-full w-[85vw] sm:w-60  ${
           visible ? "left-0" : "-left-[85vw] -sm:left-60"
-        } duration-200 border-r bg-background p-4`}
+        } duration-150 border-r bg-background p-4`}
       >
         <ul>
           {LINKS.map((a) => (
