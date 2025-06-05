@@ -7,6 +7,8 @@ import Header from "@/components/header";
 import CliCategoriesPage from "@/components/categories";
 import StoreProvider from "../StoreProvider";
 
+export const dynamic = "force-dynamic";
+
 export default async function CategoriesPage() {
   const [cats, statuses] = await Promise.all([
     Category.findAll({
