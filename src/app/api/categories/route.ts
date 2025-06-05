@@ -6,7 +6,7 @@ import { createCategory } from "@/lib/services/categories";
 
 export async function POST(req: NextRequest) {
   const data = await req.json();
-  if (data.description) return Response.error();
+  if (data.description === undefined) return Response.error();
 
   const sess = await auth();
   if (!sess) return new Response(null, { status: 401 });

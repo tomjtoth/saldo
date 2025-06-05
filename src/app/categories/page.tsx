@@ -2,7 +2,10 @@ import React from "react";
 import { col, fn, Op } from "sequelize";
 
 import { Category, Status } from "@/lib/models";
-import CliCategoryRow from "@/components/categories/row";
+
+import Header from "@/components/header";
+import CliCategoriesPage from "@/components/categories";
+import StoreProvider from "../StoreProvider";
 import CliCategoryAdder from "@/components/categories/adder";
 
 export default async function CategoriesPage() {
@@ -14,22 +17,19 @@ export default async function CategoriesPage() {
   ]);
 
   return (
-    <>
-      <h2>Categories</h2>
+    <StoreProvider>
+      <Header>
+        <div className="flex gap-2 flex-row items-center">
+          <h2>Categories</h2>
+        </div>
+      </Header>
 
-      <div className="grid grid-cols-[auto_min-content] gap-2">
-        {cats.map((cat) => (
-          <CliCategoryRow
-            key={cat.id}
-            {...{
-              ...cat.get({ plain: true }),
-              statuses: statuses.map((st) => st.get({ plain: true })),
-            }}
-          />
-        ))}
-
-        <CliCategoryAdder />
-      </div>
-    </>
+      <CliCategoriesPage
+        {...{
+          categories: cats.map((cat) => cat.get({ plain: true })),
+          statuses: statuses.map((st) => st.get({ plain: true })),
+        }}
+      />
+    </StoreProvider>
   );
 }

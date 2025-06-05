@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import overlay from "./reducers/overlay";
+import categories from "./reducers/categories";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       overlay,
+      categories,
     },
   });
 };

@@ -1,25 +1,21 @@
 "use client";
 
 import { useState } from "react";
-
-import { has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
-import { TStatus } from "@/lib/models/common";
 import { toast } from "react-toastify";
 
-export default function CliCategoryRow({
-  id,
-  description: originalDescription,
-  statusId: originalStatusId,
-  statuses,
-}: {
-  id: number;
-  description: string;
-  statusId: number;
-  statuses: TStatus[];
-}) {
-  const [buffer, setBuffer] = useState(originalDescription);
-  const [descr, setDescr] = useState(originalDescription);
-  const [statusId, setStatusId] = useState(originalStatusId);
+import { rCats } from "@/lib/reducers/categories";
+import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+
+export default function CliCategoryRow({ id }: { id: number }) {
+  const statuses = useAppSelector((s) => s.categories.stats);
+  const cat = useAppSelector(
+    (s) => s.categories.cats.find((cat) => cat.id === id)!
+  );
+  const dispatch = useAppDispatch();
+
+  const [buffer, setBuffer] = useState(cat?.description ?? "");
+  const [statusId, setStatusId] = useState(cat.statusId);
 
   return (
     <>
@@ -35,15 +31,20 @@ export default function CliCategoryRow({
 
           toast.promise(
             sendJSON(
-              `/api/categories/${id}`,
+              `/api/categories/${cat.id}`,
               {
                 description: buffer,
               },
               { method: "PUT" }
-            ).then(() => {
-              setDescr(buffer);
-            }),
-            toastifyMsgs(`Renaming "${descr}" to "${buffer}"`)
+            )
+              .then(() => {
+                dispatch(rCats.update({ ...cat, description: buffer }));
+              })
+              .catch(() => {
+                setBuffer(cat.description);
+                err("tripping toastify");
+              }),
+            toastifyMsgs(`Renaming "${cat.description}" to "${buffer}"`)
           );
         }}
       >
@@ -65,7 +66,7 @@ export default function CliCategoryRow({
             (st) => st.id === asNum
           )!.description;
 
-          const preFetchStatusId = statusId;
+          const preFetchStatusId = cat.statusId;
           setStatusId(asNum);
 
           toast.promise(
@@ -77,9 +78,9 @@ export default function CliCategoryRow({
               { method: "PUT" }
             ).catch(() => {
               setStatusId(preFetchStatusId);
-              throw Error("tripping toastify??");
+              err("tripping toastify??");
             }),
-            toastifyMsgs(`Setting "${descr}" to "${statusDescr}"`)
+            toastifyMsgs(`Setting "${cat.description}" to "${statusDescr}"`)
           );
         }}
       >
