@@ -23,7 +23,7 @@ export default function UserMenu() {
         })
       );
     }
-  }, [sess.status]);
+  }, [sess]);
 
   return sess.status == "loading" ? null : sess.status == "unauthenticated" ? (
     <button onClick={() => signIn()}>Sign in</button>

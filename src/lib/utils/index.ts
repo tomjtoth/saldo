@@ -44,6 +44,8 @@ type SendJsonOptions = {
 
 export async function sendJSON(
   endpoint: string,
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: any,
   options?: SendJsonOptions
 ) {

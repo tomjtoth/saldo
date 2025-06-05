@@ -16,6 +16,8 @@ export async function addUser(userData: TCrUser) {
 }
 
 export async function currentUser(session: Session) {
+  // OAuth profiles without an email are disallowed in @/auth.ts
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const email = session?.user?.email!;
 
   let user = await User.findOne({ where: { email } });

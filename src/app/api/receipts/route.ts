@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
     } = await addReceipt(user.id, data);
     Response.json(id);
   } catch (err) {
+    console.error(err);
     return Response.error();
   }
 }

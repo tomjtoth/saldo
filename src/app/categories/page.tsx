@@ -6,7 +6,6 @@ import { Category, Status } from "@/lib/models";
 import Header from "@/components/header";
 import CliCategoriesPage from "@/components/categories";
 import StoreProvider from "../StoreProvider";
-import CliCategoryAdder from "@/components/categories/adder";
 
 export default async function CategoriesPage() {
   const [cats, statuses] = await Promise.all([
