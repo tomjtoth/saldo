@@ -6,13 +6,11 @@
     "coverage": "vitest run --coverage",
     "dev": "next dev",
     "lint": "next lint",
-    "build": "next build && tsc --project tsconfig.migrations.json",
+    "build": "next build",
     "start": "next start",
     "cypress:open": "cypress open",
     "e2e": "start-server-and-test dev http://localhost:3000 \"cypress open --e2e\"",
-    "e2e:headless": "start-server-and-test dev http://localhost:3000 \"cypress run --e2e\"",
-    "migrate": "node dist/migrations.js",
-    "migrate:down": "node dist/migrations.js down"
+    "e2e:headless": "start-server-and-test dev http://localhost:3000 \"cypress run --e2e\""
   },
   "type": "module",
   "author": "",
