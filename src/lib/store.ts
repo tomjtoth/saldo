@@ -2,12 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import overlay from "./reducers/overlay";
 import categories from "./reducers/categories";
+import receiptAdder from "./reducers/receipt-adder";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       overlay,
       categories,
+      receiptAdder,
     },
   });
 };

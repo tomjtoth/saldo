@@ -1,14 +1,12 @@
-import { atomic, Item, Receipt, Revision, TCrItem } from "../models";
+import { atomic, Item, Receipt, Revision, TCliItem } from "../models";
 
 export type TReceiptInput = {
   paidOn?: number;
   paidBy?: number;
-  items: (TCrItem & { shares?: { userId: number; share: number }[] })[];
+  items: TCliItem[];
 };
 
 export async function addReceipt(addedBy: number, data: TReceiptInput) {
-  if (data.items.length === 0) return;
-
   return await atomic("Adding receipt", async (transaction) => {
     const rev = await Revision.create({ revBy: addedBy }, { transaction });
 
@@ -21,10 +19,11 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
       { transaction }
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const items = await Item.bulkCreate(
-      data.items.map((i) => ({ ...i, rcptId: rcpt.id })),
+      data.items.map((i) => ({ ...i, revId: rev.id, rcptId: rcpt.id })),
       { transaction }
     );
+
+    return { rev, rcpt, items };
   });
 }
