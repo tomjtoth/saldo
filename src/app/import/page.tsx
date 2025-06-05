@@ -1,5 +1,6 @@
 import { Item, ItemShare, Receipt, Revision, User } from "@/lib/models";
 import ImportButton from "@/components/import-button";
+import Header from "@/components/header";
 
 export default async function ImportPage() {
   const [users, revisions, receipts, items, itemShares] = await Promise.all([
@@ -12,7 +13,10 @@ export default async function ImportPage() {
 
   return (
     <>
-      <h2>Import view</h2>
+      <Header>
+        <h2>Import view</h2>
+      </Header>
+
       <p>Current data in the DB:</p>
       <ul>
         <li>users: {users}</li>

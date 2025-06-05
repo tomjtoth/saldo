@@ -1,7 +1,11 @@
+import Header from "@/components/header";
+
 export default function HomePage() {
   return (
     <>
-      <h2>Work in Progress</h2>
+      <Header>
+        <h2>Work in Progress</h2>
+      </Header>
 
       <p className="p-2">
         This is a <b>WiP</b> multi-user expense tracker app.

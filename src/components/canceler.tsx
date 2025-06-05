@@ -6,17 +6,17 @@ import { hideSidepanel, hideUserMenu } from "@/lib/reducers/overlay";
 export default function Canceler() {
   const dispatch = useAppDispatch();
   const spOpen = useAppSelector((s) => s.overlay.sidepanelOpened);
-  const uoOpen = useAppSelector((s) => s.overlay.userOptsOpened);
+  const umOpen = useAppSelector((s) => s.overlay.userMenuOpened);
 
-  return spOpen || uoOpen ? (
+  return !spOpen && !umOpen ? null : (
     <div
-      className="absolute h-full w-full"
+      className="absolute h-full w-full bg-background/50 backdrop-blur-xs"
       onClick={(ev) => {
         if (ev.target === ev.currentTarget) {
-          dispatch(hideUserMenu());
-          dispatch(hideSidepanel());
+          if (umOpen) dispatch(hideUserMenu());
+          if (spOpen) dispatch(hideSidepanel());
         }
       }}
     />
-  ) : null;
+  );
 }
