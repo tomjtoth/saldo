@@ -6,5 +6,9 @@ import { showSidepanel } from "@/lib/reducers/overlay";
 export default function SidepanelOpenerButton() {
   const dispatch = useAppDispatch();
 
-  return <button onClick={() => dispatch(showSidepanel())}>≡</button>;
+  return (
+    <button id="sidepanel-opener" onClick={() => dispatch(showSidepanel())}>
+      ≡
+    </button>
+  );
 }
