@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
 
-import { Revision, User } from "../models";
+import { migrator, Revision, User } from "../models";
 import { addUser } from "./user";
 import { VALID_USER_DATA } from "../test_helpers";
 
 describe("addUser", () => {
   beforeEach(async () => {
+    await migrator.up();
     await Revision.truncate();
     await User.truncate();
   });

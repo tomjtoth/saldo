@@ -41,7 +41,7 @@ const getRawSqlClient = () => ({
 const RE_SINGLE_STMT =
   /^(?:(?:CREATE|ALTER|DROP) TABLE|INSERT|DELETE|UPDATE).+?;/gims;
 
-const migrator = new Umzug({
+export const migrator = new Umzug({
   migrations: {
     glob: "migrations/*.sql",
     resolve(params) {
@@ -84,13 +84,3 @@ const migrator = new Umzug({
     folder: "migrations",
   },
 });
-
-// export type Migration = typeof migrator._types.migration;
-
-let needsMigrate = true;
-
-if (needsMigrate) {
-  needsMigrate = false;
-  console.log("\n\tDB migrations triggered\n");
-  await migrator.up();
-}
