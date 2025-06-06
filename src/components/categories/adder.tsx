@@ -1,13 +1,13 @@
 "use client";
 
-import { has3WordChars, toastifyMsgs } from "@/lib/utils";
 import { useState } from "react";
-
-import { sendJSON } from "@/lib/utils";
 import { toast } from "react-toastify";
+
+import { has3WordChars, toastifyMsgs, sendJSON } from "@/lib/utils";
 import { TCliCategory } from "@/lib/models";
 import { useAppDispatch } from "@/lib/hooks";
 import { rCats } from "@/lib/reducers/categories";
+import { CATEGORIES_INPUT_PROPS } from "./config";
 
 export default function CliCategoryAdder() {
   const dispatch = useAppDispatch();
@@ -38,11 +38,12 @@ export default function CliCategoryAdder() {
       }}
     >
       <input
-        type="text"
-        className="w-full"
-        placeholder="Add new here..."
-        value={buffer}
-        onChange={(ev) => setBuffer(ev.target.value)}
+        {...{
+          ...CATEGORIES_INPUT_PROPS,
+          placeholder: "Add new here...",
+          value: buffer,
+          onChange: (ev) => setBuffer(ev.target.value),
+        }}
       />
     </form>
   );

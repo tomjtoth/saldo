@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { rCats } from "@/lib/reducers/categories";
 import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { CATEGORIES_INPUT_PROPS } from "./config";
 
 export default function CliCategoryRow({ id }: { id: number }) {
   const statuses = useAppSelector((s) => s.categories.stats);
@@ -49,11 +50,11 @@ export default function CliCategoryRow({ id }: { id: number }) {
         }}
       >
         <input
-          type="text"
-          pattern=".*\w{3,}.*"
-          className="w-full min-w-min"
-          value={buffer}
-          onChange={(ev) => setBuffer(ev.target.value)}
+          {...{
+            ...CATEGORIES_INPUT_PROPS,
+            value: buffer,
+            onChange: (ev) => setBuffer(ev.target.value),
+          }}
         />
       </form>
 
