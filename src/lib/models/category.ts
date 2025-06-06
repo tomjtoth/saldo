@@ -12,6 +12,7 @@ import {
   TIDs,
   TCrIDs,
   Status,
+  Revision,
 } from "./common";
 import { has3WordChars } from "../utils";
 
@@ -33,11 +34,13 @@ type TCategory = TIDs & { description: string };
 
 export type TCliCategory = Omit<TCategory, "revId"> & {
   Status?: Status;
+  Revision?: Revision;
+  archives?: CategoryArchive[];
 };
 
 export type TCrCategory = TCrIDs & Pick<TCategory, "description">;
 
-export class Category extends Model<TCategory, TCrCategory> {
+class Common extends Model<TCategory, TCrCategory> {
   id!: number;
   revId!: number;
   statusId!: number;
@@ -46,6 +49,14 @@ export class Category extends Model<TCategory, TCrCategory> {
 
   declare getStatus: BelongsToGetAssociationMixin<Status>;
   declare Status: Status;
+
+  declare getRevision: BelongsToGetAssociationMixin<Revision>;
+  declare Revision: Revision;
+}
+
+export class Category extends Common {
+  declare getArchives: BelongsToGetAssociationMixin<CategoryArchive[]>;
+  declare archives: CategoryArchive[];
 }
 
 Category.init(COLS, {
@@ -53,7 +64,7 @@ Category.init(COLS, {
   modelName: "Category",
 });
 
-export class CategoryArchive extends Category {}
+export class CategoryArchive extends Common {}
 CategoryArchive.init(
   {
     ...COLS,
@@ -61,6 +72,7 @@ CategoryArchive.init(
   },
   {
     ...seqInitOpts,
+    modelName: "CategoryArchive",
     tableName: "categories_archive",
   }
 );
