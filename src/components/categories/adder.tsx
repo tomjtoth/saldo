@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-import { has3WordChars, toastifyMsgs, sendJSON } from "@/lib/utils";
+import { has3WordChars, toastifyMsgs, sendJSON, err } from "@/lib/utils";
 import { TCliCategory } from "@/lib/models";
 import { useAppDispatch } from "@/lib/hooks";
 import { rCats } from "@/lib/reducers/categories";
@@ -27,11 +27,11 @@ export default function CliCategoryAdder() {
           sendJSON("/api/categories", {
             description: buffer,
           }).then(async (res) => {
-            if (res.ok) {
-              const body = await res.json();
-              dispatch(rCats.add(body as TCliCategory));
-              setBuffer("");
-            }
+            if (!res.ok) err("tripping toastify");
+
+            const body = await res.json();
+            dispatch(rCats.add(body as TCliCategory));
+            setBuffer("");
           }),
           toastifyMsgs(`Saving "${buffer}" to db`)
         );

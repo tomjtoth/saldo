@@ -38,7 +38,9 @@ export default function CliCategoryRow({ id }: { id: number }) {
               },
               { method: "PUT" }
             )
-              .then(() => {
+              .then((res) => {
+                if (!res.ok) err("tripping toastify");
+
                 dispatch(rCats.update({ ...cat, description: buffer }));
               })
               .catch(() => {
@@ -77,10 +79,14 @@ export default function CliCategoryRow({ id }: { id: number }) {
                 statusId: asNum,
               },
               { method: "PUT" }
-            ).catch(() => {
-              setStatusId(preFetchStatusId);
-              err("tripping toastify??");
-            }),
+            )
+              .then((res) => {
+                if (!res.ok) err("tripping toastify");
+              })
+              .catch(() => {
+                setStatusId(preFetchStatusId);
+                err("tripping toastify");
+              }),
             toastifyMsgs(`Setting "${cat.description}" to "${statusDescr}"`)
           );
         }}
