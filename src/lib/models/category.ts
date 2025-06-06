@@ -47,9 +47,10 @@ export class Category extends Model<TCategory, TCrCategory> {
   declare getStatus: BelongsToGetAssociationMixin<Status>;
   declare Status: Status;
 }
+
 Category.init(COLS, {
   ...seqInitOpts,
-  tableName: "categories",
+  modelName: "Category",
 });
 
 export class CategoryArchive extends Category {}
