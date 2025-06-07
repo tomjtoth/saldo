@@ -43,6 +43,10 @@ Revision.init(
     revOn: {
       type: DataTypes.INTEGER,
       defaultValue: () => Date.now(),
+      get() {
+        const rawValue = this.getDataValue("revOn");
+        return new Date(rawValue).toLocaleString();
+      },
     },
     revBy: {
       type: DataTypes.INTEGER,
