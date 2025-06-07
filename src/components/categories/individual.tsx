@@ -27,10 +27,10 @@ export function CliCategoryPage({ cat }: { cat: TCliCategory }) {
           </thead>
           <tbody>
             {[...cat.archives!, cat].toReversed().map((cat) => (
-              <tr key={`${cat.id}-${cat.revId}`}>
-                <td>"{cat.description}"</td>
-                <td>{cat.Status?.description}</td>
-                <td>{new Date(cat.Revision?.revOn!).toLocaleString()}</td>
+              <tr key={`${cat.id}-${cat.revId!}`}>
+                <td>&qt;{cat.description}&qt;</td>
+                <td>{cat.Status!.description}</td>
+                <td>{cat.Revision!.revOn}</td>
               </tr>
             ))}
           </tbody>

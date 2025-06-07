@@ -33,12 +33,8 @@ export default async function NewReceiptPage() {
       <StoreProvider>
         <CliReceiptAdder
           {...{
-            users: users.map(({ id, name, email }) => ({ id, name, email })),
-            categories: categories.map(({ id, statusId, description }) => ({
-              id,
-              statusId,
-              description,
-            })),
+            users: users.map((u) => u.get({ plain: true })),
+            categories: categories.map((cat) => cat.get({ plain: true })),
 
             paidBy: user.id,
           }}
