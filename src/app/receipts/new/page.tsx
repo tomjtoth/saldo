@@ -8,6 +8,8 @@ import { currentUser } from "@/lib/services/user";
 import Header from "@/components/header";
 import CliReceiptAdder from "@/components/receipt-adder-client-side";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewReceiptPage() {
   const session = await auth();
   if (!session) return signIn("", { redirectTo: "/receipts/new" });
@@ -16,11 +18,7 @@ export default async function NewReceiptPage() {
     currentUser(session),
     User.findAll({ order: ["name"] }),
     Category.findAll({
-      where: {
-        statusId: {
-          [Op.eq]: 1,
-        },
-      },
+      where: { statusId: { [Op.eq]: 1 } },
       order: [[fn("LOWER", col("description")), "ASC"]],
     }),
   ]);
