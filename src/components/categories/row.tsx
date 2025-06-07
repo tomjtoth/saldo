@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 import { rCats } from "@/lib/reducers/categories";
 import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
@@ -19,6 +20,7 @@ export default function CliCategoryRow({ cat }: { cat: TCliCategory }) {
   return (
     <>
       <form
+        className="flex items-center gap-2"
         onSubmit={(ev) => {
           ev.preventDefault();
 
@@ -58,6 +60,14 @@ export default function CliCategoryRow({ cat }: { cat: TCliCategory }) {
             onChange: (ev) => setBuffer(ev.target.value),
           }}
         />
+        {(cat.archives?.length ?? 0) > 0 && (
+          <Link
+            className="no-underline border rounded p-1"
+            href={`/categories/${cat.id}`}
+          >
+            🗐
+          </Link>
+        )}
       </form>
 
       <select
