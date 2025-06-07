@@ -20,22 +20,9 @@ const slice = createSlice({
     init: (_, { payload }) => payload,
 
     update: (rs, { payload }: PayloadAction<TCliCategory>) => {
-      let popFrom = -1;
-
-      rs.cats.forEach((cat, idx) => {
-        if (cat.id === payload.id) {
-          if (cat.description !== payload.description) {
-            popFrom = idx;
-            cat.description = payload.description;
-          }
-          cat.statusId = payload.statusId;
-        }
-      });
-
-      if (popFrom > -1) {
-        const [modified] = rs.cats.splice(popFrom, 1);
-        insertAlphabetically(modified, rs.cats);
-      }
+      const popFrom = rs.cats.findIndex(({ id }) => id === payload.id)!;
+      rs.cats.splice(popFrom, 1);
+      insertAlphabetically(payload, rs.cats);
     },
 
     add: (rs, { payload }: PayloadAction<TCliCategory>) => {

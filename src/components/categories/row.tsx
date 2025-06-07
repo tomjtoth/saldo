@@ -7,12 +7,10 @@ import { rCats } from "@/lib/reducers/categories";
 import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { CATEGORIES_INPUT_PROPS } from "./config";
+import { TCliCategory } from "@/lib/models";
 
-export default function CliCategoryRow({ id }: { id: number }) {
+export default function CliCategoryRow({ cat }: { cat: TCliCategory }) {
   const statuses = useAppSelector((s) => s.categories.stats);
-  const cat = useAppSelector(
-    (s) => s.categories.cats.find((cat) => cat.id === id)!
-  );
   const dispatch = useAppDispatch();
 
   const [buffer, setBuffer] = useState(cat?.description ?? "");
@@ -38,10 +36,12 @@ export default function CliCategoryRow({ id }: { id: number }) {
               },
               { method: "PUT" }
             )
-              .then((res) => {
+              .then(async (res) => {
                 if (!res.ok) err("tripping toastify");
 
-                dispatch(rCats.update({ ...cat, description: buffer }));
+                const updated: TCliCategory = await res.json();
+
+                dispatch(rCats.update(updated));
               })
               .catch(() => {
                 setBuffer(cat.description);
@@ -74,7 +74,7 @@ export default function CliCategoryRow({ id }: { id: number }) {
 
           toast.promise(
             sendJSON(
-              `/api/categories/${id}`,
+              `/api/categories/${cat.id}`,
               {
                 statusId: asNum,
               },

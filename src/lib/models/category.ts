@@ -32,7 +32,7 @@ const COLS: ModelAttributes<Category, TCategory> = {
 
 type TCategory = TIDs & { description: string };
 
-export type TCliCategory = Omit<TCategory, "revId"> & {
+export type TCliCategory = TCategory & {
   Status?: Status;
   Revision?: Revision;
   archives?: CategoryArchive[];
