@@ -16,6 +16,11 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "browserslist": [
+    ">0.3%",
+    "not dead",
+    "not op_mini all"
+  ],
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "csv-parser": "^3.0.0",
