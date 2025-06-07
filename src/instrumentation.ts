@@ -1,5 +1,5 @@
 export async function register() {
-  if (process.env.NEXT_RUNTIME !== "edge") {
+  if (process.env.NEXT_RUNTIME === "nodejs") {
     const log = (msg: string, err?: Error) =>
       console[err ? "error" : "log"](`\n\t${msg}\n`, err);
 
