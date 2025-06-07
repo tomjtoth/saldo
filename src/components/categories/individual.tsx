@@ -28,7 +28,9 @@ export function CliCategoryPage({ cat }: { cat: TCliCategory }) {
           <tbody>
             {[...cat.archives!, cat].toReversed().map((cat) => (
               <tr key={`${cat.id}-${cat.revId!}`}>
-                <td>&qt;{cat.description}&qt;</td>
+                <td>
+                  <code>{cat.description.replaceAll(" ", "·")}</code>
+                </td>
                 <td>{cat.Status!.description}</td>
                 <td>{cat.Revision!.revOn}</td>
               </tr>
