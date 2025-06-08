@@ -1,36 +1,66 @@
-"use client";
+"use server";
 
-import { useEffect } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { auth } from "@/auth";
 
-import { useAppDispatch } from "@/lib/hooks";
-import { updateUserSession } from "@/lib/reducers/overlay";
+import CliUserMenu from "./client-side";
+import { SignInButton, SignOutButton } from "./buttons";
 
-import UserAvatar from "./avatar";
-import Menu from "./menu";
+export default async function UserMenu() {
+  const session = await auth();
 
-export default function UserMenu() {
-  const sess = useSession();
-  const dispatch = useAppDispatch();
+  const name = session?.user?.name;
+  const email = session?.user?.email;
+  const image = session?.user?.image;
 
-  useEffect(() => {
-    if (sess.status !== "loading") {
-      dispatch(
-        updateUserSession({
-          name: sess.data?.user?.name,
-          email: sess.data?.user?.email,
-          image: sess.data?.user?.image,
-        })
-      );
-    }
-  }, [sess]);
+  const names = (name ?? "").split(" ")!;
 
-  return sess.status == "loading" ? null : sess.status == "unauthenticated" ? (
-    <button onClick={() => signIn()}>Sign in</button>
+  const srvAvatar = image ? (
+    <img src={image} alt="User Avatar" draggable={false} />
   ) : (
-    <>
-      <UserAvatar />
-      <Menu />
-    </>
+    <svg xmlns="">
+      <rect width={200} height={200} fill="red"></rect>
+      <text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill="white"
+        fontFamily="sans-serif"
+        fontWeight="bold"
+        className="select-none"
+      >
+        {names.length > 1
+          ? names?.map((n) => n.slice(0, 1).toUpperCase()).join("")
+          : names[0].slice(0, 2).toUpperCase()}
+      </text>
+    </svg>
+  );
+
+  const srvMenu = (
+    <div className="z-2 absolute border rounded bg-background shadow-lg p-4 right-2 top-15">
+      <p>
+        Hi, {name ?? "XYou"}!
+        {email && (
+          <>
+            <br />({email})
+          </>
+        )}
+      </p>
+
+      <SignOutButton />
+    </div>
+  );
+
+  const signInButton = <SignInButton />;
+
+  return (
+    <CliUserMenu
+      {...{
+        authenticated: !!session,
+        signInButton,
+        srvAvatar,
+        srvMenu,
+      }}
+    />
   );
 }

@@ -1,4 +1,4 @@
-"use client";
+"use server";
 
 import { PropsWithChildren } from "react";
 
@@ -8,7 +8,7 @@ import Canceler from "./canceler";
 import UserMenu from "./user-menu";
 import SidepanelOpenerButton from "./sidepanel/button";
 
-export default function Header({ children }: PropsWithChildren) {
+export default async function Header({ children }: PropsWithChildren) {
   return (
     <StoreProvider>
       <Canceler />
