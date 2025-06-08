@@ -6,7 +6,7 @@ import { Category, User } from "@/lib/models";
 import { currentUser } from "@/lib/services/user";
 
 import Header from "@/components/header";
-import CliReceiptAdder from "@/components/receipt-adder-client-side";
+import CliReceiptAdder from "@/components/receipts";
 
 export const dynamic = "force-dynamic";
 

@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
 import { TCliCategory, TCliItem, TCliUser } from "../models";
-import { TCLiReceiptAdder } from "@/components/receipt-adder-client-side";
+import { TCLiReceiptAdder } from "@/components/receipts";
 
 type State = {
   paidOn: string;
