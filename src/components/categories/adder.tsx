@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { signIn } from "next-auth/react";
 
 import { has3WordChars, toastifyMsgs, sendJSON, err } from "@/lib/utils";
 import { TCliCategory } from "@/lib/models";
@@ -27,7 +28,10 @@ export default function CliCategoryAdder() {
           sendJSON("/api/categories", {
             description: buffer,
           }).then(async (res) => {
-            if (!res.ok) err("tripping toastify");
+            if (!res.ok) {
+              if (res.status === 401) signIn("", { redirectTo: "/categories" });
+              else err("tripping toastify");
+            }
 
             const body = await res.json();
             dispatch(rCats.add(body as TCliCategory));

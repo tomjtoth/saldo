@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 import { rCats } from "@/lib/reducers/categories";
 import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
@@ -39,7 +40,11 @@ export default function CliCategoryRow({ cat }: { cat: TCliCategory }) {
               { method: "PUT" }
             )
               .then(async (res) => {
-                if (!res.ok) err("tripping toastify");
+                if (!res.ok) {
+                  if (res.status === 401)
+                    signIn("", { redirectTo: "/categories" });
+                  else err("tripping toastify");
+                }
 
                 const updated: TCliCategory = await res.json();
 
