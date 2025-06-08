@@ -8,7 +8,9 @@ export async function SignInButton() {
         await signIn();
       }}
     >
-      <button type="submit">Sign In</button>
+      <button type="submit" id="sign-in-button">
+        Sign In
+      </button>
     </form>
   );
 }
@@ -21,7 +23,9 @@ export async function SignOutButton() {
         await signOut({ redirectTo: "/" });
       }}
     >
-      <button type="submit">Sign Out</button>
+      <button type="submit" id="sign-out-button">
+        Sign Out
+      </button>
     </form>
   );
 }

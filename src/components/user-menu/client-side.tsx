@@ -22,6 +22,7 @@ export default function CliUserMenu({
   ) : (
     <>
       <div
+        id="user-avatar-container"
         className="w-10 h-10 overflow-hidden border-2 inline-block rounded-[50%] *:w-full *:h-full [&_img]:object-cover cursor-pointer"
         onClick={() => setVisible(true)}
       >
