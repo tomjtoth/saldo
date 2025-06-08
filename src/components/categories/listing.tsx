@@ -25,7 +25,7 @@ export function CliCategoriesPage({
   }, []);
 
   return (
-    <div className="p-2 grid grid-cols-[auto_min-content] md:grid-cols-[auto_min-content_auto_min-content] lg:grid-cols-[auto_min-content_auto_min-content_auto_min-content] gap-2">
+    <div className="p-2 grid grid-cols-[auto_min-content] sm:grid-cols-[auto_min-content_auto_min-content] md:grid-cols-[auto_min-content_auto_min-content_auto_min-content] gap-2">
       {cats.map((cat) => (
         <CliCategoryRow key={cat.id} cat={cat} />
       ))}
