@@ -1,5 +1,5 @@
-function loginAs(email: string, passwd: string) {
-  cy.visit("/");
+export function loginAs(email: string, passwd: string, fromPage = "/") {
+  cy.visit(fromPage);
   cy.get("#sign-in-button").click();
   cy.get("#email", { timeout: 10000 }).type(email);
   cy.get("#passwd").type(passwd);

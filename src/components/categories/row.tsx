@@ -21,7 +21,7 @@ export default function CliCategoryRow({ cat }: { cat: TCliCategory }) {
   return (
     <>
       <form
-        className="flex items-center gap-2"
+        className="category-row flex items-center gap-2"
         onSubmit={(ev) => {
           ev.preventDefault();
 

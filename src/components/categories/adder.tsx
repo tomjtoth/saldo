@@ -43,6 +43,7 @@ export default function CliCategoryAdder() {
     >
       <input
         {...{
+          id: "category-adder",
           ...CATEGORIES_INPUT_PROPS,
           placeholder: "Add new here...",
           value: buffer,
