@@ -5,9 +5,10 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Spotify from "next-auth/providers/spotify";
 
-const TESTING_E2E = process.env.AUTH_CREDS_ONLY === "true";
+const PROD = process.env.NODE_ENV === "production";
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: !TESTING_E2E
+  providers: PROD
     ? [Discord, GitHub, Google, Spotify]
     : [
         Credentials({
@@ -37,7 +38,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn(params) {
       // email must be defined on the profile
-      return TESTING_E2E ? true : !!params.profile?.email;
+      return PROD ? !!params.profile?.email : true;
     },
   },
 });
