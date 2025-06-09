@@ -46,7 +46,7 @@ describe("categories", () => {
       );
     });
 
-    it.only("can be toggled to INACTIVE", () => {
+    it("can be toggled to INACTIVE", () => {
       addCategory(TEST_CATEGORY + 3);
       cy.get(`form.category-row input[value='${TEST_CATEGORY + 3}']`)
         .parent()
