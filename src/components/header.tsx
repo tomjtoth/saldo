@@ -7,12 +7,12 @@ import UserMenu from "./user-menu";
 
 export default async function Header({
   children,
-  className: cn,
+  className: cn = "",
 }: PropsWithChildren & { className?: string }) {
   return (
     <header className="flex gap-2 p-2 items-center">
       <Sidepanel />
-      <div className={`grow${cn ? ` ${cn}` : ""}`}>{children}</div>
+      <div className={`grow ${cn}`}>{children}</div>
       <UserMenu />
     </header>
   );
