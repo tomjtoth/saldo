@@ -8,12 +8,14 @@ function successfulToastShwon(msg: string) {
   cy.get("div.Toastify__toast--success", { timeout: 10000 })
     .last()
     .should("have.text", msg);
+
+  cy.get("div.Toastify__toast--success", { timeout: 10000 }).should(
+    "not.exist"
+  );
 }
 
 function loginShouldBeVisible() {
-  cy.get("#email").should("exist");
-  cy.get("#passwd").should("exist");
-  cy.get("#submitButton").should("exist");
+  cy.location("pathname").should("equal", "/api/auth/signin");
 }
 
 const TEST_CATEGORY = `test-cat-${Date.now()}`;
@@ -29,6 +31,12 @@ describe("categories", () => {
   describe("while logged in", () => {
     beforeEach(() => {
       loginAs("dev@dev.dev", "TEST_PASSWD", "/categories");
+    });
+
+    afterEach(async () => {
+      await new Promise((proceed) => {
+        cy.request("/api/cleanup/categories").then(proceed);
+      });
     });
 
     it("can be added", () => {
