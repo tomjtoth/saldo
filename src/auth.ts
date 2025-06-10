@@ -27,7 +27,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
             return {
               email,
-              name: "Dev Tester",
+              name: (email as string).replace(/@.+/, ""),
               image: (email as string).includes("withImage")
                 ? "https://avatar.iran.liara.run/public"
                 : undefined,
