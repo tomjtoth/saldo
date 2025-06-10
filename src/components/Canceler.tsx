@@ -1,6 +1,6 @@
 export default function Canceler({
   onClick: callback,
-  zIndex,
+  zIndex = 0,
 }: {
   onClick: () => void;
   zIndex?: number;
@@ -8,7 +8,7 @@ export default function Canceler({
   return (
     <div
       className={`${
-        zIndex !== 1 ? `z-${zIndex} ` : ""
+        zIndex !== 0 ? `z-${zIndex} ` : ""
       }absolute top-0 left-0 h-full w-full bg-background/50 backdrop-blur-xs`}
       onClick={(ev) => {
         if (ev.target === ev.currentTarget) callback();
