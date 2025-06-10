@@ -7,8 +7,10 @@ import {
   REV_ID_INTEGER_PK,
   TIDs,
   TCrIDs,
+  Revision,
 } from "./common";
 import { User } from "./user";
+import { Item } from "./item";
 
 type TReceipt = TIDs & { paidOn: number; paidBy: number };
 
@@ -32,14 +34,22 @@ const COLS: ModelAttributes<Receipt, TReceipt> = {
   },
 };
 
-export class Receipt extends Model<TReceipt, TCrReceipt> {
+class Common extends Model<TReceipt, TCrReceipt> {
   id!: number;
   revId?: number;
   statusId!: number;
 
   paidOn!: number;
   paidBy!: number;
+
+  items?: Item[];
+  Revision?: Revision;
 }
+
+export class Receipt extends Common {
+  archives?: ReceiptArchive[];
+}
+
 Receipt.init(
   {
     ...COLS,
@@ -54,7 +64,10 @@ Receipt.init(
   }
 );
 
-export class ReceiptArchive extends Receipt {}
+export class ReceiptArchive extends Common {
+  current?: Receipt;
+}
+
 ReceiptArchive.init(
   {
     ...COLS,

@@ -9,17 +9,15 @@ import {
 } from "./common";
 import { Category } from "./category";
 import { Receipt } from "./receipt";
+import { ItemShare } from "./item_share";
 
-type TItem = TIDs & {
+export type TItem = TIDs & {
   rcptId: number;
   catId: number;
   cost: number;
   notes?: string;
-};
 
-export type TCliItem = Pick<TItem, "id" | "catId" | "notes"> & {
-  cost: number;
-  shares?: { userId: number; share: number };
+  shares?: ItemShare[];
 };
 
 export type TCrItem = TCrIDs &
@@ -42,10 +40,9 @@ const COLS: ModelAttributes<Item, TItem> = {
   notes: { type: DataTypes.TEXT },
 };
 
-export class Item extends Model<TItem, TCrItem> {
+class Common extends Model<TItem, TCrItem> {
   id!: number;
   revId!: number;
-
   rcptId!: number;
   catId!: number;
   statusId!: number;
@@ -53,12 +50,20 @@ export class Item extends Model<TItem, TCrItem> {
   cost!: number;
   notes?: string;
 }
+
+export class Item extends Common {
+  archives?: ItemArchive[];
+}
+
 Item.init(COLS, {
   ...seqInitOpts,
   modelName: "Item",
 });
 
-export class ItemArchive extends Item {}
+export class ItemArchive extends Common {
+  current?: Item;
+}
+
 ItemArchive.init(
   {
     ...COLS,

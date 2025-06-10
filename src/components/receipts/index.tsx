@@ -8,13 +8,13 @@ import {
   setPaidBy,
   setPaidOn,
 } from "@/lib/reducers/receipt-adder";
-import { TCliCategory, TCliUser } from "@/lib/models";
+import { TCategory, TUser } from "@/lib/models";
 
 import ItemRows from "./item-row";
 
 export type TCLiReceiptAdder = {
-  users: TCliUser[];
-  categories: TCliCategory[];
+  users: TUser[];
+  categories: TCategory[];
   paidBy: number;
 };
 

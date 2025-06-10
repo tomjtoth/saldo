@@ -1,6 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 
 import { db } from "./db";
+import { User } from "./user";
 
 export type TIDs = {
   id: number;
@@ -8,7 +9,7 @@ export type TIDs = {
   statusId: number;
 };
 
-export type TCrIDs = Partial<Omit<TIDs, "revId">> & Pick<TIDs, "revId">;
+export type TCrIDs = Partial<TIDs>;
 
 const id = {
   type: DataTypes.INTEGER,
@@ -35,6 +36,8 @@ export class Revision extends Model<TRevision, TCrRevision> {
   id!: number;
   revOn!: number;
   revBy!: number;
+
+  User?: User;
 }
 
 Revision.init(
@@ -71,6 +74,7 @@ export class Status extends Model<TStatus, TCrStatus> {
   id!: number;
   description!: string;
 }
+
 Status.init(
   {
     id,

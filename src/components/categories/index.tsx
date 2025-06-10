@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { TCliCategory, TStatus } from "@/lib/models";
+import { TCategory, TStatus } from "@/lib/models";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { rCats } from "@/lib/reducers/categories";
 
@@ -13,7 +13,7 @@ export function CliCategoriesPage({
   categories,
   statuses,
 }: {
-  categories: TCliCategory[];
+  categories: TCategory[];
   statuses: TStatus[];
 }) {
   const dispatch = useAppDispatch();

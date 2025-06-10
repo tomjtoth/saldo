@@ -9,9 +9,9 @@ import { rCats } from "@/lib/reducers/categories";
 import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { CATEGORIES_INPUT_PROPS } from "./config";
-import { TCliCategory } from "@/lib/models";
+import { TCategory } from "@/lib/models";
 
-export default function CliCategoryRow({ cat }: { cat: TCliCategory }) {
+export default function CliCategoryRow({ cat }: { cat: TCategory }) {
   const statuses = useAppSelector((s) => s.categories.stats);
   const dispatch = useAppDispatch();
 
@@ -46,7 +46,7 @@ export default function CliCategoryRow({ cat }: { cat: TCliCategory }) {
                   else err("tripping toastify");
                 }
 
-                const updated: TCliCategory = await res.json();
+                const updated: TCategory = await res.json();
 
                 dispatch(rCats.update(updated));
               })

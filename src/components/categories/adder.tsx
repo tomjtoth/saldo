@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { signIn } from "next-auth/react";
 
 import { has3WordChars, toastifyMsgs, sendJSON, err } from "@/lib/utils";
-import { TCliCategory } from "@/lib/models";
+import { TCategory } from "@/lib/models";
 import { useAppDispatch } from "@/lib/hooks";
 import { rCats } from "@/lib/reducers/categories";
 import { CATEGORIES_INPUT_PROPS } from "./config";
@@ -34,7 +34,7 @@ export default function CliCategoryAdder() {
             }
 
             const body = await res.json();
-            dispatch(rCats.add(body as TCliCategory));
+            dispatch(rCats.add(body as TCategory));
             setBuffer("");
           }),
           toastifyMsgs(`Saving "${buffer}" to db`)

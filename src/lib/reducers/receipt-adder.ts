@@ -1,18 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TCliCategory, TCliItem, TCliUser } from "../models";
+import { TCategory, TItem, TUser } from "../models";
 import { TCLiReceiptAdder } from "@/components/receipts";
 
 type State = {
   paidOn: string;
   paidBy: number;
-  users: TCliUser[];
-  categories: TCliCategory[];
+  users: TUser[];
+  categories: TCategory[];
   items: TCliItem[];
 };
 
-type TItemUpdater = Pick<TCliItem, "id"> & Partial<Omit<TCliItem, "id">>;
+type TCliItem = Omit<TItem, "rcptId" | "revId" | "statusId">;
+
+type TItemUpdater = Pick<TItem, "id"> & Partial<Omit<TItem, "id">>;
 
 // this provides the key prop to React during `items.map( ... )`
 let rowId = 0;

@@ -37,20 +37,29 @@ const COLS: ModelAttributes<ItemShare, TItemShare> = {
   share: { type: DataTypes.INTEGER, allowNull: false },
 };
 
-export class ItemShare extends Model<TItemShare, TCrItemShare> {
+class Common extends Model<TItemShare, TCrItemShare> {
   itemId!: number;
   userId!: number;
   revId!: number;
   statusId!: number;
-
   share!: number;
+
+  Item?: Item;
 }
+
+export class ItemShare extends Common {
+  archives?: ItemShareArchive[];
+}
+
 ItemShare.init(COLS, {
   ...seqInitOpts,
   modelName: "ItemShare",
 });
 
-export class ItemShareArchive extends ItemShare {}
+export class ItemShareArchive extends Common {
+  current?: ItemShare;
+}
+
 ItemShareArchive.init(
   {
     ...COLS,

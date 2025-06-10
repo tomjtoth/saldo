@@ -1,9 +1,9 @@
-import { atomic, Item, Receipt, Revision, TCliItem } from "../models";
+import { atomic, Item, Receipt, Revision, TItem } from "../models";
 
 export type TReceiptInput = {
   paidOn?: number;
   paidBy?: number;
-  items: TCliItem[];
+  items: TItem[];
 };
 
 export async function addReceipt(addedBy: number, data: TReceiptInput) {

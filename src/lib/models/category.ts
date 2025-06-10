@@ -1,9 +1,4 @@
-import {
-  BelongsToGetAssociationMixin,
-  DataTypes,
-  Model,
-  ModelAttributes,
-} from "sequelize";
+import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import {
   SeqIdCols,
@@ -30,9 +25,8 @@ const COLS: ModelAttributes<Category, TCategory> = {
   },
 };
 
-type TCategory = TIDs & { description: string };
-
-export type TCliCategory = TCategory & {
+export type TCategory = TIDs & {
+  description: string;
   Status?: Status;
   Revision?: Revision;
   archives?: CategoryArchive[];
@@ -44,19 +38,14 @@ class Common extends Model<TCategory, TCrCategory> {
   id!: number;
   revId!: number;
   statusId!: number;
-
   description!: string;
 
-  declare getStatus: BelongsToGetAssociationMixin<Status>;
-  declare Status: Status;
-
-  declare getRevision: BelongsToGetAssociationMixin<Revision>;
-  declare Revision: Revision;
+  Status?: Status;
+  Revision?: Revision;
 }
 
 export class Category extends Common {
-  declare getArchives: BelongsToGetAssociationMixin<CategoryArchive[]>;
-  declare archives: CategoryArchive[];
+  archives?: CategoryArchive[];
 }
 
 Category.init(COLS, {
@@ -64,7 +53,10 @@ Category.init(COLS, {
   modelName: "Category",
 });
 
-export class CategoryArchive extends Common {}
+export class CategoryArchive extends Common {
+  current?: Category;
+}
+
 CategoryArchive.init(
   {
     ...COLS,
