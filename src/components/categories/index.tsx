@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import { TCategory, TStatus } from "@/lib/models";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { rCats } from "@/lib/reducers/categories";
+import { rCategories as red } from "@/lib/reducers/categories";
 
 import CliCategoryAdder from "./adder";
 import CliCategoryRow from "./row";
@@ -21,7 +21,7 @@ export function CliCategoriesPage({
 
   useEffect(() => {
     if (cats.length === 0)
-      dispatch(rCats.init({ cats: categories, stats: statuses }));
+      dispatch(red.init({ cats: categories, stats: statuses }));
   }, []);
 
   const cn = [
@@ -33,7 +33,7 @@ export function CliCategoriesPage({
     // FullHD desktop
     "lg:grid-cols-[auto_min-content_auto_min-content_auto_min-content]",
 
-    // 2560p desktop
+    // 1440p desktop
     "2xl:grid-cols-[auto_min-content_auto_min-content_auto_min-content_auto_min-content]",
   ];
 

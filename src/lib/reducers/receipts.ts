@@ -82,28 +82,25 @@ const slice = createSlice({
 
 const sa = slice.actions;
 
-export const initReceiptAdder = (fromDB: TCLiReceiptAdder) => {
-  return (dispatch: AppDispatch) => dispatch(sa.init(fromDB));
-};
-
-export const setPaidOn = (date: string) => (dispatch: AppDispatch) => {
-  return dispatch(sa.setPaidOn(date));
-};
-
-export const setPaidBy = (strUserId: string) => (dispatch: AppDispatch) => {
-  return dispatch(sa.setPaidBy(Number(strUserId)));
-};
-
-export const addRow = (afterId: number) => (dispatch: AppDispatch) => {
-  return dispatch(sa.addRow(afterId));
-};
-
-export const rmRow = (rowId: number) => (dispatch: AppDispatch) => {
-  return dispatch(sa.rmRow(rowId));
-};
-
-export const updateItem = (updater: TItemUpdater) => {
-  return (dispatch: AppDispatch) => dispatch(sa.updateItem(updater));
+export const rReceipts = {
+  init: (fromDB: TCLiReceiptAdder) => {
+    return (dispatch: AppDispatch) => dispatch(sa.init(fromDB));
+  },
+  setPaidOn: (date: string) => (dispatch: AppDispatch) => {
+    return dispatch(sa.setPaidOn(date));
+  },
+  setPaidBy: (strUserId: string) => (dispatch: AppDispatch) => {
+    return dispatch(sa.setPaidBy(Number(strUserId)));
+  },
+  addRow: (afterId: number) => (dispatch: AppDispatch) => {
+    return dispatch(sa.addRow(afterId));
+  },
+  rmRow: (rowId: number) => (dispatch: AppDispatch) => {
+    return dispatch(sa.rmRow(rowId));
+  },
+  updateItem: (updater: TItemUpdater) => {
+    return (dispatch: AppDispatch) => dispatch(sa.updateItem(updater));
+  },
 };
 
 export default slice.reducer;

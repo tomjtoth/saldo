@@ -44,7 +44,7 @@ function insertAlphabetically(
 
 const sa = slice.actions;
 
-export const rCats = {
+export const rCategories = {
   init: (data: State) => (dispatch: AppDispatch) => {
     return dispatch(sa.init(data));
   },

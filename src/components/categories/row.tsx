@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 
-import { rCats } from "@/lib/reducers/categories";
+import { rCategories as red } from "@/lib/reducers/categories";
 import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { CATEGORIES_INPUT_PROPS } from "./config";
@@ -48,7 +48,7 @@ export default function CliCategoryRow({ cat }: { cat: TCategory }) {
 
                 const updated: TCategory = await res.json();
 
-                dispatch(rCats.update(updated));
+                dispatch(red.update(updated));
               })
               .catch(() => {
                 setBuffer(cat.description);
@@ -104,7 +104,7 @@ export default function CliCategoryRow({ cat }: { cat: TCategory }) {
 
                 const updated: TCategory = await res.json();
 
-                dispatch(rCats.update(updated));
+                dispatch(red.update(updated));
               })
               .catch(() => {
                 setStatusId(preFetchStatusId);
