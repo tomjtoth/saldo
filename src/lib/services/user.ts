@@ -19,13 +19,19 @@ export async function currentUser(session: Session) {
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const email = session?.user?.email!;
+  const name = session?.user?.name ?? `User #${await User.count()}`;
 
   let user = await User.findOne({ where: { email } });
   if (!user) {
     user = await addUser({
-      name: session?.user?.name ?? `User #${await User.count()}`,
+      name,
       email,
     });
+  }
+
+  if (name !== user.name) {
+    user.name = name;
+    await user.save();
   }
 
   return user;
