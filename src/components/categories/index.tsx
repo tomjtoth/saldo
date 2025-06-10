@@ -24,8 +24,21 @@ export function CliCategoriesPage({
       dispatch(rCats.init({ cats: categories, stats: statuses }));
   }, []);
 
+  const cn = [
+    "p-2 grid gap-2 grid-cols-[auto_min-content]",
+
+    // phone landscape
+    "sm:grid-cols-[auto_min-content_auto_min-content]",
+
+    // FullHD desktop
+    "lg:grid-cols-[auto_min-content_auto_min-content_auto_min-content]",
+
+    // 2560p desktop
+    "2xl:grid-cols-[auto_min-content_auto_min-content_auto_min-content_auto_min-content]",
+  ];
+
   return (
-    <div className="p-2 grid grid-cols-[auto_min-content] sm:grid-cols-[auto_min-content_auto_min-content] md:grid-cols-[auto_min-content_auto_min-content_auto_min-content] gap-2">
+    <div className={cn.join(" ")}>
       {cats.map((cat) => (
         <CliCategoryRow key={cat.id} cat={cat} />
       ))}
