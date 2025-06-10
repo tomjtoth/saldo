@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { CANCELER_CLASSES } from "..";
+import Canceler from "../Canceler";
 
 export default function CliUserMenu({
   authenticated,
@@ -30,12 +30,7 @@ export default function CliUserMenu({
       </div>
       {visible && (
         <>
-          <div
-            className={CANCELER_CLASSES}
-            onClick={(ev) => {
-              if (ev.target === ev.currentTarget) setVisible(false);
-            }}
-          />{" "}
+          <Canceler onClick={() => setVisible(false)} />
           {srvMenu}
         </>
       )}

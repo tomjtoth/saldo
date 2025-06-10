@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { LINKS } from "./config";
-import { CANCELER_CLASSES } from "..";
+import Canceler from "../Canceler";
 
 const hrefToLabel = (href: string) => href.replaceAll(/[^\w]+/g, "");
 
@@ -28,14 +28,7 @@ export default function Sidepanel() {
           ))}
         </ul>
       </nav>
-      {visible && (
-        <div
-          className={CANCELER_CLASSES}
-          onClick={(ev) => {
-            if (ev.target === ev.currentTarget) setVisible(false);
-          }}
-        />
-      )}
+      {visible && <Canceler onClick={() => setVisible(false)} />}
       <button id="sidepanel-opener" onClick={() => setVisible(true)}>
         ≡
       </button>
