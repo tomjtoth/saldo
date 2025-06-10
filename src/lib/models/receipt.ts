@@ -26,6 +26,10 @@ const COLS: ModelAttributes<Receipt, TReceipt> = {
   paidOn: {
     type: DataTypes.INTEGER,
     defaultValue: () => dateAsInt(),
+    get() {
+      const str = this.getDataValue("paidOn").toString();
+      return `${str.slice(0, 4)}-${str.slice(4, 6)}-${str.slice(6)}`;
+    },
   },
   paidBy: {
     type: DataTypes.INTEGER,
@@ -50,19 +54,10 @@ export class Receipt extends Common {
   archives?: ReceiptArchive[];
 }
 
-Receipt.init(
-  {
-    ...COLS,
-    paidOn: {
-      type: DataTypes.INTEGER,
-      defaultValue: () => dateAsInt(),
-    },
-  },
-  {
-    ...seqInitOpts,
-    modelName: "Receipt",
-  }
-);
+Receipt.init(COLS, {
+  ...seqInitOpts,
+  modelName: "Receipt",
+});
 
 export class ReceiptArchive extends Common {
   current?: Receipt;
