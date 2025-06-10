@@ -95,8 +95,16 @@ export default function CliCategoryRow({ cat }: { cat: TCategory }) {
               },
               { method: "PUT" }
             )
-              .then((res) => {
-                if (!res.ok) err("tripping toastify");
+              .then(async (res) => {
+                if (!res.ok) {
+                  if (res.status === 401)
+                    signIn("", { redirectTo: "/categories" });
+                  else err("tripping toastify");
+                }
+
+                const updated: TCategory = await res.json();
+
+                dispatch(rCats.update(updated));
               })
               .catch(() => {
                 setStatusId(preFetchStatusId);
