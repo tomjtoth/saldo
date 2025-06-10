@@ -194,5 +194,11 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     }
   });
 
+  // masking names during development
+  dd.users.forEach((user, idx) => {
+    user.name = "user #" + idx;
+    user.email = "user" + idx + "@just.imported";
+  });
+
   return dd;
 }
