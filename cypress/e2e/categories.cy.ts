@@ -21,22 +21,22 @@ function loginShouldBeVisible() {
 const TEST_CATEGORY = `test-cat-${Date.now()}`;
 
 describe("categories", () => {
-  it("are accessible via the sidepanel", () => {
-    cy.visit("/");
-    cy.get("#sidepanel-opener").click();
-    cy.get("a[href='/categories']").click();
-    cy.get("#category-adder", { timeout: 10000 }).should("exist");
-  });
-
   describe("while logged in", () => {
     beforeEach(() => {
-      loginAs("dev@dev.dev", "TEST_PASSWD", "/categories");
+      loginAs("dev@dev.dev", "TEST_PASSWD");
+      cy.visit("/categories");
     });
 
     afterEach(async () => {
       await new Promise((proceed) => {
         cy.request("/api/cleanup/categories").then(proceed);
       });
+    });
+
+    it("are accessible via the sidepanel", () => {
+      cy.get("#sidepanel-opener").click();
+      cy.get("a[href='/categories']").click();
+      cy.get("#category-adder", { timeout: 10000 }).should("exist");
     });
 
     it("can be added", () => {
@@ -68,12 +68,8 @@ describe("categories", () => {
   });
 
   describe("while not logged in", () => {
-    beforeEach(() => {
+    it("should not be accessible", () => {
       cy.visit("/categories");
-    });
-
-    it("cannot be added", () => {
-      addCategory(TEST_CATEGORY);
       loginShouldBeVisible();
     });
   });
