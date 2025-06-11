@@ -8,11 +8,21 @@ import {
   TIDs,
   TCrIDs,
   Revision,
+  Status,
 } from "./common";
 import { User } from "./user";
 import { Item } from "./item";
 
-type TReceipt = TIDs & { paidOn: number; paidBy: number };
+export type TReceipt = TIDs & {
+  paidOn: number;
+  paidBy: number;
+
+  Revision?: Revision;
+  Status?: Status;
+  User?: User;
+
+  items?: Item[];
+};
 
 export type TCrReceipt = TCrIDs &
   Partial<Pick<TReceipt, "paidOn">> &
@@ -46,8 +56,11 @@ class Common extends Model<TReceipt, TCrReceipt> {
   paidOn!: number;
   paidBy!: number;
 
-  items?: Item[];
   Revision?: Revision;
+  Status?: Status;
+  User?: User;
+
+  items?: Item[];
 }
 
 export class Receipt extends Common {
@@ -70,6 +83,7 @@ ReceiptArchive.init(
   },
   {
     ...seqInitOpts,
+    modelName: "ReceiptArchive",
     tableName: "receipts_archive",
   }
 );

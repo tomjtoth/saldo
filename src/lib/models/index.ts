@@ -44,20 +44,20 @@ CategoryArchive.hasMany(Item, { foreignKey: "catId" });
 Receipt.belongsTo(Revision, { foreignKey: "revId" });
 Receipt.belongsTo(Status, { foreignKey: "statusId" });
 Receipt.belongsTo(User, { foreignKey: "paidBy" });
-Receipt.hasMany(Item, { foreignKey: "rcptId" });
+Receipt.hasMany(Item, { foreignKey: "rcptId", as: "items" });
 Receipt.hasMany(ReceiptArchive, { foreignKey: "id", as: "archives" });
 
 ReceiptArchive.belongsTo(Receipt, { foreignKey: "id", as: "current" });
 ReceiptArchive.belongsTo(Revision, { foreignKey: "revId" });
 ReceiptArchive.belongsTo(Status, { foreignKey: "statusId" });
 ReceiptArchive.belongsTo(User, { foreignKey: "paidBy" });
-ReceiptArchive.hasMany(Item, { foreignKey: "rcptId" });
+ReceiptArchive.hasMany(Item, { foreignKey: "rcptId", as: "items" });
 
 Item.belongsTo(Revision, { foreignKey: "revId" });
 Item.belongsTo(Status, { foreignKey: "statusId" });
 Item.belongsTo(Receipt, { foreignKey: "rcptId" });
 Item.belongsTo(Category, { foreignKey: "catId" });
-Item.hasMany(ItemShare, { foreignKey: "itemId" });
+Item.hasMany(ItemShare, { foreignKey: "itemId", as: "shares" });
 
 ItemShare.belongsTo(Item, { foreignKey: "itemId" });
 ItemShare.belongsTo(User, { foreignKey: "userId" });

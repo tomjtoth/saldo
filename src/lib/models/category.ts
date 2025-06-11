@@ -27,8 +27,11 @@ const COLS: ModelAttributes<Category, TCategory> = {
 
 export type TCategory = TIDs & {
   description: string;
-  Status?: Status;
+
   Revision?: Revision;
+  Status?: Status;
+
+  current?: Category;
   archives?: CategoryArchive[];
 };
 
@@ -38,10 +41,11 @@ class Common extends Model<TCategory, TCrCategory> {
   id!: number;
   revId!: number;
   statusId!: number;
+
   description!: string;
 
-  Status?: Status;
   Revision?: Revision;
+  Status?: Status;
 }
 
 export class Category extends Common {

@@ -6,6 +6,8 @@ import {
   REV_ID_INTEGER_PK,
   TIDs,
   TCrIDs,
+  Status,
+  Revision,
 } from "./common";
 import { Category } from "./category";
 import { Receipt } from "./receipt";
@@ -16,6 +18,11 @@ export type TItem = TIDs & {
   catId: number;
   cost: number;
   notes?: string;
+
+  Revision?: Revision;
+  Status?: Status;
+  Receipt?: Receipt;
+  Category?: Category;
 
   shares?: ItemShare[];
 };
@@ -43,12 +50,19 @@ const COLS: ModelAttributes<Item, TItem> = {
 class Common extends Model<TItem, TCrItem> {
   id!: number;
   revId!: number;
-  rcptId!: number;
-  catId!: number;
   statusId!: number;
 
+  rcptId!: number;
+  catId!: number;
   cost!: number;
   notes?: string;
+
+  Revision?: Revision;
+  Status?: Status;
+  Receipt?: Receipt;
+  Category?: Category;
+
+  shares?: ItemShare[];
 }
 
 export class Item extends Common {
@@ -71,6 +85,7 @@ ItemArchive.init(
   },
   {
     ...seqInitOpts,
+    modelName: "ItemArchive",
     tableName: "items_archive",
   }
 );

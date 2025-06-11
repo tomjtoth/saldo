@@ -1,16 +1,27 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 
-import { SeqIdCols, seqInitOpts, REV_ID_INTEGER_PK } from "./common";
+import {
+  SeqIdCols,
+  seqInitOpts,
+  REV_ID_INTEGER_PK,
+  Revision,
+  Status,
+} from "./common";
 import { Item } from "./item";
 import { User } from "./user";
 
 type TItemShare = {
-  revId: number;
   itemId: number;
   userId: number;
+  revId: number;
   statusId: number;
 
   share: number;
+
+  Item?: Item;
+  User?: User;
+  Revision?: Revision;
+  Status?: Status;
 };
 
 export type TCrItemShare = Omit<TItemShare, "statusId"> &
@@ -42,9 +53,13 @@ class Common extends Model<TItemShare, TCrItemShare> {
   userId!: number;
   revId!: number;
   statusId!: number;
+
   share!: number;
 
   Item?: Item;
+  User?: User;
+  Revision?: Revision;
+  Status?: Status;
 }
 
 export class ItemShare extends Common {
@@ -67,6 +82,7 @@ ItemShareArchive.init(
   },
   {
     ...seqInitOpts,
+    modelName: "ItemShareArchive",
     tableName: "item_shares_archive",
   }
 );

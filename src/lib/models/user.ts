@@ -63,6 +63,7 @@ UserArchive.init(
   },
   {
     ...seqInitOpts,
+    modelName: "UserArchive",
     tableName: "users_archive",
   }
 );
