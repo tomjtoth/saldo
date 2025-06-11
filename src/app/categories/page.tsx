@@ -1,7 +1,14 @@
 import React from "react";
 import { col, fn, Op } from "sequelize";
 
-import { Category, CategoryArchive, Revision, Status } from "@/lib/models";
+import {
+  Category,
+  CategoryArchive,
+  Item,
+  ItemShare,
+  Revision,
+  Status,
+} from "@/lib/models";
 import { currentUser } from "@/lib/services/user";
 import { auth, signIn } from "@/auth";
 
@@ -16,22 +23,42 @@ export default async function CategoriesPage() {
   if (!sess) return signIn("", { redirectTo: "/categories" });
 
   const user = await currentUser(sess);
+
   const [cats, statuses] = await Promise.all([
     Category.findAll({
-      order: [[fn("LOWER", col("Category.description")), "ASC"]],
       include: [
         {
-          model: Revision,
-          // TODO: get all partners of user
-          where: { revBy: { [Op.in]: [user.id] } },
+          model: Item,
+          include: [
+            {
+              model: ItemShare,
+              as: "shares",
+              where: { userId: user.id },
+              attributes: [],
+            },
+          ],
+          attributes: [],
         },
+        Revision,
         {
           model: CategoryArchive,
           as: "archives",
+          include: [Revision],
         },
       ],
+      where: {
+        [Op.or]: [
+          // Used by this user (via ItemShare)
+          { "$Items.shares.user_id$": user.id },
+          // Category revision by this user
+          { "$Revision.rev_by$": user.id },
+          // Archive revision by this user
+          { "$archives.Revision.rev_by$": user.id },
+        ],
+      },
+      order: [[fn("LOWER", col("Category.description")), "ASC"]],
     }),
-    Status.findAll({ where: { id: { [Op.in]: [1, 2] } } }),
+    Status.findAll({ where: { id: { [Op.in]: [1, 2] } }, raw: true }),
   ]);
 
   return (
@@ -43,7 +70,7 @@ export default async function CategoriesPage() {
       <CliCategoriesPage
         {...{
           categories: cats.map((cat) => cat.get({ plain: true })),
-          statuses: statuses.map((st) => st.get({ plain: true })),
+          statuses,
         }}
       />
     </StoreProvider>
