@@ -23,20 +23,20 @@ describe("import-v3", async () => {
         {
           id: 1,
           revId: 1,
-          name: "Jane",
-          email: "Jane@just.imported",
+          name: "user #0",
+          email: "user0@just.imported",
         },
         {
           id: 2,
           revId: 1,
-          name: "John",
-          email: "John@just.imported",
+          name: "user #1",
+          email: "user1@just.imported",
         },
       ]);
 
       const users = await User.findAll();
-      expect(users[0].email).toEqual("Jane@just.imported");
-      expect(users[1].email).toEqual("John@just.imported");
+      expect(users[0].email).toEqual("user0@just.imported");
+      expect(users[1].email).toEqual("user1@just.imported");
     });
 
     it("categories correctly", async () => {
@@ -102,7 +102,7 @@ describe("import-v3", async () => {
     it("receipts correctly", async () => {
       const receipts = await Receipt.findAll();
       expect(receipts).to.have.length(27);
-      expect(receipts[4].paidOn).toEqual(20201219);
+      expect(receipts[4].paidOn).toEqual("2020-12-19");
       expect(receipts[12].paidBy).toEqual(2);
 
       expect(data.receipts).to.deep.equal([

@@ -32,6 +32,10 @@ describe("Receipt", () => {
       paidBy: 1,
     });
 
-    expect(rcpt.paidOn).toEqual(dateAsInt());
+    const today = dateAsInt().toString();
+
+    expect(rcpt.paidOn).toEqual(
+      `${today.slice(0, 4)}-${today.slice(4, 6)}-${today.slice(6)}`
+    );
   });
 });
