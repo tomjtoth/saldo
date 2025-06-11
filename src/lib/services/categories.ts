@@ -20,7 +20,17 @@ export async function createCategory(revBy: number, data: TCrCategory) {
         revId: rev.id,
         description: data.description,
       },
-      { transaction }
+      {
+        transaction,
+        include: [
+          Revision,
+          {
+            model: CategoryArchive,
+            as: "archives",
+            include: [Revision],
+          },
+        ],
+      }
     );
 
     return cat;
@@ -62,7 +72,10 @@ export async function updateCategory(
 
     return await Category.findByPk(id, {
       transaction,
-      include: [{ model: CategoryArchive, as: "archives" }],
+      include: [
+        Revision,
+        { model: CategoryArchive, as: "archives", include: [Revision] },
+      ],
     })!;
   });
 }
