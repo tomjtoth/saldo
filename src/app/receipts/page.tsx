@@ -4,7 +4,9 @@ import { auth, signIn } from "@/auth";
 import StoreProvider from "@/app/StoreProvider";
 import {
   Category,
+  CategoryArchive,
   Item,
+  ItemShare,
   Receipt,
   ReceiptArchive,
   Revision,
@@ -26,8 +28,42 @@ export default async function ReceiptsPage() {
   const [users, categories, receipts] = await Promise.all([
     User.findAll({ order: ["name"] }),
     Category.findAll({
-      where: { statusId: { [Op.eq]: 1 } },
-      order: [[fn("LOWER", col("description")), "ASC"]],
+      include: [
+        {
+          model: Item,
+          include: [
+            {
+              model: ItemShare,
+              as: "shares",
+              where: { userId: user.id },
+              attributes: [],
+            },
+          ],
+          attributes: [],
+        },
+        Revision,
+        {
+          model: CategoryArchive,
+          as: "archives",
+          include: [Revision],
+        },
+      ],
+      where: {
+        [Op.and]: [
+          { statusId: { [Op.eq]: 1 } },
+          {
+            [Op.or]: [
+              // Used by this user (via ItemShare)
+              { "$Items.shares.user_id$": user.id },
+              // Category revision by this user
+              { "$Revision.rev_by$": user.id },
+              // Archive revision by this user
+              { "$archives.Revision.rev_by$": user.id },
+            ],
+          },
+        ],
+      },
+      order: [[fn("LOWER", col("Category.description")), "ASC"]],
     }),
     Receipt.findAll({
       order: [["paidOn", "DESC"]],
