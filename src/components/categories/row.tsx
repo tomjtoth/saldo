@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { toast } from "react-toastify";
-import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 import { rCategories as red } from "@/lib/reducers/categories";
@@ -11,15 +10,26 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { CATEGORIES_INPUT_PROPS } from "./config";
 import { TCategory } from "@/lib/models";
 
+import Canceler from "../Canceler";
+import CategoryArchives from "./archives";
+
 export default function CliCategoryRow({ cat }: { cat: TCategory }) {
   const statuses = useAppSelector((s) => s.categories.stats);
   const dispatch = useAppDispatch();
 
   const [buffer, setBuffer] = useState(cat?.description ?? "");
   const [statusId, setStatusId] = useState(cat.statusId);
+  const [showArchives, setShowArchives] = useState(false);
 
   return (
     <>
+      {showArchives && (
+        <>
+          <Canceler onClick={() => setShowArchives(false)} />
+          <CategoryArchives cat={cat} />
+        </>
+      )}
+
       <form
         className="category-row flex items-center gap-2"
         onSubmit={(ev) => {
@@ -66,12 +76,9 @@ export default function CliCategoryRow({ cat }: { cat: TCategory }) {
           }}
         />
         {(cat.archives?.length ?? 0) > 0 && (
-          <Link
-            className="no-underline border rounded p-1"
-            href={`/categories/${cat.id}`}
-          >
+          <button type="button" onClick={() => setShowArchives(true)}>
             🗐
-          </Link>
+          </button>
         )}
       </form>
 
