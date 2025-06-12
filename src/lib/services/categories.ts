@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { col, fn, Op } from "sequelize";
 
 import {
   atomic,
@@ -8,6 +8,7 @@ import {
   ItemShare,
   Revision,
   TCrCategory,
+  User,
 } from "../models";
 import { err } from "../utils";
 
@@ -84,9 +85,18 @@ export async function updateCategory(
   });
 }
 
-export async function findUsersCatIds(userId: number) {
-  const catIds = await Category.findAll({
-    attributes: ["id"],
+export async function getCatsOf(
+  userId: number,
+  {
+    idsOnly = false,
+    activeOnly = false,
+  }: {
+    idsOnly?: boolean;
+    activeOnly?: boolean;
+  } = {}
+) {
+  return await Category.findAll({
+    ...(idsOnly && { attributes: ["id"] }),
     include: [
       {
         model: Item,
@@ -100,24 +110,36 @@ export async function findUsersCatIds(userId: number) {
         ],
         attributes: [],
       },
-      { model: Revision, attributes: [] },
+      { model: Revision, ...(idsOnly && { attributes: [] }) },
       {
         model: CategoryArchive,
         as: "archives",
-        include: [{ model: Revision, attributes: [] }],
+        include: [
+          {
+            model: Revision,
+            ...(idsOnly && { attributes: [] }),
+            ...(!idsOnly && { include: [User] }),
+          },
+        ],
       },
     ],
     where: {
-      [Op.or]: [
-        // Used by this user (via ItemShare)
-        { "$Items.shares.user_id$": userId },
-        // Category revision by this user
-        { "$Revision.rev_by$": userId },
-        // Archive revision by this user
-        { "$archives.Revision.rev_by$": userId },
+      [Op.and]: [
+        ...(activeOnly ? [{ statusId: { [Op.eq]: 1 } }] : []),
+        {
+          [Op.or]: [
+            // Used by this user (via ItemShare)
+            { "$Items.shares.user_id$": userId },
+            // Category revision by this user
+            { "$Revision.rev_by$": userId },
+            // Archive revision by this user
+            { "$archives.Revision.rev_by$": userId },
+          ],
+        },
       ],
     },
+    ...(!idsOnly && {
+      order: [[fn("LOWER", col("Category.description")), "ASC"]],
+    }),
   });
-
-  return catIds.map((cat) => cat.id);
 }

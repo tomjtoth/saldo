@@ -25,7 +25,7 @@ export function CliCategoriesPage({
   }, []);
 
   const cn = [
-    "p-2 grid gap-2 grid-cols-[auto_min-content]",
+    "p-2 grid gap-2 grid-cols-[auto_min-content] overflow-scroll",
 
     // phone landscape
     "sm:grid-cols-[auto_min-content_auto_min-content]",

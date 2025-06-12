@@ -1,41 +1,36 @@
 "use client";
 
-import { useAppSelector } from "@/lib/hooks";
 import { TCategory } from "@/lib/models";
 
 export default function CategoryArchives({ cat }: { cat: TCategory }) {
-  const statuses = useAppSelector((s) => s.categories.stats);
-
   const cn = [
-    "absolute left-1/2 top-1/2 -translate-1/2 w-7/10 h-4/5",
-    "p-2 bg-background border rounded overflow-scroll",
-    "text-center [&_th]:p-2 [&_td]:p-2",
+    "absolute left-1/2 top-1/2 -translate-1/2 md:max-w-7/10 max-h-4/5",
+    "p-2 [&_div]:bg-background overflow-scroll",
+    "flex flex-wrap gap-2 justify-center items-center",
   ];
 
   return (
     <div className={cn.join(" ")}>
-      <table className="w-full">
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Revisioned 📅</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[...cat.archives!, cat].toReversed().map((cat) => (
-            <tr key={`${cat.id}-${cat.revId!}`}>
-              <td>
-                <code>{cat.description.replaceAll(" ", "·")}</code>
-              </td>
-              <td>
-                {statuses.find((st) => st.id === cat.statusId)?.description}
-              </td>
-              <td>{cat.Revision!.revOn}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {[...cat.archives!, cat].toReversed().map((cat) => (
+        <div
+          key={`${cat.id}-${cat.revId!}`}
+          className={`p-2 border-2 rounded ${
+            cat.statusId === 1
+              ? "border-green-500"
+              : "border-red-500 text-gray-500"
+          }`}
+        >
+          "<code>{cat.description.replaceAll(" ", "·")}</code>" <sub></sub>
+          <span>
+            🗓️
+            <sub> {cat.Revision!.revOn} </sub>
+          </span>
+          <span>
+            🪪
+            <sub> {cat.Revision!.User?.name} </sub>
+          </span>
+        </div>
+      ))}
     </div>
   );
 }

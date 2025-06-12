@@ -2,17 +2,9 @@ import { col, fn, Op } from "sequelize";
 
 import { auth, signIn } from "@/auth";
 import StoreProvider from "@/app/StoreProvider";
-import {
-  Category,
-  CategoryArchive,
-  Item,
-  ItemShare,
-  Receipt,
-  ReceiptArchive,
-  Revision,
-  User,
-} from "@/lib/models";
-import { currentUser } from "@/lib/services/user";
+import { currentUser, getPartnersOf } from "@/lib/services/user";
+import { getCatsOf } from "@/lib/services/categories";
+import { getReceiptsOf } from "@/lib/services/receipt";
 
 import CliReceiptAdder from "@/components/receipts";
 import Header from "@/components/header";
@@ -26,65 +18,9 @@ export default async function ReceiptsPage() {
   const user = await currentUser(session);
 
   const [users, categories, receipts] = await Promise.all([
-    User.findAll({ order: ["name"] }),
-    Category.findAll({
-      include: [
-        {
-          model: Item,
-          include: [
-            {
-              model: ItemShare,
-              as: "shares",
-              where: { userId: user.id },
-              attributes: [],
-            },
-          ],
-          attributes: [],
-        },
-        Revision,
-        {
-          model: CategoryArchive,
-          as: "archives",
-          include: [Revision],
-        },
-      ],
-      where: {
-        [Op.and]: [
-          { statusId: { [Op.eq]: 1 } },
-          {
-            [Op.or]: [
-              // Used by this user (via ItemShare)
-              { "$Items.shares.user_id$": user.id },
-              // Category revision by this user
-              { "$Revision.rev_by$": user.id },
-              // Archive revision by this user
-              { "$archives.Revision.rev_by$": user.id },
-            ],
-          },
-        ],
-      },
-      order: [[fn("LOWER", col("Category.description")), "ASC"]],
-    }),
-    Receipt.findAll({
-      order: [["paidOn", "DESC"]],
-      include: [
-        { model: Item, as: "items" },
-        {
-          model: Revision,
-          // TODO: get all partners of user
-          where: { revBy: { [Op.in]: [user.id] } },
-          include: [User],
-        },
-        {
-          model: ReceiptArchive,
-          as: "archives",
-          separate: true,
-          include: [{ model: Revision, include: [User] }],
-          limit: 1,
-        },
-      ],
-      limit: 200,
-    }),
+    getPartnersOf(),
+    getCatsOf(user.id, { activeOnly: true }),
+    getReceiptsOf(user.id),
   ]);
 
   return (

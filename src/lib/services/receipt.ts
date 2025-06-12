@@ -1,4 +1,14 @@
-import { atomic, Item, Receipt, Revision, TItem } from "../models";
+import { Op } from "sequelize";
+
+import {
+  atomic,
+  Item,
+  Receipt,
+  ReceiptArchive,
+  Revision,
+  TItem,
+  User,
+} from "../models";
 
 export type TReceiptInput = {
   paidOn?: number;
@@ -25,5 +35,28 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
     );
 
     return { rev, rcpt, items };
+  });
+}
+
+export async function getReceiptsOf(userId: number) {
+  return Receipt.findAll({
+    order: [["paidOn", "DESC"]],
+    include: [
+      { model: Item, as: "items", attributes: ["cost"] },
+      {
+        model: Revision,
+        // TODO: get all partners of user
+        where: { revBy: { [Op.in]: [userId] } },
+        include: [User],
+      },
+      {
+        model: ReceiptArchive,
+        as: "archives",
+        separate: true,
+        include: [{ model: Revision, include: [User] }],
+        limit: 1,
+      },
+    ],
+    limit: 200,
   });
 }

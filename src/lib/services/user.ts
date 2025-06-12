@@ -36,3 +36,9 @@ export async function currentUser(session: Session) {
 
   return user;
 }
+
+export async function getPartnersOf() {
+  return await User.findAll({
+    order: ["name"],
+  });
+}
