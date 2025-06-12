@@ -2,7 +2,11 @@ import { NextRequest } from "next/server";
 
 import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
-import { TCategoryUpdater, updateCategory } from "@/lib/services/categories";
+import {
+  findUsersCatIds,
+  TCategoryUpdater,
+  updateCategory,
+} from "@/lib/services/categories";
 
 export async function PUT(
   req: NextRequest,
@@ -17,10 +21,14 @@ export async function PUT(
   if (!data.description && !data.statusId)
     return new Response(null, { status: 400 });
 
-  const [{ id }, user] = await Promise.all([params, currentUser(sess)]);
+  const [{ id: strId }, user] = await Promise.all([params, currentUser(sess)]);
+  const id = Number(strId);
+
+  const usersCatIds = await findUsersCatIds(user.id);
+  if (!usersCatIds.includes(id)) return new Response(null, { status: 403 });
 
   try {
-    const updated = await updateCategory(Number(id), user.id, data);
+    const updated = await updateCategory(id, user.id, data);
     if (!updated) return new Response(null, { status: 404 });
 
     return Response.json(updated!.get({ plain: true }));

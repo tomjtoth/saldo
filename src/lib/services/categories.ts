@@ -1,7 +1,11 @@
+import { Op } from "sequelize";
+
 import {
   atomic,
   Category,
   CategoryArchive,
+  Item,
+  ItemShare,
   Revision,
   TCrCategory,
 } from "../models";
@@ -78,4 +82,42 @@ export async function updateCategory(
       ],
     })!;
   });
+}
+
+export async function findUsersCatIds(userId: number) {
+  const catIds = await Category.findAll({
+    attributes: ["id"],
+    include: [
+      {
+        model: Item,
+        include: [
+          {
+            model: ItemShare,
+            as: "shares",
+            where: { userId },
+            attributes: [],
+          },
+        ],
+        attributes: [],
+      },
+      { model: Revision, attributes: [] },
+      {
+        model: CategoryArchive,
+        as: "archives",
+        include: [{ model: Revision, attributes: [] }],
+      },
+    ],
+    where: {
+      [Op.or]: [
+        // Used by this user (via ItemShare)
+        { "$Items.shares.user_id$": userId },
+        // Category revision by this user
+        { "$Revision.rev_by$": userId },
+        // Archive revision by this user
+        { "$archives.Revision.rev_by$": userId },
+      ],
+    },
+  });
+
+  return catIds.map((cat) => cat.id);
 }
