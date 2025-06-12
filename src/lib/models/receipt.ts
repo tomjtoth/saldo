@@ -20,8 +20,10 @@ export type TReceipt = TIDs & {
   Revision?: Revision;
   Status?: Status;
   User?: User;
-
   items?: Item[];
+
+  archives?: TReceipt[];
+  current?: TReceipt;
 };
 
 export type TCrReceipt = TCrIDs &
