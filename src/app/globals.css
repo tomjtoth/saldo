@@ -12,6 +12,16 @@
   --font-mono: var(--font-geist-mono);
 }
 
+.canceler {
+  transition: 1s;
+  backdrop-filter: blur(4px) opacity(0);
+}
+
+.canceler.dimmed {
+  backdrop-filter: blur(4px) opacity(1);
+  @apply bg-background/50;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #111;
