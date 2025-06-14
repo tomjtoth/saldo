@@ -1,5 +1,4 @@
 import { auth, signIn } from "@/auth";
-import StoreProvider from "@/app/StoreProvider";
 import { currentUser, getPartnersOf } from "@/lib/services/user";
 import { getCatsOf } from "@/lib/services/categories";
 import { getReceiptsOf } from "@/lib/services/receipt";
@@ -22,7 +21,7 @@ export default async function ReceiptsPage() {
   ]);
 
   return (
-    <StoreProvider>
+    <>
       <Header className="flex items-center gap-2">
         <h2>Receipts</h2>
         <CliReceiptAdder
@@ -36,6 +35,6 @@ export default async function ReceiptsPage() {
       </Header>
 
       <CliReceiptsPage receipts={receipts.map((r) => r.get({ plain: true }))} />
-    </StoreProvider>
+    </>
   );
 }

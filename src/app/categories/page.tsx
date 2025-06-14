@@ -8,7 +8,6 @@ import { getCatsOf } from "@/lib/services/categories";
 
 import Header from "@/components/header";
 import { CliCategoriesPage } from "@/components/categories";
-import StoreProvider from "../StoreProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +23,7 @@ export default async function CategoriesPage() {
   ]);
 
   return (
-    <StoreProvider>
+    <>
       <Header>
         <h2>Categories</h2>
       </Header>
@@ -35,6 +34,6 @@ export default async function CategoriesPage() {
           statuses,
         }}
       />
-    </StoreProvider>
+    </>
   );
 }
