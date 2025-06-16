@@ -1,13 +1,12 @@
 import React from "react";
-import { Op } from "sequelize";
 
 import { auth, signIn } from "@/auth";
-import { Status } from "@/lib/models";
 import { currentUser } from "@/lib/services/user";
+import { getGroupsOf } from "@/lib/services/groups";
 import { getCatsOf } from "@/lib/services/categories";
 
 import Header from "@/components/header";
-import { CliCategoriesPage } from "@/components/categories";
+import CliCategoriesPage from "@/components/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +16,9 @@ export default async function CategoriesPage() {
 
   const user = await currentUser(sess);
 
-  const [cats, statuses] = await Promise.all([
+  const [cats, groups] = await Promise.all([
     getCatsOf(user.id),
-    Status.findAll({ where: { id: { [Op.in]: [1, 2] } }, raw: true }),
+    getGroupsOf(user.id, { forCategories: true }),
   ]);
 
   return (
@@ -29,10 +28,8 @@ export default async function CategoriesPage() {
       </Header>
 
       <CliCategoriesPage
-        {...{
-          categories: cats.map((cat) => cat.get({ plain: true })),
-          statuses,
-        }}
+        cats={cats.map((cat) => cat.get({ plain: true }))}
+        groups={groups.map((grp) => grp.get({ plain: true }))}
       />
     </>
   );

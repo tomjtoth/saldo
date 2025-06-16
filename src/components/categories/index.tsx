@@ -1,49 +1,78 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-import { TCategory, TStatus } from "@/lib/models";
+import { TCategory, TGroup } from "@/lib/models";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { rCategories as red } from "@/lib/reducers/categories";
 
-import CliCategoryAdder from "./adder";
-import CliCategoryRow from "./row";
+import NameDescrAdder from "../name-descr-adder";
+import Entry from "./entry";
+import GroupSelector from "../groups/selector";
+import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
+import { toast } from "react-toastify";
 
-export function CliCategoriesPage({
-  categories,
-  statuses,
-}: {
-  categories: TCategory[];
-  statuses: TStatus[];
+export default function CliCategoriesPage(fromDB: {
+  cats: TCategory[];
+  groups: TGroup[];
 }) {
   const dispatch = useAppDispatch();
+  const groups = useAppSelector((s) => s.categories.groups);
   const cats = useAppSelector((s) => s.categories.cats);
+  const [groupId, setGroupId] = useState(fromDB.groups[0].id);
 
   useEffect(() => {
-    if (cats.length === 0)
-      dispatch(red.init({ cats: categories, stats: statuses }));
+    dispatch(red.init(fromDB));
   }, []);
 
-  const cn = [
-    "p-2 grid gap-2 grid-cols-[auto_min-content] overflow-scroll",
-
-    // phone landscape
-    "sm:grid-cols-[auto_min-content_auto_min-content]",
-
-    // FullHD desktop
-    "lg:grid-cols-[auto_min-content_auto_min-content_auto_min-content]",
-
-    // 1440p desktop
-    "2xl:grid-cols-[auto_min-content_auto_min-content_auto_min-content_auto_min-content]",
-  ];
-
   return (
-    <div className={cn.join(" ")}>
-      {cats.map((cat) => (
-        <CliCategoryRow key={cat.id} cat={cat} />
-      ))}
+    <>
+      <div className="p-2">
+        Showing only for{" "}
+        <GroupSelector
+          groups={groups}
+          value={groupId}
+          onChange={(ev) => setGroupId(Number(ev.target.value))}
+        />
+      </div>
+      <div className="p-2 flex flex-wrap gap-2 justify-center">
+        <NameDescrAdder
+          handler={({ name, description }) =>
+            new Promise<boolean>((done) => {
+              try {
+                has3WordChars(name);
+              } catch (err) {
+                toast.error(err as string);
+                return done(false);
+              }
 
-      <CliCategoryAdder />
-    </div>
+              toast.promise(
+                sendJSON(`/api/categories`, {
+                  groupId,
+                  name,
+                  description,
+                }).then(async (res) => {
+                  if (!res.ok) {
+                    done(false);
+                    err("tripping toastify");
+                  }
+
+                  const body = await res.json();
+                  dispatch(red.add(body as TCategory));
+                  done(true);
+                }),
+                toastifyMsgs(`Saving "${name}" to db`)
+              );
+            })
+          }
+        />
+
+        {cats
+          .filter((cat) => cat.groupId === groupId)
+          .map((cat) => (
+            <Entry key={cat.id} cat={cat} />
+          ))}
+      </div>
+    </>
   );
 }
