@@ -1,6 +1,6 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 
-import { seqInitOpts } from "./common";
+import { SeqIdCols, seqInitOpts } from "./common";
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
@@ -8,6 +8,9 @@ import { seqInitOpts } from "./common";
 const COLS: ModelAttributes<Membership, TMembership> = {
   groupId: { type: DataTypes.INTEGER, primaryKey: true },
   userId: { type: DataTypes.INTEGER, primaryKey: true },
+  revId: SeqIdCols.revId,
+  statusId: SeqIdCols.statusId,
+
   admin: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
@@ -17,15 +20,21 @@ const COLS: ModelAttributes<Membership, TMembership> = {
 export type TMembership = {
   groupId: number;
   userId: number;
+  revId: number;
+  statusId: number;
+
   admin: boolean;
 };
 
-type TCrMembership = Omit<TMembership, "admin"> &
-  Partial<Pick<TMembership, "admin">>;
+type TCrMembership = Pick<TMembership, "groupId" | "userId" | "revId"> &
+  Partial<Pick<TMembership, "admin" | "statusId">>;
 
 class Common extends Model<TMembership, TCrMembership> {
   groupId!: number;
   userId!: number;
+  revId!: number;
+  statusId!: number;
+
   admin!: boolean;
 }
 
