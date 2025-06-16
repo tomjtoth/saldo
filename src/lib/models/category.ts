@@ -10,42 +10,57 @@ import {
   Revision,
 } from "./common";
 import { has3WordChars } from "../utils";
+import { Group } from "./group";
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
 const COLS: ModelAttributes<Category, TCategory> = {
   ...SeqIdCols,
-  description: {
+  groupId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  name: {
     type: DataTypes.TEXT,
     allowNull: false,
     validate: {
       has3WordChars,
     },
   },
+  description: {
+    type: DataTypes.TEXT,
+  },
 };
 
 export type TCategory = TIDs & {
-  description: string;
+  groupId: number;
+  name: string;
+  description?: string;
 
   Revision?: Revision;
   Status?: Status;
+  Group?: Group;
 
   current?: Category;
   archives?: CategoryArchive[];
 };
 
-export type TCrCategory = TCrIDs & Pick<TCategory, "description">;
+export type TCrCategory = TCrIDs &
+  Pick<TCategory, "name" | "description" | "groupId">;
 
 class Common extends Model<TCategory, TCrCategory> {
   id!: number;
   revId!: number;
   statusId!: number;
+  groupId!: number;
 
-  description!: string;
+  name!: string;
+  description?: string;
 
   Revision?: Revision;
   Status?: Status;
+  Group?: Group;
 }
 
 export class Category extends Common {
