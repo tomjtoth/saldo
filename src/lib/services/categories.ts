@@ -4,9 +4,10 @@ import {
   atomic,
   Category,
   CategoryArchive,
-  Item,
-  ItemShare,
+  Group,
+  Membership,
   Revision,
+  TCategory,
   TCrCategory,
   User,
 } from "../models";
@@ -117,59 +118,41 @@ export async function updateCategory(
 
 export async function getCatsOf(
   userId: number,
-  {
-    idsOnly = false,
-    activeOnly = false,
-  }: {
-    idsOnly?: boolean;
-    activeOnly?: boolean;
-  } = {}
+  { idsOnly = false, activeOnly = false } = {}
 ) {
   return await Category.findAll({
     ...(idsOnly && { attributes: ["id"] }),
     include: [
       {
-        model: Item,
-        include: [
-          {
-            model: ItemShare,
-            as: "shares",
-            where: { userId },
-            attributes: [],
-          },
-        ],
+        model: Group,
         attributes: [],
+        include: [{ model: Membership, attributes: [], where: { userId } }],
       },
-      { model: Revision, ...(idsOnly && { attributes: [] }) },
+      {
+        model: Revision,
+        attributes: ["revOn"],
+        include: [{ model: User, attributes: ["name"] }],
+      },
       {
         model: CategoryArchive,
         as: "archives",
         include: [
           {
             model: Revision,
+            attributes: ["revOn"],
             ...(idsOnly && { attributes: [] }),
-            ...(!idsOnly && { include: [User] }),
+            ...(!idsOnly && {
+              include: [{ model: User, attributes: ["name"] }],
+            }),
           },
         ],
       },
     ],
     where: {
-      [Op.and]: [
-        ...(activeOnly ? [{ statusId: { [Op.eq]: 1 } }] : []),
-        {
-          [Op.or]: [
-            // Used by this user (via ItemShare)
-            { "$Items.shares.user_id$": userId },
-            // Category revision by this user
-            { "$Revision.rev_by$": userId },
-            // Archive revision by this user
-            { "$archives.Revision.rev_by$": userId },
-          ],
-        },
-      ],
+      ...(activeOnly && { statusId: { [Op.eq]: 1 } }),
     },
     ...(!idsOnly && {
-      order: [[fn("LOWER", col("Category.description")), "ASC"]],
+      order: [[fn("LOWER", col("Category.name")), "ASC"]],
     }),
   });
 }
