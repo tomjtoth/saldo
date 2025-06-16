@@ -1,19 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TCategory, TStatus } from "../models";
-import { WritableDraft } from "immer";
+import { TCategory, TGroup } from "../models";
+import { insertAlphabetically } from "../utils";
 
 type State = {
   cats: TCategory[];
-  stats: TStatus[];
+  groups: Pick<TGroup, "id" | "name">[];
 };
 
 const slice = createSlice({
   name: "categories",
   initialState: {
     cats: [],
-    stats: [],
+    groups: [],
   } as State,
 
   reducers: {
@@ -30,17 +30,6 @@ const slice = createSlice({
     },
   },
 });
-
-function insertAlphabetically(
-  payload: TCategory,
-  cats: WritableDraft<TCategory[]>
-) {
-  const insertAt = cats.findIndex(
-    (cat) => cat.description.toLowerCase() > payload.description.toLowerCase()
-  );
-
-  cats.splice(insertAt > -1 ? insertAt : cats.length, 0, payload);
-}
 
 const sa = slice.actions;
 
