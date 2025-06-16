@@ -42,7 +42,7 @@ export async function getReceiptsOf(userId: number) {
   return Receipt.findAll({
     order: [["paidOn", "DESC"]],
     include: [
-      { model: Item, as: "items", attributes: ["cost"] },
+      { model: Item, attributes: ["cost"] },
       {
         model: Revision,
         // TODO: get all partners of user

@@ -12,7 +12,7 @@ export function CliReceiptsPage({ receipts }: { receipts: TReceipt[] }) {
         >
           <span>
             🛍️
-            <sub>{rcpt.items?.length}</sub>
+            <sub>{rcpt.Items?.length}</sub>
           </span>
 
           <span>

@@ -20,7 +20,7 @@ export type TReceipt = TIDs & {
   Revision?: Revision;
   Status?: Status;
   User?: User;
-  items?: Item[];
+  Items?: Item[];
 
   archives?: TReceipt[];
   current?: TReceipt;
@@ -62,7 +62,7 @@ class Common extends Model<TReceipt, TCrReceipt> {
   Status?: Status;
   User?: User;
 
-  items?: Item[];
+  Items?: Item[];
 }
 
 export class Receipt extends Common {
