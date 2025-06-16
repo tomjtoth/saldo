@@ -1,6 +1,7 @@
 import { Session } from "next-auth";
 
 import { Revision, TCrUser, atomic, User } from "../models";
+import { createGroup } from "./groups";
 
 export async function addUser(userData: TCrUser) {
   return await atomic("Adding new user", async (transaction) => {
@@ -27,12 +28,11 @@ export async function currentUser(session: Session) {
       name,
       email,
     });
+
+    await createGroup(user.id, { name: "just you" });
   }
 
-  if (name !== user.name) {
-    user.name = name;
-    await user.save();
-  }
+  if (name !== user.name) await user.update({ name });
 
   return user;
 }
