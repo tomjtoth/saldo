@@ -1,7 +1,13 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 import { v4 as uuid } from "uuid";
 
-import { REV_ID_INTEGER_PK, SeqIdCols, seqInitOpts, TIDs } from "./common";
+import {
+  REV_ID_INTEGER_PK,
+  SeqIdCols,
+  seqInitOpts,
+  TCrIDs,
+  TIDs,
+} from "./common";
 import { has3WordChars } from "../utils";
 import { User } from "./user";
 import { Category } from "./category";
@@ -11,7 +17,7 @@ import { Membership } from "./membership";
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
 const COLS: ModelAttributes<Group, TGroup> = {
-  id: SeqIdCols.id,
+  ...SeqIdCols,
   name: {
     type: DataTypes.TEXT,
     allowNull: false,
@@ -28,7 +34,7 @@ const COLS: ModelAttributes<Group, TGroup> = {
   },
 };
 
-export type TGroup = Pick<TIDs, "id"> & {
+export type TGroup = TIDs & {
   name: string;
   description?: string;
   uuid?: string | null;
@@ -38,11 +44,13 @@ export type TGroup = Pick<TIDs, "id"> & {
   Memberships?: Membership[];
 };
 
-export type TCrGroup = Pick<TGroup, "name" | "description"> &
-  Partial<Pick<TGroup, "id" | "uuid">>;
+export type TCrGroup = TCrIDs & Pick<TGroup, "name" | "description">;
 
 class Common extends Model<TGroup, TCrGroup> {
   id!: number;
+  revId!: number;
+  statusId!: number;
+
   name!: string;
   description?: string;
   uuid?: string;
