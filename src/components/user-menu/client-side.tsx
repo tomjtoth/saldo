@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import Canceler from "../Canceler";
+import Canceler from "../canceler";
 
 export default function CliUserMenu({
   authenticated,

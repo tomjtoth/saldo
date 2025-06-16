@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { LINKS } from "./config";
-import Canceler from "../Canceler";
+import Canceler from "../canceler";
 
 const hrefToLabel = (href: string) => href.replaceAll(/[^\w]+/g, "");
 

@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { rReceipts as red } from "@/lib/reducers/receipts";
 import { TCategory, TUser } from "@/lib/models";
 
-import Canceler from "../Canceler";
+import Canceler from "../canceler";
 import ItemRows from "./item-row";
 
 export type TCLiReceiptAdder = {
