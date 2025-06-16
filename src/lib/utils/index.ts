@@ -1,3 +1,5 @@
+import { Draft, WritableDraft } from "immer";
+
 import { DateTime } from "luxon";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
@@ -74,3 +76,14 @@ export const toastifyMsgs = (operation: string) => ({
   success: `${operation} succeeded!`,
   error: `${operation} failed 😭`,
 });
+
+export function insertAlphabetically<T extends { name: string }>(
+  payload: Draft<T>,
+  arr: WritableDraft<T[]>
+) {
+  const insertAt = arr.findIndex(
+    (obj) => obj.name.toLowerCase() > payload.name.toLowerCase()
+  );
+
+  arr.splice(insertAt > -1 ? insertAt : arr.length, 0, payload);
+}
