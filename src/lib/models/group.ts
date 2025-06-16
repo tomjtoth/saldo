@@ -5,6 +5,7 @@ import { REV_ID_INTEGER_PK, SeqIdCols, seqInitOpts, TIDs } from "./common";
 import { has3WordChars } from "../utils";
 import { User } from "./user";
 import { Category } from "./category";
+import { Membership } from "./membership";
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
@@ -34,6 +35,7 @@ export type TGroup = Pick<TIDs, "id"> & {
 
   Users?: User[];
   Categories?: Category[];
+  Memberships?: Membership[];
 };
 
 export type TCrGroup = Pick<TGroup, "name" | "description"> &
@@ -47,6 +49,7 @@ class Common extends Model<TGroup, TCrGroup> {
 
   Users?: User[];
   Categories?: Category[];
+  Memberships?: Membership[];
 }
 
 export class Group extends Common {}

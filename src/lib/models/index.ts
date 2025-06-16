@@ -5,10 +5,12 @@ import { Item } from "./item";
 import { ItemShare, ItemShareArchive } from "./item_share";
 import { Revision, Status } from "./common";
 import { Group, GroupArchive } from "./group";
+import { Membership } from "./membership";
 
 export * from "./db";
 export * from "./user";
 export * from "./group";
+export * from "./membership";
 export * from "./category";
 export * from "./receipt";
 export * from "./item";
@@ -23,6 +25,8 @@ User.hasMany(Revision, { foreignKey: "revBy" });
 
 User.belongsTo(Revision, { foreignKey: "revId" });
 User.belongsTo(Status, { foreignKey: "statusId" });
+User.belongsToMany(Group, { through: Membership, foreignKey: "userId" });
+User.hasMany(Membership, { foreignKey: "userId" });
 User.hasMany(Receipt, { foreignKey: "paidBy" });
 User.hasMany(ItemShare, { foreignKey: "userId" });
 User.hasMany(UserArchive, { foreignKey: "id", as: "archives" });
@@ -34,6 +38,8 @@ UserArchive.hasMany(Receipt, { foreignKey: "paidBy" });
 UserArchive.hasMany(ItemShare, { foreignKey: "userId" });
 
 Group.belongsTo(Revision, { foreignKey: "revId" });
+Group.belongsToMany(User, { through: Membership, foreignKey: "groupId" });
+Group.hasMany(Membership, { foreignKey: "groupId" });
 Group.hasMany(Category, { foreignKey: "groupId" });
 Group.hasMany(GroupArchive, { foreignKey: "id" });
 
