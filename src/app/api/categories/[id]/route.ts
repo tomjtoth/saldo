@@ -18,18 +18,22 @@ export async function PUT(
   ]);
 
   if (!sess) return new Response(null, { status: 401 });
-  if (!data.description && !data.statusId)
+  if (!data.name && !data.description && !data.statusId)
     return new Response(null, { status: 400 });
 
-  const [{ id: strId }, user] = await Promise.all([params, currentUser(sess)]);
-  const id = Number(strId);
+  const [pp, user] = await Promise.all([params, currentUser(sess)]);
+  const id = Number(pp.id);
 
   const cats = await getCatsOf(user.id, { idsOnly: true });
   if (!cats.some((cat) => cat.id === id))
     return new Response(null, { status: 403 });
 
   try {
-    const updated = await updateCategory(id, user.id, data);
+    const updated = await updateCategory(id, user.id, {
+      name: data.name,
+      description: data.description,
+      statusId: data.statusId,
+    });
     if (!updated) return new Response(null, { status: 404 });
 
     return Response.json(updated!.get({ plain: true }));

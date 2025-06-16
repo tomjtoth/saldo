@@ -127,12 +127,13 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
     const rcptId = lastRcpt.id!;
 
-    let cat = dd.categories.find((c) => c.description === strCategory);
+    let cat = dd.categories.find((c) => c.name === strCategory);
     if (!cat) {
       cat = {
         id: dd.categories.length + 1,
         revId,
-        description: strCategory,
+        groupId: 1,
+        name: strCategory,
       };
       dd.categories.push(cat);
     }

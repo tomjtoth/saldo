@@ -12,10 +12,9 @@ import {
 } from "../models";
 import { err } from "../utils";
 
-export type TCategoryUpdater = {
-  description?: string;
-  statusId?: number;
-};
+export type TCategoryUpdater = Partial<
+  Pick<TCategory, "name" | "description" | "statusId">
+>;
 
 export async function createCategory(revBy: number, data: TCrCategory) {
   return await atomic("Creating category", async (transaction) => {
@@ -23,20 +22,32 @@ export async function createCategory(revBy: number, data: TCrCategory) {
     const cat = await Category.create(
       {
         revId: rev.id,
-        description: data.description,
+        ...data,
       },
-      {
-        transaction,
-        include: [
-          Revision,
-          {
-            model: CategoryArchive,
-            as: "archives",
-            include: [Revision],
-          },
-        ],
-      }
+      { transaction }
     );
+
+    await cat.reload({
+      transaction,
+      include: [
+        {
+          model: Revision,
+          attributes: ["revOn"],
+          include: [{ model: User, attributes: ["name"] }],
+        },
+        {
+          model: CategoryArchive,
+          as: "archives",
+          include: [
+            {
+              model: Revision,
+              attributes: ["revOn"],
+              include: [{ model: User, attributes: ["name"] }],
+            },
+          ],
+        },
+      ],
+    });
 
     return cat;
   });
@@ -59,6 +70,11 @@ export async function updateCategory(
     const rev = await Revision.create({ revBy }, { transaction });
     cat.revId = rev.id;
 
+    if (data.name !== undefined && cat.name !== data.name) {
+      cat.name = data.name;
+      changedOriginal = true;
+    }
+
     if (
       data.description !== undefined &&
       cat.description !== data.description
@@ -75,11 +91,25 @@ export async function updateCategory(
     if (changedOriginal) await cat.save({ transaction });
     else err("nothing changed");
 
-    return await Category.findByPk(id, {
+    return await cat.reload({
       transaction,
       include: [
-        Revision,
-        { model: CategoryArchive, as: "archives", include: [Revision] },
+        {
+          model: Revision,
+          attributes: ["revOn"],
+          include: [{ model: User, attributes: ["name"] }],
+        },
+        {
+          model: CategoryArchive,
+          as: "archives",
+          include: [
+            {
+              model: Revision,
+              attributes: ["revOn"],
+              include: [{ model: User, attributes: ["name"] }],
+            },
+          ],
+        },
       ],
     })!;
   });
