@@ -3,10 +3,15 @@ import { DataTypes, Model, ModelAttributes } from "sequelize";
 import type { TCrIDs, TIDs } from "./common";
 import { SeqIdCols, seqInitOpts, REV_ID_INTEGER_PK } from "./common";
 import { has3WordChars } from "../utils";
+import { Membership } from "./membership";
+import { Group } from "./group";
 
 export type TUser = TIDs & {
   email: string;
   name: string;
+
+  Membership?: Membership;
+  Groups?: Group[];
 };
 
 export type TCrUser = TCrIDs & Pick<TUser, "email" | "name">;
@@ -41,6 +46,9 @@ class Common extends Model<TUser, TCrUser> {
   statusId!: number;
   email!: string;
   name!: string;
+
+  Membership?: Membership;
+  Groups?: Group[];
 }
 
 export class User extends Common {
