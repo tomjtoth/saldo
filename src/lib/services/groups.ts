@@ -80,7 +80,7 @@ export async function getGroupsOf(
 ) {
   const relatedToUser = {
     model: Membership,
-    where: { userId },
+    where: { [Op.and]: [{ userId }, { statusId: { [Op.eq]: 1 } }] },
     attributes: !idsOnly && !forCategories ? ["admin"] : [],
   };
 
