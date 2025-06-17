@@ -20,12 +20,12 @@ export default function Individual({
   groupId: number;
 }) {
   const dispatch = useAppDispatch();
-  const [statusId, setStatusId] = useState(user.Membership?.statusId);
+  const [statusId, setStatusId] = useState(user.Membership!.statusId);
 
   return (
     <li
       className={
-        "rounded border-2 " +
+        "flex gap-1 items-center rounded border-2 " +
         (statusId == 1 ? "border-green-500" : "border-red-500")
       }
     >

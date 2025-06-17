@@ -27,7 +27,7 @@ export default function Title({
 
   return isAdmin ? (
     <form
-      className="grid grid-cols-[min-width_min-width_min-width] gap-2"
+      className="grid items-center grid-cols-[min-width_min-width_min-width] gap-2"
       onSubmit={(ev) => {
         ev.preventDefault();
         try {
@@ -66,7 +66,7 @@ export default function Title({
     >
       <input
         type="text"
-        className="text-center"
+        className="text-center p-2!"
         value={name}
         onChange={(ev) => setName(ev.target.value)}
       />
@@ -79,7 +79,7 @@ export default function Title({
       <button>💾</button>
 
       <textarea
-        className="col-span-3 resize-none"
+        className="col-span-3 resize-none text-center"
         value={description}
         placeholder="Optional description..."
         onChange={(ev) => setDescription(ev.target.value)}

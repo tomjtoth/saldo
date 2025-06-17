@@ -21,7 +21,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
       className={
         "p-2 bg-background rounded border-2 " +
         (statusId === 1 ? "border-green-500" : "border-red-500") +
-        " grid gap-2 grid-cols-[min-width_min-width_min-width]"
+        " grid items-center gap-2 grid-cols-[min-width_min-width_min-width]"
       }
       onSubmit={(ev) => {
         ev.preventDefault();

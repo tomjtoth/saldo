@@ -30,7 +30,7 @@ export default function Details({
           className={
             "p-2 bg-background rounded border-2 cursor-not-allowed " +
             (cat.statusId === 1 ? "border-green-500" : "border-red-500") +
-            " grid gap-2 grid-cols-[min-width_min-width]"
+            " grid items-center gap-2 grid-cols-[min-width_min-width]"
           }
         >
           <input
@@ -44,7 +44,7 @@ export default function Details({
 
           {cat.description && (
             <textarea
-              className="col-span-2 resize-none cursor-not-allowed"
+              className="col-span-2 resize-none cursor-not-allowed row-start-3"
               rows={2}
               defaultValue={cat.description}
               disabled
