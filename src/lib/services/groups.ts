@@ -75,15 +75,29 @@ export async function getGroupsOf(
   userId: number,
   { idsOnly = false, forCategories = false } = {}
 ) {
+  const relatedToUser = {
+    model: Membership,
+    where: { userId },
+    attributes: !idsOnly && !forCategories ? ["admin"] : [],
+  };
+
+  if (idsOnly) {
+    return await Group.findAll({
+      attributes: ["id"],
+      include: [relatedToUser],
+    });
+  }
+
+  if (forCategories) {
+    return await Group.findAll({
+      attributes: ["id", "name"],
+      include: [relatedToUser],
+    });
+  }
+
   return await Group.findAll({
-    ...(idsOnly && { attributes: ["id"] }),
-    ...(forCategories && { attributes: ["id", "name"] }),
     include: [
-      {
-        model: Membership,
-        where: { userId },
-        attributes: ["admin"],
-      },
+      relatedToUser,
       {
         model: User,
         through: { attributes: ["admin"] },
