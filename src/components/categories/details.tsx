@@ -3,6 +3,7 @@
 import { TCategory } from "@/lib/models";
 
 import Updater from "./updater";
+import Slider from "../slider";
 
 export default function Details({
   cat,
@@ -39,7 +40,7 @@ export default function Details({
             disabled
           />
 
-          <input type="checkbox" defaultChecked={cat.statusId === 1} disabled />
+          <Slider checked={cat.statusId === 1} className="" />
 
           {cat.description && (
             <textarea

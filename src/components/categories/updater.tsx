@@ -7,6 +7,7 @@ import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
 import { TCategory } from "@/lib/models";
 import { rCategories as red } from "@/lib/reducers/categories";
+import Slider from "../slider";
 
 export default function Updater({ cat }: { cat: TCategory }) {
   const dispatch = useAppDispatch();
@@ -63,10 +64,9 @@ export default function Updater({ cat }: { cat: TCategory }) {
         onChange={(ev) => setName(ev.target.value)}
       />
 
-      <input
-        type="checkbox"
+      <Slider
         checked={statusId === 1}
-        onChange={(ev) => setStatusId(ev.target.checked ? 1 : 2)}
+        onClick={() => setStatusId(1 + (statusId % 2))}
       />
 
       <button>💾</button>

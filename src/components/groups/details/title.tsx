@@ -8,6 +8,8 @@ import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
 import { TGroup } from "@/lib/models";
 import { rGroups } from "@/lib/reducers/groups";
 
+import Slider from "@/components/slider";
+
 export default function Title({ group }: { group: TGroup }) {
   const dispatch = useAppDispatch();
   const [name, setName] = useState(group.name);
@@ -62,10 +64,9 @@ export default function Title({ group }: { group: TGroup }) {
         onChange={(ev) => setName(ev.target.value)}
       />
 
-      <input
-        type="checkbox"
+      <Slider
         checked={statusId == 1}
-        onChange={(ev) => setStatusId(ev.target.checked ? 1 : 2)}
+        onClick={() => setStatusId(1 + (statusId % 2))}
       />
 
       <button>💾</button>
