@@ -1,11 +1,14 @@
 "use client";
 
-import { useAppDispatch } from "@/lib/hooks";
-import { TMembership, User } from "@/lib/models";
-import { rGroups } from "@/lib/reducers/groups";
-import { err, sendJSON, toastifyMsgs } from "@/lib/utils";
 import { useState } from "react";
 import { toast } from "react-toastify";
+
+import { useAppDispatch } from "@/lib/hooks";
+import { User } from "@/lib/models";
+import { rGroups } from "@/lib/reducers/groups";
+import { err, sendJSON, toastifyMsgs } from "@/lib/utils";
+
+import Slider from "@/components/slider";
 
 export default function Individual({
   user,
@@ -30,12 +33,11 @@ export default function Individual({
         <span>👮</span>
       ) : (
         isAdmin && (
-          <input
-            type="checkbox"
+          <Slider
             checked={statusId == 1}
-            onChange={(ev) => {
+            onClick={() => {
               const prevStatusId = statusId;
-              const nextStatusId = ev.target.checked ? 1 : 2;
+              const nextStatusId = 1 + (statusId % 2);
               setStatusId(nextStatusId);
 
               toast.promise(
