@@ -123,35 +123,38 @@ export async function updateGroup(
     const group = await Group.findByPk(id);
     if (!group) return null;
 
-    await GroupArchive.create(group.get({ plain: true }), { transaction });
-    let noChanges = true;
+    const preChanges = group.get({ plain: true });
+    let archiving = false;
+    let linkChanged = false;
 
     if (statusId !== undefined && statusId !== group.statusId) {
-      noChanges = false;
+      archiving = true;
       group.statusId = statusId;
     }
 
     if (name !== undefined && name !== group.name) {
-      noChanges = false;
+      archiving = true;
       group.name = name;
     }
 
     if (description !== undefined && description !== group.description) {
-      noChanges = false;
+      archiving = true;
       group.description = description;
     }
 
     if (uuid !== undefined && uuid !== group.uuid) {
-      noChanges = false;
+      linkChanged = true;
       group.uuid = uuid;
     }
 
-    if (noChanges) err("no changes in group, rolling back");
-    else {
-      const rev = await Revision.create({ revBy: adminId }, { transaction });
-      group.revId = rev.id;
+    if (archiving || linkChanged) {
+      if (archiving) {
+        await GroupArchive.create(preChanges, { transaction });
+        const rev = await Revision.create({ revBy: adminId }, { transaction });
+        group.revId = rev.id;
+      }
       await group.save({ transaction });
-    }
+    } else err("no changes in group, rolling back");
 
     return await group.reload({
       transaction,
@@ -176,7 +179,7 @@ type MembershipUpdater = Pick<TMembership, "groupId" | "userId"> &
   Partial<Pick<TMembership, "admin" | "statusId">>;
 
 export async function updateMembership(
-  adminId: number,
+  revBy: number,
   { userId, groupId, statusId, admin }: MembershipUpdater
 ) {
   return await atomic("Updating membership", async (transaction) => {
@@ -184,28 +187,27 @@ export async function updateMembership(
       where: { userId, groupId },
       transaction,
     });
-
     if (!ms) return null;
 
-    await MembershipArchive.create(ms.get({ plain: true }), { transaction });
-    let noChanges = true;
+    const preChanges = ms.get({ plain: true });
+    let saving = false;
 
     if (statusId !== undefined && statusId !== ms.statusId) {
-      noChanges = false;
+      saving = true;
       ms.statusId = statusId;
     }
 
     if (admin !== undefined && admin !== ms.admin) {
-      noChanges = false;
+      saving = true;
       ms.admin = admin;
     }
 
-    if (noChanges) err("no changes in membership, rolling back");
-    else {
-      const rev = await Revision.create({ revBy: adminId }, { transaction });
+    if (saving) {
+      await MembershipArchive.create(preChanges, { transaction });
+      const rev = await Revision.create({ revBy }, { transaction });
       ms.revId = rev.id;
       await ms.save({ transaction });
-    }
+    } else err("no changes in membership, rolling back");
 
     return await ms.reload({
       attributes: ["admin", "statusId"],

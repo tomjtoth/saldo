@@ -57,41 +57,36 @@ export async function createCategory(revBy: number, data: TCrCategory) {
 export async function updateCategory(
   id: number,
   revBy: number,
-  data: TCategoryUpdater
+  { name, description, statusId }: TCategoryUpdater
 ) {
   return await atomic("Updating category", async (transaction) => {
-    let noChanges = true;
-
     const cat = await Category.findByPk(id, { transaction });
-
     if (!cat) return null;
 
-    await CategoryArchive.create(cat.get({ plain: true }), { transaction });
+    const preChanges = cat.get({ plain: true });
+    let saving = false;
 
-    if (data.name !== undefined && cat.name !== data.name) {
-      cat.name = data.name;
-      noChanges = false;
+    if (name !== undefined && cat.name !== name) {
+      cat.name = name;
+      saving = true;
     }
 
-    if (
-      data.description !== undefined &&
-      cat.description !== data.description
-    ) {
-      cat.description = data.description;
-      noChanges = false;
+    if (description !== undefined && cat.description !== description) {
+      cat.description = description;
+      saving = true;
     }
 
-    if (data.statusId !== undefined && cat.statusId !== data.statusId) {
-      cat.statusId = data.statusId;
-      noChanges = false;
+    if (statusId !== undefined && cat.statusId !== statusId) {
+      cat.statusId = statusId;
+      saving = true;
     }
 
-    if (noChanges) err("no changes in category, rolling back");
-    else {
+    if (saving) {
+      await CategoryArchive.create(preChanges, { transaction });
       const rev = await Revision.create({ revBy }, { transaction });
       cat.revId = rev.id;
       await cat.save({ transaction });
-    }
+    } else err("no changes in category, rolling back");
 
     return await cat.reload({
       transaction,
