@@ -145,6 +145,7 @@ export async function updateMembership(
 
     return await ms.reload({
       attributes: ["admin", "statusId"],
+      transaction,
     });
   });
 }
