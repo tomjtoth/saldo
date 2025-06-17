@@ -123,10 +123,12 @@ export async function updateMembership(
 
     const rev = await Revision.create({ revBy: adminId }, { transaction });
 
-    const ms = (await Membership.findOne({
+    const ms = await Membership.findOne({
       where: { userId, groupId },
       transaction,
-    }))!;
+    });
+
+    if (!ms) return null;
 
     await MembershipArchive.create(ms.get({ plain: true }), { transaction });
 

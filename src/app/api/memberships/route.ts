@@ -19,12 +19,18 @@ export async function PUT(req: NextRequest) {
   const group = groups.find((grp) => grp.id === groupId)!;
   if (!group.Memberships![0].admin) return new Response(null, { status: 403 });
 
-  const ms = await updateMembership(user.id, {
-    groupId,
-    userId,
-    statusId,
-    admin,
-  });
+  try {
+    const ms = await updateMembership(user.id, {
+      groupId,
+      userId,
+      statusId,
+      admin,
+    });
 
-  return Response.json(ms.get({ plain: true }));
+    if (!ms) return new Response(null, { status: 404 });
+
+    return Response.json(ms.get({ plain: true }));
+  } catch {
+    return new Response(null, { status: 400 });
+  }
 }
