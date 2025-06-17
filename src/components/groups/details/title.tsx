@@ -29,8 +29,9 @@ export default function Title({ group }: { group: TGroup }) {
 
         toast.promise(
           sendJSON(
-            `/api/groups/${group.id}`,
+            `/api/groups`,
             {
+              id: group.id,
               name,
               description,
               statusId,

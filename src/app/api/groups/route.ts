@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 
 import { auth } from "@/auth";
 import { TCrGroup } from "@/lib/models";
-import { createGroup } from "@/lib/services/groups";
+import { createGroup, GroupUpdater, updateGroup } from "@/lib/services/groups";
 import { currentUser } from "@/lib/services/user";
 
 export async function POST(req: NextRequest) {
@@ -19,4 +19,28 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json(group.get({ plain: true }));
+}
+
+export async function PUT(req: NextRequest) {
+  const sess = await auth();
+  if (!sess) return new Response(null, { status: 401 });
+
+  const [data, user] = await Promise.all([req.json(), currentUser(sess)]);
+  const { id, statusId, name, description, uuid } = data as GroupUpdater;
+
+  try {
+    const group = await updateGroup(user.id, {
+      id,
+      statusId,
+      name,
+      description,
+      uuid,
+    });
+
+    if (!group) return new Response(null, { status: 404 });
+
+    return Response.json(group.get({ plain: true }));
+  } catch {
+    return new Response(null, { status: 400 });
+  }
 }
