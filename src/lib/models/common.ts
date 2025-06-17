@@ -87,7 +87,7 @@ Status.init(
   }
 );
 
-export const SeqIdCols = {
+export const seqIdCols = {
   id,
   revId: {
     type: DataTypes.INTEGER,
@@ -103,7 +103,7 @@ export const SeqIdCols = {
 
 export const REV_ID_INTEGER_PK = {
   revId: {
-    ...SeqIdCols.revId,
+    ...seqIdCols.revId,
     primaryKey: true,
   },
 };

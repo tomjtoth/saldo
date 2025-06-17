@@ -1,7 +1,7 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import {
-  SeqIdCols,
+  seqIdCols,
   seqInitOpts,
   REV_ID_INTEGER_PK,
   Revision,
@@ -41,9 +41,9 @@ const COLS: ModelAttributes<ItemShare, TItemShare> = {
     references: { model: User, key: "id" },
     primaryKey: true,
   },
-  revId: SeqIdCols.revId,
+  revId: seqIdCols.revId,
 
-  statusId: SeqIdCols.statusId,
+  statusId: seqIdCols.statusId,
 
   share: { type: DataTypes.INTEGER, allowNull: false },
 };

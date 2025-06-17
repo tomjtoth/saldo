@@ -2,7 +2,7 @@ import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import { dateAsInt } from "@/lib/utils";
 import {
-  SeqIdCols,
+  seqIdCols,
   seqInitOpts,
   REV_ID_INTEGER_PK,
   TIDs,
@@ -34,7 +34,7 @@ export type TCrReceipt = TCrIDs &
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
 const COLS: ModelAttributes<Receipt, TReceipt> = {
-  ...SeqIdCols,
+  ...seqIdCols,
   paidOn: {
     type: DataTypes.INTEGER,
     defaultValue: () => dateAsInt(),

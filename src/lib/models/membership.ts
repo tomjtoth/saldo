@@ -1,6 +1,6 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 
-import { REV_ID_INTEGER_PK, SeqIdCols, seqInitOpts } from "./common";
+import { REV_ID_INTEGER_PK, seqIdCols, seqInitOpts } from "./common";
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
@@ -8,8 +8,8 @@ import { REV_ID_INTEGER_PK, SeqIdCols, seqInitOpts } from "./common";
 const COLS: ModelAttributes<Membership, TMembership> = {
   groupId: { type: DataTypes.INTEGER, primaryKey: true },
   userId: { type: DataTypes.INTEGER, primaryKey: true },
-  revId: SeqIdCols.revId,
-  statusId: SeqIdCols.statusId,
+  revId: seqIdCols.revId,
+  statusId: seqIdCols.statusId,
 
   admin: {
     type: DataTypes.BOOLEAN,

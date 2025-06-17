@@ -1,7 +1,7 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import type { TCrIDs, TIDs } from "./common";
-import { SeqIdCols, seqInitOpts, REV_ID_INTEGER_PK } from "./common";
+import { seqIdCols, seqInitOpts, REV_ID_INTEGER_PK } from "./common";
 import { has3WordChars } from "../utils";
 import { Membership } from "./membership";
 import { Group } from "./group";
@@ -20,7 +20,7 @@ export type TCrUser = TCrIDs & Pick<TUser, "email" | "name">;
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
 const COLS: ModelAttributes<User, TUser> = {
-  ...SeqIdCols,
+  ...seqIdCols,
 
   email: {
     type: DataTypes.TEXT,

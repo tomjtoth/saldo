@@ -1,7 +1,7 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import {
-  SeqIdCols,
+  seqIdCols,
   seqInitOpts,
   REV_ID_INTEGER_PK,
   TIDs,
@@ -16,7 +16,7 @@ import { Group } from "./group";
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
 const COLS: ModelAttributes<Category, TCategory> = {
-  ...SeqIdCols,
+  ...seqIdCols,
   groupId: {
     type: DataTypes.INTEGER,
     allowNull: false,

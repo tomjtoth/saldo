@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 
 import {
   REV_ID_INTEGER_PK,
-  SeqIdCols,
+  seqIdCols,
   seqInitOpts,
   TCrIDs,
   TIDs,
@@ -17,7 +17,7 @@ import { Membership } from "./membership";
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
 const COLS: ModelAttributes<Group, TGroup> = {
-  ...SeqIdCols,
+  ...seqIdCols,
   name: {
     type: DataTypes.TEXT,
     allowNull: false,
