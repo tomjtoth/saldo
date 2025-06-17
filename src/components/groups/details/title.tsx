@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
@@ -10,11 +10,18 @@ import { rGroups } from "@/lib/reducers/groups";
 
 import Slider from "@/components/slider";
 
-export default function Title({ group }: { group: TGroup }) {
+export default function Title({
+  group,
+  statusId,
+  setStatusId,
+}: {
+  group: TGroup;
+  statusId: number;
+  setStatusId: Dispatch<SetStateAction<number>>;
+}) {
   const dispatch = useAppDispatch();
   const [name, setName] = useState(group.name);
   const [description, setDescription] = useState(group.description);
-  const [statusId, setStatusId] = useState(group.statusId);
 
   const isAdmin = group.Memberships![0].admin;
 
