@@ -1,10 +1,14 @@
 "use client";
 
-import { TGroup } from "@/lib/models";
-import { err, sendJSON, toastifyPromise } from "@/lib/utils";
 import { toast } from "react-toastify";
 
+import { useAppDispatch } from "@/lib/hooks";
+import { TGroup } from "@/lib/models";
+import { err, sendJSON, toastifyPromise } from "@/lib/utils";
+import { rGroups } from "@/lib/reducers/groups";
+
 export default function Invitation({ group }: { group: TGroup }) {
+  const dispatch = useAppDispatch();
   const isAdmin = group.Memberships![0].admin;
   const invitationLink = group.uuid
     ? `${location.origin}/api/groups/${group.uuid}`
@@ -41,11 +45,14 @@ export default function Invitation({ group }: { group: TGroup }) {
           onClick={() => {
             toastifyPromise(
               sendJSON(
-                `/api/groups/${group.id}`,
-                { generateLink: true },
+                "/api/groups",
+                { id: group.id, generateLink: true },
                 { method: "PUT" }
-              ).then((res) => {
+              ).then(async (res) => {
                 if (!res.ok) err();
+
+                const body = await res.json();
+                dispatch(rGroups.update(body));
               }),
               "Generating invitation link"
             );
@@ -59,11 +66,14 @@ export default function Invitation({ group }: { group: TGroup }) {
             onClick={() => {
               toastifyPromise(
                 sendJSON(
-                  `/api/groups/${group.id}`,
-                  { removeLink: true },
+                  "/api/groups",
+                  { id: group.id, removeLink: true },
                   { method: "PUT" }
-                ).then((res) => {
+                ).then(async (res) => {
                   if (!res.ok) err();
+
+                  const body = await res.json();
+                  dispatch(rGroups.update(body));
                 }),
                 "Deleting invitation link"
               );

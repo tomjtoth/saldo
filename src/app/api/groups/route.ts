@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { v4 as uuid } from "uuid";
 
 import { auth } from "@/auth";
 import { TCrGroup } from "@/lib/models";
@@ -26,7 +27,11 @@ export async function PUT(req: NextRequest) {
   if (!sess) return new Response(null, { status: 401 });
 
   const [data, user] = await Promise.all([req.json(), currentUser(sess)]);
-  const { id, statusId, name, description, uuid } = data as GroupUpdater;
+  const { id, statusId, name, description, generateLink, removeLink } =
+    data as GroupUpdater & {
+      generateLink?: true;
+      removeLink?: true;
+    };
 
   try {
     const group = await updateGroup(user.id, {
@@ -34,7 +39,7 @@ export async function PUT(req: NextRequest) {
       statusId,
       name,
       description,
-      uuid,
+      uuid: generateLink ? uuid() : removeLink ? null : undefined,
     });
 
     if (!group) return new Response(null, { status: 404 });
