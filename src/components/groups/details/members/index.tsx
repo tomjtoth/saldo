@@ -11,7 +11,7 @@ export default function Members({ group }: { group: TGroup }) {
       <h3>Current members</h3>
       <ul className="flex flex-wrap gap-2 justify-center *:p-1">
         {group.Users?.map((user) => (
-          <Individual {...{ user, isAdmin, groupId: group.id }} />
+          <Individual key={user.id} {...{ user, isAdmin, groupId: group.id }} />
         ))}
       </ul>
     </>
