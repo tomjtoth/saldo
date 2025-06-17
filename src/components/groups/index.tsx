@@ -42,7 +42,7 @@ export default function CliGroupsPage({
               }).then(async (res) => {
                 if (!res.ok) {
                   done(false);
-                  err("tripping toastify");
+                  err();
                 }
 
                 const body = await res.json();

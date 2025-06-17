@@ -54,7 +54,7 @@ export default function CliCategoriesPage(fromDB: {
                 }).then(async (res) => {
                   if (!res.ok) {
                     done(false);
-                    err("tripping toastify");
+                    err();
                   }
 
                   const body = await res.json();

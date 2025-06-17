@@ -40,7 +40,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
             { method: "PUT" }
           )
             .then(async (res) => {
-              if (!res.ok) err("tripping toastify");
+              if (!res.ok) err();
 
               const body = await res.json();
               dispatch(red.update(body as TCategory));
@@ -50,7 +50,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
               setDescr(cat.description);
               setStatusId(cat.statusId);
 
-              err("tripping toastify");
+              err();
             }),
           toastifyMsgs(`Updating "${name}"`)
         );

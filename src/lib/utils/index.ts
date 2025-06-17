@@ -60,7 +60,7 @@ export async function sendJSON(
   });
 }
 
-export function err(msg: string) {
+export function err(msg: string = "tripping toastify") {
   throw new Error(msg);
 }
 
