@@ -6,12 +6,14 @@ export default function Slider({
   height = 24,
   margin = 4,
   checked,
+  className: cn = "cursor-pointer",
   onClick: handler,
 }: {
   height?: number;
   margin?: number;
   checked: boolean;
-  onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+  className?: string;
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }) {
   return (
     <div
@@ -20,7 +22,8 @@ export default function Slider({
         width: 2 * height,
       }}
       className={
-        "inline-block rounded-full border-1 cursor-pointer duration-200 ease-in-out " +
+        cn +
+        " inline-block rounded-full border-1 duration-200 ease-in-out " +
         (checked ? "bg-green-500" : "bg-red-500")
       }
       onClick={handler}
