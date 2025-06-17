@@ -20,7 +20,10 @@ export default function Entry({ group }: { group: TGroup }) {
       )}
 
       <div
-        className="cursor-pointer select-none p-2 rounded border"
+        className={
+          "cursor-pointer select-none p-2 rounded border-2 " +
+          (group.statusId === 1 ? "border-green-500" : "border-red-500")
+        }
         onClick={() => setShowDetails(true)}
       >
         {group.name}
