@@ -9,7 +9,7 @@ export default function GroupSelector({
   value,
   onChange,
 }: {
-  groups: TGroup[];
+  groups: Pick<TGroup, "id" | "name">[];
   value: number;
   onChange: ChangeEventHandler<HTMLSelectElement>;
 }) {
