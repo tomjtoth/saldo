@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TGroup } from "../models";
+import { TGroup, TMembership } from "../models";
 import { insertAlphabetically } from "../utils";
 
 type State = TGroup[];
@@ -22,6 +22,17 @@ const slice = createSlice({
     add: (groups, { payload }: PayloadAction<TGroup>) => {
       insertAlphabetically(payload, groups);
     },
+
+    updateMS: (groups, { payload }: PayloadAction<TMembership>) => {
+      const group = groups.find((grp) => grp.id === payload.groupId)!;
+
+      const user = group.Users?.find((user) => user.id === payload.userId);
+
+      const ms = user?.Membership!;
+
+      ms.admin = payload.admin;
+      ms.statusId = payload.statusId;
+    },
   },
 });
 
@@ -38,6 +49,10 @@ export const rGroups = {
 
   add: (group: TGroup) => (dispatch: AppDispatch) => {
     return dispatch(sa.add(group));
+  },
+
+  updateMembership: (ms: TMembership) => (dispatch: AppDispatch) => {
+    return dispatch(sa.updateMS(ms));
   },
 };
 
