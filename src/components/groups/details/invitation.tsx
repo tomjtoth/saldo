@@ -47,8 +47,7 @@ export default function Invitation({ group }: { group: TGroup }) {
               ).then((res) => {
                 if (!res.ok) err();
               }),
-              toastifyMsgs("Generating invitation link"),
-              { autoClose: 500 }
+              toastifyMsgs("Generating invitation link")
             );
           }}
         >
@@ -66,8 +65,7 @@ export default function Invitation({ group }: { group: TGroup }) {
                 ).then((res) => {
                   if (!res.ok) err();
                 }),
-                toastifyMsgs("Deleting invitation link"),
-                { autoClose: 500 }
+                toastifyMsgs("Deleting invitation link")
               );
             }}
           >
