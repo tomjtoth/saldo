@@ -16,7 +16,7 @@ export default async function ReceiptsPage() {
 
   const [users, categories, receipts] = await Promise.all([
     getPartnersOf(),
-    getCatsOf(user.id, { activeOnly: true }),
+    getCatsOf(user.id),
     getReceiptsOf(user.id),
   ]);
 

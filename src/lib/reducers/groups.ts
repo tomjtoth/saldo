@@ -26,9 +26,9 @@ const slice = createSlice({
     updateMS: (groups, { payload }: PayloadAction<TMembership>) => {
       const group = groups.find((grp) => grp.id === payload.groupId)!;
 
-      const user = group.Users?.find((user) => user.id === payload.userId);
+      const user = group.Users!.find((user) => user.id === payload.userId)!;
 
-      const ms = user?.Membership!;
+      const ms = user.Membership!;
 
       ms.admin = payload.admin;
       ms.statusId = payload.statusId;
