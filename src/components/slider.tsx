@@ -20,7 +20,7 @@ export default function Slider({
         width: 2 * height,
       }}
       className={
-        " rounded-full border-1 cursor-pointer duration-200 ease-in-out " +
+        "inline-block rounded-full border-1 cursor-pointer duration-200 ease-in-out " +
         (checked ? "bg-green-500" : "bg-red-500")
       }
       onClick={handler}
