@@ -164,6 +164,7 @@ export async function updateGroup(
           through: { attributes: ["admin", "statusId"] },
         },
       ],
+      order: [fn("LOWER", col("Users.name"))],
     });
   });
 }
