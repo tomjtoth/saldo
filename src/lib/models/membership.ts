@@ -1,6 +1,6 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 
-import { SeqIdCols, seqInitOpts } from "./common";
+import { REV_ID_INTEGER_PK, SeqIdCols, seqInitOpts } from "./common";
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
@@ -24,6 +24,9 @@ export type TMembership = {
   statusId: number;
 
   admin: boolean;
+
+  current?: Membership;
+  archives?: MembershipArchive[];
 };
 
 type TCrMembership = Pick<TMembership, "groupId" | "userId" | "revId"> &
@@ -36,10 +39,28 @@ class Common extends Model<TMembership, TCrMembership> {
   statusId!: number;
 
   admin!: boolean;
+
+  current?: Membership;
+  archives?: MembershipArchive[];
 }
 
-export class Membership extends Common {}
+export class Membership extends Common {
+  archives?: MembershipArchive[];
+}
 Membership.init(COLS, {
   ...seqInitOpts,
   modelName: "Membership",
 });
+
+export class MembershipArchive extends Common {}
+MembershipArchive.init(
+  {
+    ...COLS,
+    ...REV_ID_INTEGER_PK,
+  },
+  {
+    ...seqInitOpts,
+    modelName: "MembershipArchive",
+    tableName: "memberships_archive",
+  }
+);
