@@ -44,14 +44,14 @@ export default function Details({
 
           {cat.description && (
             <textarea
-              className="col-span-2 resize-none cursor-not-allowed row-start-3"
+              className="col-span-2 resize-none cursor-not-allowed"
               rows={2}
               defaultValue={cat.description}
               disabled
             />
           )}
 
-          <div className="col-span-2 text-center row-start-3">
+          <div className="col-span-2 text-center">
             🗓️
             <sub> {cat.Revision!.revOn} </sub>
             🪪
