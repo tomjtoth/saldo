@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
 import { rGroups as red } from "@/lib/reducers/groups";
+import { err, has3WordChars, sendJSON, toastifyPromise } from "@/lib/utils";
 
 import Entry from "./entry";
 import NameDescrAdder from "../name-descr-adder";
-import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
-import { toast } from "react-toastify";
 
 export default function CliGroupsPage({
   groups: fromDB,
@@ -35,7 +35,7 @@ export default function CliGroupsPage({
               return done(false);
             }
 
-            toast.promise(
+            toastifyPromise(
               sendJSON(`/api/groups`, {
                 name,
                 description,
@@ -49,7 +49,7 @@ export default function CliGroupsPage({
                 dispatch(red.add(body as TGroup));
                 done(true);
               }),
-              toastifyMsgs(`Saving group "${name}" to db`)
+              `Saving group "${name}" to db`
             );
           })
         }

@@ -1,7 +1,7 @@
 "use client";
 
 import { TGroup } from "@/lib/models";
-import { err, sendJSON, toastifyMsgs } from "@/lib/utils";
+import { err, sendJSON, toastifyPromise } from "@/lib/utils";
 import { toast } from "react-toastify";
 
 export default function Invitation({ group }: { group: TGroup }) {
@@ -39,7 +39,7 @@ export default function Invitation({ group }: { group: TGroup }) {
 
         <button
           onClick={() => {
-            toast.promise(
+            toastifyPromise(
               sendJSON(
                 `/api/groups/${group.id}`,
                 { generateLink: true },
@@ -47,7 +47,7 @@ export default function Invitation({ group }: { group: TGroup }) {
               ).then((res) => {
                 if (!res.ok) err();
               }),
-              toastifyMsgs("Generating invitation link")
+              "Generating invitation link"
             );
           }}
         >
@@ -57,7 +57,7 @@ export default function Invitation({ group }: { group: TGroup }) {
         {!!invitationLink && (
           <button
             onClick={() => {
-              toast.promise(
+              toastifyPromise(
                 sendJSON(
                   `/api/groups/${group.id}`,
                   { removeLink: true },
@@ -65,7 +65,7 @@ export default function Invitation({ group }: { group: TGroup }) {
                 ).then((res) => {
                   if (!res.ok) err();
                 }),
-                toastifyMsgs("Deleting invitation link")
+                "Deleting invitation link"
               );
             }}
           >

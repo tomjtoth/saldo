@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
+import { err, has3WordChars, sendJSON, toastifyPromise } from "@/lib/utils";
 import { TGroup } from "@/lib/models";
 import { rGroups } from "@/lib/reducers/groups";
 
@@ -36,7 +36,7 @@ export default function Title({
           toast.error(res as string);
         }
 
-        toast.promise(
+        toastifyPromise(
           sendJSON(
             `/api/groups`,
             {
@@ -60,7 +60,7 @@ export default function Title({
               setStatusId(group.statusId);
               err();
             }),
-          toastifyMsgs(`Updating "${group.name}"`)
+          `Updating "${group.name}"`
         );
       }}
     >

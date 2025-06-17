@@ -1,6 +1,6 @@
 import { Draft, WritableDraft } from "immer";
-
 import { DateTime } from "luxon";
+import { toast } from "react-toastify";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value == 0.5) return [1, 2];
@@ -71,11 +71,20 @@ export function has3WordChars(val: string) {
     err("must have at least 3 consecutive characters from [0-9a-zA-Z_]");
 }
 
-export const toastifyMsgs = (operation: string) => ({
-  pending: `${operation}...`,
-  success: `${operation} succeeded!`,
-  error: `${operation} failed 😭`,
-});
+export const toastifyPromise = (promise: Promise<unknown>, operation: string) =>
+  toast.promise(
+    promise,
+    {
+      pending: `${operation}...`,
+      success: `${operation} succeeded!`,
+      error: `${operation} failed 😭`,
+    },
+    {
+      theme: window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light",
+    }
+  );
 
 export function insertAlphabetically<T extends { name: string }>(
   payload: Draft<T>,

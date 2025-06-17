@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
+import { err, has3WordChars, sendJSON, toastifyPromise } from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
 import { TCategory } from "@/lib/models";
 import { rCategories as red } from "@/lib/reducers/categories";
@@ -34,7 +34,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
           return toast.error(xxx as string);
         }
 
-        toast.promise(
+        toastifyPromise(
           sendJSON(
             `/api/categories/${cat.id}`,
             { name, description, statusId },
@@ -53,7 +53,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
               err();
             }),
-          toastifyMsgs(`Updating "${name}"`)
+          `Updating "${name}"`
         );
       }}
     >

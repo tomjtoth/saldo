@@ -9,7 +9,7 @@ import { rCategories as red } from "@/lib/reducers/categories";
 import NameDescrAdder from "../name-descr-adder";
 import Entry from "./entry";
 import GroupSelector from "../groups/selector";
-import { err, has3WordChars, sendJSON, toastifyMsgs } from "@/lib/utils";
+import { err, has3WordChars, sendJSON, toastifyPromise } from "@/lib/utils";
 import { toast } from "react-toastify";
 
 export default function CliCategoriesPage(fromDB: {
@@ -46,7 +46,7 @@ export default function CliCategoriesPage(fromDB: {
                 return done(false);
               }
 
-              toast.promise(
+              toastifyPromise(
                 sendJSON(`/api/categories`, {
                   groupId,
                   name,
@@ -61,7 +61,7 @@ export default function CliCategoriesPage(fromDB: {
                   dispatch(red.add(body as TCategory));
                   done(true);
                 }),
-                toastifyMsgs(`Saving "${name}" to db`)
+                `Saving "${name}" to db`
               );
             })
           }
