@@ -159,6 +159,10 @@ export async function updateGroup(
             [Op.and]: [{ userId: adminId }, { statusId: { [Op.eq]: 1 } }],
           },
         },
+        {
+          model: User,
+          through: { attributes: ["admin", "statusId"] },
+        },
       ],
     });
   });
