@@ -3,26 +3,37 @@
 import React from "react";
 
 export default function Slider({
+  height = 24,
+  margin = 4,
   checked,
   onClick: handler,
 }: {
+  height?: number;
+  margin?: number;
   checked: boolean;
   onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
 }) {
   return (
     <div
+      style={{
+        height,
+        width: 2 * height,
+      }}
       className={
-        "w-[60px] h-[40px] rounded-full border-1 cursor-pointer duration-200 ease-in-out " +
+        " rounded-full border-1 cursor-pointer duration-200 ease-in-out " +
         (checked ? "bg-green-500" : "bg-red-500")
       }
       onClick={handler}
     >
       <div
         className={
-          "top-[4px] w-[30px] h-[30px] rounded-full  relative " +
-          "bg-background duration-200 ease-in-out " +
-          (checked ? "left-[4px]" : "left-[24px]")
+          "aspect-square rounded-full bg-background duration-200 ease-in-out " +
+          "relative top-1/2 -translate-y-1/2"
         }
+        style={{
+          left: checked ? 4 : 2 * height - margin - (height - 2 * margin),
+          height: height - 2 * margin,
+        }}
       />
     </div>
   );
