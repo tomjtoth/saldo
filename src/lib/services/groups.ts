@@ -8,6 +8,7 @@ import {
   MembershipArchive,
   Revision,
   TCrGroup,
+  TGroup,
   TMembership,
   User,
 } from "../models";
@@ -108,6 +109,58 @@ export async function getGroupsOf(
       },
     ],
     order: [fn("LOWER", col("Group.name"))],
+  });
+}
+
+export type GroupUpdater = Pick<TGroup, "id"> &
+  Partial<Pick<TGroup, "name" | "description" | "statusId" | "uuid">>;
+
+export async function updateGroup(
+  adminId: number,
+  { id, statusId, name, description, uuid }: GroupUpdater
+) {
+  return await atomic("Updating group", async (transaction) => {
+    const rev = await Revision.create({ revBy: adminId }, { transaction });
+
+    let noChanges = true;
+
+    const group = await Group.findByPk(id);
+    if (!group) return null;
+
+    await GroupArchive.create(group.get({ plain: true }), { transaction });
+
+    if (statusId !== undefined && statusId !== group.statusId) {
+      noChanges = false;
+      await group.update({ revId: rev.id, statusId }, { transaction });
+    }
+
+    if (name !== undefined && name !== group.name) {
+      noChanges = false;
+      await group.update({ revId: rev.id, name }, { transaction });
+    }
+
+    if (description !== undefined && description !== group.description) {
+      noChanges = false;
+      await group.update({ revId: rev.id, description }, { transaction });
+    }
+    if (uuid !== undefined && uuid !== group.uuid) {
+      noChanges = false;
+      await group.update({ revId: rev.id, uuid }, { transaction });
+    }
+
+    if (noChanges) err("nothing actually changed in the group, rolling back");
+
+    return await group.reload({
+      transaction,
+      include: [
+        {
+          model: Membership,
+          where: {
+            [Op.and]: [{ userId: adminId }, { statusId: { [Op.eq]: 1 } }],
+          },
+        },
+      ],
+    });
   });
 }
 
