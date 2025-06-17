@@ -80,7 +80,7 @@ export default function Title({ group }: { group: TGroup }) {
   ) : (
     <>
       <h2>{group.name}</h2>
-      <q>{group.description}</q>
+      {group.description && <q>{group.description}</q>}
     </>
   );
 }
