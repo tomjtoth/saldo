@@ -63,7 +63,9 @@ export default function Individual({
                     err();
                   }),
                 toastifyMsgs(
-                  `${nextStatusId == 1 ? "Allowing" : "Banning"} "${user.name}"`
+                  `${nextStatusId == 1 ? "Re-instating" : "Banning"} "${
+                    user.name
+                  }"`
                 )
               );
             }}
