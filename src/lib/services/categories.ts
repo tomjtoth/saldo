@@ -60,7 +60,7 @@ export async function updateCategory(
   data: TCategoryUpdater
 ) {
   return await atomic("Updating category", async (transaction) => {
-    let changedOriginal = false;
+    let noChanges = true;
 
     const cat = await Category.findByPk(id, { transaction });
 
@@ -68,12 +68,9 @@ export async function updateCategory(
 
     await CategoryArchive.create(cat.get({ plain: true }), { transaction });
 
-    const rev = await Revision.create({ revBy }, { transaction });
-    cat.revId = rev.id;
-
     if (data.name !== undefined && cat.name !== data.name) {
       cat.name = data.name;
-      changedOriginal = true;
+      noChanges = false;
     }
 
     if (
@@ -81,16 +78,20 @@ export async function updateCategory(
       cat.description !== data.description
     ) {
       cat.description = data.description;
-      changedOriginal = true;
+      noChanges = false;
     }
 
     if (data.statusId !== undefined && cat.statusId !== data.statusId) {
       cat.statusId = data.statusId;
-      changedOriginal = true;
+      noChanges = false;
     }
 
-    if (changedOriginal) await cat.save({ transaction });
-    else err("nothing changed");
+    if (noChanges) err("no changes in category, rolling back");
+    else {
+      const rev = await Revision.create({ revBy }, { transaction });
+      cat.revId = rev.id;
+      await cat.save({ transaction });
+    }
 
     return await cat.reload({
       transaction,

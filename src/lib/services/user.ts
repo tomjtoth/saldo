@@ -9,8 +9,7 @@ export async function addUser(userData: TCrUser) {
 
     const rev = await Revision.create({ revBy: user.id }, { transaction });
 
-    user.set({ revId: rev.id });
-    await user.save({ transaction });
+    await user.update({ revId: rev.id }, { transaction });
 
     return user;
   });

@@ -53,7 +53,7 @@ class Common extends Model<TGroup, TCrGroup> {
 
   name!: string;
   description?: string;
-  uuid?: string;
+  uuid?: string | null;
 
   Users?: User[];
   Categories?: Category[];
