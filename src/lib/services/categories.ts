@@ -118,16 +118,32 @@ export async function updateCategory(
 
 export async function getCatsOf(
   userId: number,
-  { idsOnly = false, activeOnly = false } = {}
+  { idsOnly = false, forReceipts = false } = {}
 ) {
+  const relatedToUser = {
+    model: Group,
+    attributes: [],
+    include: [{ model: Membership, attributes: [], where: { userId } }],
+  };
+
+  if (idsOnly) {
+    return await Category.findAll({
+      attributes: ["id"],
+      include: [relatedToUser],
+    });
+  }
+
+  if (forReceipts) {
+    return await Category.findAll({
+      attributes: ["id", "name"],
+      include: [relatedToUser],
+      order: [[fn("LOWER", col("Category.name")), "ASC"]],
+    });
+  }
+
   return await Category.findAll({
-    ...(idsOnly && { attributes: ["id"] }),
     include: [
-      {
-        model: Group,
-        attributes: [],
-        include: [{ model: Membership, attributes: [], where: { userId } }],
-      },
+      relatedToUser,
       {
         model: Revision,
         attributes: ["revOn"],
@@ -140,19 +156,11 @@ export async function getCatsOf(
           {
             model: Revision,
             attributes: ["revOn"],
-            ...(idsOnly && { attributes: [] }),
-            ...(!idsOnly && {
-              include: [{ model: User, attributes: ["name"] }],
-            }),
+            include: [{ model: User, attributes: ["name"] }],
           },
         ],
       },
     ],
-    where: {
-      ...(activeOnly && { statusId: { [Op.eq]: 1 } }),
-    },
-    ...(!idsOnly && {
-      order: [[fn("LOWER", col("Category.name")), "ASC"]],
-    }),
+    order: [[fn("LOWER", col("Category.name")), "ASC"]],
   });
 }
