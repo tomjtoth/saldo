@@ -5,10 +5,13 @@ import {
   Group,
   GroupArchive,
   Membership,
+  MembershipArchive,
   Revision,
   TCrGroup,
+  TMembership,
   User,
 } from "../models";
+import { err } from "../utils";
 
 export async function createGroup(ownerId: number, data: TCrGroup) {
   return await atomic("creating new group", async (transaction) => {
@@ -33,7 +36,7 @@ export async function createGroup(ownerId: number, data: TCrGroup) {
       include: [
         {
           model: Membership,
-          attributes: ["admin"],
+          attributes: ["admin", "statusId"],
         },
         {
           model: User,
@@ -101,9 +104,47 @@ export async function getGroupsOf(
       relatedToUser,
       {
         model: User,
-        through: { attributes: ["admin"] },
+        through: { attributes: ["admin", "statusId"] },
       },
     ],
     order: [fn("LOWER", col("Group.name"))],
+  });
+}
+
+type MembershipUpdater = Pick<TMembership, "groupId" | "userId"> &
+  Partial<Pick<TMembership, "admin" | "statusId">>;
+
+export async function updateMembership(
+  adminId: number,
+  { userId, groupId, statusId, admin }: MembershipUpdater
+) {
+  return await atomic("Updating membership", async (transaction) => {
+    let noChanges = true;
+
+    const rev = await Revision.create({ revBy: adminId }, { transaction });
+
+    const ms = (await Membership.findOne({
+      where: { userId, groupId },
+      transaction,
+    }))!;
+
+    await MembershipArchive.create(ms.get({ plain: true }), { transaction });
+
+    if (statusId !== undefined && statusId !== ms.statusId) {
+      noChanges = false;
+      await ms.update({ revId: rev.id, statusId }, { transaction });
+    }
+
+    if (admin !== undefined && admin !== ms.admin) {
+      noChanges = false;
+      await ms.update({ revId: rev.id, admin }, { transaction });
+    }
+
+    if (noChanges)
+      err("nothing actually changed in the membership, tripping rollback");
+
+    return await ms.reload({
+      attributes: ["admin", "statusId"],
+    });
   });
 }
