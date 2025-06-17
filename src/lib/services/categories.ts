@@ -137,6 +137,7 @@ export async function getCatsOf(
     return await Category.findAll({
       attributes: ["id", "name"],
       include: [relatedToUser],
+      where: { statusId: { [Op.eq]: 1 } },
       order: [[fn("LOWER", col("Category.name")), "ASC"]],
     });
   }

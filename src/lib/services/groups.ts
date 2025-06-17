@@ -1,4 +1,4 @@
-import { col, fn } from "sequelize";
+import { col, fn, Op } from "sequelize";
 
 import {
   atomic,
@@ -92,6 +92,7 @@ export async function getGroupsOf(
     return await Group.findAll({
       attributes: ["id", "name"],
       include: [relatedToUser],
+      where: { statusId: { [Op.eq]: 1 } },
     });
   }
 
