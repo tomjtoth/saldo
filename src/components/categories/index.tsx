@@ -30,7 +30,7 @@ export default function CliCategoriesPage(fromDB: {
       <div className="p-2">
         Showing only for{" "}
         <GroupSelector
-          groups={groups}
+          groups={groups.length > 0 ? groups : fromDB.groups}
           value={groupId}
           onChange={(ev) => setGroupId(Number(ev.target.value))}
         />
