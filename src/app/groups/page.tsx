@@ -5,6 +5,8 @@ import { currentUser } from "@/lib/services/user";
 import Header from "@/components/header";
 import CliGroupsPage from "@/components/groups";
 
+export const dynamic = "force-dynamic";
+
 export default async function GroupsPage() {
   const sess = await auth();
   if (!sess) return signIn("", { redirectTo: "/categories" });
