@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 export default function Slider({
   height = 24,
   margin = 4,
