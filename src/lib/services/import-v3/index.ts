@@ -9,6 +9,7 @@ import {
   Item,
   ItemShare,
   atomic,
+  Group,
 } from "@/lib/models";
 
 export async function importV3() {
@@ -29,6 +30,7 @@ export async function insertData(data: TDBData) {
     ]);
 
     // the rest are to be inserted in strict order
+    await Group.bulkCreate(data.groups, { transaction });
     await Category.bulkCreate(data.categories, { transaction });
     await Receipt.bulkCreate(data.receipts, { transaction });
     await Item.bulkCreate(data.items, { transaction });

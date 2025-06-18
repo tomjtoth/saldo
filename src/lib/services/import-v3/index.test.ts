@@ -44,59 +44,69 @@ describe("import-v3", async () => {
         {
           id: 1,
           revId: 1,
-          description: "food",
+          groupId: 1,
+          name: "food",
         },
         {
           id: 2,
           revId: 1,
-          description: "candies",
+          groupId: 1,
+          name: "candies",
         },
         {
           id: 3,
           revId: 2,
-          description: "gifts",
+          groupId: 1,
+          name: "gifts",
         },
         {
           id: 4,
           revId: 4,
-          description: "stuff",
+          groupId: 1,
+          name: "stuff",
         },
         {
           id: 5,
           revId: 4,
-          description: "supplies",
+          groupId: 1,
+          name: "supplies",
         },
         {
           id: 6,
           revId: 7,
-          description: "medicines",
+          groupId: 1,
+          name: "medicines",
         },
         {
           id: 7,
           revId: 12,
-          description: "drinks",
+          groupId: 1,
+          name: "drinks",
         },
         {
           id: 8,
           revId: 19,
-          description: "refund",
+          groupId: 1,
+          name: "refund",
         },
         {
           id: 9,
           revId: 23,
-          description: "rent",
+          groupId: 1,
+          name: "rent",
         },
         {
           id: 10,
           revId: 26,
-          description: "utilities",
+          groupId: 1,
+          name: "utilities",
         },
       ]);
 
       const cats = await Category.findAll();
       expect(cats).to.have.length(10);
-      expect(cats[0].description).toEqual("food");
-      expect(cats[6].description).toEqual("drinks");
+      expect(cats[0].name).toEqual("food");
+      expect(cats[6].name).toEqual("drinks");
     });
 
     it("receipts correctly", async () => {

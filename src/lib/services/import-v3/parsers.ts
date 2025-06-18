@@ -12,6 +12,8 @@ import {
   TCrReceipt,
   TCrItem,
   TCrItemShare,
+  TGroup,
+  TMembership,
 } from "@/lib/models";
 
 export type TCsvRow = { [key: string]: string };
@@ -19,6 +21,8 @@ export type TCsvRow = { [key: string]: string };
 export type TDBData = {
   revisions: TCrRevision[];
   users: TCrUser[];
+  groups: TGroup[];
+  memberships: TMembership[];
   categories: TCrCategory[];
   receipts: TCrReceipt[];
   items: TCrItem[];
@@ -54,6 +58,10 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
   const dd = {
     revisions: [],
     users: [],
+    groups: [{ id: 1, name: "imported from V3", revId: 1, statusId: 1 }],
+    memberships: [
+      { groupId: 1, userId: 1, revId: 1, statusId: 1, admin: true },
+    ],
     categories: [],
     receipts: [],
     items: [],
