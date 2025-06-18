@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { err, has3WordChars, sendJSON, toastifyPromise } from "@/lib/utils";
+import { err, has3WordChars, sendJSON, appToast } from "@/lib/utils";
 import { TGroup } from "@/lib/models";
 import { rGroups } from "@/lib/reducers/groups";
 
@@ -32,11 +32,14 @@ export default function Title({
         ev.preventDefault();
         try {
           has3WordChars(name);
-        } catch (res) {
-          toast.error(res as string);
+        } catch (err: unknown) {
+          return toast.error(
+            (err as Error).message as string,
+            appToast.theme()
+          );
         }
 
-        toastifyPromise(
+        toast.promise(
           sendJSON(
             `/api/groups`,
             {
@@ -60,7 +63,8 @@ export default function Title({
               setStatusId(group.statusId);
               err();
             }),
-          `Updating "${group.name}"`
+          appToast.messages(`Updating "${group.name}"`),
+          appToast.theme()
         );
       }}
     >

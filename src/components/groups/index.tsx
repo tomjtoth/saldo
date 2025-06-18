@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
 import { rGroups as red } from "@/lib/reducers/groups";
-import { err, has3WordChars, sendJSON, toastifyPromise } from "@/lib/utils";
+import { err, has3WordChars, sendJSON, appToast } from "@/lib/utils";
 
 import Entry from "./entry";
 import NameDescrAdder from "../name-descr-adder";
@@ -30,12 +30,14 @@ export default function CliGroupsPage({
           new Promise<boolean>((done) => {
             try {
               has3WordChars(name);
-            } catch (err) {
-              toast.error(err as string);
-              return done(false);
+            } catch (err: unknown) {
+              return toast.error(
+                (err as Error).message as string,
+                appToast.theme()
+              );
             }
 
-            toastifyPromise(
+            appToast.promise(
               sendJSON(`/api/groups`, {
                 name,
                 description,

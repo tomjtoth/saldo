@@ -71,20 +71,22 @@ export function has3WordChars(val: string) {
     err("must have at least 3 consecutive characters from [0-9a-zA-Z_]");
 }
 
-export const toastifyPromise = (promise: Promise<unknown>, operation: string) =>
-  toast.promise(
-    promise,
-    {
-      pending: `${operation}...`,
-      success: `${operation} succeeded!`,
-      error: `${operation} failed 😭`,
-    },
-    {
-      theme: window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light",
-    }
-  );
+export const appToast = {
+  messages: (operation: string) => ({
+    pending: `${operation}...`,
+    success: `${operation} succeeded!`,
+    error: `${operation} failed 😭`,
+  }),
+
+  theme: () => ({
+    theme: window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light",
+  }),
+
+  promise: (promise: Promise<unknown>, operation: string) =>
+    toast.promise(promise, appToast.messages(operation), appToast.theme()),
+};
 
 export function insertAlphabetically<T extends { name: string }>(
   payload: Draft<T>,

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useAppDispatch } from "@/lib/hooks";
 import { User } from "@/lib/models";
 import { rGroups } from "@/lib/reducers/groups";
-import { err, sendJSON, toastifyPromise } from "@/lib/utils";
+import { err, sendJSON, appToast } from "@/lib/utils";
 
 import Slider from "@/components/slider";
 
@@ -39,7 +39,7 @@ export default function Individual({
               const nextStatusId = 1 + (statusId % 2);
               setStatusId(nextStatusId);
 
-              toastifyPromise(
+              appToast.promise(
                 sendJSON(
                   `/api/memberships`,
                   {

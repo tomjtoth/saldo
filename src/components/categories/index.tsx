@@ -10,7 +10,7 @@ import { rCategories as red } from "@/lib/reducers/categories";
 import NameDescrAdder from "../name-descr-adder";
 import Entry from "./entry";
 import GroupSelector from "../groups/selector";
-import { err, has3WordChars, sendJSON, toastifyPromise } from "@/lib/utils";
+import { err, has3WordChars, sendJSON, appToast } from "@/lib/utils";
 
 export default function CliCategoriesPage(fromDB: {
   cats: TCategory[];
@@ -42,12 +42,12 @@ export default function CliCategoriesPage(fromDB: {
             new Promise<boolean>((done) => {
               try {
                 has3WordChars(name);
-              } catch (err) {
-                toast.error(err as string);
+              } catch (err: unknown) {
+                toast.error((err as Error).message as string, appToast.theme());
                 return done(false);
               }
 
-              toastifyPromise(
+              appToast.promise(
                 sendJSON(`/api/categories`, {
                   groupId,
                   name,

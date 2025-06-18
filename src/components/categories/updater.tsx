@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-import { err, has3WordChars, sendJSON, toastifyPromise } from "@/lib/utils";
+import { err, has3WordChars, sendJSON, appToast } from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
 import { TCategory } from "@/lib/models";
 import { rCategories as red } from "@/lib/reducers/categories";
+
 import Slider from "../slider";
 
 export default function Updater({ cat }: { cat: TCategory }) {
@@ -29,13 +30,14 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
         try {
           has3WordChars(name);
-        } catch (xxx) {
-          // TODO: this is not showing the error...
-          // even though the block catches
-          return toast.error(xxx as string);
+        } catch (err: unknown) {
+          return toast.error(
+            (err as Error).message as string,
+            appToast.theme()
+          );
         }
 
-        toastifyPromise(
+        toast.promise(
           sendJSON(
             `/api/categories/${cat.id}`,
             { name, description, statusId },
@@ -54,7 +56,22 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
               err();
             }),
-          `Updating "${name}"`
+          {
+            pending: `Updating "${name}" ...`,
+            success: {
+              render({ data }) {
+                // TODO: describe all 3 things optionally
+                const arr = [];
+                if (true) arr.push("renamed");
+                if (true) arr.push("altered description of");
+                if (true) arr.push("toggled");
+
+                return `Updating "${name}" succeeded!`;
+              },
+            },
+            error: `Updating "${name}" failed 😭`,
+          },
+          appToast.theme()
         );
       }}
     >

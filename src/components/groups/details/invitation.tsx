@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
-import { err, sendJSON, toastifyPromise } from "@/lib/utils";
+import { err, sendJSON, appToast } from "@/lib/utils";
 import { rGroups } from "@/lib/reducers/groups";
 
 export default function Invitation({ group }: { group: TGroup }) {
@@ -31,10 +31,14 @@ export default function Invitation({ group }: { group: TGroup }) {
         {!!invitationLink && (
           <button
             onClick={() => {
-              toast.promise(navigator.clipboard.writeText(invitationLink!), {
-                success: "Link copied to clipboard",
-                error: "Failed to copy invitation link to clipboard",
-              });
+              toast.promise(
+                navigator.clipboard.writeText(invitationLink!),
+                {
+                  success: "Link copied to clipboard",
+                  error: "Failed to copy invitation link to clipboard",
+                },
+                appToast.theme()
+              );
             }}
           >
             Copy 🔗
@@ -43,7 +47,7 @@ export default function Invitation({ group }: { group: TGroup }) {
 
         <button
           onClick={() => {
-            toastifyPromise(
+            appToast.promise(
               sendJSON(
                 "/api/groups",
                 { id: group.id, generateLink: true },
@@ -64,7 +68,7 @@ export default function Invitation({ group }: { group: TGroup }) {
         {!!invitationLink && (
           <button
             onClick={() => {
-              toastifyPromise(
+              appToast.promise(
                 sendJSON(
                   "/api/groups",
                   { id: group.id, removeLink: true },
