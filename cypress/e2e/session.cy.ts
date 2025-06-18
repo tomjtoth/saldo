@@ -19,9 +19,7 @@ describe("Signing in", () => {
 
   it("works with image on the OAuth profile", () => {
     loginAs("withImage@dev.dev", "TEST_PASSWD");
-    cy.get(
-      "#user-avatar-container img[src='https://avatar.iran.liara.run/public']"
-    ).should("exist");
+    cy.get("#user-avatar-container img[src='/globe.svg']").should("exist");
   });
 });
 
