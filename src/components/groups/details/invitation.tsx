@@ -24,7 +24,9 @@ export default function Invitation({ group }: { group: TGroup }) {
       </p>
 
       {!!invitationLink && (
-        <pre className="rounded border p-2 select-all">{invitationLink}</pre>
+        <p className="rounded border p-2 select-all text-center">
+          {invitationLink.replace(/-/g, "-\u200b")}
+        </p>
       )}
 
       <div className="flex gap-2 justify-evenly">
