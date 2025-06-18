@@ -63,7 +63,7 @@ describe("categories", () => {
     it("are accessible via the sidepanel", () => {
       cy.get("#sidepanel-opener").click();
       cy.get("a[href='/categories']").click();
-      cy.get("#categories-adder-opener").click();
+      cy.get("#category-adder-opener").click();
     });
 
     it("can be added", () => {
