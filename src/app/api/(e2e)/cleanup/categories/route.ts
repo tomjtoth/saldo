@@ -8,7 +8,7 @@ export async function GET() {
 
   const cats = await Category.findAll({
     where: {
-      description: {
+      name: {
         [Op.like]: "test-cat-%",
       },
     },

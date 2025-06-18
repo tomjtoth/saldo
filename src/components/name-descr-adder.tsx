@@ -12,18 +12,27 @@ type AdderHandler = ({
   description: string;
 }) => Promise<boolean>;
 
-export default function NameDescrAdder({ handler }: { handler: AdderHandler }) {
+export default function NameDescrAdder({
+  id,
+  handler,
+}: {
+  id?: string;
+  handler: AdderHandler;
+}) {
   const [visible, setVisible] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescr] = useState("");
 
   return (
     <>
-      <button onClick={() => setVisible(true)}>Add new...</button>
+      <button id={id + "-opener"} onClick={() => setVisible(true)}>
+        Add new...
+      </button>
       {visible && (
         <>
           <Canceler onClick={() => setVisible(false)} />
           <form
+            id={id + "-form"}
             className={
               "absolute top-1/2 left-1/2 -translate-1/2 p-2 " +
               "rounded border bg-background " +
@@ -43,7 +52,6 @@ export default function NameDescrAdder({ handler }: { handler: AdderHandler }) {
           >
             <input
               {...{
-                id: "category-adder",
                 type: "text",
                 className: "w-full min-w-25",
                 placeholder: "Name",

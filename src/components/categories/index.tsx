@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import { TCategory, TGroup } from "@/lib/models";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
@@ -10,7 +11,6 @@ import NameDescrAdder from "../name-descr-adder";
 import Entry from "./entry";
 import GroupSelector from "../groups/selector";
 import { err, has3WordChars, sendJSON, toastifyPromise } from "@/lib/utils";
-import { toast } from "react-toastify";
 
 export default function CliCategoriesPage(fromDB: {
   cats: TCategory[];
@@ -37,6 +37,7 @@ export default function CliCategoriesPage(fromDB: {
       </div>
       <div className="p-2 flex flex-wrap gap-2 justify-center">
         <NameDescrAdder
+          id="category-adder"
           handler={({ name, description }) =>
             new Promise<boolean>((done) => {
               try {
