@@ -20,6 +20,10 @@ export default async function GroupsPage() {
         <h2>Your groups</h2>
       </Header>
 
+      <p className="p-2 text-center">
+        <i className="p-1 rounded border-2 border-red-500">INACTIVE</i> groups
+        are not visible in categories, nor in receipts.
+      </p>
       <CliGroupsPage groups={groups.map((grp) => grp.get({ plain: true }))} />
     </>
   );
