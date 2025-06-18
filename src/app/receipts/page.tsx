@@ -5,6 +5,7 @@ import { getReceiptsOf } from "@/lib/services/receipt";
 
 import { CliReceiptAdder, CliReceiptsPage } from "@/components/receipts";
 import Header from "@/components/header";
+import UserMenu from "@/components/user-menu";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,11 @@ export default async function ReceiptsPage() {
     getReceiptsOf(user.id),
   ]);
 
+  const userMenu = <UserMenu />;
+
   return (
     <>
-      <Header className="flex items-center gap-2">
+      <Header {...{ userMenu, className: "flex items-center gap-2" }}>
         <h2>Receipts</h2>
         <CliReceiptAdder
           {...{
