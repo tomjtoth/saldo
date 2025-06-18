@@ -15,7 +15,7 @@ export async function GET(
   }
 ) {
   const [{ id: uuid }, sess] = await Promise.all([params, auth()]);
-  if (!sess) return signIn("", { redirectTo: `/groups/${uuid}` });
+  if (!sess) return signIn("", { redirectTo: `/api/groups/${uuid}` });
 
   const user = await currentUser(sess);
 
