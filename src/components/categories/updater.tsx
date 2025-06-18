@@ -46,8 +46,22 @@ export default function Updater({ cat }: { cat: TCategory }) {
             .then(async (res) => {
               if (!res.ok) err();
 
-              const body = await res.json();
-              dispatch(red.update(body as TCategory));
+              const body = (await res.json()) as TCategory;
+
+              const operations = [
+                ...(body.name !== cat.name ? ["renaming"] : []),
+                ...(body.statusId !== cat.statusId ? ["toggling"] : []),
+                ...(body.description !== cat.description
+                  ? ["altering the description of"]
+                  : []),
+              ].join(", ");
+
+              dispatch(red.update(body));
+
+              return `
+              ${operations[0].toUpperCase() + operations.slice(1)} "${
+                cat.name
+              }" succeeded!`;
             })
             .catch(() => {
               setName(cat.name);
@@ -59,15 +73,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
           {
             pending: `Updating "${name}" ...`,
             success: {
-              render({ data }) {
-                // TODO: describe all 3 things optionally
-                const arr = [];
-                if (true) arr.push("renamed");
-                if (true) arr.push("altered description of");
-                if (true) arr.push("toggled");
-
-                return `Updating "${name}" succeeded!`;
-              },
+              render: ({ data }) => data!,
             },
             error: `Updating "${name}" failed 😭`,
           },
