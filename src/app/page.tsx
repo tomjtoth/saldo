@@ -1,9 +1,12 @@
 import Header from "@/components/header";
+import UserMenu from "@/components/user-menu";
 
 export default function HomePage() {
+  const userMenu = <UserMenu />;
+
   return (
     <>
-      <Header>
+      <Header userMenu={userMenu}>
         <h2>Work in Progress</h2>
       </Header>
 

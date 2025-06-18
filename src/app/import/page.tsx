@@ -1,6 +1,7 @@
 import { Item, ItemShare, Receipt, Revision, User } from "@/lib/models";
 import ImportButton from "@/components/import-button";
 import Header from "@/components/header";
+import UserMenu from "@/components/user-menu";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +14,11 @@ export default async function ImportPage() {
     ItemShare.count(),
   ]);
 
+  const userMenu = <UserMenu />;
+
   return (
     <>
-      <Header>
+      <Header userMenu={userMenu}>
         <h2>Import view</h2>
       </Header>
 

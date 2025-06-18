@@ -1,12 +1,10 @@
-import React from "react";
-
 import { auth, signIn } from "@/auth";
 import { currentUser } from "@/lib/services/user";
 import { getGroupsOf } from "@/lib/services/groups";
 import { getCatsOf } from "@/lib/services/categories";
 
-import Header from "@/components/header";
 import CliCategoriesPage from "@/components/categories";
+import UserMenu from "@/components/user-menu";
 
 export const dynamic = "force-dynamic";
 
@@ -21,16 +19,15 @@ export default async function CategoriesPage() {
     getGroupsOf(user.id, { forCategories: true }),
   ]);
 
-  return (
-    <>
-      <Header>
-        <h2>Categories</h2>
-      </Header>
+  const userMenu = <UserMenu />;
 
-      <CliCategoriesPage
-        cats={cats.map((cat) => cat.get({ plain: true }))}
-        groups={groups.map((grp) => grp.get({ plain: true }))}
-      />
-    </>
+  return (
+    <CliCategoriesPage
+      {...{
+        userMenu,
+        cats: cats.map((cat) => cat.get({ plain: true })),
+        groups: groups.map((grp) => grp.get({ plain: true })),
+      }}
+    />
   );
 }

@@ -1,19 +1,19 @@
-"use server";
+"use client";
 
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, ReactNode } from "react";
 
 import Sidepanel from "./sidepanel";
-import UserMenu from "./user-menu";
 
-export default async function Header({
+export default function Header({
   children,
+  userMenu,
   className: cn = "",
-}: PropsWithChildren & { className?: string }) {
+}: PropsWithChildren & { userMenu: ReactNode; className?: string }) {
   return (
     <header className="flex gap-2 p-2 items-center">
       <Sidepanel />
       <div className={`grow ${cn}`}>{children}</div>
-      <UserMenu />
+      {userMenu}
     </header>
   );
 }

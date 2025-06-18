@@ -2,8 +2,8 @@ import { auth, signIn } from "@/auth";
 import { getGroupsOf } from "@/lib/services/groups";
 import { currentUser } from "@/lib/services/user";
 
-import Header from "@/components/header";
 import CliGroupsPage from "@/components/groups";
+import UserMenu from "@/components/user-menu";
 
 export const dynamic = "force-dynamic";
 
@@ -14,17 +14,14 @@ export default async function GroupsPage() {
   const user = await currentUser(sess);
   const groups = await getGroupsOf(user.id);
 
-  return (
-    <>
-      <Header>
-        <h2>Your groups</h2>
-      </Header>
+  const userMenu = <UserMenu />;
 
-      <p className="p-2 text-center">
-        <i className="p-1 rounded border-2 border-red-500">INACTIVE</i> groups
-        are not visible in categories, nor in receipts.
-      </p>
-      <CliGroupsPage groups={groups.map((grp) => grp.get({ plain: true }))} />
-    </>
+  return (
+    <CliGroupsPage
+      {...{
+        userMenu,
+        groups: groups.map((grp) => grp.get({ plain: true })),
+      }}
+    />
   );
 }
