@@ -123,7 +123,7 @@ export async function updateGroup(
     const group = await Group.findByPk(id);
     if (!group) return null;
 
-    const preChanges = group.get({ plain: true });
+    const preChanges = group.get({ plain: true, clone: true });
     let archiving = false;
     let linkChanged = false;
 
@@ -189,7 +189,7 @@ export async function updateMembership(
     });
     if (!ms) return null;
 
-    const preChanges = ms.get({ plain: true });
+    const preChanges = ms.get({ plain: true, clone: true });
     let saving = false;
 
     if (statusId !== undefined && statusId !== ms.statusId) {

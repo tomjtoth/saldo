@@ -63,7 +63,7 @@ export async function updateCategory(
     const cat = await Category.findByPk(id, { transaction });
     if (!cat) return null;
 
-    const preChanges = cat.get({ plain: true });
+    const preChanges = cat.get({ plain: true, clone: true });
     let saving = false;
 
     if (name !== undefined && cat.name !== name) {
