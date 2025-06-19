@@ -58,8 +58,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
               dispatch(red.update(body));
 
-              return `
-              ${operations[0].toUpperCase() + operations.slice(1)} "${
+              return `${operations[0].toUpperCase() + operations.slice(1)} "${
                 cat.name
               }" succeeded!`;
             })

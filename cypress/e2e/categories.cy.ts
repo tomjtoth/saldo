@@ -61,6 +61,7 @@ describe("categories", () => {
     });
 
     it("are accessible via the sidepanel", () => {
+      cy.wait(500);
       cy.get("#sidepanel-opener").click();
       cy.get("a[href='/categories']").click();
       cy.get("#category-adder-opener").click();
@@ -76,16 +77,16 @@ describe("categories", () => {
       openUpdater();
       updateCategory({ name: "-2" });
 
-      successfulToastShwon(`Updating "${TEST_CATEGORY}-2" succeeded!`);
+      successfulToastShwon(`Renaming "${TEST_CATEGORY}" succeeded!`);
     });
 
-    it("can be toggled to INACTIVE", () => {
+    it("can be toggled", () => {
       addCategory(TEST_CATEGORY);
 
       openUpdater();
       updateCategory({ toggle: true });
 
-      successfulToastShwon(`Updating "${TEST_CATEGORY}" succeeded!`);
+      successfulToastShwon(`Toggling "${TEST_CATEGORY}" succeeded!`);
       updaterToggler().should("have.class", "bg-red-500");
       updaterToggler().parent().should("have.class", "border-red-500");
     });
