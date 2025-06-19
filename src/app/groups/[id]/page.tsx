@@ -1,3 +1,1 @@
-import GroupsPage from "../page";
-
-export default GroupsPage;
+export { default } from "../page";
