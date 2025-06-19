@@ -1,15 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import categories from "./reducers/categories";
-import groups from "./reducers/groups";
-import receipts from "./reducers/receipts";
+import combined from "./reducers";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      categories,
-      groups,
-      receipts,
+      combined,
     },
   });
 };
