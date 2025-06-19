@@ -62,16 +62,18 @@ export default function CliCategoriesPage(srv: {
                   groupId,
                   name,
                   description,
-                }).then(async (res) => {
-                  if (!res.ok) {
-                    done(false);
-                    err();
-                  }
+                })
+                  .then(async (res) => {
+                    if (!res.ok) err(res.statusText);
 
-                  const body = await res.json();
-                  dispatch(red.add(body as TCategory));
-                  done(true);
-                }),
+                    const body = await res.json();
+                    dispatch(red.add(body as TCategory));
+                    done(true);
+                  })
+                  .catch((err) => {
+                    done(false);
+                    throw err;
+                  }),
                 `Saving "${name}" to db`
               );
             })

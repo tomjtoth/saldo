@@ -86,7 +86,7 @@ export async function updateCategory(
       const rev = await Revision.create({ revBy }, { transaction });
       cat.revId = rev.id;
       await cat.save({ transaction });
-    } else err("No changes were made!");
+    } else err("No changes were made");
 
     return await cat.reload({
       transaction,

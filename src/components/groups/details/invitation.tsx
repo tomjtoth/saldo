@@ -56,7 +56,7 @@ export default function Invitation({ group }: { group: TGroup }) {
                 { id: group.id, generateLink: true },
                 { method: "PUT" }
               ).then(async (res) => {
-                if (!res.ok) err();
+                if (!res.ok) err(res.statusText);
 
                 const body = await res.json();
                 dispatch(rGroups.update(body));
@@ -77,7 +77,7 @@ export default function Invitation({ group }: { group: TGroup }) {
                   { id: group.id, removeLink: true },
                   { method: "PUT" }
                 ).then(async (res) => {
-                  if (!res.ok) err();
+                  if (!res.ok) err(res.statusText);
 
                   const body = await res.json();
                   dispatch(rGroups.update(body));
