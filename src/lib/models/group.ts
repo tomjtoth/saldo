@@ -8,7 +8,7 @@ import {
   TCrIDs,
   TIDs,
 } from "./common";
-import { has3WordChars } from "../utils";
+import { has3ConsecutiveLetters } from "../utils";
 import { User } from "./user";
 import { Category } from "./category";
 import { Membership } from "./membership";
@@ -22,7 +22,7 @@ const COLS: ModelAttributes<Group, TGroup> = {
     type: DataTypes.TEXT,
     allowNull: false,
     validate: {
-      has3WordChars,
+      has3ConsecutiveLetters,
     },
   },
   description: {

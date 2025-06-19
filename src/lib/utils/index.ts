@@ -64,11 +64,11 @@ export function err(msg: string = "tripping toastify") {
   throw new Error(msg);
 }
 
-const RE_3_CONSECUTIVE_WORD_CHARS = /\w{3,}/;
+const RE_3_CONSECUTIVE_LETTERS = /\p{Letter}{3,}/u;
 
-export function has3WordChars(val: string) {
-  if (!val.match(RE_3_CONSECUTIVE_WORD_CHARS))
-    err("must have at least 3 consecutive characters from [0-9a-zA-Z_]");
+export function has3ConsecutiveLetters(val: string) {
+  if (!val.match(RE_3_CONSECUTIVE_LETTERS))
+    err("must have at least 3 consecutive letters");
 }
 
 export const appToast = {

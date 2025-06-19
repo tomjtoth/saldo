@@ -2,7 +2,7 @@ import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import type { TCrIDs, TIDs } from "./common";
 import { seqIdCols, seqInitOpts, REV_ID_INTEGER_PK } from "./common";
-import { has3WordChars } from "../utils";
+import { has3ConsecutiveLetters } from "../utils";
 import { Membership } from "./membership";
 import { Group } from "./group";
 
@@ -35,7 +35,7 @@ const COLS: ModelAttributes<User, TUser> = {
     type: DataTypes.TEXT,
     allowNull: false,
     validate: {
-      has3WordChars,
+      has3ConsecutiveLetters,
     },
   },
 };

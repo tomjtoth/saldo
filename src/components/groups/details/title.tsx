@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { err, has3WordChars, sendJSON, appToast } from "@/lib/utils";
+import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 import { TGroup } from "@/lib/models";
 import { rGroups } from "@/lib/reducers/groups";
 
@@ -31,7 +31,7 @@ export default function Title({
       onSubmit={(ev) => {
         ev.preventDefault();
         try {
-          has3WordChars(name);
+          has3ConsecutiveLetters(name);
         } catch (err: unknown) {
           return toast.error(
             (err as Error).message as string,

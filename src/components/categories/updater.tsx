@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-import { err, has3WordChars, sendJSON, appToast } from "@/lib/utils";
+import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
 import { TCategory } from "@/lib/models";
 import { rCategories as red } from "@/lib/reducers/categories";
@@ -29,7 +29,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
         ev.preventDefault();
 
         try {
-          has3WordChars(name);
+          has3ConsecutiveLetters(name);
         } catch (err: unknown) {
           return toast.error(
             (err as Error).message as string,

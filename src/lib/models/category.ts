@@ -9,7 +9,7 @@ import {
   Status,
   Revision,
 } from "./common";
-import { has3WordChars } from "../utils";
+import { has3ConsecutiveLetters } from "../utils";
 import { Group } from "./group";
 
 /**
@@ -25,7 +25,7 @@ const COLS: ModelAttributes<Category, TCategory> = {
     type: DataTypes.TEXT,
     allowNull: false,
     validate: {
-      has3WordChars,
+      has3ConsecutiveLetters,
     },
   },
   description: {

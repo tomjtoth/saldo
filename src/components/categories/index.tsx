@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { TCategory, TGroup } from "@/lib/models";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { rCategories as red } from "@/lib/reducers/categories";
-import { err, has3WordChars, sendJSON, appToast } from "@/lib/utils";
+import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
 import NameDescrAdder from "../name-descr-adder";
 import Entry from "./entry";
@@ -51,7 +51,7 @@ export default function CliCategoriesPage(srv: {
           handler={({ name, description }) =>
             new Promise<boolean>((done) => {
               try {
-                has3WordChars(name);
+                has3ConsecutiveLetters(name);
               } catch (err: unknown) {
                 toast.error((err as Error).message as string, appToast.theme());
                 return done(false);

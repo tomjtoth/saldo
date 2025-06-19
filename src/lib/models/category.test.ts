@@ -17,7 +17,7 @@ describe("Category", () => {
     await createGroup(user.id, { name: "just you" });
   });
 
-  it("cannot be created without having \\w{3,}", async () => {
+  it("cannot be created without having 3 consecutive letters", async () => {
     await expect(
       async () => await Category.create({ revId: 1, groupId: 1, name: "qq" })
     ).rejects.toThrow();
@@ -37,7 +37,7 @@ describe("Category", () => {
     ).rejects.toThrow();
   });
 
-  it("can be created with \\w{3,}", async () => {
+  it("can be created with 3 consecutive letters", async () => {
     expect(
       await Category.create({ revId: 1, groupId: 1, name: "cat" })
     ).toBeDefined();
