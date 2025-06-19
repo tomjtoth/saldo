@@ -13,6 +13,7 @@ import NameDescrAdder from "../name-descr-adder";
 import Header from "../header";
 
 export default function CliGroupsPage(srv: {
+  preSelected?: string;
   userMenu: ReactNode;
   groups: TGroup[];
 }) {
@@ -67,7 +68,13 @@ export default function CliGroupsPage(srv: {
         />
 
         {(groups.length > 0 ? groups : srv.groups).map((grp) => (
-          <Entry key={grp.id} group={grp} />
+          <Entry
+            key={grp.id}
+            group={grp}
+            preSelected={
+              !!srv.preSelected && Number(srv.preSelected) === grp.id
+            }
+          />
         ))}
       </div>
     </>

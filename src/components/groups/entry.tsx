@@ -7,8 +7,14 @@ import { TGroup } from "@/lib/models";
 import Canceler from "../canceler";
 import Details from "./details";
 
-export default function Entry({ group }: { group: TGroup }) {
-  const [showDetails, setShowDetails] = useState(false);
+export default function Entry({
+  group,
+  preSelected,
+}: {
+  group: TGroup;
+  preSelected?: boolean;
+}) {
+  const [showDetails, setShowDetails] = useState(preSelected ?? false);
 
   return (
     <>
