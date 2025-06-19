@@ -16,13 +16,13 @@ export default function GroupSelector({
 }) {
   return (
     <>
-      <div className="relative inline-block">
-        <Link href={`/groups?id=${value}`} className="absolute z-1">
+      <div className="inline-block">
+        <Link href={`/groups?id=${value}`} className="absolute">
           {groups.find((grp) => grp.id === value)!.name}
         </Link>{" "}
         <select
           id="group-selector"
-          className="cursor-pointer"
+          className="cursor-pointer -z-1"
           value={value}
           onChange={onChange}
         >
