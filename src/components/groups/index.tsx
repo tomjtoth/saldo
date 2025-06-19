@@ -20,6 +20,8 @@ export default function CliGroupsPage(srv: {
   const groups = useAppSelector((s) => s.groups);
   const dispatch = useAppDispatch();
 
+  const idAsNum = Number(srv.preSelected);
+
   useEffect(() => {
     dispatch(red.init(srv.groups));
   }, []);
@@ -71,9 +73,7 @@ export default function CliGroupsPage(srv: {
           <Entry
             key={grp.id}
             group={grp}
-            preSelected={
-              !!srv.preSelected && Number(srv.preSelected) === grp.id
-            }
+            preSelected={!!srv.preSelected && idAsNum === grp.id}
           />
         ))}
       </div>
