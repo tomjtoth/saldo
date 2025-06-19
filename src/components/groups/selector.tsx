@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEventHandler } from "react";
+import Link from "next/link";
 
 import { TGroup } from "@/lib/models";
 
@@ -14,12 +15,24 @@ export default function GroupSelector({
   onChange: ChangeEventHandler<HTMLSelectElement>;
 }) {
   return (
-    <select {...{ value, onChange }}>
-      {groups.map((group) => (
-        <option key={group.id} value={group.id}>
-          {group.name}
-        </option>
-      ))}
-    </select>
+    <>
+      <div className="relative inline-block">
+        <Link href={`/groups?id=${value}`} className="absolute z-1">
+          {groups.find((grp) => grp.id === value)!.name}
+        </Link>{" "}
+        <select
+          id="group-selector"
+          className="cursor-pointer"
+          value={value}
+          onChange={onChange}
+        >
+          {groups.map((group) => (
+            <option key={group.id} value={group.id}>
+              {group.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    </>
   );
 }
