@@ -42,7 +42,7 @@ export default function CliCategoriesPage(srv: {
 
       <p className="p-2 text-center">
         <span className="p-1 rounded border-2 border-red-500">INACTIVE</span>{" "}
-        categories cannot be used assigned to items.
+        categories cannot be assigned to items.
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
