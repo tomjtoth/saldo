@@ -52,7 +52,7 @@ export default function CliCategoriesPage(srv: {
             new Promise<boolean>((done) => {
               try {
                 has3ConsecutiveLetters(name);
-              } catch (err: unknown) {
+              } catch (err) {
                 toast.error((err as Error).message as string, appToast.theme());
                 return done(false);
               }

@@ -32,14 +32,14 @@ export default function Title({
         ev.preventDefault();
         try {
           has3ConsecutiveLetters(name);
-        } catch (err: unknown) {
+        } catch (err) {
           return toast.error(
             (err as Error).message as string,
             appToast.theme()
           );
         }
 
-        toast.promise(
+        appToast.promise(
           sendJSON(
             `/api/groups`,
             {
@@ -51,20 +51,21 @@ export default function Title({
             { method: "PUT" }
           )
             .then(async (res) => {
-              if (!res.ok) err();
+              if (!res.ok) err(res.statusText);
 
               const body = await res.json();
-
+              const ops = appToast.opsDone(group, body);
               dispatch(rGroups.update(body));
+
+              return `${ops} "${group.name}" succeeded!`;
             })
-            .catch(() => {
+            .catch((err) => {
               setName(group.name);
               setDescription(group.description);
               setStatusId(group.statusId);
-              err();
+              throw err;
             }),
-          appToast.messages(`Updating "${group.name}"`),
-          appToast.theme()
+          `Updating "${group.name}"`
         );
       }}
     >

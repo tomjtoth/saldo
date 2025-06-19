@@ -30,21 +30,21 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
         try {
           has3ConsecutiveLetters(name);
-        } catch (err: unknown) {
+        } catch (err) {
           return toast.error(
             (err as Error).message as string,
             appToast.theme()
           );
         }
 
-        toast.promise(
+        appToast.promise(
           sendJSON(
             `/api/categories/${cat.id}`,
             { name, description, statusId },
             { method: "PUT" }
           )
             .then(async (res) => {
-              if (!res.ok) err();
+              if (!res.ok) err(res.statusText);
 
               const body = (await res.json()) as TCategory;
 
@@ -62,21 +62,13 @@ export default function Updater({ cat }: { cat: TCategory }) {
                 cat.name
               }" succeeded!`;
             })
-            .catch(() => {
+            .catch((err) => {
               setName(cat.name);
               setDescr(cat.description);
               setStatusId(cat.statusId);
-
-              err();
+              throw err;
             }),
-          {
-            pending: `Updating "${name}" ...`,
-            success: {
-              render: ({ data }) => data!,
-            },
-            error: `Updating "${name}" failed 😭`,
-          },
-          appToast.theme()
+          `Updating "${name}"`
         );
       }}
     >

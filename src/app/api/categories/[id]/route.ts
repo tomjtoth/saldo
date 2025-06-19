@@ -38,7 +38,9 @@ export async function PUT(
 
     return Response.json(updated!.get({ plain: true }));
   } catch (err) {
-    console.error(err);
-    return new Response(null, { status: 400 });
+    return new Response(null, {
+      status: 400,
+      statusText: (err as Error).message,
+    });
   }
 }

@@ -51,15 +51,14 @@ export default function Individual({
                 )
                   .then(async (res) => {
                     console.log(res);
-                    if (!res.ok) err();
+                    if (!res.ok) err(res.statusText);
 
                     const body = await res.json();
                     dispatch(rGroups.updateMembership(body));
                   })
-                  .catch((res) => {
-                    console.error(res);
+                  .catch((err) => {
                     setStatusId(prevStatusId);
-                    err();
+                    throw err;
                   }),
                 `${nextStatusId == 1 ? "Re-instating" : "Banning"} "${
                   user.name

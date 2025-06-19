@@ -28,7 +28,11 @@ export async function atomic<T>(
   } catch (err) {
     await t.rollback();
 
-    console.error(`\n\t${operation || "Transaction"} failed:`, err, "\n");
+    console.error(
+      `\n\t${operation || "Transaction"} failed:`,
+      (err as Error).message,
+      "\n"
+    );
     throw err;
   }
 }

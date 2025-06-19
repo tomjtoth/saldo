@@ -154,7 +154,7 @@ export async function updateGroup(
         group.revId = rev.id;
       }
       await group.save({ transaction });
-    } else err("no changes in group, rolling back");
+    } else err("No changes were made!");
 
     return await group.reload({
       transaction,
@@ -207,7 +207,7 @@ export async function updateMembership(
       const rev = await Revision.create({ revBy }, { transaction });
       ms.revId = rev.id;
       await ms.save({ transaction });
-    } else err("no changes in membership, rolling back");
+    } else err("No changes were made!");
 
     return await ms.reload({
       attributes: ["admin", "statusId"],

@@ -1,6 +1,7 @@
 import { Draft, WritableDraft } from "immer";
 import { DateTime } from "luxon";
-import { toast } from "react-toastify";
+import { toast, ToastPromiseParams } from "react-toastify";
+import { TCategory } from "../models";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value == 0.5) return [1, 2];
@@ -60,7 +61,7 @@ export async function sendJSON(
   });
 }
 
-export function err(msg: string = "tripping toastify") {
+export function err(msg?: string) {
   throw new Error(msg);
 }
 
@@ -71,12 +72,40 @@ export function has3ConsecutiveLetters(val: string) {
     err("must have at least 3 consecutive letters");
 }
 
+function opsDone<
+  T extends Pick<TCategory, "name" | "description" | "statusId">
+>(before: T, after: T) {
+  const ops = [
+    ...(after.name !== before.name ? ["renaming"] : []),
+    ...(after.statusId !== before.statusId ? ["toggling"] : []),
+    ...(after.description !== before.description
+      ? ["altering the description of"]
+      : []),
+  ].join(", ");
+
+  return ops[0].toUpperCase() + ops.slice(1);
+}
+
 export const appToast = {
-  messages: (operation: string) => ({
-    pending: `${operation}...`,
-    success: `${operation} succeeded!`,
-    error: `${operation} failed 😭`,
-  }),
+  messages: (operation: string) =>
+    ({
+      pending: `${operation} is pending...`,
+
+      success: {
+        render({ data }) {
+          return data ? (data as string) : `${operation} succeeded!`;
+        },
+      },
+
+      error: {
+        render({ data }) {
+          const { message } = data as Error;
+          return `${operation} failed${message !== "" ? `: ${message}` : ""}!`;
+        },
+      },
+    } satisfies ToastPromiseParams),
+
+  opsDone,
 
   theme: () => ({
     theme: window.matchMedia("(prefers-color-scheme: dark)").matches

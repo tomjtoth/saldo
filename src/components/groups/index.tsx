@@ -42,7 +42,7 @@ export default function CliGroupsPage(srv: {
             new Promise<boolean>((done) => {
               try {
                 has3ConsecutiveLetters(name);
-              } catch (err: unknown) {
+              } catch (err) {
                 return toast.error(
                   (err as Error).message as string,
                   appToast.theme()

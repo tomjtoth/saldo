@@ -30,7 +30,10 @@ export async function PUT(req: NextRequest) {
     if (!ms) return new Response(null, { status: 404 });
 
     return Response.json(ms.get({ plain: true }));
-  } catch {
-    return new Response(null, { status: 400 });
+  } catch (err) {
+    return new Response(null, {
+      status: 400,
+      statusText: (err as Error).message,
+    });
   }
 }
