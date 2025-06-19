@@ -14,6 +14,16 @@ export default function Invitation({ group }: { group: TGroup }) {
     ? `${location.origin}/api/groups/${group.uuid}`
     : null;
 
+  const copyToClipboard = () =>
+    toast.promise(
+      navigator.clipboard.writeText(invitationLink!),
+      {
+        success: "Link copied to clipboard",
+        error: "Failed to copy invitation link to clipboard",
+      },
+      appToast.theme()
+    );
+
   return isAdmin ? (
     <>
       <h3>Invite more people</h3>
@@ -24,28 +34,19 @@ export default function Invitation({ group }: { group: TGroup }) {
       </p>
 
       {!!invitationLink && (
-        <p className="rounded border p-2 select-all text-center">
+        <p
+          className="rounded border p-2 select-all text-center"
+          onCopy={(ev) => {
+            ev.preventDefault();
+            copyToClipboard();
+          }}
+        >
           {invitationLink.replace(/-/g, "-\u200b")}
         </p>
       )}
 
       <div className="flex gap-2 justify-evenly">
-        {!!invitationLink && (
-          <button
-            onClick={() => {
-              toast.promise(
-                navigator.clipboard.writeText(invitationLink!),
-                {
-                  success: "Link copied to clipboard",
-                  error: "Failed to copy invitation link to clipboard",
-                },
-                appToast.theme()
-              );
-            }}
-          >
-            Copy 🔗
-          </button>
-        )}
+        {!!invitationLink && <button onClick={copyToClipboard}>Copy 🔗</button>}
 
         <button
           onClick={() => {
