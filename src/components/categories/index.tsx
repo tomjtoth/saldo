@@ -24,7 +24,7 @@ export default function CliCategoriesPage(srv: {
   const [groupId, setGroupId] = useState(srv.groups[0].id);
 
   useEffect(() => {
-    dispatch(red.init(srv));
+    dispatch(red.init({ groups: srv.groups, cats: srv.cats }));
   }, []);
 
   return (
