@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
 import {
-  getCatsOf,
+  getCatsIdsFor,
   TCategoryUpdater,
   updateCategory,
 } from "@/lib/services/categories";
@@ -24,7 +24,7 @@ export async function PUT(
   const [pp, user] = await Promise.all([params, currentUser(sess)]);
   const id = Number(pp.id);
 
-  const cats = await getCatsOf(user.id, { idsOnly: true });
+  const cats = await getCatsIdsFor(user.id);
   if (!cats.some((cat) => cat.id === id))
     return new Response(null, { status: 403 });
 
