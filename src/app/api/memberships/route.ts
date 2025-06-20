@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 
 import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
-import { getGroupsOf, updateMembership } from "@/lib/services/groups";
+import { getGroupsDataFor, updateMembership } from "@/lib/services/groups";
 import { TMembership } from "@/lib/models";
 
 export async function PUT(req: NextRequest) {
@@ -11,7 +11,10 @@ export async function PUT(req: NextRequest) {
 
   const user = await currentUser(sess);
 
-  const [groups, body] = await Promise.all([getGroupsOf(user.id), req.json()]);
+  const [groups, body] = await Promise.all([
+    getGroupsDataFor(user.id),
+    req.json(),
+  ]);
 
   const { groupId, userId, statusId, admin } = body as TMembership;
   if (!groupId || !userId) return new Response(null, { status: 400 });

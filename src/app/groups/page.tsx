@@ -1,5 +1,5 @@
 import { auth, signIn } from "@/auth";
-import { getGroupsOf } from "@/lib/services/groups";
+import { getGroupsDataFor } from "@/lib/services/groups";
 import { currentUser } from "@/lib/services/user";
 
 import CliGroupsPage from "@/components/groups";
@@ -16,7 +16,7 @@ export default async function GroupsPage({
   if (!sess) return signIn("", { redirectTo: "/categories" });
 
   const user = await currentUser(sess);
-  const groups = await getGroupsOf(user.id);
+  const groups = await getGroupsDataFor(user.id);
   const { id } = await params;
 
   const userMenu = <UserMenu />;
