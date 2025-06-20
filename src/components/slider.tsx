@@ -32,7 +32,7 @@ export default function Slider({
           "relative top-1/2 -translate-y-1/2"
         }
         style={{
-          left: checked ? 4 : 2 * height - margin - (height - 2 * margin),
+          left: checked ? 2 * height - margin - (height - 2 * margin) : 4,
           height: height - 2 * margin,
         }}
       />
