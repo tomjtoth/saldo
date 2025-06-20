@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { TGroup } from "@/lib/models";
 
@@ -10,6 +10,10 @@ import Members from "./members";
 
 export default function Details({ group }: { group: TGroup }) {
   const [statusId, setStatusId] = useState(group.statusId);
+
+  useEffect(() => {
+    setStatusId(group.statusId);
+  }, [group.statusId]);
 
   return (
     <div
