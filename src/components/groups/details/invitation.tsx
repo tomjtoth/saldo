@@ -9,7 +9,7 @@ import { rCombined as red } from "@/lib/reducers";
 
 export default function Invitation({ group }: { group: TGroup }) {
   const dispatch = useAppDispatch();
-  const isAdmin = group.Memberships![0].admin;
+  const isAdmin = group.Memberships?.at(0)?.admin;
   const invitationLink = group.uuid
     ? `${location.origin}/api/groups/${group.uuid}`
     : null;

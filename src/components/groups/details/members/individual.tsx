@@ -15,7 +15,7 @@ export default function Individual({
   groupId,
 }: {
   user: User;
-  isAdmin: boolean;
+  isAdmin?: boolean;
   groupId: number;
 }) {
   const dispatch = useAppDispatch();
