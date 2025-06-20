@@ -1,7 +1,6 @@
 import { auth, signIn } from "@/auth";
 import { currentUser } from "@/lib/services/user";
-import { getGroupsOf } from "@/lib/services/groups";
-import { getCatsOf } from "@/lib/services/categories";
+import { getCatsDataFor } from "@/lib/services/categories";
 
 import CliCategoriesPage from "@/components/categories";
 import UserMenu from "@/components/user-menu";
@@ -14,10 +13,7 @@ export default async function CategoriesPage() {
 
   const user = await currentUser(sess);
 
-  const [cats, groups] = await Promise.all([
-    getCatsOf(user.id),
-    getGroupsOf(user.id, { forCategories: true }),
-  ]);
+  const groups = await getCatsDataFor(user.id);
 
   const userMenu = <UserMenu />;
 
@@ -25,7 +21,6 @@ export default async function CategoriesPage() {
     <CliCategoriesPage
       {...{
         userMenu,
-        cats: cats.map((cat) => cat.get({ plain: true })),
         groups: groups.map((grp) => grp.get({ plain: true })),
       }}
     />

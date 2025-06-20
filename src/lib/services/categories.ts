@@ -1,4 +1,4 @@
-import { col, fn, Op } from "sequelize";
+import { Op } from "sequelize";
 
 import {
   atomic,
@@ -112,52 +112,52 @@ export async function updateCategory(
   });
 }
 
-export async function getCatsOf(
-  userId: number,
-  { idsOnly = false, forReceipts = false } = {}
-) {
-  const relatedToUser = {
-    model: Group,
-    attributes: [],
-    include: [{ model: Membership, attributes: [], where: { userId } }],
-  };
-
-  if (idsOnly) {
-    return await Category.findAll({
-      attributes: ["id"],
-      include: [relatedToUser],
-    });
-  }
-
-  if (forReceipts) {
-    return await Category.findAll({
-      attributes: ["id", "name"],
-      include: [relatedToUser],
-      where: { statusId: { [Op.eq]: 1 } },
-      order: [[fn("LOWER", col("Category.name")), "ASC"]],
-    });
-  }
-
+export async function getCatsIdsFor(userId: number) {
   return await Category.findAll({
+    attributes: ["id"],
     include: [
-      relatedToUser,
       {
-        model: Revision,
-        attributes: ["revOn"],
-        include: [{ model: User, attributes: ["name"] }],
+        model: Group,
+        attributes: [],
+        include: [{ model: Membership, attributes: [], where: { userId } }],
       },
+    ],
+  });
+}
+
+export async function getCatsDataFor(userId: number) {
+  return await Group.findAll({
+    attributes: ["id", "name"],
+    include: [
       {
-        model: CategoryArchive,
-        as: "archives",
+        model: Membership,
+        attributes: [],
+        where: { [Op.and]: [{ userId }, { statusId: 1 }] },
+      },
+      { model: Revision, attributes: ["revOn"] },
+      { model: User, attributes: ["id", "name"] },
+      {
+        model: Category,
         include: [
           {
             model: Revision,
             attributes: ["revOn"],
             include: [{ model: User, attributes: ["name"] }],
           },
+          {
+            model: CategoryArchive,
+            as: "archives",
+            include: [
+              {
+                model: Revision,
+                attributes: ["revOn"],
+                include: [{ model: User, attributes: ["name"] }],
+              },
+            ],
+          },
         ],
       },
     ],
-    order: [[fn("LOWER", col("Category.name")), "ASC"]],
+    where: { statusId: 1 },
   });
 }
