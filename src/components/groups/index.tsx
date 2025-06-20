@@ -24,6 +24,8 @@ export default function CliGroupsPage(srv: {
 
   useEffect(() => {
     dispatch(red.init(srv.groups));
+
+    if (srv.preSelected) window.history.replaceState(null, "", "/groups");
   }, []);
 
   return (
