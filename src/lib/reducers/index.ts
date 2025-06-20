@@ -6,7 +6,7 @@ import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
 
 export type CombinedState = {
-  id?: number;
+  groupId?: number;
   groups: TGroup[];
 };
 
@@ -16,12 +16,12 @@ const slice = createSlice({
 
   reducers: {
     init: (rs, { payload }: PayloadAction<TGroup[]>) => {
-      if (rs.id === undefined) rs.id = payload.at(0)?.id;
+      if (rs.groupId === undefined) rs.groupId = payload.at(0)?.id;
       rs.groups = payload;
     },
 
     setGroupId: (rs, { payload }: PayloadAction<number>) => {
-      rs.id = payload;
+      rs.groupId = payload;
     },
 
     ...rGroups,

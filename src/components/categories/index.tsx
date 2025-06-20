@@ -23,7 +23,9 @@ export default function CliCategoriesPage(srv: {
     const local = s.combined.groups;
     return local.length > 0 ? local : srv.groups;
   });
-  const groupId = useAppSelector((s) => s.combined.id ?? srv.groups.at(0)?.id);
+  const groupId = useAppSelector(
+    (s) => s.combined.groupId ?? srv.groups.at(0)?.id
+  );
 
   useEffect(() => {
     dispatch(red.init(srv.groups));

@@ -10,7 +10,8 @@ import { rCombined as red } from "@/lib/reducers";
 export default function GroupSelector({ fallback }: { fallback: TGroup[] }) {
   const dispatch = useAppDispatch();
 
-  const groupId = useAppSelector((s) => s.combined.id) ?? fallback.at(0)?.id;
+  const groupId =
+    useAppSelector((s) => s.combined.groupId) ?? fallback.at(0)?.id;
   const groups = useAppSelector((s) => {
     const local = s.combined.groups;
     return local.length > 0 ? local : fallback;
