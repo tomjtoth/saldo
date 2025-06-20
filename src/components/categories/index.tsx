@@ -31,12 +31,7 @@ export default function CliCategoriesPage(srv: {
     <>
       <Header userMenu={srv.userMenu}>
         <h2>
-          <GroupSelector
-            groups={groups.length > 0 ? groups : srv.groups}
-            value={groupId}
-            onChange={(ev) => setGroupId(Number(ev.target.value))}
-          />{" "}
-          Categories
+          <GroupSelector fallback={srv.groups} /> Categories
         </h2>
       </Header>
 
