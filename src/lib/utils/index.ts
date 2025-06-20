@@ -61,7 +61,7 @@ export async function sendJSON(
   });
 }
 
-export function err(msg?: string) {
+export function err(msg?: string): never {
   throw new Error(msg);
 }
 
