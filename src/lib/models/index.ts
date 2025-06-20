@@ -42,6 +42,7 @@ Group.belongsToMany(User, { through: Membership, foreignKey: "groupId" });
 Group.hasMany(Membership, { foreignKey: "groupId" });
 Group.hasMany(Category, { foreignKey: "groupId" });
 Group.hasMany(GroupArchive, { foreignKey: "id" });
+Group.hasMany(Receipt, { foreignKey: "groupId" });
 
 GroupArchive.belongsTo(Revision, { foreignKey: "revId" });
 GroupArchive.belongsTo(Group, { foreignKey: "id" });

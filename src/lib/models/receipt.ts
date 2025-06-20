@@ -12,8 +12,10 @@ import {
 } from "./common";
 import { User } from "./user";
 import { Item } from "./item";
+import { Group } from "./group";
 
 export type TReceipt = TIDs & {
+  groupId: number;
   paidOn: number;
   paidBy: number;
 
@@ -28,13 +30,17 @@ export type TReceipt = TIDs & {
 
 export type TCrReceipt = TCrIDs &
   Partial<Pick<TReceipt, "paidOn">> &
-  Pick<TReceipt, "paidBy">;
+  Pick<TReceipt, "paidBy" | "groupId">;
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
  */
 const COLS: ModelAttributes<Receipt, TReceipt> = {
   ...seqIdCols,
+  groupId: {
+    type: DataTypes.INTEGER,
+    references: { model: Group, key: "id" },
+  },
   paidOn: {
     type: DataTypes.INTEGER,
     defaultValue: () => dateAsInt(),
@@ -54,6 +60,7 @@ class Common extends Model<TReceipt, TCrReceipt> {
   id!: number;
   revId?: number;
   statusId!: number;
+  groupId!: number;
 
   paidOn!: number;
   paidBy!: number;

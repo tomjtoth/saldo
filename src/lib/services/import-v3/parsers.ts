@@ -127,6 +127,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       lastRcpt = {
         id: dd.receipts.length + 1,
         revId,
+        groupId: 1,
         paidOn,
         paidBy,
       };
