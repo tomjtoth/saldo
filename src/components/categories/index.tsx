@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { TCategory, TGroup } from "@/lib/models";
@@ -12,19 +12,21 @@ import NameDescrAdder from "../name-descr-adder";
 import Entry from "./entry";
 import GroupSelector from "../groups/selector";
 import Header from "../header";
+import Link from "next/link";
 
 export default function CliCategoriesPage(srv: {
   userMenu: ReactNode;
-  cats: TCategory[];
   groups: TGroup[];
 }) {
   const dispatch = useAppDispatch();
-  const groups = useAppSelector((s) => s.categories.groups);
-  const cats = useAppSelector((s) => s.categories.cats);
-  const [groupId, setGroupId] = useState(srv.groups[0].id);
+  const groups = useAppSelector((s) => {
+    const local = s.combined.groups;
+    return local.length > 0 ? local : srv.groups;
+  });
+  const groupId = useAppSelector((s) => s.combined.id ?? srv.groups.at(0)?.id);
 
   useEffect(() => {
-    dispatch(red.init({ groups: srv.groups, cats: srv.cats }));
+    dispatch(red.init(srv.groups));
   }, []);
 
   return (
@@ -41,43 +43,53 @@ export default function CliCategoriesPage(srv: {
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        <NameDescrAdder
-          id="category-adder"
-          handler={({ name, description }) =>
-            new Promise<boolean>((done) => {
-              try {
-                has3ConsecutiveLetters(name);
-              } catch (err) {
-                toast.error((err as Error).message as string, appToast.theme());
-                return done(false);
-              }
+        {groups.length > 0 ? (
+          <NameDescrAdder
+            id="category-adder"
+            handler={({ name, description }) =>
+              new Promise<boolean>((done) => {
+                try {
+                  has3ConsecutiveLetters(name);
+                } catch (err) {
+                  toast.error(
+                    (err as Error).message as string,
+                    appToast.theme()
+                  );
+                  return done(false);
+                }
 
-              appToast.promise(
-                sendJSON(`/api/categories`, {
-                  groupId,
-                  name,
-                  description,
-                })
-                  .then(async (res) => {
-                    if (!res.ok) err(res.statusText);
-
-                    const body = await res.json();
-                    dispatch(red.add(body as TCategory));
-                    done(true);
+                appToast.promise(
+                  sendJSON(`/api/categories`, {
+                    groupId,
+                    name,
+                    description,
                   })
-                  .catch((err) => {
-                    done(false);
-                    throw err;
-                  }),
-                `Saving "${name}" to db`
-              );
-            })
-          }
-        />
+                    .then(async (res) => {
+                      if (!res.ok) err(res.statusText);
 
-        {cats
-          .filter((cat) => cat.groupId === groupId)
-          .map((cat) => (
+                      const body = await res.json();
+                      dispatch(red.addCat(body as TCategory));
+                      done(true);
+                    })
+                    .catch((err) => {
+                      done(false);
+                      throw err;
+                    }),
+                  `Saving "${name}" to db`
+                );
+              })
+            }
+          />
+        ) : (
+          <p>
+            You have no access to active groups currently,{" "}
+            <Link href="/groups">create or enable one</Link>!
+          </p>
+        )}
+
+        {groups
+          .find((grp) => grp.id === groupId)
+          ?.Categories?.map((cat) => (
             <Entry key={cat.id} cat={cat} />
           ))}
       </div>
