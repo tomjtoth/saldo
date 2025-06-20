@@ -19,7 +19,16 @@ export async function GET(
 
   const user = await currentUser(sess);
 
-  if (validate(uuid)) await joinGroup(uuid, user.id);
+  if (validate(uuid)) {
+    try {
+      await joinGroup(uuid, user.id);
+    } catch (err) {
+      return new Response(null, {
+        status: 400,
+        statusText: (err as Error).message,
+      });
+    }
+  }
 
   redirect("/groups");
 }

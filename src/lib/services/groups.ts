@@ -52,11 +52,9 @@ export async function addMember(groupId: number, userId: number) {
   return await atomic("adding new member", async (transaction) => {
     const rev = await Revision.create({ revBy: userId }, { transaction });
 
-    const group = (await Group.findByPk(groupId, { transaction }))!;
-    await GroupArchive.create(group.get({ plain: true }), { transaction });
-
-    group.update(
-      { uuid: null, revId: rev.id },
+    const group = await Group.findByPk(groupId, { transaction });
+    await group!.update(
+      { uuid: null },
       { transaction, where: { id: groupId } }
     );
 
@@ -69,7 +67,12 @@ export async function addMember(groupId: number, userId: number) {
 
 export async function joinGroup(uuid: string, userId: number) {
   const group = await Group.findOne({ where: { uuid } });
-  if (!group) return null;
+  if (!group) err("link expired");
+
+  const ms = await Membership.findOne({
+    where: { userId, groupId: group.id },
+  });
+  if (ms) err("already a member");
 
   return await addMember(group.id, userId);
 }
