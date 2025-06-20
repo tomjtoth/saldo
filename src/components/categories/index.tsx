@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 import { TCategory, TGroup } from "@/lib/models";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { rCategories as red } from "@/lib/reducers/categories";
+import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
 import NameDescrAdder from "../name-descr-adder";

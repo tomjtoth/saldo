@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { useAppDispatch } from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
 import { err, sendJSON, appToast } from "@/lib/utils";
-import { rGroups } from "@/lib/reducers/groups";
+import { rCombined as red } from "@/lib/reducers";
 
 export default function Invitation({ group }: { group: TGroup }) {
   const dispatch = useAppDispatch();
@@ -59,7 +59,7 @@ export default function Invitation({ group }: { group: TGroup }) {
                 if (!res.ok) err(res.statusText);
 
                 const body = await res.json();
-                dispatch(rGroups.update(body));
+                dispatch(red.updateGroup(body));
               }),
               "Generating invitation link"
             );
@@ -80,7 +80,7 @@ export default function Invitation({ group }: { group: TGroup }) {
                   if (!res.ok) err(res.statusText);
 
                   const body = await res.json();
-                  dispatch(rGroups.update(body));
+                  dispatch(red.updateGroup(body));
                 }),
                 "Deleting invitation link"
               );

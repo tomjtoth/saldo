@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useAppDispatch } from "@/lib/hooks";
 import { User } from "@/lib/models";
-import { rGroups } from "@/lib/reducers/groups";
+import { rCombined as red } from "@/lib/reducers";
 import { err, sendJSON, appToast } from "@/lib/utils";
 
 import Slider from "@/components/slider";
@@ -54,7 +54,7 @@ export default function Individual({
                     if (!res.ok) err(res.statusText);
 
                     const body = await res.json();
-                    dispatch(rGroups.updateMembership(body));
+                    dispatch(red.updateMS(body));
                   })
                   .catch((err) => {
                     setStatusId(prevStatusId);

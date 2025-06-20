@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { useAppDispatch } from "@/lib/hooks";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 import { TGroup } from "@/lib/models";
-import { rGroups } from "@/lib/reducers/groups";
+import { rCombined as red } from "@/lib/reducers";
 
 import Slider from "@/components/slider";
 
@@ -55,7 +55,7 @@ export default function Title({
 
               const body = await res.json();
               const ops = appToast.opsDone(group, body);
-              dispatch(rGroups.update(body));
+              dispatch(red.updateGroup(body));
 
               return `${ops} "${group.name}" succeeded!`;
             })

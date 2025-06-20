@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
-import { rGroups as red } from "@/lib/reducers/groups";
+import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
 import Entry from "./entry";
@@ -58,7 +58,7 @@ export default function CliGroupsPage(srv: {
                     if (!res.ok) err(res.statusText);
 
                     const body = await res.json();
-                    dispatch(red.add(body as TGroup));
+                    dispatch(red.addGroup(body as TGroup));
                     done(true);
                   })
                   .catch((err) => {

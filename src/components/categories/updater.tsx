@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
 import { TCategory } from "@/lib/models";
-import { rCategories as red } from "@/lib/reducers/categories";
+import { rCombined as red } from "@/lib/reducers";
 
 import Slider from "../slider";
 
@@ -56,7 +56,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
                   : []),
               ].join(", ");
 
-              dispatch(red.update(body));
+              dispatch(red.updateCat(body));
 
               return `${operations[0].toUpperCase() + operations.slice(1)} "${
                 cat.name
