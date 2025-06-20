@@ -41,10 +41,9 @@ export async function createGroup(ownerId: number, data: TCrGroup) {
         },
         {
           model: User,
-          through: { attributes: ["admin"] },
+          through: { attributes: ["admin", "statusId"] },
         },
       ],
-      order: [fn("LOWER", col("Group.name"))],
     });
   });
 }
@@ -75,34 +74,27 @@ export async function joinGroup(uuid: string, userId: number) {
   return await addMember(group.id, userId);
 }
 
-export async function getGroupsOf(
-  userId: number,
-  { idsOnly = false, forCategories = false } = {}
-) {
-  const relatedToUser = {
-    model: Membership,
-    where: { [Op.and]: [{ userId }, { statusId: { [Op.eq]: 1 } }] },
-    attributes: !idsOnly && !forCategories ? ["admin"] : [],
-  };
+export async function getGroupsIdsFor(userId: number) {
+  return await Group.findAll({
+    attributes: ["id"],
+    include: [
+      {
+        model: Membership,
+        where: { [Op.and]: [{ userId }, { statusId: 1 }] },
+        attributes: [],
+      },
+    ],
+  });
+}
 
-  if (idsOnly) {
-    return await Group.findAll({
-      attributes: ["id"],
-      include: [relatedToUser],
-    });
-  }
-
-  if (forCategories) {
-    return await Group.findAll({
-      attributes: ["id", "name"],
-      include: [relatedToUser],
-      where: { statusId: { [Op.eq]: 1 } },
-    });
-  }
-
+export async function getGroupsDataFor(userId: number) {
   return await Group.findAll({
     include: [
-      relatedToUser,
+      {
+        model: Membership,
+        where: { [Op.and]: [{ userId }, { statusId: 1 }] },
+        attributes: ["admin"],
+      },
       {
         model: User,
         through: { attributes: ["admin", "statusId"] },
@@ -162,7 +154,7 @@ export async function updateGroup(
         {
           model: Membership,
           where: {
-            [Op.and]: [{ userId: adminId }, { statusId: { [Op.eq]: 1 } }],
+            [Op.and]: [{ userId: adminId }, { statusId: 1 }],
           },
         },
         {
