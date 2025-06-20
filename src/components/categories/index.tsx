@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { TCategory, TGroup } from "@/lib/models";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
@@ -19,10 +19,7 @@ export default function CliCategoriesPage(srv: {
   groups: TGroup[];
 }) {
   const dispatch = useAppDispatch();
-  const groups = useAppSelector((s) => {
-    const local = s.combined.groups;
-    return local.length > 0 ? local : srv.groups;
-  });
+  const groups = useGroupSelector(srv.groups);
   const groupId = useAppSelector(
     (s) => s.combined.groupId ?? srv.groups.at(0)?.id
   );

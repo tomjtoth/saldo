@@ -4,18 +4,15 @@ import { useEffect } from "react";
 import Link from "next/link";
 
 import { TGroup } from "@/lib/models";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 
 export default function GroupSelector({ fallback }: { fallback: TGroup[] }) {
   const dispatch = useAppDispatch();
 
+  const groups = useGroupSelector(fallback);
   const groupId =
     useAppSelector((s) => s.combined.groupId) ?? fallback.at(0)?.id;
-  const groups = useAppSelector((s) => {
-    const local = s.combined.groups;
-    return local.length > 0 ? local : fallback;
-  });
 
   const group = () => groups.find((group) => group.id === groupId);
 

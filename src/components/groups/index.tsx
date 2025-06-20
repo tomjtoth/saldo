@@ -3,7 +3,7 @@
 import { ReactNode, useEffect } from "react";
 import { toast } from "react-toastify";
 
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
 import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
@@ -17,10 +17,7 @@ export default function CliGroupsPage(srv: {
   userMenu: ReactNode;
   groups: TGroup[];
 }) {
-  const groups = useAppSelector((s) => {
-    const local = s.combined.groups;
-    return local.length > 0 ? local : srv.groups;
-  });
+  const groups = useGroupSelector(srv.groups);
   const dispatch = useAppDispatch();
 
   const idAsNum = Number(srv.preSelected);
