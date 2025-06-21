@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect } from "react";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 import { TCategory, TGroup } from "@/lib/models";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
@@ -12,9 +13,9 @@ import NameDescrAdder from "../name-descr-adder";
 import Entry from "./entry";
 import GroupSelector from "../groups/selector";
 import Header from "../header";
-import Link from "next/link";
 
 export default function CliCategoriesPage(srv: {
+  preSelected?: string;
   userMenu: ReactNode;
   groups: TGroup[];
 }) {
@@ -23,6 +24,11 @@ export default function CliCategoriesPage(srv: {
 
   useEffect(() => {
     dispatch(red.init(srv.groups));
+
+    if (srv.preSelected) {
+      window.history.replaceState(null, "", "/categories");
+      dispatch(red.setGroupId(Number(srv.preSelected)));
+    }
   }, []);
 
   return (
