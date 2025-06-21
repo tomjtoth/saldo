@@ -1,72 +1,45 @@
 "use client";
 
-import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { TGroup } from "@/lib/models";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 
-import Canceler from "../canceler";
+import SvgLink from "../svg-link";
 
 export default function GroupSelector({ fallback }: { fallback: TGroup[] }) {
   const dispatch = useAppDispatch();
-
-  const [visible, setVisible] = useState(false);
-  const [dropdownPos, setDropdownPos] = useState<{
-    left: number;
-    top: number;
-  } | null>(null);
   const rs = useGroupSelector(fallback);
-  const linkRef = useRef<HTMLAnchorElement>(null);
 
-  const openDropdown = () => {
-    if (linkRef.current) {
-      const rect = linkRef.current.getBoundingClientRect();
-      setDropdownPos({ left: rect.left, top: rect.bottom });
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const selectRef = useRef<HTMLSelectElement>(null);
+
+  useEffect(() => {
+    if (spanRef.current && selectRef.current) {
+      const width = spanRef.current.offsetWidth;
+      selectRef.current.style.width = `${width + 20}px`;
     }
-    setVisible(true);
-  };
+  }, [rs.groupId]);
 
-  if (rs.groups.length === 0) return null;
-
-  return (
+  return rs.groups.length === 0 ? null : (
     <div className="inline-block">
-      <Link ref={linkRef} href={`/groups/${rs.groupId}`}>
+      <span ref={spanRef} className="invisible absolute px-2">
         {rs.group?.name}
-      </Link>
-
-      <button className="p-1! ml-2" onClick={openDropdown}>
-        <div className="-rotate-90">&lt;</div>
-      </button>
-
-      {visible && (
-        <Canceler onClick={() => setVisible(false)} blur={false}>
-          <div
-            style={{
-              left: dropdownPos?.left,
-              top: dropdownPos?.top,
-            }}
-            className={
-              "absolute flex flex-col gap-2 border bg-background " +
-              "cursor-default " +
-              "*:hover:bg-foreground *:hover:text-background *:p-1"
-            }
-          >
-            {rs.groups.map((group) => (
-              <div
-                key={group.id}
-                onClick={() => {
-                  dispatch(red.setGroupId(group.id));
-                  setVisible(false);
-                }}
-              >
-                {group.name}
-              </div>
-            ))}
-          </div>
-        </Canceler>
-      )}
+      </span>
+      <select
+        ref={selectRef}
+        className="cursor-pointer rounded border p-2 mr-1"
+        value={rs.groupId}
+        onChange={(ev) => dispatch(red.setGroupId(Number(ev.target.value)))}
+      >
+        {rs.groups.map((group) => (
+          <option key={group.id} value={group.id}>
+            {group.name}
+          </option>
+        ))}
+      </select>
+      <SvgLink href={`/groups/${rs.groupId}`} />
     </div>
   );
 }
