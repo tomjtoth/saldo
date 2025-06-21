@@ -1,38 +1,29 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 
 import { TGroup } from "@/lib/models";
-import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 
 export default function GroupSelector({ fallback }: { fallback: TGroup[] }) {
   const dispatch = useAppDispatch();
 
-  const groups = useGroupSelector(fallback);
-  const groupId =
-    useAppSelector((s) => s.combined.groupId) ?? fallback.at(0)?.id;
+  const rs = useGroupSelector(fallback);
 
-  const group = () => groups.find((group) => group.id === groupId);
-
-  useEffect(() => {
-    if (groups.length > 0 && !group()) dispatch(red.setGroupId(groups[0].id));
-  }, [groups]);
-
-  return groups.length == 0 ? null : (
+  return rs.groups.length == 0 ? null : (
     <>
       <div className="inline-block">
-        <Link href={`/groups/${groupId}`} className="absolute">
-          {(group() ?? groups[0]).name}
+        <Link href={`/groups/${rs.groupId}`} className="absolute">
+          {rs.group?.name}
         </Link>{" "}
         <select
           id="group-selector"
           className="cursor-pointer -z-1"
-          value={groupId}
+          value={rs.groupId}
           onChange={(ev) => dispatch(red.setGroupId(Number(ev.target.value)))}
         >
-          {groups.map((group) => (
+          {rs.groups.map((group) => (
             <option key={group.id} value={group.id}>
               {group.name}
             </option>

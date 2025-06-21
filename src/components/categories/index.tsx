@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import { TCategory, TGroup } from "@/lib/models";
-import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
@@ -19,10 +19,7 @@ export default function CliCategoriesPage(srv: {
   groups: TGroup[];
 }) {
   const dispatch = useAppDispatch();
-  const groups = useGroupSelector(srv.groups);
-  const groupId = useAppSelector(
-    (s) => s.combined.groupId ?? srv.groups.at(0)?.id
-  );
+  const rs = useGroupSelector(srv.groups);
 
   useEffect(() => {
     dispatch(red.init(srv.groups));
@@ -42,7 +39,7 @@ export default function CliCategoriesPage(srv: {
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {groups.length > 0 ? (
+        {rs.groups.length > 0 ? (
           <NameDescrAdder
             id="category-adder"
             handler={({ name, description }) =>
@@ -59,7 +56,7 @@ export default function CliCategoriesPage(srv: {
 
                 appToast.promise(
                   sendJSON(`/api/categories`, {
-                    groupId,
+                    groupId: rs.groupId,
                     name,
                     description,
                   })
@@ -86,8 +83,8 @@ export default function CliCategoriesPage(srv: {
           </p>
         )}
 
-        {groups
-          .find((grp) => grp.id === groupId)
+        {rs.groups
+          .find((grp) => grp.id === rs.groupId)
           ?.Categories?.map((cat) => (
             <Entry key={cat.id} cat={cat} />
           ))}

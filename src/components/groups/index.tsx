@@ -17,7 +17,7 @@ export default function CliGroupsPage(srv: {
   userMenu: ReactNode;
   groups: TGroup[];
 }) {
-  const groups = useGroupSelector(srv.groups);
+  const rs = useGroupSelector(srv.groups);
   const dispatch = useAppDispatch();
 
   const idAsNum = Number(srv.preSelected);
@@ -73,7 +73,7 @@ export default function CliGroupsPage(srv: {
           }
         />
 
-        {groups.map((grp) => (
+        {rs.groups.map((grp) => (
           <Entry
             key={grp.id}
             group={grp}
