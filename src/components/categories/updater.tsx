@@ -68,7 +68,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
               setStatusId(cat.statusId);
               throw err;
             }),
-          `Updating "${name}"`
+          `Updating "${cat.name}"`
         );
       }}
     >
