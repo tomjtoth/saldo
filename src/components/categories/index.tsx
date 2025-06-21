@@ -34,10 +34,13 @@ export default function CliCategoriesPage(srv: {
   return (
     <>
       <Header userMenu={srv.userMenu}>
-        <h2>
-          <GroupSelector fallback={srv.groups} /> Categories
-        </h2>
+        <h2>Categories</h2>
       </Header>
+
+      <div className="p-2 text-center">
+        Showing categories only for group:{" "}
+        <GroupSelector fallback={srv.groups} />
+      </div>
 
       <p className="p-2 text-center">
         <span className="p-1 rounded border-2 border-red-500">INACTIVE</span>{" "}
