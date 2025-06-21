@@ -20,13 +20,16 @@ export default function CliGroupsPage(srv: {
   const rs = useGroupSelector(srv.groups);
   const dispatch = useAppDispatch();
 
-  const idAsNum = Number(srv.preSelected);
-
   useEffect(() => {
     dispatch(red.init(srv.groups));
 
-    if (srv.preSelected) window.history.replaceState(null, "", "/groups");
+    if (!isNaN(idAsNum)) {
+      window.history.replaceState(null, "", "/groups");
+      dispatch(red.setGroupId(idAsNum));
+    }
   }, []);
+
+  const idAsNum = Number(srv.preSelected);
 
   return (
     <>
