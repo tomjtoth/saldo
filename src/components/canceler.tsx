@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 
 export default function Canceler({
   onClick: callback,
   zIndex = 0,
-}: {
+  children,
+}: PropsWithChildren & {
   onClick: () => void;
   zIndex?: number;
 }) {
@@ -24,6 +25,8 @@ export default function Canceler({
         if (ev.target === ev.currentTarget) callback();
       }}
       style={{ zIndex }}
-    />
+    >
+      {children}
+    </div>
   );
 }

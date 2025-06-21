@@ -32,9 +32,7 @@ export function CliReceiptAdder(props: TCLiReceiptAdder) {
         ➕
       </button>
       {open && (
-        <>
-          <Canceler onClick={() => setOpen(false)} />
-
+        <Canceler onClick={() => setOpen(false)}>
           <div className="absolute left-1/2 top-1/2 -translate-1/2 w-8/10 h-8/10 bg-background border rounded p-2">
             <div>
               <label htmlFor="paid-on">paid on:</label>
@@ -64,7 +62,7 @@ export function CliReceiptAdder(props: TCLiReceiptAdder) {
 
             <ItemRows />
           </div>
-        </>
+        </Canceler>
       )}
     </>
   );

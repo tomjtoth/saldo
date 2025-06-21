@@ -29,10 +29,7 @@ export default function CliUserMenu({
         {srvAvatar}
       </div>
       {visible && (
-        <>
-          <Canceler onClick={() => setVisible(false)} />
-          {srvMenu}
-        </>
+        <Canceler onClick={() => setVisible(false)}>{srvMenu}</Canceler>
       )}
     </>
   );

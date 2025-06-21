@@ -14,10 +14,9 @@ export default function Entry({ cat }: { cat: TCategory }) {
   return (
     <>
       {showDetails && (
-        <>
-          <Canceler onClick={hideDetails} />
+        <Canceler onClick={hideDetails}>
           <Details {...{ cat, hideDetails }} />
-        </>
+        </Canceler>
       )}
 
       <div

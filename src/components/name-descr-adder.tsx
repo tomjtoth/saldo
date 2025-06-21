@@ -29,8 +29,7 @@ export default function NameDescrAdder({
         Add new...
       </button>
       {visible && (
-        <>
-          <Canceler onClick={() => setVisible(false)} />
+        <Canceler onClick={() => setVisible(false)}>
           <form
             id={id + "-form"}
             className={
@@ -70,7 +69,7 @@ export default function NameDescrAdder({
               onChange={(ev) => setDescr(ev.target.value)}
             />
           </form>
-        </>
+        </Canceler>
       )}
     </>
   );

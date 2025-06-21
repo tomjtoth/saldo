@@ -19,10 +19,9 @@ export default function Entry({
   return (
     <>
       {showDetails && (
-        <>
-          <Canceler onClick={() => setShowDetails(false)} />
+        <Canceler onClick={() => setShowDetails(false)}>
           <Details {...{ group }} />
-        </>
+        </Canceler>
       )}
 
       <div
