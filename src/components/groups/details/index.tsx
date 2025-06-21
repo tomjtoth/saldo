@@ -7,6 +7,7 @@ import { TGroup } from "@/lib/models";
 import Invitation from "./invitation";
 import Title from "./title";
 import Members from "./members";
+import SvgLink from "@/components/svg-link";
 
 export default function Details({ group }: { group: TGroup }) {
   const [statusId, setStatusId] = useState(group.statusId);
@@ -30,6 +31,18 @@ export default function Details({ group }: { group: TGroup }) {
       <Members {...{ group }} />
 
       <Invitation {...{ group }} />
+
+      {group.statusId == 1 && (
+        <>
+          <h2>
+            Categories <SvgLink href={`/groups/${group.id}/categories`} />
+          </h2>
+
+          <h2>
+            Receipts <SvgLink href={`/groups/${group.id}/receipts`} />
+          </h2>
+        </>
+      )}
     </div>
   );
 }
