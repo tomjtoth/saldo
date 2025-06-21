@@ -5,8 +5,10 @@ import { PropsWithChildren, useEffect, useState } from "react";
 export default function Canceler({
   onClick: callback,
   zIndex = 0,
+  blur = true,
   children,
 }: PropsWithChildren & {
+  blur?: boolean;
   onClick: () => void;
   zIndex?: number;
 }) {
@@ -15,7 +17,7 @@ export default function Canceler({
   const [cn, setCN] = useState(classes);
 
   useEffect(() => {
-    setCN(classes + " dimmed");
+    if (blur) setCN(classes + " dimmed");
   }, []);
 
   return (
