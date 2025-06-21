@@ -7,20 +7,26 @@ import UserMenu from "@/components/user-menu";
 
 export const dynamic = "force-dynamic";
 
-export default async function CategoriesPage() {
+export default async function CategoriesPage({
+  params,
+}: {
+  params: Promise<{ groupId?: string }>;
+}) {
+  const { groupId } = await params;
   const sess = await auth();
-  if (!sess) return signIn("", { redirectTo: "/categories" });
+  if (!sess)
+    return signIn("", {
+      redirectTo: groupId ? `/groups/${groupId}/categories` : "/categories",
+    });
 
   const user = await currentUser(sess);
-
   const groups = await getCatsDataFor(user.id);
-
-  const userMenu = <UserMenu />;
 
   return (
     <CliCategoriesPage
       {...{
-        userMenu,
+        preSelected: groupId,
+        userMenu: <UserMenu />,
         groups: groups.map((grp) => grp.get({ plain: true })),
       }}
     />
