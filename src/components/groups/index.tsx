@@ -13,7 +13,7 @@ import NameDescrAdder from "../name-descr-adder";
 import Header from "../header";
 
 export default function CliGroupsPage(srv: {
-  preSelected?: string;
+  preSelected?: number;
   userMenu: ReactNode;
   groups: TGroup[];
 }) {
@@ -23,13 +23,11 @@ export default function CliGroupsPage(srv: {
   useEffect(() => {
     dispatch(red.init(srv.groups));
 
-    if (!isNaN(idAsNum)) {
+    if (srv.preSelected) {
       window.history.replaceState(null, "", "/groups");
-      dispatch(red.setGroupId(idAsNum));
+      dispatch(red.setGroupId(srv.preSelected));
     }
   }, []);
-
-  const idAsNum = Number(srv.preSelected);
 
   return (
     <>
@@ -80,7 +78,7 @@ export default function CliGroupsPage(srv: {
           <Entry
             key={grp.id}
             group={grp}
-            preSelected={!!srv.preSelected && idAsNum === grp.id}
+            preSelected={!!srv.preSelected && srv.preSelected === grp.id}
           />
         ))}
       </div>

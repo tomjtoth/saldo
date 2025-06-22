@@ -7,8 +7,14 @@ import { TCategory } from "@/lib/models";
 import Canceler from "../canceler";
 import Details from "./details";
 
-export default function Entry({ cat }: { cat: TCategory }) {
-  const [showDetails, setShowDetails] = useState(false);
+export default function Entry({
+  cat,
+  preSelected,
+}: {
+  cat: TCategory;
+  preSelected: boolean;
+}) {
+  const [showDetails, setShowDetails] = useState(preSelected);
   const hideDetails = () => setShowDetails(false);
 
   return (

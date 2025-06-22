@@ -10,14 +10,19 @@ export const dynamic = "force-dynamic";
 export default async function CategoriesPage({
   params,
 }: {
-  params: Promise<{ groupId?: string }>;
+  params: Promise<{ groupId?: string; catId?: string }>;
 }) {
-  const { groupId } = await params;
+  const { groupId, catId } = await params;
   const sess = await auth();
   if (!sess)
     return signIn("", {
-      redirectTo: groupId ? `/groups/${groupId}/categories` : "/categories",
+      redirectTo: `${groupId ? `/groups/${groupId}` : ""}/categories${
+        catId ? `/${catId}` : ""
+      }`,
     });
+
+  const gidAsNum = Number(groupId);
+  const cidAsNum = Number(catId);
 
   const user = await currentUser(sess);
   const groups = await getCatsDataFor(user.id);
@@ -25,8 +30,9 @@ export default async function CategoriesPage({
   return (
     <CliCategoriesPage
       {...{
-        preSelected: groupId,
         userMenu: <UserMenu />,
+        groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
+        catId: isNaN(cidAsNum) ? undefined : cidAsNum,
         groups: groups.map((grp) => grp.get({ plain: true })),
       }}
     />

@@ -15,7 +15,8 @@ import GroupSelector from "../groups/selector";
 import Header from "../header";
 
 export default function CliCategoriesPage(srv: {
-  preSelected?: string;
+  groupId?: number;
+  catId?: number;
   userMenu: ReactNode;
   groups: TGroup[];
 }) {
@@ -25,9 +26,9 @@ export default function CliCategoriesPage(srv: {
   useEffect(() => {
     dispatch(red.init(srv.groups));
 
-    if (srv.preSelected) {
+    if (srv.groupId) {
       window.history.replaceState(null, "", "/categories");
-      dispatch(red.setGroupId(Number(srv.preSelected)));
+      dispatch(red.setGroupId(srv.groupId));
     }
   }, []);
 
@@ -95,7 +96,11 @@ export default function CliCategoriesPage(srv: {
         {rs.groups
           .find((grp) => grp.id === rs.groupId)
           ?.Categories?.map((cat) => (
-            <Entry key={cat.id} cat={cat} />
+            <Entry
+              key={cat.id}
+              cat={cat}
+              preSelected={!!srv.catId && srv.catId == cat.id}
+            />
           ))}
       </div>
     </>

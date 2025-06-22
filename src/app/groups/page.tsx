@@ -19,13 +19,16 @@ export default async function GroupsPage({
       redirectTo: groupId ? `/groups/${groupId}` : "/groups",
     });
 
+  const gidAsNum = Number(groupId);
+
   const user = await currentUser(sess);
   const groups = await getGroupsDataFor(user.id);
 
   return (
     <CliGroupsPage
       {...{
-        preSelected: groupId,
+        preSelected: isNaN(gidAsNum) ? undefined : gidAsNum,
+
         userMenu: <UserMenu />,
         groups: groups.map((grp) => grp.get({ plain: true })),
       }}
