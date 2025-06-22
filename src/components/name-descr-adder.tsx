@@ -14,9 +14,11 @@ type AdderHandler = ({
 
 export default function NameDescrAdder({
   id,
+  placeholder,
   handler,
 }: {
   id?: string;
+  placeholder?: string;
   handler: AdderHandler;
 }) {
   const [visible, setVisible] = useState(false);
@@ -50,14 +52,11 @@ export default function NameDescrAdder({
             }}
           >
             <input
-              {...{
-                type: "text",
-                className: "w-full min-w-25",
-                placeholder: "Name",
-                value: name,
-
-                onChange: (ev) => setName(ev.target.value),
-              }}
+              type="text"
+              className="w-full min-w-25"
+              placeholder={placeholder ?? "Name"}
+              value={name}
+              onChange={(ev) => setName(ev.target.value)}
             />
 
             <button className="rounded border">💾</button>
