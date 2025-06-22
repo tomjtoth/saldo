@@ -2,9 +2,15 @@ import Link from "next/link";
 
 // from https://www.svgrepo.com/svg/381625/external-link
 
-export default function SvgLink({ href }: { href: string }) {
+export default function SvgLink({
+  href,
+  className: cn = "",
+}: {
+  href: string;
+  className?: string;
+}) {
   return (
-    <Link href={href} className="inline-block align-middle">
+    <Link href={href} className={"inline-block align-middle " + cn}>
       <svg
         className="fill-foreground"
         width={24}
