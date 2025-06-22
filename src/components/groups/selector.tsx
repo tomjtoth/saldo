@@ -23,13 +23,13 @@ export default function GroupSelector({ fallback }: { fallback: TGroup[] }) {
   }, [rs.groupId]);
 
   return rs.groups.length === 0 ? null : (
-    <div className="inline-block">
+    <div className="inline-block rounded border">
       <span ref={spanRef} className="invisible absolute px-2">
         {rs.group?.name}
       </span>
       <select
         ref={selectRef}
-        className="cursor-pointer rounded border p-2 mr-1"
+        className="cursor-pointer p-2"
         value={rs.groupId}
         onChange={(ev) => dispatch(red.setGroupId(Number(ev.target.value)))}
       >
@@ -39,7 +39,7 @@ export default function GroupSelector({ fallback }: { fallback: TGroup[] }) {
           </option>
         ))}
       </select>
-      <SvgLink href={`/groups/${rs.groupId}`} />
+      <SvgLink href={`/groups/${rs.groupId}`} className="mx-1" />
     </div>
   );
 }
