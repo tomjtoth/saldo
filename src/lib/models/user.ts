@@ -9,6 +9,7 @@ import { Group } from "./group";
 export type TUser = TIDs & {
   email: string;
   name: string;
+  defaultGroupId?: number;
 
   Membership?: Membership;
   Groups?: Group[];
@@ -38,6 +39,11 @@ const COLS: ModelAttributes<User, TUser> = {
       has3ConsecutiveLetters,
     },
   },
+
+  defaultGroupId: {
+    type: DataTypes.INTEGER,
+    references: { model: Group, key: "id" },
+  },
 };
 
 class Common extends Model<TUser, TCrUser> {
@@ -46,6 +52,7 @@ class Common extends Model<TUser, TCrUser> {
   statusId!: number;
   email!: string;
   name!: string;
+  defaultGroupId?: number;
 
   Membership?: Membership;
   Groups?: Group[];
