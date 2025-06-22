@@ -12,7 +12,14 @@ export async function register() {
       .up()
       .then((res) => {
         if (res.length > 0)
-          console.log(LF, TAB, `${res.length} migrations succeeded.`, LF);
+          console.log(
+            LF,
+            TAB,
+            `${
+              res.length > 1 ? +`${res.length} migrations` : "Migration"
+            } succeeded.`,
+            LF
+          );
       })
       .catch((err) => console.error(LF, TAB, "Migration failed:", LF, err, LF));
   }
