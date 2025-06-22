@@ -119,7 +119,10 @@ export async function getCatsIdsFor(userId: number) {
       {
         model: Group,
         attributes: [],
-        include: [{ model: Membership, attributes: [], where: { userId } }],
+        required: true,
+        include: [
+          { model: Membership, attributes: [], where: { userId, statusId: 1 } },
+        ],
       },
     ],
   });
