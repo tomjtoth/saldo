@@ -34,13 +34,13 @@ export default function Details({ group }: { group: TGroup }) {
 
       {group.statusId == 1 && (
         <>
-          <h2>
+          <h3>
             Categories <SvgLink href={`/groups/${group.id}/categories`} />
-          </h2>
+          </h3>
 
-          <h2>
+          <h3>
             Receipts <SvgLink href={`/groups/${group.id}/receipts`} />
-          </h2>
+          </h3>
         </>
       )}
     </div>
