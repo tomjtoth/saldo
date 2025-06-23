@@ -31,7 +31,6 @@ export const rGroups = {
 
     ms.admin = payload.admin;
     ms.statusId = payload.statusId;
-    ms.defaultCatId = payload.defaultCatId;
   },
 };
 
