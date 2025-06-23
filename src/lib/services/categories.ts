@@ -60,8 +60,7 @@ export async function updateCategory(
   { name, description, statusId }: TCategoryUpdater
 ) {
   return await atomic("Updating category", async (transaction) => {
-    const cat = await Category.findByPk(id, { transaction });
-    if (!cat) return null;
+    const cat = (await Category.findByPk(id, { transaction }))!;
 
     const preChanges = cat.get({ plain: true, clone: true });
     let saving = false;
