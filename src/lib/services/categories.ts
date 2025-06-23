@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { col, fn, Op } from "sequelize";
 
 import {
   atomic,
@@ -164,5 +164,9 @@ export async function getCatsDataFor(userId: number) {
       },
     ],
     where: { statusId: 1 },
+    order: [
+      fn("LOWER", col("Group.name")),
+      fn("LOWER", col("Categories.name")),
+    ],
   });
 }
