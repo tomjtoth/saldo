@@ -27,9 +27,10 @@ export default async function GroupsPage({
   return (
     <CliGroupsPage
       {...{
-        preSelected: isNaN(gidAsNum) ? undefined : gidAsNum,
-
         userMenu: <UserMenu />,
+
+        groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
+        defaultGroupId: user.defaultGroupId,
         groups: groups.map((grp) => grp.get({ plain: true })),
       }}
     />

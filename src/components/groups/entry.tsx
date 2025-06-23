@@ -6,6 +6,10 @@ import { TGroup } from "@/lib/models";
 
 import Canceler from "../canceler";
 import Details from "./details";
+import SvgStar from "../star";
+import { appToast, err, sendJSON } from "@/lib/utils";
+import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
+import { rCombined } from "@/lib/reducers";
 
 export default function Entry({
   group,
@@ -15,6 +19,10 @@ export default function Entry({
   preSelected?: boolean;
 }) {
   const [showDetails, setShowDetails] = useState(preSelected ?? false);
+  const dispatch = useAppDispatch();
+  const isDefault = useAppSelector(
+    (s) => s.combined.defaultGroupId === group.id
+  );
 
   return (
     <>
@@ -31,6 +39,27 @@ export default function Entry({
         }
         onClick={() => setShowDetails(true)}
       >
+        <SvgStar
+          fill={isDefault ? "#FB0" : "#AAA"}
+          onClick={(ev) => {
+            ev.stopPropagation();
+
+            appToast.promise(
+              sendJSON(
+                "/api/groups",
+                {
+                  id: group.id,
+                  setAsDefault: true,
+                },
+                { method: "PUT" }
+              ).then((res) => {
+                if (!res.ok) err(res.statusText);
+                dispatch(rCombined.setDefaultGroupId(group.id));
+              }),
+              "Setting default group"
+            );
+          }}
+        />{" "}
         {group.name}
       </div>
     </>

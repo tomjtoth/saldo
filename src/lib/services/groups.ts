@@ -171,11 +171,11 @@ export async function updateGroup(
 }
 
 type MembershipUpdater = Pick<TMembership, "groupId" | "userId"> &
-  Partial<Pick<TMembership, "admin" | "statusId">>;
+  Partial<Pick<TMembership, "admin" | "statusId" | "defaultCatId">>;
 
 export async function updateMembership(
   revBy: number,
-  { userId, groupId, statusId, admin }: MembershipUpdater
+  { userId, groupId, statusId, admin, defaultCatId }: MembershipUpdater
 ) {
   return await atomic("Updating membership", async (transaction) => {
     const ms = await Membership.findOne({
@@ -195,6 +195,11 @@ export async function updateMembership(
     if (admin !== undefined && admin !== ms.admin) {
       saving = true;
       ms.admin = admin;
+    }
+
+    if (defaultCatId !== undefined && defaultCatId !== ms.defaultCatId) {
+      saving = true;
+      ms.defaultCatId = defaultCatId;
     }
 
     if (saving) {

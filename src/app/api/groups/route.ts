@@ -27,11 +27,24 @@ export async function PUT(req: NextRequest) {
   if (!sess) return new Response(null, { status: 401 });
 
   const [data, user] = await Promise.all([req.json(), currentUser(sess)]);
-  const { id, statusId, name, description, generateLink, removeLink } =
-    data as GroupUpdater & {
-      generateLink?: true;
-      removeLink?: true;
-    };
+  const {
+    id,
+    statusId,
+    name,
+    description,
+    generateLink,
+    removeLink,
+    setAsDefault,
+  } = data as GroupUpdater & {
+    generateLink?: true;
+    removeLink?: true;
+    setAsDefault?: true;
+  };
+
+  if (setAsDefault) {
+    await user.update({ defaultGroupId: id });
+    return new Response(null, { status: 200 });
+  }
 
   try {
     const group = await updateGroup(user.id, {
