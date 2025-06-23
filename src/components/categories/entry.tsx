@@ -22,6 +22,7 @@ export default function Entry({
   const hideDetails = () => setShowDetails(false);
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
+  const isDefault = rs.group()?.Memberships?.at(0)?.defaultCatId === cat.id;
 
   return (
     <>
@@ -39,34 +40,31 @@ export default function Entry({
         onClick={() => setShowDetails(true)}
       >
         <SvgStar
-          fill={
-            rs.group()?.Memberships?.at(0)?.defaultCatId === cat.id
-              ? "#FB0"
-              : "#AAA"
-          }
+          fill={isDefault ? "#FB0" : "#AAA"}
           onClick={(ev) => {
             ev.stopPropagation();
-            appToast.promise(
-              sendJSON(
-                "/api/categories",
-                {
-                  id: cat.id,
-                  groupId: cat.groupId,
-                  setAsDefault: true,
-                },
-                { method: "PUT" }
-              ).then(async (res) => {
-                if (!res.ok) err(res.statusText);
-
-                dispatch(
-                  red.updateDefaultCatId({
-                    catId: cat.id,
+            if (!isDefault)
+              appToast.promise(
+                sendJSON(
+                  "/api/categories",
+                  {
+                    id: cat.id,
                     groupId: cat.groupId,
-                  })
-                );
-              }),
-              "Setting default category"
-            );
+                    setAsDefault: true,
+                  },
+                  { method: "PUT" }
+                ).then(async (res) => {
+                  if (!res.ok) err(res.statusText);
+
+                  dispatch(
+                    red.updateDefaultCatId({
+                      catId: cat.id,
+                      groupId: cat.groupId,
+                    })
+                  );
+                }),
+                "Setting default category"
+              );
           }}
         />{" "}
         {cat.name}
