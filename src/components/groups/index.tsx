@@ -12,26 +12,33 @@ import Entry from "./entry";
 import NameDescrAdder from "../name-descr-adder";
 import Header from "../header";
 
-export default function CliGroupsPage(srv: {
-  preSelected?: number;
+export default function CliGroupsPage({
+  userMenu,
+
+  groupId,
+  ...srv
+}: {
   userMenu: ReactNode;
+
+  groupId?: number;
+  defaultGroupId?: number;
   groups: TGroup[];
 }) {
   const rs = useGroupSelector(srv.groups);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(red.init(srv.groups));
+    dispatch(red.init(srv));
 
-    if (srv.preSelected) {
+    if (groupId) {
       window.history.replaceState(null, "", "/groups");
-      dispatch(red.setGroupId(srv.preSelected));
+      dispatch(red.setGroupId(groupId));
     }
   }, []);
 
   return (
     <>
-      <Header userMenu={srv.userMenu}>
+      <Header {...{ userMenu }}>
         <h2>Your groups</h2>
       </Header>
 
@@ -41,6 +48,7 @@ export default function CliGroupsPage(srv: {
       </p>
       <div className="p-2 flex flex-wrap gap-2 justify-center">
         <NameDescrAdder
+          placeholder="Group"
           handler={({ name, description }) =>
             new Promise<boolean>((done) => {
               try {
@@ -74,11 +82,11 @@ export default function CliGroupsPage(srv: {
           }
         />
 
-        {rs.groups.map((grp) => (
+        {rs.groups.map((group) => (
           <Entry
-            key={grp.id}
-            group={grp}
-            preSelected={!!srv.preSelected && srv.preSelected === grp.id}
+            key={group.id}
+            group={group}
+            preSelected={!!groupId && groupId === group.id}
           />
         ))}
       </div>
