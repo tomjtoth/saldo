@@ -39,8 +39,14 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
         appToast.promise(
           sendJSON(
-            `/api/categories/${cat.id}`,
-            { name, description, statusId },
+            "/api/categories",
+            {
+              id: cat.id,
+              groupId: cat.groupId,
+              name,
+              description,
+              statusId,
+            },
             { method: "PUT" }
           )
             .then(async (res) => {
