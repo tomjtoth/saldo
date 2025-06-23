@@ -136,7 +136,7 @@ export async function getCatsDataFor(userId: number) {
     include: [
       {
         model: Membership,
-        attributes: [],
+        attributes: ["defaultCatId"],
         where: { [Op.and]: [{ userId }, { statusId: 1 }] },
       },
       { model: Revision, attributes: ["revOn"] },
