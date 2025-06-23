@@ -10,21 +10,22 @@ export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppSelector = useSelector.withTypes<RootState>();
 export const useAppStore = useStore.withTypes<AppStore>();
 
-export const useGroupSelector = (fallback: TGroup[]) => {
+// TODO: rename to useGroupState
+export const useGroupSelector = (fallback?: TGroup[]) => {
   const dispatch = useAppDispatch();
 
   const groupId = useAppSelector((s) => s.combined.groupId);
   const groups = useAppSelector((s) => {
     const local = s.combined.groups;
-    return local.length > 0 ? local : fallback;
+    return local.length > 0 ? local : fallback ?? [];
   });
 
-  const getGroup = () => groups.find((group) => group.id === groupId);
+  const group = () => groups.find((group) => group.id === groupId);
 
   useEffect(() => {
-    if (groups.length > 0 && !getGroup())
+    if (groups.length > 0 && !group())
       dispatch(rCombined.setGroupId(groups[0].id));
   }, [groups]);
 
-  return { groups, groupId, group: getGroup() };
+  return { groups, groupId, group };
 };
