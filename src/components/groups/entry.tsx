@@ -3,13 +3,13 @@
 import { useState } from "react";
 
 import { TGroup } from "@/lib/models";
+import { appToast, err, sendJSON } from "@/lib/utils";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { rCombined as red } from "@/lib/reducers";
 
 import Canceler from "../canceler";
 import Details from "./details";
 import SvgStar from "../star";
-import { appToast, err, sendJSON } from "@/lib/utils";
-import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
-import { rCombined } from "@/lib/reducers";
 
 export default function Entry({
   group,
@@ -54,7 +54,7 @@ export default function Entry({
                 { method: "PUT" }
               ).then((res) => {
                 if (!res.ok) err(res.statusText);
-                dispatch(rCombined.setDefaultGroupId(group.id));
+                dispatch(red.setDefaultGroupId(group.id));
               }),
               "Setting default group"
             );
