@@ -25,7 +25,7 @@ export default function GroupSelector({ fallback }: { fallback: TGroup[] }) {
   return rs.groups.length === 0 ? null : (
     <div className="inline-block rounded border">
       <span ref={spanRef} className="invisible absolute px-2">
-        {rs.group?.name}
+        {rs.group()?.name}
       </span>
       <select
         ref={selectRef}
