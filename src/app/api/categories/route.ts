@@ -50,13 +50,13 @@ export async function PUT(req: NextRequest) {
 
   try {
     if (data.setAsDefault) {
-      const ms = await updateMembership(user.id, {
+      await updateMembership(user.id, {
         userId: user.id,
         groupId: data.groupId,
         defaultCatId: data.id,
       });
 
-      return Response.json(ms!.get({ plain: true }));
+      return new Response(null, { status: 200 });
     }
 
     const updated = await updateCategory(data.id, user.id, {

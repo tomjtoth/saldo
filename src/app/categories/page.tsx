@@ -31,8 +31,10 @@ export default async function CategoriesPage({
     <CliCategoriesPage
       {...{
         userMenu: <UserMenu />,
-        groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
+
         catId: isNaN(cidAsNum) ? undefined : cidAsNum,
+        groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
+        defaultGroupId: user.defaultGroupId,
         groups: groups.map((grp) => grp.get({ plain: true })),
       }}
     />
