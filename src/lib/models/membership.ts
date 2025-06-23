@@ -1,6 +1,7 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 
 import { REV_ID_INTEGER_PK, seqIdCols, seqInitOpts } from "./common";
+import { Category } from "./category";
 
 /**
  * used in both Xy and XyArchive, but Archive additionally implements revId as PK
@@ -10,6 +11,10 @@ const COLS: ModelAttributes<Membership, TMembership> = {
   userId: { type: DataTypes.INTEGER, primaryKey: true },
   revId: seqIdCols.revId,
   statusId: seqIdCols.statusId,
+  defaultCatId: {
+    type: DataTypes.INTEGER,
+    references: { model: Category, key: "id" },
+  },
 
   admin: {
     type: DataTypes.BOOLEAN,
@@ -22,6 +27,7 @@ export type TMembership = {
   userId: number;
   revId: number;
   statusId: number;
+  defaultCatId?: number;
 
   admin: boolean;
 
@@ -37,6 +43,7 @@ class Common extends Model<TMembership, TCrMembership> {
   userId!: number;
   revId!: number;
   statusId!: number;
+  defaultCatId?: number;
 
   admin!: boolean;
 
