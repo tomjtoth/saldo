@@ -5,23 +5,26 @@ import { TGroup } from "../models";
 import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
 
+export * from "./receipts";
+
 export type CombinedState = {
   groupId?: number;
   groups: TGroup[];
+  defaultGroupId?: number;
 };
+
+type Initializer = Pick<CombinedState, "groups" | "defaultGroupId">;
 
 const slice = createSlice({
   name: "combined",
   initialState: { groups: [] } as CombinedState,
 
   reducers: {
-    init: (rs, { payload }: PayloadAction<TGroup[]>) => {
-      if (rs.groupId === undefined) rs.groupId = payload.at(0)?.id;
-      rs.groups = payload;
-    },
-
-    setGroupId: (rs, { payload }: PayloadAction<number>) => {
-      rs.groupId = payload;
+    init: (rs, { payload }: PayloadAction<Initializer>) => {
+      if (rs.groupId === undefined) {
+        rs.groupId = payload.defaultGroupId ?? payload.groups.at(0)?.id;
+      }
+      rs.groups = payload.groups;
     },
 
     ...rGroups,
@@ -32,12 +35,8 @@ const slice = createSlice({
 export const combinedSA = slice.actions;
 
 export const rCombined = {
-  init: (groups: TGroup[]) => (dispatch: AppDispatch) => {
-    return dispatch(combinedSA.init(groups));
-  },
-
-  setGroupId: (groupId: number) => (dispatch: AppDispatch) => {
-    return dispatch(combinedSA.setGroupId(groupId));
+  init: (data: Initializer) => (dispatch: AppDispatch) => {
+    return dispatch(combinedSA.init(data));
   },
 
   ...tGroups,
