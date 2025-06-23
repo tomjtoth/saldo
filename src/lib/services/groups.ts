@@ -1,4 +1,4 @@
-import { col, fn, Op } from "sequelize";
+import { col, fn } from "sequelize";
 
 import {
   atomic,
@@ -83,7 +83,7 @@ export async function getGroupsIdsFor(userId: number) {
     include: [
       {
         model: Membership,
-        where: { [Op.and]: [{ userId }, { statusId: 1 }] },
+        where: { userId, statusId: 1 },
         attributes: [],
       },
     ],
@@ -95,7 +95,7 @@ export async function getGroupsDataFor(userId: number) {
     include: [
       {
         model: Membership,
-        where: { [Op.and]: [{ userId }, { statusId: 1 }] },
+        where: { userId, statusId: 1 },
         attributes: ["admin"],
       },
       {
@@ -156,9 +156,7 @@ export async function updateGroup(
       include: [
         {
           model: Membership,
-          where: {
-            [Op.and]: [{ userId: adminId }, { statusId: 1 }],
-          },
+          where: { userId: adminId, statusId: 1 },
         },
         {
           model: User,
