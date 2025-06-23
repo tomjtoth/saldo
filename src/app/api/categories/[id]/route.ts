@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
 import {
-  getCatsIdsFor,
+  userAccessToCat,
   TCategoryUpdater,
   updateCategory,
 } from "@/lib/services/categories";
@@ -24,8 +24,7 @@ export async function PUT(
   const [pp, user] = await Promise.all([params, currentUser(sess)]);
   const id = Number(pp.id);
 
-  const cats = await getCatsIdsFor(user.id);
-  if (!cats.some((cat) => cat.id === id))
+  if (!(await userAccessToCat(user.id, id)))
     return new Response(null, { status: 403 });
 
   try {

@@ -112,8 +112,8 @@ export async function updateCategory(
   });
 }
 
-export async function getCatsIdsFor(userId: number) {
-  return await Category.findAll({
+export async function userAccessToCat(userId: number, catId: number) {
+  const exists = await Category.findAll({
     attributes: ["id"],
     include: [
       {
@@ -125,7 +125,10 @@ export async function getCatsIdsFor(userId: number) {
         ],
       },
     ],
+    where: { id: catId },
   });
+
+  return !!exists;
 }
 
 export async function getCatsDataFor(userId: number) {
