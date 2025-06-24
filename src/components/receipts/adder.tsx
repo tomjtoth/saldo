@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { rReceipts as red } from "@/lib/reducers/receipts";
+import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
+import { rCombined as red } from "@/lib/reducers";
 import { TCategory, TUser } from "@/lib/models";
 
 import Canceler from "../canceler";
@@ -15,49 +15,59 @@ export type TCLiReceiptAdder = {
   paidBy: number;
 };
 
-export function CliReceiptAdder(props: TCLiReceiptAdder) {
-  const dispatch = useAppDispatch();
-  const paidOn = useAppSelector((s) => s.receipts.paidOn);
-  const paidBy = useAppSelector((s) => s.receipts.paidBy);
-
+export default function Adder() {
   const [open, setOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const rs = useGroupSelector();
+  const currReceipt = useAppSelector((s) =>
+    rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
+  );
 
   useEffect(() => {
-    dispatch(red.init(props));
-  }, []);
+    if (rs.groups.length > 0 && !currReceipt) dispatch(red.addRow());
+  }, [currReceipt, rs.groups.length]);
 
-  return (
+  return !currReceipt ? null : (
     <>
-      <button className="p-2 border rounded" onClick={() => setOpen(true)}>
-        ➕
+      <button className="border rounded" onClick={() => setOpen(true)}>
+        Add new...
       </button>
       {open && (
         <Canceler onClick={() => setOpen(false)}>
-          <div className="absolute left-1/2 top-1/2 -translate-1/2 w-8/10 h-8/10 bg-background border rounded p-2">
-            <div>
-              <label htmlFor="paid-on">paid on:</label>
-              <input
-                required
-                id="paid-on"
-                type="date"
-                value={paidOn}
-                onChange={(ev) => dispatch(red.setPaidOn(ev.target.value))}
-              />
-            </div>
+          <div
+            className={
+              "absolute left-1/2 top-1/2 -translate-1/2 w-8/10 h-8/10 " +
+              "bg-background border rounded p-2 flex flex-col gap-2 " +
+              "overflow-scroll"
+            }
+          >
+            <div className="flex gap-2 flex-wrap justify-between">
+              <div className="flex flex-row gap-2 items-center">
+                <input
+                  required
+                  id="paid-on"
+                  type="date"
+                  value={currReceipt.paidOn}
+                  onChange={(ev) => dispatch(red.setPaidOn(ev.target.value))}
+                />
+                <label htmlFor="paid-on">(paid on)</label>
+              </div>
 
-            <div>
-              <label htmlFor="paid-by">paid by:</label>
-              <select
-                id="paid-by"
-                value={paidBy}
-                onChange={(ev) => dispatch(red.setPaidBy(ev.target.value))}
-              >
-                {props.users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name} ({u.email})
-                  </option>
-                ))}
-              </select>
+              <div className="flex gap-2 items-center">
+                <span>paid by:</span>
+                <select
+                  id="paid-by"
+                  className="rounded border p-1"
+                  value={currReceipt.paidBy}
+                  onChange={(ev) => dispatch(red.setPaidBy(ev.target.value))}
+                >
+                  {rs.group()?.Users?.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <ItemRows />
