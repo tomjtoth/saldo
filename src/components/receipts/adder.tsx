@@ -7,7 +7,7 @@ import { rCombined as red } from "@/lib/reducers";
 import { TCategory, TUser } from "@/lib/models";
 
 import Canceler from "../canceler";
-import ItemRows from "./item-row";
+import ItemRow from "./item-row";
 
 export type TCLiReceiptAdder = {
   users: TUser[];
@@ -36,9 +36,8 @@ export default function Adder() {
         <Canceler onClick={() => setOpen(false)}>
           <div
             className={
-              "absolute left-1/2 top-1/2 -translate-1/2 w-8/10 h-8/10 " +
-              "bg-background border rounded p-2 flex flex-col gap-2 " +
-              "overflow-scroll"
+              "absolute left-1/2 top-1/2 -translate-1/2 w-4/5 h-4/5 " +
+              "bg-background rounded border p-2 flex flex-col gap-2"
             }
           >
             <div className="flex gap-2 flex-wrap justify-between">
@@ -54,7 +53,14 @@ export default function Adder() {
               </div>
 
               <div className="flex gap-2 items-center">
-                <span>paid by:</span>
+                <span>
+                  paid by{" "}
+                  {
+                    rs.group()?.Users?.find((u) => u.id === currReceipt.paidBy)
+                      ?.name
+                  }
+                </span>
+
                 <select
                   id="paid-by"
                   className="rounded border p-1"
@@ -63,14 +69,60 @@ export default function Adder() {
                 >
                   {rs.group()?.Users?.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.name} ({u.email})
+                      {u.email}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
 
-            <ItemRows />
+            <h3>Items</h3>
+            <hr />
+            <div
+              className={
+                "overflow-scroll p-2 " +
+                "grid items-center gap-2  " +
+                "grid-cols-[auto_min-content_min-content] " +
+                "sm:grid-cols-[min-content_auto_min-content_min-content_min-content]"
+              }
+            >
+              {currReceipt.items.map((item, rowIdx) => (
+                <ItemRow
+                  key={item.id}
+                  autoFocus={rowIdx === currReceipt.focusedIdx}
+                  item={item}
+                />
+              ))}
+
+              <span className="col-start-1">TOTAL</span>
+
+              <button
+                className={
+                  "inline-flex items-center gap-2 sm:col-start-4 " +
+                  "bg-gray-500/70 cursor-not-allowed!"
+                }
+              >
+                <span className="hidden lg:inline-block grow">
+                  Save & clear
+                </span>
+                💾
+              </button>
+
+              <span className="inline-flex items-center gap-2">
+                €
+                <input
+                  type="text"
+                  className="rounded border p-1 w-15"
+                  readOnly
+                  value={currReceipt.items
+                    .reduce((sub, { cost }) => {
+                      const asNum = Number(cost);
+                      return sub + (isNaN(asNum) ? 0 : asNum);
+                    }, 0)
+                    .toFixed(2)}
+                />
+              </span>
+            </div>
           </div>
         </Canceler>
       )}
