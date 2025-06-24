@@ -18,7 +18,7 @@ export const rCategories = {
 
   addCat: (rs: CS, { payload }: PayloadAction<TCategory>) => {
     const group = rs.groups.find((g) => g.id === payload.groupId)!;
-    const cats = group?.Categories!;
+    const cats = group.Categories!;
 
     insertAlphabetically(payload, cats);
   },

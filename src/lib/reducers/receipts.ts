@@ -1,106 +1,114 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TCategory, TItem, TUser } from "../models";
-import { TCLiReceiptAdder } from "@/components/receipts";
+import { TItem } from "../models";
+import { combinedSA as csa, CombinedState as CS } from ".";
 
-type State = {
+export type ReceiptState = {
   paidOn: string;
-  paidBy: number;
-  users: TUser[];
-  categories: TCategory[];
+  paidBy?: number;
   items: TCliItem[];
+  focusedIdx?: number;
 };
 
-type TCliItem = Omit<TItem, "rcptId" | "revId" | "statusId">;
+type TCliItem = Omit<TItem, "rcptId" | "revId" | "statusId" | "cost"> & {
+  cost: string;
+};
 
-type TItemUpdater = Pick<TItem, "id"> & Partial<Omit<TItem, "id">>;
+type TItemUpdater = Pick<TCliItem, "id"> & Partial<Omit<TCliItem, "id">>;
 
 // this provides the key prop to React during `items.map( ... )`
 let rowId = 0;
-const addItem = (catId?: number) => ({
+const addItem = (catId: number) => ({
   id: rowId++,
-  catId: catId ?? 0,
-  cost: 0,
+  catId: catId,
+  cost: "",
+  notes: "",
 });
 
-const slice = createSlice({
-  name: "receipt-adder",
-  initialState: {
-    paidOn: new Date().toISOString().slice(0, 10),
-    paidBy: 1,
-    users: [],
-    categories: [],
-    items: [],
-  } as State,
+function currentReceipt(rs: CS) {
+  let current = rs.newReceipts[rs.groupId!];
 
-  reducers: {
-    init: (rs, { payload }) => {
-      rs.users = payload.users;
-      rs.categories = payload.categories;
-      rs.paidBy = payload.paidBy;
+  if (!current) {
+    current = {
+      paidOn: new Date().toISOString().slice(0, 10),
+      items: [],
+    };
 
-      // TODO: impl storing this in the users's settings on the server
-      // and passing it to redux here
-      const defaultCatId = 0;
-      rs.items.push(addItem(defaultCatId));
-    },
+    rs.newReceipts[rs.groupId!] = current;
+  }
 
-    addRow: (rs, { payload }: PayloadAction<number>) => {
-      const idx = rs.items.findIndex((i) => i.id === payload);
-      rs.items.splice(
+  return current;
+}
+
+export const rReceipts = {
+  addRow: (rs: CS, { payload }: PayloadAction<number | undefined>) => {
+    const curr = currentReceipt(rs);
+
+    if (payload) {
+      const idx = curr.items.findIndex((i) => i.id === payload);
+      curr.focusedIdx = idx + 1;
+      curr.items.splice(
         idx + 1,
         0,
         // inherit the upper row's categoryId
-        addItem(idx > 0 ? rs.items[idx - 1].catId : undefined)
+        addItem(curr.items[idx].catId)
       );
-    },
+    } else {
+      const group = rs.groups.find((group) => group.id === rs.groupId)!;
+      const defCat =
+        group.Memberships!.at(0)!.defaultCatId ?? group.Categories!.at(0)!.id!;
 
-    rmRow: (rs, { payload }: PayloadAction<number>) => {
-      const idx = rs.items.findIndex((i) => i.id === payload);
-
-      rs.items.splice(idx, 1);
-    },
-
-    setPaidOn: (rs, { payload }: PayloadAction<string>) => {
-      rs.paidOn = payload;
-    },
-
-    setPaidBy: (rs, { payload }: PayloadAction<number>) => {
-      rs.paidBy = payload;
-    },
-
-    updateItem: (rs, { payload }: PayloadAction<TItemUpdater>) => {
-      const item = rs.items.find((i) => i.id === payload.id)!;
-      if (payload.catId) item.catId = Number(payload.catId) ?? 0;
-      if (payload.cost) item.cost = payload.cost;
-      if (payload.notes) item.notes = payload.notes;
-      if (payload.shares) item.shares = payload.shares;
-    },
+      curr.items.push(addItem(defCat));
+    }
   },
-});
 
-const sa = slice.actions;
+  rmRow: (rs: CS, { payload }: PayloadAction<number>) => {
+    const curr = currentReceipt(rs);
+    const idx = curr.items.findIndex((i) => i.id === payload);
 
-export const rReceipts = {
-  init: (fromDB: TCLiReceiptAdder) => {
-    return (dispatch: AppDispatch) => dispatch(sa.init(fromDB));
+    curr.items.splice(idx, 1);
   },
-  setPaidOn: (date: string) => (dispatch: AppDispatch) => {
-    return dispatch(sa.setPaidOn(date));
+
+  setPaidOn: (rs: CS, { payload }: PayloadAction<string>) => {
+    const curr = currentReceipt(rs);
+    curr.paidOn = payload;
   },
-  setPaidBy: (strUserId: string) => (dispatch: AppDispatch) => {
-    return dispatch(sa.setPaidBy(Number(strUserId)));
+
+  setPaidBy: (rs: CS, { payload }: PayloadAction<number>) => {
+    const curr = currentReceipt(rs);
+    curr.paidBy = payload;
   },
-  addRow: (afterId: number) => (dispatch: AppDispatch) => {
-    return dispatch(sa.addRow(afterId));
-  },
-  rmRow: (rowId: number) => (dispatch: AppDispatch) => {
-    return dispatch(sa.rmRow(rowId));
-  },
-  updateItem: (updater: TItemUpdater) => {
-    return (dispatch: AppDispatch) => dispatch(sa.updateItem(updater));
+
+  updateItem: (rs: CS, { payload }: PayloadAction<TItemUpdater>) => {
+    const curr = currentReceipt(rs);
+
+    const item = curr.items.find((i) => i.id === payload.id)!;
+    if (payload.catId !== undefined) item.catId = Number(payload.catId) ?? 0;
+    if (payload.cost !== undefined) item.cost = payload.cost;
+    if (payload.notes !== undefined) item.notes = payload.notes;
+    if (payload.shares !== undefined) item.shares = payload.shares;
   },
 };
 
-export default slice.reducer;
+export const tReceipts = {
+  setPaidOn: (date: string) => (dispatch: AppDispatch) => {
+    return dispatch(csa.setPaidOn(date));
+  },
+
+  setPaidBy: (strUserId: string) => (dispatch: AppDispatch) => {
+    return dispatch(csa.setPaidBy(Number(strUserId)));
+  },
+
+  addRow: (afterId?: number) => (dispatch: AppDispatch) => {
+    return dispatch(csa.addRow(afterId));
+  },
+
+  rmRow: (rowId: number) => (dispatch: AppDispatch) => {
+    return dispatch(csa.rmRow(rowId));
+  },
+
+  updateItem: (updater: TItemUpdater) => {
+    return (dispatch: AppDispatch) => dispatch(csa.updateItem(updater));
+  },
+};
