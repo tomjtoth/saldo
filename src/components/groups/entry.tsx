@@ -44,20 +44,21 @@ export default function Entry({
           onClick={(ev) => {
             ev.stopPropagation();
 
-            appToast.promise(
-              sendJSON(
-                "/api/groups",
-                {
-                  id: group.id,
-                  setAsDefault: true,
-                },
-                { method: "PUT" }
-              ).then((res) => {
-                if (!res.ok) err(res.statusText);
-                dispatch(red.setDefaultGroupId(group.id));
-              }),
-              "Setting default group"
-            );
+            if (!isDefault)
+              appToast.promise(
+                sendJSON(
+                  "/api/groups",
+                  {
+                    id: group.id,
+                    setAsDefault: true,
+                  },
+                  { method: "PUT" }
+                ).then((res) => {
+                  if (!res.ok) err(res.statusText);
+                  dispatch(red.setDefaultGroupId(group.id));
+                }),
+                "Setting default group"
+              );
           }}
         />{" "}
         {group.name}
