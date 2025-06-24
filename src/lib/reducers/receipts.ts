@@ -11,7 +11,7 @@ export type ReceiptState = {
   focusedIdx?: number;
 };
 
-type TCliItem = Omit<TItem, "rcptId" | "revId" | "statusId" | "cost"> & {
+export type TCliItem = Omit<TItem, "rcptId" | "revId" | "statusId" | "cost"> & {
   cost: string;
 };
 
