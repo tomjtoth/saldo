@@ -34,7 +34,7 @@ export default function Entry({
 
       <div
         className={
-          "cursor-pointer select-none text-center p-2 rounded border-2 " +
+          "category cursor-pointer select-none text-center p-2 rounded border-2 " +
           (cat.statusId === 1 ? "border-green-500" : "border-red-500")
         }
         onClick={() => setShowDetails(true)}

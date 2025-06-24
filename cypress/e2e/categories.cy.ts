@@ -13,7 +13,7 @@ function addCategory(name: string, description?: string) {
 }
 
 const updaterToggler = () => cy.get("#category-updater-form > div").first();
-const openUpdater = () => cy.get(`#category-adder-opener + div`).click();
+const openUpdater = () => cy.get(`div.category`).click();
 
 function updateCategory({
   name,
