@@ -1,43 +1,39 @@
 import { auth, signIn } from "@/auth";
-import { currentUser, getPartnersOf } from "@/lib/services/user";
-import { getCatsOf } from "@/lib/services/categories";
-import { getReceiptsOf } from "@/lib/services/receipt";
+import { currentUser } from "@/lib/services/user";
+import { getReceiptsDataFor } from "@/lib/services/receipt";
 
-import { CliReceiptAdder, CliReceiptsPage } from "@/components/receipts";
-import Header from "@/components/header";
+import CliReceiptsPage from "@/components/receipts";
 import UserMenu from "@/components/user-menu";
 
 export const dynamic = "force-dynamic";
 
-export default async function ReceiptsPage() {
+export default async function ReceiptsPage({
+  params,
+}: {
+  params: Promise<{ groupId?: string }>;
+}) {
+  const { groupId } = await params;
+
   const session = await auth();
-  if (!session) return signIn("", { redirectTo: "/receipts" });
+  if (!session)
+    return signIn("", {
+      redirectTo: groupId ? `/groups/${groupId}/receipts` : "/receipts",
+    });
 
   const user = await currentUser(session);
-
-  const [users, categories, receipts] = await Promise.all([
-    getPartnersOf(),
-    getCatsOf(user.id),
-    getReceiptsOf(user.id),
-  ]);
-
-  const userMenu = <UserMenu />;
+  const groups = await getReceiptsDataFor(user.id);
+  const gidAsNum = Number(groupId);
 
   return (
-    <>
-      <Header {...{ userMenu, className: "flex items-center gap-2" }}>
-        <h2>Receipts</h2>
-        <CliReceiptAdder
-          {...{
-            users: users.map((u) => u.get({ plain: true })),
-            categories: categories.map((cat) => cat.get({ plain: true })),
+    <CliReceiptsPage
+      {...{
+        userMenu: <UserMenu />,
 
-            paidBy: user.id,
-          }}
-        />
-      </Header>
-
-      <CliReceiptsPage receipts={receipts.map((r) => r.get({ plain: true }))} />
-    </>
+        userId: user.id,
+        groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
+        defaultGroupId: user.defaultGroupId,
+        groups: groups.map((group) => group.get({ plain: true })),
+      }}
+    />
   );
 }
