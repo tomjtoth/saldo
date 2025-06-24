@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
+import Link from "next/link";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
@@ -40,10 +41,16 @@ export default function CliReceiptsPage({
         <h2>Receipts</h2>
       </Header>
 
-      <div className="p-2 text-center">
-        Showing receipts only for group: <GroupSelector fallback={srv.groups} />
-        <Adder />
-      </div>
+      {rs.groups.length > 0 ? (
+        <div className="p-2 text-center">
+          <Adder /> receipt for group: <GroupSelector fallback={srv.groups} />
+        </div>
+      ) : (
+        <p>
+          You have no access to active groups currently,{" "}
+          <Link href="/groups">create or enable one</Link>!
+        </p>
+      )}
 
       <div className="p-2 flex flex-wrap justify-evenly items-center gap-2">
         {rs.groups.length == 0 ? null : (
@@ -56,7 +63,11 @@ export default function CliReceiptsPage({
                 <span>🛍️ {rcpt.Items?.length}: </span>
 
                 <span>
-                  € {rcpt.Items?.reduce((sub, { cost }) => sub + cost, 0)}
+                  €{" "}
+                  {(
+                    rcpt.Items?.reduce((sub, { cost }) => sub + cost, 0) ??
+                    0 / 100
+                  ).toFixed(2)}
                 </span>
 
                 <span>🗓️ {rcpt.paidOn}</span>
