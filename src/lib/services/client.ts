@@ -1,4 +1,5 @@
 const clientConfig = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   set(key: string, value: any) {
     const asStr = JSON.stringify(value);
     localStorage.setItem(key, asStr);
