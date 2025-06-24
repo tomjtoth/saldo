@@ -39,7 +39,7 @@ export default function CliGroupsPage({
   return (
     <>
       <Header {...{ userMenu }}>
-        <h2>Your groups</h2>
+        <h2>Groups</h2>
       </Header>
 
       <p className="p-2 text-center">
