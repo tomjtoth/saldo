@@ -85,7 +85,7 @@ export default function Title({
 
       <textarea
         className="col-span-3 resize-none text-center"
-        value={description}
+        value={description ?? ""}
         placeholder="Optional description..."
         onChange={(ev) => setDescription(ev.target.value)}
         rows={2}
