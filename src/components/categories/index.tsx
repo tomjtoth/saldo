@@ -49,8 +49,52 @@ export default function CliCategoriesPage({
       </Header>
 
       <div className="p-2 text-center">
-        Showing categories only for group:{" "}
-        <GroupSelector fallback={srv.groups} />
+        {rs.groups.length > 0 ? (
+          <>
+            <NameDescrAdder
+              id="category-adder"
+              handler={({ name, description }) =>
+                new Promise<boolean>((done) => {
+                  try {
+                    has3ConsecutiveLetters(name);
+                  } catch (err) {
+                    toast.error(
+                      (err as Error).message as string,
+                      appToast.theme()
+                    );
+                    return done(false);
+                  }
+
+                  appToast.promise(
+                    sendJSON(`/api/categories`, {
+                      groupId: rs.groupId,
+                      name,
+                      description,
+                    })
+                      .then(async (res) => {
+                        if (!res.ok) err(res.statusText);
+
+                        const body = await res.json();
+                        dispatch(red.addCat(body as TCategory));
+                        done(true);
+                      })
+                      .catch((err) => {
+                        done(false);
+                        throw err;
+                      }),
+                    `Saving "${name}" to db`
+                  );
+                })
+              }
+            />{" "}
+            category for group: <GroupSelector fallback={srv.groups} />
+          </>
+        ) : (
+          <p>
+            You have no access to active groups currently,{" "}
+            <Link href="/groups">create or enable one</Link>!
+          </p>
+        )}
       </div>
 
       <p className="p-2 text-center">
@@ -59,50 +103,6 @@ export default function CliCategoriesPage({
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {rs.groups.length > 0 ? (
-          <NameDescrAdder
-            id="category-adder"
-            handler={({ name, description }) =>
-              new Promise<boolean>((done) => {
-                try {
-                  has3ConsecutiveLetters(name);
-                } catch (err) {
-                  toast.error(
-                    (err as Error).message as string,
-                    appToast.theme()
-                  );
-                  return done(false);
-                }
-
-                appToast.promise(
-                  sendJSON(`/api/categories`, {
-                    groupId: rs.groupId,
-                    name,
-                    description,
-                  })
-                    .then(async (res) => {
-                      if (!res.ok) err(res.statusText);
-
-                      const body = await res.json();
-                      dispatch(red.addCat(body as TCategory));
-                      done(true);
-                    })
-                    .catch((err) => {
-                      done(false);
-                      throw err;
-                    }),
-                  `Saving "${name}" to db`
-                );
-              })
-            }
-          />
-        ) : (
-          <p>
-            You have no access to active groups currently,{" "}
-            <Link href="/groups">create or enable one</Link>!
-          </p>
-        )}
-
         {group?.Categories?.map((cat) => (
           <Entry
             key={cat.id}
