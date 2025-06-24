@@ -3,4 +3,4 @@
 
 # Saldo
 
-A _Work in Progress_ multi-user expense tracker supporting `one-to-many` sharing of items deployed [here](https://saldo.ttj.hu).
+A _Work in Progress_ multi-user expense tracker supporting `one-to-many` sharing of items. The current version of the app is deployed [here](https://saldo.ttj.hu).
