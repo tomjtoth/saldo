@@ -1,8 +1,11 @@
-import { Op } from "sequelize";
+import { col, fn, IncludeOptions } from "sequelize";
 
 import {
   atomic,
+  Category,
+  Group,
   Item,
+  Membership,
   Receipt,
   ReceiptArchive,
   Revision,
@@ -11,6 +14,7 @@ import {
 } from "../models";
 
 export type TReceiptInput = {
+  groupId: number;
   paidOn?: number;
   paidBy?: number;
   items: TItem[];
@@ -22,6 +26,7 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
 
     const rcpt = await Receipt.create(
       {
+        groupId: data.groupId,
         revId: rev.id,
         paidOn: data.paidOn,
         paidBy: data.paidBy ?? addedBy,
@@ -38,25 +43,50 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
   });
 }
 
-export async function getReceiptsOf(userId: number) {
-  return Receipt.findAll({
-    order: [["paidOn", "DESC"]],
+export async function getReceiptsDataFor(userId: number, offset = 0) {
+  return await Group.findAll({
     include: [
-      { model: Item, attributes: ["cost"] },
       {
-        model: Revision,
-        // TODO: get all partners of user
-        where: { revBy: { [Op.in]: [userId] } },
-        include: [User],
+        model: Membership,
+        attributes: ["defaultCatId"],
+        where: { userId, statusId: 1 },
       },
       {
-        model: ReceiptArchive,
-        as: "archives",
+        model: User,
+        attributes: ["id", "name", "email"],
+        through: { where: { statusId: 1 } },
+      },
+      { model: Category, attributes: ["id", "name"], where: { statusId: 1 } },
+      {
+        model: Receipt,
         separate: true,
-        include: [{ model: Revision, include: [User] }],
-        limit: 1,
-      },
+        limit: 50,
+        offset,
+        include: [
+          {
+            model: Revision,
+            attributes: ["revOn"],
+            include: [{ model: User, attributes: ["name"] }],
+          },
+          {
+            model: ReceiptArchive,
+            as: "archives",
+            include: [
+              {
+                model: Revision,
+                attributes: ["revOn"],
+                include: [{ model: User, attributes: ["name"] }],
+              },
+            ],
+          },
+          Item,
+        ],
+        order: [["revId", "DESC"]],
+      } as IncludeOptions,
     ],
-    limit: 200,
+    order: [
+      fn("LOWER", col("Group.name")),
+      fn("LOWER", col("Categories.name")),
+    ],
   });
 }
