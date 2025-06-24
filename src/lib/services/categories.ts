@@ -1,4 +1,4 @@
-import { col, fn, Op } from "sequelize";
+import { col, fn } from "sequelize";
 
 import {
   atomic,
@@ -137,7 +137,7 @@ export async function getCatsDataFor(userId: number) {
       {
         model: Membership,
         attributes: ["defaultCatId"],
-        where: { [Op.and]: [{ userId }, { statusId: 1 }] },
+        where: { userId, statusId: 1 },
       },
       { model: Revision, attributes: ["revOn"] },
       { model: User, attributes: ["id", "name"] },
