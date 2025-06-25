@@ -96,7 +96,7 @@ export const rReceipts = {
     const curr = currentReceipt(rs);
 
     const item = curr.items.find((i) => i.id === payload.id)!;
-    if (payload.catId !== undefined) item.catId = Number(payload.catId) ?? 0;
+    if (payload.catId !== undefined) item.catId = payload.catId;
     if (payload.cost !== undefined) item.cost = payload.cost;
     if (payload.notes !== undefined) item.notes = payload.notes;
     if (payload.shares !== undefined) item.shares = payload.shares;
