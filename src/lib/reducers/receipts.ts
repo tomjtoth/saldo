@@ -45,7 +45,7 @@ export const rReceipts = {
   addRow: (rs: CS, { payload }: PayloadAction<number | undefined>) => {
     const curr = currentReceipt(rs);
 
-    if (payload) {
+    if (payload !== undefined) {
       const idx = curr.items.findIndex((i) => i.id === payload);
       curr.focusedIdx = idx + 1;
       curr.items.splice(
