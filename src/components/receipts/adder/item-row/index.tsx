@@ -1,19 +1,23 @@
 "use client";
 
-import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
-import { rCombined as red, TCliItem } from "@/lib/reducers";
-
-import Canceler from "../canceler";
 import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
+
+import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
+import { rCombined as red } from "@/lib/reducers";
+import { useModal } from "..";
+
+import Canceler from "../../../canceler";
+import Options from "./options";
+import Modal from "./modal";
 
 const RE_ANY_LETTER = /^\p{Letter}$/u;
 
 export default function ItemRow({
-  item,
+  itemId,
   autoFocus,
   switchRowHandler,
 }: {
-  item: TCliItem;
+  itemId: number;
   autoFocus: boolean;
   switchRowHandler: KeyboardEventHandler<HTMLInputElement>;
 }) {
@@ -22,6 +26,7 @@ export default function ItemRow({
   const currReceipt = useAppSelector((s) =>
     rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
   );
+  const { setModal } = useModal();
 
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
@@ -30,62 +35,15 @@ export default function ItemRow({
     if (autoFocus) costRef.current?.focus();
   }, [autoFocus]);
 
-  const [optsVisible, setOptsVisible] = useState(false);
-  const hideOpts = () => setOptsVisible(false);
+  const hideOpts = () => setModal(null);
 
   if (!currReceipt) return null;
 
+  const item = currReceipt.items.find((item) => item.id === itemId)!;
   // TODO: buggy, unable to edit numbers properly...
   // const costAsNum = Number(i.cost);
   // const cost = isNaN(costAsNum) ? i.cost : costAsNum.toFixed(2);
   const cost = item.cost;
-
-  const options = (
-    <>
-      <textarea
-        rows={1}
-        placeholder="Optional comments..."
-        className="resize-none grow bg-background"
-        value={item.notes}
-        onChange={(ev) =>
-          dispatch(
-            red.updateItem({
-              id: item.id,
-              notes: ev.target.value,
-            })
-          )
-        }
-      />
-
-      {currReceipt.items.length > 1 && (
-        <button
-          className="inline-flex items-center gap-2 bg-background"
-          onClick={() => {
-            dispatch(red.rmRow(item.id));
-            if (optsVisible) setOptsVisible(false);
-          }}
-        >
-          <span className="sm:hidden lg:inline-block">
-            {"Remove this row ".replaceAll(" ", "\u00A0")}
-          </span>
-          ➖
-        </button>
-      )}
-
-      <button
-        className="inline-flex items-center gap-2 col-start-4 bg-background"
-        onClick={() => {
-          dispatch(red.addRow(item.id));
-          if (optsVisible) setOptsVisible(false);
-        }}
-      >
-        <span className="sm:hidden lg:inline-block">
-          {"Add row below ".replaceAll(" ", "\u00A0")}
-        </span>{" "}
-        ➕
-      </button>
-    </>
-  );
 
   return (
     <>
@@ -115,28 +73,15 @@ export default function ItemRow({
         ))}
       </select>
 
-      <button className="sm:hidden" onClick={() => setOptsVisible(true)}>
+      <button
+        className="sm:hidden"
+        onClick={() => setModal(<Modal {...{ itemId }} />)}
+      >
         ⚙️
       </button>
 
-      {optsVisible && (
-        <Canceler className="sm:hidden" zIndex={1} onClick={hideOpts}>
-          <div
-            className={
-              "absolute left-1/2 top-1/2 -translate-1/2 " +
-              "p-2 flex flex-wrap gap-2 justify-evenly"
-            }
-            onClick={(ev) => {
-              if (ev.target === ev.currentTarget) hideOpts();
-            }}
-          >
-            {options}
-          </div>
-        </Canceler>
-      )}
-
-      <div className="hidden sm:grid col-span-3 grid-cols-subgrid gap-2">
-        {options}
+      <div className="hidden sm:grid col-span-4 grid-cols-subgrid gap-2">
+        <Options {...{ itemId }} />
       </div>
 
       <form
@@ -151,7 +96,10 @@ export default function ItemRow({
           ref={costRef}
           type="text"
           placeholder="cost"
-          className="w-15 grow sm:grow-0"
+          className={
+            "w-15 " +
+            (isNaN(Number(item.cost)) ? " border-2! border-red-500" : "")
+          }
           value={cost}
           onChange={(ev) =>
             dispatch(

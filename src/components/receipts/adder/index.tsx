@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 import { TCategory, TUser } from "@/lib/models";
 
-import Canceler from "../canceler";
+import Canceler from "../../canceler";
 import ItemRow from "./item-row";
 
 export type TCLiReceiptAdder = {
@@ -22,6 +28,12 @@ const DIFFS = {
   PageDown: 5,
 };
 
+const Ctx = createContext<{
+  setModal: (_: ReactNode) => void;
+}>({ setModal: () => {} });
+
+export const useModal = () => useContext(Ctx);
+
 export default function Adder() {
   const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
@@ -29,16 +41,20 @@ export default function Adder() {
   const currReceipt = useAppSelector((s) =>
     rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
   );
+  const [modal, setModal] = useState<ReactNode>(null);
 
   useEffect(() => {
     if (rs.groups.length > 0 && !currReceipt) dispatch(red.addRow());
   }, [currReceipt, rs.groups.length]);
 
   return !currReceipt ? null : (
-    <>
+    <Ctx.Provider value={{ setModal }}>
       <button className="border rounded" onClick={() => setOpen(true)}>
         Add new...
       </button>
+
+      {modal}
+
       {open && (
         <Canceler onClick={() => setOpen(false)}>
           <div
@@ -89,14 +105,14 @@ export default function Adder() {
               className={
                 "p-2 grid items-center gap-2 " +
                 "grid-cols-[auto_min-content_min-content] " +
-                "sm:grid-cols-[min-content_auto_min-content_min-content_min-content]"
+                "sm:grid-cols-[min-content_auto_min-content_min-content_min-content_min-content]"
               }
             >
               {currReceipt.items.map((item, rowIdx) => (
                 <ItemRow
                   key={item.id}
                   autoFocus={rowIdx === currReceipt.focusedIdx}
-                  item={item}
+                  itemId={item.id}
                   switchRowHandler={(ev) => {
                     const lastIdx = currReceipt.items.length - 1;
 
@@ -123,13 +139,11 @@ export default function Adder() {
 
               <button
                 className={
-                  "inline-flex items-center gap-2 sm:col-start-4 " +
+                  "inline-flex items-center gap-2 sm:col-start-5 " +
                   "bg-gray-500/70 cursor-not-allowed!"
                 }
               >
-                <span className="hidden lg:inline-block grow">
-                  Save & clear
-                </span>
+                <span className="hidden xl:block grow">Save & clear</span>
                 💾
               </button>
 
@@ -151,6 +165,6 @@ export default function Adder() {
           </div>
         </Canceler>
       )}
-    </>
+    </Ctx.Provider>
   );
 }
