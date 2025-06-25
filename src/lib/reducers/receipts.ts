@@ -42,6 +42,16 @@ function currentReceipt(rs: CS) {
 }
 
 export const rReceipts = {
+  setPaidOn: (rs: CS, { payload }: PayloadAction<string>) => {
+    const curr = currentReceipt(rs);
+    curr.paidOn = payload;
+  },
+
+  setPaidBy: (rs: CS, { payload }: PayloadAction<number>) => {
+    const curr = currentReceipt(rs);
+    curr.paidBy = payload;
+  },
+
   addRow: (rs: CS, { payload }: PayloadAction<number | undefined>) => {
     const curr = currentReceipt(rs);
 
@@ -70,14 +80,9 @@ export const rReceipts = {
     curr.items.splice(idx, 1);
   },
 
-  setPaidOn: (rs: CS, { payload }: PayloadAction<string>) => {
+  setFocusedRow: (rs: CS, { payload }: PayloadAction<number>) => {
     const curr = currentReceipt(rs);
-    curr.paidOn = payload;
-  },
-
-  setPaidBy: (rs: CS, { payload }: PayloadAction<number>) => {
-    const curr = currentReceipt(rs);
-    curr.paidBy = payload;
+    curr.focusedIdx = payload;
   },
 
   updateItem: (rs: CS, { payload }: PayloadAction<TItemUpdater>) => {
@@ -106,6 +111,10 @@ export const tReceipts = {
 
   rmRow: (rowId: number) => (dispatch: AppDispatch) => {
     return dispatch(csa.rmRow(rowId));
+  },
+
+  setFocusedRow: (index: number) => (dispatch: AppDispatch) => {
+    return dispatch(csa.setFocusedRow(index));
   },
 
   updateItem: (updater: TItemUpdater) => {
