@@ -60,7 +60,10 @@ export default function ItemRow({
       {currReceipt.items.length > 1 && (
         <button
           className="inline-flex items-center gap-2 bg-background"
-          onClick={() => dispatch(red.rmRow(item.id))}
+          onClick={() => {
+            dispatch(red.rmRow(item.id));
+            if (optsVisible) setOptsVisible(false);
+          }}
         >
           <span className="sm:hidden lg:inline-block">
             {"Remove this row ".replaceAll(" ", "\u00A0")}
@@ -71,7 +74,10 @@ export default function ItemRow({
 
       <button
         className="inline-flex items-center gap-2 col-start-4 bg-background"
-        onClick={() => dispatch(red.addRow(item.id))}
+        onClick={() => {
+          dispatch(red.addRow(item.id));
+          if (optsVisible) setOptsVisible(false);
+        }}
       >
         <span className="sm:hidden lg:inline-block">
           {"Add row below ".replaceAll(" ", "\u00A0")}
