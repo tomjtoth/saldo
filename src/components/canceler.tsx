@@ -6,7 +6,7 @@ export default function Canceler({
   onClick: callback,
   zIndex = 0,
   className = "",
-  classNameBlurred: clsBlurred = "blurred bg-background/50",
+  classNameBlurred: clsBlurred = "backdrop-opacity-100 bg-background/50",
   children,
 }: PropsWithChildren & {
   onClick: () => void;
@@ -14,9 +14,11 @@ export default function Canceler({
   className?: string;
   classNameBlurred?: string;
 }) {
-  const clsBase = (
-    "absolute top-0 left-0 h-full w-full canceler " + className
-  ).trim();
+  let clsBase =
+    "absolute top-0 left-0 h-full w-full " +
+    "transition duration-1000 backdrop-blur-sm backdrop-opacity-0 ";
+
+  if (className) clsBase += ` ${className}`;
 
   const [classes, setClasses] = useState(clsBase);
 
