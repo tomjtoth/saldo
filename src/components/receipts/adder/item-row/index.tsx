@@ -1,12 +1,11 @@
 "use client";
 
-import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
+import { KeyboardEventHandler, useEffect, useRef } from "react";
 
 import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 import { useModal } from "..";
 
-import Canceler from "../../../canceler";
 import Options from "./options";
 import Modal from "./modal";
 
@@ -34,8 +33,6 @@ export default function ItemRow({
   useEffect(() => {
     if (autoFocus) costRef.current?.focus();
   }, [autoFocus]);
-
-  const hideOpts = () => setModal(null);
 
   if (!currReceipt) return null;
 
