@@ -4,7 +4,7 @@ import { AppDispatch } from "../store";
 import { TGroup } from "../models";
 import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
-import { ReceiptState, rReceipts, tReceipts } from "./receipts";
+import { TCliReceipt, rReceipts, tReceipts } from "./receipts";
 
 export * from "./receipts";
 
@@ -14,7 +14,7 @@ export type CombinedState = {
   groups: TGroup[];
   defaultGroupId?: number;
   newReceipts: {
-    [key: number]: ReceiptState;
+    [key: number]: TCliReceipt;
   };
 };
 

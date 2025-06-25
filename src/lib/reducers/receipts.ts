@@ -1,29 +1,36 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TItem } from "../models";
 import { combinedSA as csa, CombinedState as CS } from ".";
 
-export type ReceiptState = {
+export type TCliReceipt = {
   paidOn: string;
   paidBy?: number;
   items: TCliItem[];
   focusedIdx?: number;
 };
 
-export type TCliItem = Omit<TItem, "rcptId" | "revId" | "statusId" | "cost"> & {
+type TCliItem = {
+  id: number;
+  catId: number;
   cost: string;
+  notes: string;
+  shares: {
+    [key: number]: number;
+  };
 };
 
 type TItemUpdater = Pick<TCliItem, "id"> & Partial<Omit<TCliItem, "id">>;
 
 // this provides the key prop to React during `items.map( ... )`
+// TODO: enable drag n drop re-arrangement of items in adder
 let rowId = 0;
 const addItem = (catId: number) => ({
   id: rowId++,
-  catId: catId,
+  catId,
   cost: "",
   notes: "",
+  shares: {},
 });
 
 function currentReceipt(rs: CS) {
