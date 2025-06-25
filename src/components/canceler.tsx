@@ -3,28 +3,30 @@
 import { PropsWithChildren, useEffect, useState } from "react";
 
 export default function Canceler({
-  blur = true,
   onClick: callback,
   zIndex = 0,
   className = "",
+  classNameBlurred: clsBlurred = "blurred bg-background/50",
   children,
 }: PropsWithChildren & {
-  blur?: boolean;
   onClick: () => void;
   zIndex?: number;
   className?: string;
+  classNameBlurred?: string;
 }) {
-  const classes = "absolute top-0 left-0 h-full w-full canceler " + className;
+  const clsBase = (
+    "absolute top-0 left-0 h-full w-full canceler " + className
+  ).trim();
 
-  const [cn, setCN] = useState(classes);
+  const [classes, setClasses] = useState(clsBase);
 
   useEffect(() => {
-    if (blur) setCN(classes + " dimmed");
+    if (clsBlurred) setClasses(`${clsBase} ${clsBlurred}`);
   }, []);
 
   return (
     <div
-      className={cn}
+      className={classes}
       onClick={(ev) => {
         if (ev.target === ev.currentTarget) callback();
       }}

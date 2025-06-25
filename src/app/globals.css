@@ -17,9 +17,8 @@
   backdrop-filter: blur(4px) opacity(0);
 }
 
-.canceler.dimmed {
+.canceler.blurred {
   backdrop-filter: blur(4px) opacity(1);
-  @apply bg-background/50;
 }
 
 @media (prefers-color-scheme: dark) {
