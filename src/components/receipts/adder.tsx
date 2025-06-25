@@ -15,6 +15,13 @@ export type TCLiReceiptAdder = {
   paidBy: number;
 };
 
+const DIFFS = {
+  ArrowUp: -1,
+  ArrowDown: 1,
+  PageUp: -5,
+  PageDown: 5,
+};
+
 export default function Adder() {
   const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
@@ -90,6 +97,25 @@ export default function Adder() {
                   key={item.id}
                   autoFocus={rowIdx === currReceipt.focusedIdx}
                   item={item}
+                  switchRowHandler={(ev) => {
+                    const lastIdx = currReceipt.items.length - 1;
+
+                    if (
+                      ((ev.key === "ArrowUp" || ev.key === "PageUp") &&
+                        rowIdx > 0) ||
+                      ((ev.key === "ArrowDown" || ev.key === "PageDown") &&
+                        rowIdx < lastIdx)
+                    ) {
+                      ev.preventDefault();
+                      const newIdx = rowIdx + DIFFS[ev.key];
+
+                      dispatch(
+                        red.setFocusedRow(
+                          newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
+                        )
+                      );
+                    }
+                  }}
                 />
               ))}
 
