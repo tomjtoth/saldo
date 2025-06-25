@@ -37,7 +37,7 @@ export default function Adder() {
           <div
             className={
               "absolute left-1/2 top-1/2 -translate-1/2 w-4/5 h-4/5 " +
-              "bg-background rounded border p-2 flex flex-col gap-2"
+              "bg-background rounded border p-2 flex flex-col gap-2 overflow-scroll"
             }
           >
             <div className="flex gap-2 flex-wrap justify-between">
@@ -80,8 +80,7 @@ export default function Adder() {
             <hr />
             <div
               className={
-                "overflow-scroll p-2 " +
-                "grid items-center gap-2  " +
+                "p-2 grid items-center gap-2 " +
                 "grid-cols-[auto_min-content_min-content] " +
                 "sm:grid-cols-[min-content_auto_min-content_min-content_min-content]"
               }
