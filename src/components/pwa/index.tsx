@@ -126,7 +126,7 @@ function InstallPrompt() {
             {" "}
             ⎋{" "}
           </span>
-          and then "Add to Home Screen"
+          and then <i>Add to Home Screen</i>
           <span role="img" aria-label="plus icon">
             {" "}
             ➕{" "}
