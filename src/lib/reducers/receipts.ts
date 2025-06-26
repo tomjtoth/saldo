@@ -5,7 +5,7 @@ import { combinedSA as csa, CombinedState as CS } from ".";
 
 export type TCliReceipt = {
   paidOn: string;
-  paidBy?: number;
+  paidBy: number;
   items: TCliItem[];
   focusedIdx?: number;
 };
@@ -39,6 +39,7 @@ function currentReceipt(rs: CS) {
   if (!current) {
     current = {
       paidOn: new Date().toISOString().slice(0, 10),
+      paidBy: rs.userId!,
       items: [],
     };
 
