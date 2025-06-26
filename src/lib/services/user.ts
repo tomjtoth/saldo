@@ -20,6 +20,7 @@ export async function currentUser(session: Session) {
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const email = session?.user?.email!;
   const name = session?.user?.name ?? `User #${await User.count()}`;
+  const image = session?.user?.image;
 
   let user = await User.findOne({ where: { email } });
   if (!user) {
@@ -31,7 +32,19 @@ export async function currentUser(session: Session) {
     await createGroup(user.id, { name: "just you" });
   }
 
-  if (name !== user.name) await user.update({ name });
+  let updating = false;
+
+  if (name !== user.name) {
+    updating = true;
+    user.name = name;
+  }
+
+  if (image && image !== user.image) {
+    updating = true;
+    user.image = image;
+  }
+
+  if (updating) await user.save();
 
   return user;
 }
