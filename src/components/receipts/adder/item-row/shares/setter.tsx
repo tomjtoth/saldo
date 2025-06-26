@@ -13,6 +13,7 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
 
   const item = currReceipt.items.find((item) => item.id === itemId)!;
   const users = rs.group()?.Users;
+  const notPayer = users?.find((user) => user.id !== currReceipt.paidBy);
 
   return (
     <div className="absolute left-1/2 top-1/2 -translate-1/2 flex flex-wrap gap-6 justify-evenly">
@@ -20,6 +21,7 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
         <ItemShareAvatar
           key={user.id}
           user={user}
+          focused={user.id === notPayer?.id}
           value={item.shares[user.id] ?? ""}
           onChange={(ev) => {
             dispatch(
