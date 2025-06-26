@@ -2,6 +2,11 @@
 
 import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
+import { useModal } from "..";
+
+import Canceler from "@/components/canceler";
+import ItemShareSetter from "./shares/setter";
+import ItemShareAvatar from "./shares/avatar";
 
 export default function Options({
   itemId,
@@ -16,10 +21,24 @@ export default function Options({
     rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
   )!;
 
+  const { setModal } = useModal();
+  const showSetter = () => {
+    setModal(
+      <Canceler
+        className={
+          "z-1" + (hideModal ? " backdrop-opacity-100 bg-background/50" : "")
+        }
+        onClick={() => setModal(null)}
+      >
+        <ItemShareSetter {...{ itemId }} />
+      </Canceler>
+    );
+  };
+
   const item = currReceipt.items.find((item) => item.id === itemId)!;
 
   const users = rs.group()?.Users;
-  const shares = Object.entries(item.shares);
+  const shares = Object.entries(item.shares).filter(([, val]) => !!val);
 
   return (
     <>
@@ -38,25 +57,34 @@ export default function Options({
         }
       />
 
-      <button className="bg-background inline-flex items-center gap-2">
-        {shares.length > 0 ? (
-          shares.map(([userId, share]) =>
+      {shares.length > 0 ? (
+        <div
+          className="flex gap-2 cursor-pointer mr-2 mb-2 sm:mb-0 items-center justify-evenly"
+          onClick={showSetter}
+        >
+          {shares.map(([userId, share]) =>
             share === 0 ? null : (
-              <div key={`${item.id}-${userId}`}>
-                {users?.find((user) => user.id == Number(userId))?.name}
-                <sub>{share}</sub>
-              </div>
+              <ItemShareAvatar
+                key={`${item.id}-${userId}`}
+                user={users?.find((user) => user.id == Number(userId))!}
+                value={share}
+              />
             )
-          )
-        ) : (
+          )}
+        </div>
+      ) : (
+        <button
+          className="bg-background inline-flex items-center gap-2"
+          onClick={showSetter}
+        >
           <>
             <span className="sm:hidden xl:block">
               {"Edit shares".replaceAll(" ", "\u00A0")}
             </span>
             👪
           </>
-        )}
-      </button>
+        </button>
+      )}
 
       {currReceipt.items.length > 1 && (
         <button
