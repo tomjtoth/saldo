@@ -52,3 +52,9 @@ input,
 textarea {
   @apply border rounded p-1;
 }
+
+input.no-spinner {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}

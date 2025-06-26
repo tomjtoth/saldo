@@ -31,10 +31,13 @@ export default function ItemShareAvatar({
         />
         {onChange ? (
           <input
-            type="text"
-            value={value}
-            onChange={onChange}
             ref={ref}
+            type="number"
+            placeholder="N+1"
+            min={0}
+            value={value == 0 ? "" : value}
+            onChange={onChange}
+            className="no-spinner absolute -bottom-2 -right-2 w-10 h-10 rounded-full! text-center bg-background border"
           />
         ) : (
           <div className="absolute -bottom-2 -right-2 w-5 h-5 rounded-full text-center text-xs bg-background border">
