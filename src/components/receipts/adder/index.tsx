@@ -10,16 +10,9 @@ import {
 
 import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { TCategory, TUser } from "@/lib/models";
 
 import Canceler from "../../canceler";
 import ItemRow from "./item-row";
-
-export type TCLiReceiptAdder = {
-  users: TUser[];
-  categories: TCategory[];
-  paidBy: number;
-};
 
 const DIFFS = {
   ArrowUp: -1,
