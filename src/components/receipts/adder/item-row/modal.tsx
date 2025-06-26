@@ -10,7 +10,7 @@ export default function Modal({ itemId }: { itemId: number }) {
   const hideModal = () => setModal(null);
 
   return (
-    <Canceler className="sm:hidden" zIndex={1} onClick={hideModal}>
+    <Canceler className="sm:hidden z-1" onClick={hideModal}>
       <div
         className={
           "absolute left-1/2 top-1/2 -translate-1/2 " +

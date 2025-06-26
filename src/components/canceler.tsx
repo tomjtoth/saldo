@@ -4,13 +4,11 @@ import { PropsWithChildren, useEffect, useState } from "react";
 
 export default function Canceler({
   onClick: callback,
-  zIndex = 0,
   className = "",
   classNameBlurred: clsBlurred = "backdrop-opacity-100 bg-background/50",
   children,
 }: PropsWithChildren & {
   onClick: () => void;
-  zIndex?: number;
   className?: string;
   classNameBlurred?: string;
 }) {
@@ -32,7 +30,6 @@ export default function Canceler({
       onClick={(ev) => {
         if (ev.target === ev.currentTarget) callback();
       }}
-      style={{ zIndex }}
     >
       {children}
     </div>
