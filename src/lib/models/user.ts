@@ -9,6 +9,7 @@ import { Group } from "./group";
 export type TUser = TIDs & {
   email: string;
   name: string;
+  image?: string;
   defaultGroupId?: number;
 
   Membership?: Membership;
@@ -40,6 +41,10 @@ const COLS: ModelAttributes<User, TUser> = {
     },
   },
 
+  image: {
+    type: DataTypes.TEXT,
+  },
+
   defaultGroupId: {
     type: DataTypes.INTEGER,
     references: { model: Group, key: "id" },
@@ -52,6 +57,7 @@ class Common extends Model<TUser, TCrUser> {
   statusId!: number;
   email!: string;
   name!: string;
+  image?: string;
   defaultGroupId?: number;
 
   Membership?: Membership;
