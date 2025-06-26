@@ -53,7 +53,7 @@ export async function getReceiptsDataFor(userId: number, offset = 0) {
       },
       {
         model: User,
-        attributes: ["id", "name", "email"],
+        attributes: ["id", "name", "email", "image"],
         through: { where: { statusId: 1 } },
       },
       { model: Category, attributes: ["id", "name"], where: { statusId: 1 } },
