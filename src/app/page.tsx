@@ -1,5 +1,6 @@
 import Header from "@/components/header";
 import UserMenu from "@/components/user-menu";
+import CliPwa from "@/components/pwa";
 
 export default function HomePage() {
   const userMenu = <UserMenu />;
@@ -24,6 +25,8 @@ export default function HomePage() {
           </p>
         )}
       </div>
+
+      <CliPwa />
     </>
   );
 }
