@@ -1,23 +1,44 @@
 import { col, fn, IncludeOptions } from "sequelize";
+import { DateTime } from "luxon";
 
 import {
   atomic,
   Category,
   Group,
   Item,
+  ItemShare,
   Membership,
   Receipt,
   ReceiptArchive,
   Revision,
-  TItem,
+  TCrItemShare,
   User,
 } from "../models";
+import { TCliReceipt } from "../reducers";
+import { dateAsInt, LUXON_TZ } from "../utils";
 
-export type TReceiptInput = {
-  groupId: number;
-  paidOn?: number;
-  paidBy?: number;
-  items: TItem[];
+export type TReceiptInput = TCliReceipt & { groupId: number };
+
+const RCPT_INCLUDE = {
+  include: [
+    {
+      model: Revision,
+      attributes: ["revOn"],
+      include: [{ model: User, attributes: ["name"] }],
+    },
+    {
+      model: ReceiptArchive,
+      as: "archives",
+      include: [
+        {
+          model: Revision,
+          attributes: ["revOn"],
+          include: [{ model: User, attributes: ["name"] }],
+        },
+      ],
+    },
+    Item,
+  ],
 };
 
 export async function addReceipt(addedBy: number, data: TReceiptInput) {
@@ -28,18 +49,45 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
       {
         groupId: data.groupId,
         revId: rev.id,
-        paidOn: data.paidOn,
-        paidBy: data.paidBy ?? addedBy,
+        paidOn: dateAsInt(DateTime.fromFormat(data.paidOn, "y-M-d", LUXON_TZ)),
+        paidBy: data.paidBy,
       },
       { transaction }
     );
 
     const items = await Item.bulkCreate(
-      data.items.map((i) => ({ ...i, revId: rev.id, rcptId: rcpt.id })),
+      data.items.map((i) => ({
+        revId: rev.id,
+        rcptId: rcpt.id,
+        catId: i.catId,
+        cost: Number(i.cost),
+        notes: i.notes,
+      })),
       { transaction }
     );
 
-    return { rev, rcpt, items };
+    // TODO: verify (?)
+    // this relies on Sequelize to return the items in exactly the same order as inserted
+    const itemSharesToSave = data.items.reduce((shares, item, idx) => {
+      Object.entries(item.shares).forEach(([strUserId, strShare]) => {
+        const userId = Number(strUserId);
+        const share = Number(strShare);
+
+        if (!isNaN(userId) && !isNaN(share) && share > 0) {
+          shares.push({
+            revId: rev.id,
+            userId,
+            itemId: items[idx].id,
+            share,
+          });
+        }
+      });
+      return shares;
+    }, [] as TCrItemShare[]);
+
+    await ItemShare.bulkCreate(itemSharesToSave, { transaction });
+
+    return await rcpt.reload({ ...RCPT_INCLUDE, transaction });
   });
 }
 
@@ -62,25 +110,7 @@ export async function getReceiptsDataFor(userId: number, offset = 0) {
         separate: true,
         limit: 50,
         offset,
-        include: [
-          {
-            model: Revision,
-            attributes: ["revOn"],
-            include: [{ model: User, attributes: ["name"] }],
-          },
-          {
-            model: ReceiptArchive,
-            as: "archives",
-            include: [
-              {
-                model: Revision,
-                attributes: ["revOn"],
-                include: [{ model: User, attributes: ["name"] }],
-              },
-            ],
-          },
-          Item,
-        ],
+        ...RCPT_INCLUDE,
         order: [["revId", "DESC"]],
       } as IncludeOptions,
     ],
