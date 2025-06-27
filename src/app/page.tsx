@@ -1,6 +1,5 @@
 import Header from "@/components/header";
 import UserMenu from "@/components/user-menu";
-import CliPwa from "@/components/pwa";
 import HashParagraph from "@/components/hash-paragraph";
 
 export default function HomePage() {
@@ -21,8 +20,6 @@ export default function HomePage() {
 
         <HashParagraph />
       </div>
-
-      <CliPwa />
     </>
   );
 }
