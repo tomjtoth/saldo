@@ -2,10 +2,10 @@ import { NextRequest } from "next/server";
 
 import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
-import { addReceipt } from "@/lib/services/receipt";
+import { addReceipt, TReceiptInput } from "@/lib/services/receipt";
 
 export async function POST(req: NextRequest) {
-  const data = await req.json();
+  const data: TReceiptInput = await req.json();
   // TODO: preliminary validation of sent data here
   if (data.items.length === 0) return new Response(null, { status: 400 });
 
@@ -15,10 +15,13 @@ export async function POST(req: NextRequest) {
   const user = await currentUser(sess);
 
   try {
-    const {
-      rcpt: { id },
-    } = await addReceipt(user.id, data);
-    Response.json(id);
+    const rcpt = await addReceipt(user.id, {
+      groupId: data.groupId,
+      paidOn: data.paidOn,
+      paidBy: data.paidBy,
+      items: data.items,
+    });
+    return Response.json(rcpt);
   } catch (err) {
     return new Response(null, {
       status: 400,
