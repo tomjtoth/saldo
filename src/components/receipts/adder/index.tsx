@@ -10,6 +10,7 @@ import {
 
 import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
+import { appToast, err, sendJSON } from "@/lib/utils";
 
 import Canceler from "../../canceler";
 import ItemRow from "./item-row";
@@ -133,10 +134,21 @@ export default function Adder() {
               <span className="col-start-1">TOTAL</span>
 
               <button
-                className={
-                  "inline-flex items-center gap-2 sm:col-start-5 " +
-                  "bg-gray-500/70 cursor-not-allowed!"
-                }
+                className="inline-flex items-center gap-2 sm:col-start-5"
+                onClick={() => {
+                  appToast.promise(
+                    sendJSON("/api/receipts", {
+                      ...currReceipt,
+                      groupId: rs.groupId,
+                    }).then(async (res) => {
+                      if (!res.ok) err(res.statusText);
+
+                      const body = await res.json();
+                      dispatch(red.addReceipt(body));
+                    }),
+                    "Submitting new receipt"
+                  );
+                }}
               >
                 <span className="hidden xl:block grow">Save & clear</span>
                 💾
