@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     description: data.description,
   });
 
-  return Response.json(group.get({ plain: true }));
+  return Response.json(group);
 }
 
 export async function PUT(req: NextRequest) {
@@ -57,7 +57,7 @@ export async function PUT(req: NextRequest) {
 
     if (!group) return new Response(null, { status: 404 });
 
-    return Response.json(group.get({ plain: true }));
+    return Response.json(group);
   } catch (err) {
     return new Response(null, {
       status: 400,

@@ -32,7 +32,7 @@ export async function PUT(req: NextRequest) {
 
     if (!ms) return new Response(null, { status: 404 });
 
-    return Response.json(ms.get({ plain: true }));
+    return Response.json(ms);
   } catch (err) {
     return new Response(null, {
       status: 400,

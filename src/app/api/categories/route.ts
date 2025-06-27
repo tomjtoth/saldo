@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     name: data.name,
     description: data.description,
   });
-  return Response.json(cat.get({ plain: true }));
+  return Response.json(cat);
 }
 
 export async function PUT(req: NextRequest) {
@@ -65,7 +65,7 @@ export async function PUT(req: NextRequest) {
       statusId: data.statusId,
     });
 
-    return Response.json(updated!.get({ plain: true }));
+    return Response.json(updated);
   } catch (err) {
     return new Response(null, {
       status: 400,
