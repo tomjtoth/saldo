@@ -66,8 +66,7 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
       { transaction }
     );
 
-    // TODO: verify (?)
-    // this relies on Sequelize to return the items in exactly the same order as inserted
+    // this relies on Sequelize returning the items in exactly the same order as inserted
     const itemSharesToSave = data.items.reduce((shares, item, idx) => {
       Object.entries(item.shares).forEach(([strUserId, strShare]) => {
         const userId = Number(strUserId);
