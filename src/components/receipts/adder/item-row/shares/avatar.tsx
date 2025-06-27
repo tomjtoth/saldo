@@ -51,7 +51,7 @@ export default function ItemShareAvatar({
         💸{" "}
         {denominator > 0 ? (
           <span>
-            {isNaN(costAsNum) ? 0 : costAsNum} * {item?.shares[user.id] ?? 0} /{" "}
+            {costToFixed(item, costAsNum)} * {item?.shares[user.id] ?? 0} /{" "}
             {denominator} = {share.toFixed(2)}
           </span>
         ) : user.id === currReceipt?.paidBy ? (
