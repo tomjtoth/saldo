@@ -8,7 +8,10 @@ export default function HashParagraph() {
     pHash = (
       <p>
         This version is deployed from:{" "}
-        <Link href={`https://github.com/tomjtoth/saldo/commit/${hash}`}>
+        <Link
+          href={`https://github.com/tomjtoth/saldo/commit/${hash}`}
+          target="_blank"
+        >
           <code>{hash.substring(0, 7)}</code>
         </Link>
         .
