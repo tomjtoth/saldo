@@ -25,6 +25,8 @@ export default function ItemRow({
   const currReceipt = useAppSelector((s) =>
     rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
   );
+  const isMultiUser = (rs.group()?.Users?.length ?? 0) > 1;
+
   const { setModal } = useModal();
 
   const catRef = useRef<HTMLSelectElement>(null);
@@ -77,7 +79,12 @@ export default function ItemRow({
         ⚙️
       </button>
 
-      <div className="hidden sm:grid col-span-4 grid-cols-subgrid gap-2">
+      <div
+        className={
+          "hidden sm:grid grid-cols-subgrid gap-2 " +
+          (isMultiUser ? "col-span-4" : "col-span-3")
+        }
+      >
         <Options {...{ itemId }} />
       </div>
 

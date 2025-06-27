@@ -43,6 +43,8 @@ export default function Adder() {
       dispatch(red.addRow());
   }, [currReceipt, rs.groups.length, userId]);
 
+  const isMultiUser = (rs.group()?.Users?.length ?? 0) > 1;
+
   return !currReceipt ? null : (
     <Ctx.Provider value={{ setModal }}>
       <button className="border rounded" onClick={() => setOpen(true)}>
@@ -74,24 +76,27 @@ export default function Adder() {
               <div className="flex gap-2 items-center">
                 <span>
                   paid by{" "}
-                  {
-                    rs.group()?.Users?.find((u) => u.id === currReceipt.paidBy)
-                      ?.name
-                  }
+                  {isMultiUser
+                    ? rs
+                        .group()
+                        ?.Users?.find((u) => u.id === currReceipt.paidBy)?.name
+                    : "You"}
                 </span>
 
-                <select
-                  id="paid-by"
-                  className="rounded border p-1"
-                  value={currReceipt.paidBy}
-                  onChange={(ev) => dispatch(red.setPaidBy(ev.target.value))}
-                >
-                  {rs.group()?.Users?.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.email}
-                    </option>
-                  ))}
-                </select>
+                {isMultiUser && (
+                  <select
+                    id="paid-by"
+                    className="rounded border p-1"
+                    value={currReceipt.paidBy}
+                    onChange={(ev) => dispatch(red.setPaidBy(ev.target.value))}
+                  >
+                    {rs.group()?.Users?.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.email}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
             </div>
 
@@ -101,7 +106,9 @@ export default function Adder() {
               className={
                 "p-2 grid items-center gap-2 " +
                 "grid-cols-[auto_min-content_min-content] " +
-                "sm:grid-cols-[min-content_auto_min-content_min-content_min-content_min-content]"
+                (isMultiUser
+                  ? "sm:grid-cols-[min-content_auto_min-content_min-content_min-content_min-content]"
+                  : "sm:grid-cols-[min-content_auto_min-content_min-content_min-content]")
               }
             >
               {currReceipt.items.map((item, rowIdx) => (
@@ -134,7 +141,10 @@ export default function Adder() {
               <span className="col-start-1">TOTAL</span>
 
               <button
-                className="inline-flex items-center gap-2 sm:col-start-5"
+                className={
+                  "inline-flex items-center gap-2 " +
+                  (isMultiUser ? "sm:col-start-5" : "sm:col-start-4")
+                }
                 onClick={() => {
                   appToast.promise(
                     sendJSON("/api/receipts", {

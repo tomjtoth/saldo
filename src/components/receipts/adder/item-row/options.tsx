@@ -38,6 +38,7 @@ export default function Options({
   const item = currReceipt.items.find((item) => item.id === itemId)!;
 
   const users = rs.group()?.Users;
+  const isMultiUser = (users?.length ?? 0) > 1;
   const shares = Object.entries(item.shares).filter(([, val]) => !!val);
 
   return (
@@ -57,34 +58,35 @@ export default function Options({
         }
       />
 
-      {shares.length > 0 ? (
-        <div
-          className="flex gap-2 cursor-pointer mr-2 mb-2 sm:mb-0 items-center justify-evenly"
-          onClick={showSetter}
-        >
-          {shares.map(([userId, share]) =>
-            share === 0 ? null : (
-              <ItemShareAvatar
-                key={`${item.id}-${userId}`}
-                user={users!.find((user) => user.id == Number(userId))!}
-                value={share}
-              />
-            )
-          )}
-        </div>
-      ) : (
-        <button
-          className="bg-background inline-flex items-center gap-2"
-          onClick={showSetter}
-        >
-          <>
-            <span className="sm:hidden xl:block">
-              {"Edit shares".replaceAll(" ", "\u00A0")}
-            </span>
-            👪
-          </>
-        </button>
-      )}
+      {isMultiUser &&
+        (shares.length > 0 ? (
+          <div
+            className="flex gap-2 cursor-pointer mr-2 mb-2 sm:mb-0 items-center justify-evenly"
+            onClick={showSetter}
+          >
+            {shares.map(([userId, share]) =>
+              share === 0 ? null : (
+                <ItemShareAvatar
+                  key={`${item.id}-${userId}`}
+                  user={users!.find((user) => user.id == Number(userId))!}
+                  value={share}
+                />
+              )
+            )}
+          </div>
+        ) : (
+          <button
+            className="bg-background inline-flex items-center gap-2"
+            onClick={showSetter}
+          >
+            <>
+              <span className="sm:hidden xl:block">
+                {"Edit shares".replaceAll(" ", "\u00A0")}
+              </span>
+              👪
+            </>
+          </button>
+        ))}
 
       {currReceipt.items.length > 1 && (
         <button
