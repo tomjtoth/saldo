@@ -3,23 +3,64 @@
 import { ChangeEventHandler, useEffect, useRef } from "react";
 
 import { User } from "@/lib/models";
+import { useAppSelector, useGroupSelector } from "@/lib/hooks";
+import { TCliItem } from "@/lib/reducers";
 
 export default function ItemShareAvatar({
   user,
   value,
+  itemId,
   focused,
   onChange,
 }: {
   user: User;
   value: string | number;
+  itemId?: number;
   focused?: boolean;
   onChange?: ChangeEventHandler<HTMLInputElement>;
 }) {
   const ref = useRef<HTMLInputElement>(null);
+  const rs = useGroupSelector();
+  const currReceipt = useAppSelector((s) =>
+    rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
+  );
 
   useEffect(() => {
     if (!!onChange && focused) ref.current?.focus();
   }, []);
+
+  let item: TCliItem | null = null;
+  let denominator = 0;
+  let share = 0;
+  let calculations = null;
+
+  if (itemId !== undefined) {
+    item = currReceipt?.items.find((item) => item.id === itemId)!;
+    denominator = Object.values(item.shares).reduce(
+      (sub, share) => sub + share,
+      0
+    );
+
+    const costAsNum = Number(item.cost);
+    share =
+      ((isNaN(costAsNum) ? 0 : costAsNum) * item.shares[user.id]) / denominator;
+
+    calculations = (
+      <span>
+        💸{" "}
+        {denominator > 0 ? (
+          <span>
+            {isNaN(costAsNum) ? 0 : costAsNum} * {item?.shares[user.id] ?? 0} /{" "}
+            {denominator} = {share.toFixed(2)}
+          </span>
+        ) : user.id === currReceipt?.paidBy ? (
+          <span>{(isNaN(costAsNum) ? 0 : costAsNum).toFixed(2)}</span>
+        ) : (
+          <span>{(0).toFixed(2)}</span>
+        )}
+      </span>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2 items-center">
@@ -45,7 +86,12 @@ export default function ItemShareAvatar({
           </div>
         )}
       </div>
-      {onChange && <div className="text-center">{user.name}</div>}
+      {onChange && (
+        <>
+          <div className="text-center">{user.name}</div>
+          {calculations}
+        </>
+      )}
     </div>
   );
 }

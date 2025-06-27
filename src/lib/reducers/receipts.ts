@@ -10,7 +10,7 @@ export type TCliReceipt = {
   focusedIdx?: number;
 };
 
-type TCliItem = {
+export type TCliItem = {
   id: number;
   catId: number;
   cost: string;
