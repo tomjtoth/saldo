@@ -1,6 +1,7 @@
 import Header from "@/components/header";
 import UserMenu from "@/components/user-menu";
 import CliPwa from "@/components/pwa";
+import HashParagraph from "@/components/hash-paragraph";
 
 export default function HomePage() {
   const userMenu = <UserMenu />;
@@ -18,12 +19,7 @@ export default function HomePage() {
           records is not supported only marking them as <i>INACTIVE</i>.
         </p>
 
-        {process.env.GIT_HASH && (
-          <p>
-            This version is deployed from:{" "}
-            <code>{process.env.GIT_HASH.substring(0, 7)}</code>.
-          </p>
-        )}
+        <HashParagraph />
       </div>
 
       <CliPwa />
