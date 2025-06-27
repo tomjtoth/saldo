@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
+
 import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import ItemShareAvatar from "./avatar";
-import { useState } from "react";
+import { costToFixed } from ".";
+
 import Slider from "@/components/slider";
+import ItemShareAvatar from "./avatar";
 
 export default function ItemShareSetter({ itemId }: { itemId: number }) {
   const [verbose, setVerbose] = useState(false);
@@ -53,7 +56,7 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
           />
         ))}
       </div>
-      {verbose && <p>where {item.cost} is the cost of the item</p>}
+      {verbose && <p>where {costToFixed(item)} is the cost of the item</p>}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { ChangeEventHandler, useEffect, useRef } from "react";
 import { User } from "@/lib/models";
 import { useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { TCliItem } from "@/lib/reducers";
+import { costToFixed } from ".";
 
 export default function ItemShareAvatar({
   user,
@@ -54,7 +55,7 @@ export default function ItemShareAvatar({
             {denominator} = {share.toFixed(2)}
           </span>
         ) : user.id === currReceipt?.paidBy ? (
-          <span>{(isNaN(costAsNum) ? 0 : costAsNum).toFixed(2)}</span>
+          <span>{costToFixed(item, costAsNum)}</span>
         ) : (
           <span>{(0).toFixed(2)}</span>
         )}
