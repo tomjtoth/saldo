@@ -35,7 +35,7 @@ export default function ItemShareAvatar({
   let calculations = null;
 
   if (itemId !== undefined) {
-    item = currReceipt?.items.find((item) => item.id === itemId)!;
+    item = currReceipt!.items.find((item) => item.id === itemId)!;
     denominator = Object.values(item.shares).reduce(
       (sub, share) => sub + share,
       0

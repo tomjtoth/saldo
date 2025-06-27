@@ -30,6 +30,7 @@ export const useModal = () => useContext(Ctx);
 export default function Adder() {
   const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
+  const userId = useAppSelector((s) => s.combined.userId);
   const rs = useGroupSelector();
   const currReceipt = useAppSelector((s) =>
     rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
@@ -37,8 +38,9 @@ export default function Adder() {
   const [modal, setModal] = useState<ReactNode>(null);
 
   useEffect(() => {
-    if (rs.groups.length > 0 && !currReceipt) dispatch(red.addRow());
-  }, [currReceipt, rs.groups.length]);
+    if (!!userId && rs.groups.length > 0 && !currReceipt)
+      dispatch(red.addRow());
+  }, [currReceipt, rs.groups.length, userId]);
 
   return !currReceipt ? null : (
     <Ctx.Provider value={{ setModal }}>
