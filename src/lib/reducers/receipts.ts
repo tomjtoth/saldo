@@ -2,6 +2,7 @@ import { PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
 import { combinedSA as csa, CombinedState as CS } from ".";
+import { Receipt } from "../models";
 
 export type TCliReceipt = {
   paidOn: string;
@@ -102,6 +103,14 @@ export const rReceipts = {
     if (payload.notes !== undefined) item.notes = payload.notes;
     if (payload.shares !== undefined) item.shares = payload.shares;
   },
+
+  addReceipt: (rs: CS, { payload }: PayloadAction<Receipt>) => {
+    rs.groups
+      .find((group) => group.id === payload.groupId)
+      ?.Receipts?.push(payload);
+
+    delete rs.newReceipts[payload.groupId];
+  },
 };
 
 export const tReceipts = {
@@ -127,5 +136,9 @@ export const tReceipts = {
 
   updateItem: (updater: TItemUpdater) => {
     return (dispatch: AppDispatch) => dispatch(csa.updateItem(updater));
+  },
+
+  addReceipt: (rcpt: Receipt) => {
+    return (dispatch: AppDispatch) => dispatch(csa.addReceipt(rcpt));
   },
 };
