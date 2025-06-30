@@ -1,6 +1,6 @@
 import { DataTypes, Model, ModelAttributes } from "sequelize";
 
-import { dateAsInt } from "@/lib/utils";
+import { dateFromInt, dateToInt } from "@/lib/utils";
 import {
   seqIdCols,
   seqInitOpts,
@@ -16,7 +16,7 @@ import { Group } from "./group";
 
 export type TReceipt = TIDs & {
   groupId: number;
-  paidOn: number;
+  paidOn: number | string;
   paidBy: number;
 
   Revision?: Revision;
@@ -43,10 +43,16 @@ const COLS: ModelAttributes<Receipt, TReceipt> = {
   },
   paidOn: {
     type: DataTypes.INTEGER,
-    defaultValue: () => dateAsInt(),
+    defaultValue: dateToInt,
+
     get() {
-      const str = this.getDataValue("paidOn").toString();
-      return `${str.slice(0, 4)}-${str.slice(4, 6)}-${str.slice(6)}`;
+      const raw = this.getDataValue("paidOn") as number;
+      return dateFromInt(raw);
+    },
+
+    set(val: string) {
+      const int = dateToInt(val);
+      this.setDataValue("paidOn", int);
     },
   },
   paidBy: {

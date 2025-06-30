@@ -4,7 +4,7 @@ import { DateTime } from "luxon";
 
 import csv from "csv-parser";
 
-import { dateAsInt, approxFloat, LUXON_TZ } from "../../utils";
+import { approxFloat, DT_ANCHOR, LUXON_TZ } from "../../utils";
 import {
   TCrRevision,
   TCrUser,
@@ -78,11 +78,11 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       ratio: strRatio,
     } = row;
 
-    const revOn = DateTime.fromFormat(
-      strAddedOn,
-      "y.M.d. H:m:s",
-      LUXON_TZ
-    ).toMillis();
+    const revOn = Math.round(
+      (DateTime.fromFormat(strAddedOn, "y.M.d. H:m:s", LUXON_TZ).toMillis() -
+        DT_ANCHOR) /
+        1000
+    );
 
     let lastRev =
       dd.revisions.find((rev) => rev.revOn === revOn) ?? dd.revisions.at(-1);
@@ -118,9 +118,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       userId = paidToUser ? paidToUser.id! : newUser(strPaidTo);
     }
 
-    const paidOn = dateAsInt(
-      DateTime.fromFormat(strPaidOn, "y.M.d.", LUXON_TZ)
-    );
+    const paidOn = strPaidOn.replaceAll(".", "-").slice(0, 10);
 
     let lastRcpt = dd.receipts.at(-1);
     if (!lastRcpt || paidOn !== lastRcpt.paidOn || revId !== lastRcpt.revId) {

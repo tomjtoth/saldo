@@ -2,6 +2,7 @@ import { DataTypes, Model } from "sequelize";
 
 import { db } from "./db";
 import { User } from "./user";
+import { datetimeFromInt, datetimeToInt } from "../utils";
 
 export type TIDs = {
   id: number;
@@ -44,11 +45,11 @@ Revision.init(
   {
     id,
     revOn: {
-      type: DataTypes.INTEGER,
-      defaultValue: () => Date.now(),
+      type: DataTypes.BIGINT,
+      defaultValue: datetimeToInt,
       get() {
-        const rawValue = this.getDataValue("revOn");
-        return new Date(rawValue).toLocaleString();
+        const rawValue = this.getDataValue("revOn") as number;
+        return datetimeFromInt(rawValue);
       },
     },
     revBy: {

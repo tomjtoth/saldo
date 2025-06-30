@@ -1,5 +1,5 @@
 import { Draft, WritableDraft } from "immer";
-import { DateTime } from "luxon";
+import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
 import { TCategory } from "../models";
 
@@ -27,15 +27,43 @@ export function approxFloat(value: number, maxDenominator = 1000) {
   return [bestNumerator, bestDenominator];
 }
 
-export function dateAsInt(date?: DateTime): number {
-  if (!date) date = DateTime.now();
-
-  return date.year * 10000 + date.month * 100 + date.day;
-}
-
 export const LUXON_TZ = {
   zone: "Europe/Helsinki",
-};
+} satisfies DateTimeJSOptions;
+
+// TODO: store this in the DB for consistency with the data
+export const DT_ANCHOR = DateTime.fromFormat(
+  "2020-01-01",
+  "y-M-d",
+  LUXON_TZ
+).toMillis();
+
+const DAY = 24 * 60 * 60 * 1000;
+
+export function dateFromInt(val: number) {
+  const raw = val * DAY + DT_ANCHOR;
+  const date = DateTime.fromMillis(raw, LUXON_TZ);
+
+  return date.toISODate();
+}
+
+export function dateToInt(val?: string) {
+  const date = val
+    ? DateTime.fromFormat(val, "y-M-d", LUXON_TZ)
+    : DateTime.local(LUXON_TZ);
+
+  return Math.floor((date.toMillis() - DT_ANCHOR) / DAY);
+}
+
+export function datetimeFromInt(val: number) {
+  const date = DateTime.fromMillis(val * 1000 + DT_ANCHOR);
+  return date.toISO();
+}
+
+export function datetimeToInt(val?: DateTime) {
+  const millis = (val ?? DateTime.utc()).toMillis();
+  return Math.round((millis - DT_ANCHOR) / 1000);
+}
 
 export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));

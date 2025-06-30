@@ -1,8 +1,10 @@
 import { PayloadAction } from "@reduxjs/toolkit";
+import { DateTime } from "luxon";
 
 import { AppDispatch } from "../store";
 import { combinedSA as csa, CombinedState as CS } from ".";
 import { Receipt } from "../models";
+import { LUXON_TZ } from "../utils";
 
 export type TCliReceipt = {
   paidOn: string;
@@ -39,7 +41,7 @@ function currentReceipt(rs: CS) {
 
   if (!current) {
     current = {
-      paidOn: new Date().toISOString().slice(0, 10),
+      paidOn: DateTime.local(LUXON_TZ).toISODate(),
       paidBy: rs.userId!,
       items: [],
     };

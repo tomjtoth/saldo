@@ -1,5 +1,4 @@
 import { col, fn, IncludeOptions } from "sequelize";
-import { DateTime } from "luxon";
 
 import {
   atomic,
@@ -15,7 +14,6 @@ import {
   User,
 } from "../models";
 import { TCliReceipt } from "../reducers";
-import { dateAsInt, LUXON_TZ } from "../utils";
 
 export type TReceiptInput = TCliReceipt & { groupId: number };
 
@@ -49,7 +47,7 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
       {
         groupId: data.groupId,
         revId: rev.id,
-        paidOn: dateAsInt(DateTime.fromFormat(data.paidOn, "y-M-d", LUXON_TZ)),
+        paidOn: data.paidOn,
         paidBy: data.paidBy,
       },
       { transaction }
