@@ -4,7 +4,7 @@ import { DateTime } from "luxon";
 
 import csv from "csv-parser";
 
-import { approxFloat, DT_ANCHOR, LUXON_TZ } from "../../utils";
+import { approxFloat, DT_ANCHOR, EUROPE_HELSINKI } from "../../utils";
 import {
   TCrRevision,
   TCrUser,
@@ -79,7 +79,11 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     } = row;
 
     const revOn = Math.round(
-      (DateTime.fromFormat(strAddedOn, "y.M.d. H:m:s", LUXON_TZ).toMillis() -
+      (DateTime.fromFormat(
+        strAddedOn,
+        "y.M.d. H:m:s",
+        EUROPE_HELSINKI
+      ).toMillis() -
         DT_ANCHOR) /
         1000
     );

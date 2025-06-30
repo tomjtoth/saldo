@@ -27,7 +27,7 @@ export function approxFloat(value: number, maxDenominator = 1000) {
   return [bestNumerator, bestDenominator];
 }
 
-export const LUXON_TZ = {
+export const EUROPE_HELSINKI = {
   zone: "Europe/Helsinki",
 } satisfies DateTimeJSOptions;
 
@@ -35,33 +35,33 @@ export const LUXON_TZ = {
 export const DT_ANCHOR = DateTime.fromFormat(
   "2020-01-01",
   "y-M-d",
-  LUXON_TZ
+  EUROPE_HELSINKI
 ).toMillis();
 
 const DAY = 24 * 60 * 60 * 1000;
 
 export function dateFromInt(val: number) {
   const raw = val * DAY + DT_ANCHOR;
-  const date = DateTime.fromMillis(raw, LUXON_TZ);
+  const date = DateTime.fromMillis(raw, EUROPE_HELSINKI);
 
   return date.toISODate();
 }
 
 export function dateToInt(val?: string) {
   const date = val
-    ? DateTime.fromFormat(val, "y-M-d", LUXON_TZ)
-    : DateTime.local(LUXON_TZ);
+    ? DateTime.fromFormat(val, "y-M-d", EUROPE_HELSINKI)
+    : DateTime.local(EUROPE_HELSINKI);
 
   return Math.floor((date.toMillis() - DT_ANCHOR) / DAY);
 }
 
 export function datetimeFromInt(val: number) {
-  const date = DateTime.fromMillis(val * 1000 + DT_ANCHOR);
+  const date = DateTime.fromMillis(val * 1000 + DT_ANCHOR, EUROPE_HELSINKI);
   return date.toISO();
 }
 
 export function datetimeToInt(val?: DateTime) {
-  const millis = (val ?? DateTime.utc()).toMillis();
+  const millis = (val ?? DateTime.local(EUROPE_HELSINKI)).toMillis();
   return Math.round((millis - DT_ANCHOR) / 1000);
 }
 

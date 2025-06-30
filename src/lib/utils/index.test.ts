@@ -5,7 +5,7 @@ import {
   datetimeFromInt,
   datetimeToInt,
   dateToInt,
-  LUXON_TZ,
+  EUROPE_HELSINKI,
 } from ".";
 import { DateTime } from "luxon";
 
@@ -23,7 +23,7 @@ describe("datetimeFunctions", () => {
   });
 
   it("convert '2020-01-02' properly to 24*60*60", () => {
-    const jan2 = DateTime.fromFormat("2020-01-02", "y-M-d", LUXON_TZ);
+    const jan2 = DateTime.fromFormat("2020-01-02", "y-M-d", EUROPE_HELSINKI);
     const diff = datetimeToInt(jan2);
 
     expect(diff).toEqual(1 * 24 * 60 * 60);

@@ -4,7 +4,7 @@ import { DateTime } from "luxon";
 import { AppDispatch } from "../store";
 import { combinedSA as csa, CombinedState as CS } from ".";
 import { Receipt } from "../models";
-import { LUXON_TZ } from "../utils";
+import { EUROPE_HELSINKI } from "../utils";
 
 export type TCliReceipt = {
   paidOn: string;
@@ -41,7 +41,7 @@ function currentReceipt(rs: CS) {
 
   if (!current) {
     current = {
-      paidOn: DateTime.local(LUXON_TZ).toISODate(),
+      paidOn: DateTime.local(EUROPE_HELSINKI).toISODate(),
       paidBy: rs.userId!,
       items: [],
     };
