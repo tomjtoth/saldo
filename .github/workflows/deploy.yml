@@ -30,8 +30,8 @@ jobs:
       - name: Run tests and generate coverage report
         run: |
           export AUTH_SECRET=$(uuidgen)
-          npm run e2e:headless
           npm run coverage
+          npm run e2e:headless
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
