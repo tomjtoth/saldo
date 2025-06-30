@@ -1,24 +1,27 @@
 import Header from "@/components/header";
 import UserMenu from "@/components/user-menu";
 import HashParagraph from "@/components/hash-paragraph";
+import ImportSection from "@/components/import";
 
-export default function HomePage() {
-  const userMenu = <UserMenu />;
-
+export default async function HomePage() {
   return (
     <>
-      <Header userMenu={userMenu}>
-        <h2>Work in Progress</h2>
+      <Header userMenu={<UserMenu />}>
+        <h2>Saldo</h2>
       </Header>
 
       <div className="p-2">
         <p>
-          This is a <b>WiP</b> multi-user expense tracker app. Most changes to
-          records are archived and can be viewed by related users, deletion of
-          records is not supported only marking them as <i>INACTIVE</i>.
+          This is a multi-user expense tracker app. Most revisions of records
+          are archived and can be viewed by users related to them, but deletion
+          is not supported only setting an{" "}
+          <span className="p-1 rounded border-2 border-red-500">INACTIVE</span>{" "}
+          status.
         </p>
 
         <HashParagraph />
+
+        <ImportSection />
       </div>
     </>
   );
