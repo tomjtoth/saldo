@@ -43,7 +43,18 @@ const COLS: ModelAttributes<Item, TItem> = {
     type: DataTypes.INTEGER,
     references: { model: Category, key: "id" },
   },
-  cost: { type: DataTypes.INTEGER, allowNull: false },
+  cost: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+
+    get() {
+      return this.getDataValue("cost") / 100;
+    },
+
+    set(val: number) {
+      this.setDataValue("cost", Math.round(val * 100));
+    },
+  },
   notes: { type: DataTypes.TEXT },
 };
 

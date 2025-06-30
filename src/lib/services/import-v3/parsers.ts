@@ -149,9 +149,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
     const catId = cat.id!;
 
-    const cost = Math.round(
-      parseFloat(strCost.replaceAll(/[\s€]/g, "").replace(",", ".")) * 100
-    );
+    const cost = parseFloat(strCost.replaceAll(/[\s€]/g, "").replace(",", "."));
 
     const itemId = dd.items.push({
       id: dd.items.length + 1,

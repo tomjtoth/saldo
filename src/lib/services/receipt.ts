@@ -60,7 +60,7 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
         revId: rev.id,
         rcptId: rcpt.id,
         catId: i.catId,
-        cost: Number(i.cost),
+        cost: parseFloat(i.cost),
         notes: i.notes,
       })),
       { transaction }

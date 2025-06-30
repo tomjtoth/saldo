@@ -64,10 +64,9 @@ export default function CliReceiptsPage({
 
                 <span>
                   €{" "}
-                  {(
-                    rcpt.Items?.reduce((sub, { cost }) => sub + cost, 0) ??
-                    0 / 100
-                  ).toFixed(2)}
+                  {rcpt.Items?.reduce((sub, { cost }) => sub + cost, 0).toFixed(
+                    2
+                  )}
                 </span>
 
                 <span>🗓️ {rcpt.paidOn}</span>
