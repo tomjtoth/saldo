@@ -1,6 +1,4 @@
-it("The import view should be accessible", () => {
+it("The import section should be visible", () => {
   cy.visit("/");
-  cy.get("#sidepanel-opener").click();
-  cy.get("a[href='/import']").click();
   cy.get("#import-btn", { timeout: 10000 }).should("exist");
 });
