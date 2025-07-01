@@ -43,7 +43,7 @@ const getRawSqlClient = () => ({
 });
 
 const RE_SINGLE_STMT =
-  /^(?:(?:CREATE|ALTER|DROP) TABLE|INSERT|DELETE|UPDATE).+?;/gims;
+  /^(?:(?:CREATE|ALTER|DROP) TABLE|(?:CREATE|DROP) VIEW|INSERT|DELETE|UPDATE).+?;/gims;
 
 export const migrator = new Umzug({
   migrations: {
