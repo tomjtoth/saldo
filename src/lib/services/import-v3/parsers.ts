@@ -125,7 +125,12 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const paidOn = strPaidOn.replaceAll(".", "-").slice(0, 10);
 
     let lastRcpt = dd.receipts.at(-1);
-    if (!lastRcpt || paidOn !== lastRcpt.paidOn || revId !== lastRcpt.revId) {
+    if (
+      !lastRcpt ||
+      revId !== lastRcpt.revId ||
+      paidOn !== lastRcpt.paidOn ||
+      paidBy !== lastRcpt.paidBy
+    ) {
       lastRcpt = {
         id: dd.receipts.length + 1,
         revId,
