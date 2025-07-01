@@ -61,6 +61,9 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     groups: [{ id: 1, name: "imported from V3", revId: 1, statusId: 1 }],
     memberships: [
       { groupId: 1, userId: 1, revId: 1, statusId: 1, admin: true },
+      { groupId: 1, userId: 2, revId: 1, statusId: 1 },
+      { groupId: 1, userId: 3, revId: 1, statusId: 1 },
+      { groupId: 1, userId: 4, revId: 1, statusId: 1 },
     ],
     categories: [],
     receipts: [],
@@ -111,8 +114,8 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
     // entries contain sometimes only 1 name
     const [strPaidBy, strPaidTo = null] = row.direction.split("->");
-    const paidByUser = dd.users.find((u) => u.name === strPaidBy);
-    const paidBy = paidByUser ? paidByUser.id! : newUser(strPaidBy);
+    const paidBy =
+      dd.users.find((u) => u.name === strPaidBy)?.id ?? newUser(strPaidBy);
 
     lastRev.revBy = paidBy;
     let userId = -1;
@@ -156,7 +159,9 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
     const catId = cat.id!;
 
-    const cost = parseFloat(strCost.replaceAll(/[\s€]/g, "").replace(",", "."));
+    const cost = parseFloat(
+      strCost.replaceAll(/[^\d,.-]/g, "").replace(",", ".")
+    );
 
     const itemId = dd.items.push({
       id: dd.items.length + 1,
