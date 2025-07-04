@@ -8,4 +8,6 @@ export const LINKS: TLink[] = [
   { href: "/groups" },
   { href: "/categories" },
   { href: "/receipts" },
+  { href: "/pareto" },
+  { href: "/balance" },
 ];
