@@ -5,7 +5,11 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 
 import { TCategory, TGroup } from "@/lib/models";
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
+import {
+  useAppDispatch,
+  useGroupIdPreselector,
+  useGroupSelector,
+} from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
@@ -31,13 +35,10 @@ export default function CliCategoriesPage({
   const dispatch = useAppDispatch();
   const rs = useGroupSelector(srv.groups);
 
+  useGroupIdPreselector("/categories", groupId);
+
   useEffect(() => {
     dispatch(red.init(srv));
-
-    if (groupId) {
-      window.history.replaceState(null, "", "/categories");
-      dispatch(red.setGroupId(groupId));
-    }
   }, []);
 
   const group = rs.group();

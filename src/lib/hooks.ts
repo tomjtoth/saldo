@@ -29,3 +29,13 @@ export const useGroupSelector = (fallback?: TGroup[]) => {
 
   return { groups, groupId, group };
 };
+
+export function useGroupIdPreselector(path: string, groupId?: number) {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (groupId) {
+      window.history.replaceState(null, "", path);
+      dispatch(rCombined.setGroupId(groupId));
+    }
+  }, []);
+}

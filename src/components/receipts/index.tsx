@@ -3,7 +3,11 @@
 import { ReactNode, useEffect } from "react";
 import Link from "next/link";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
+import {
+  useAppDispatch,
+  useGroupIdPreselector,
+  useGroupSelector,
+} from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
 import { rCombined as red } from "@/lib/reducers";
 
@@ -26,13 +30,10 @@ export default function CliReceiptsPage({
   const dispatch = useAppDispatch();
   const rs = useGroupSelector(srv.groups);
 
+  useGroupIdPreselector("/receipts", groupId);
+
   useEffect(() => {
     dispatch(red.init(srv));
-
-    if (groupId) {
-      window.history.replaceState(null, "", "/receipts");
-      dispatch(red.setGroupId(groupId));
-    }
   }, []);
 
   return (

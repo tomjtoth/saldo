@@ -3,7 +3,11 @@
 import { ReactNode, useEffect } from "react";
 import { toast } from "react-toastify";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
+import {
+  useAppDispatch,
+  useGroupIdPreselector,
+  useGroupSelector,
+} from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
 import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
@@ -27,13 +31,10 @@ export default function CliGroupsPage({
   const rs = useGroupSelector(srv.groups);
   const dispatch = useAppDispatch();
 
+  useGroupIdPreselector("/groups", groupId);
+
   useEffect(() => {
     dispatch(red.init(srv));
-
-    if (groupId) {
-      window.history.replaceState(null, "", "/groups");
-      dispatch(red.setGroupId(groupId));
-    }
   }, []);
 
   return (
