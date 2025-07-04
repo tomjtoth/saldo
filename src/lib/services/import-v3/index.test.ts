@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+
 import { parseCSV, parseData } from "./parsers";
 import { insertData } from ".";
 import {

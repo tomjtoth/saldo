@@ -59,12 +59,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     revisions: [],
     users: [],
     groups: [{ id: 1, name: "imported from V3", revId: 1, statusId: 1 }],
-    memberships: [
-      { groupId: 1, userId: 1, revId: 1, statusId: 1, admin: true },
-      { groupId: 1, userId: 2, revId: 1, statusId: 1 },
-      { groupId: 1, userId: 3, revId: 1, statusId: 1 },
-      { groupId: 1, userId: 4, revId: 1, statusId: 1 },
-    ],
+    memberships: [],
     categories: [],
     receipts: [],
     items: [],
@@ -104,13 +99,24 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     }
     const revId = lastRev.id!;
 
-    const newUser = (user: string) =>
-      dd.users.push({
+    const newUser = (user: string) => {
+      const u = {
         id: dd.users.length + 1,
         revId,
         name: user,
         email: user + "@just.imported",
+      };
+
+      dd.memberships.push({
+        groupId: 1,
+        userId: u.id,
+        revId: 1,
+        statusId: 1,
+        admin: false,
       });
+
+      return dd.users.push(u);
+    };
 
     // entries contain sometimes only 1 name
     const [strPaidBy, strPaidTo = null] = row.direction.split("->");
