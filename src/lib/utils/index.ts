@@ -44,7 +44,7 @@ export function dateFromInt(val: number) {
   const raw = val * DAY + DT_ANCHOR;
   const date = DateTime.fromMillis(raw, EUROPE_HELSINKI);
 
-  return date.toISODate();
+  return date.toISODate()!;
 }
 
 export function dateToInt(val?: string) {

@@ -12,8 +12,9 @@ export default async function GroupsPage({
 }: {
   params: Promise<{ groupId?: string }>;
 }) {
-  const sess = await auth();
   const { groupId } = await params;
+
+  const sess = await auth();
   if (!sess)
     return signIn("", {
       redirectTo: groupId ? `/groups/${groupId}` : "/groups",
