@@ -41,6 +41,14 @@ export default function Details({ group }: { group: TGroup }) {
           <h3>
             Receipts <SvgLink href={`/groups/${group.id}/receipts`} />
           </h3>
+
+          <h3>
+            Balance <SvgLink href={`/groups/${group.id}/balance`} />
+          </h3>
+
+          <h3>
+            Pareto <SvgLink href={`/groups/${group.id}/pareto`} />
+          </h3>
         </>
       )}
     </div>
