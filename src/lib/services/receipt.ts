@@ -59,7 +59,7 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
         rcptId: rcpt.id,
         catId: i.catId,
         cost: parseFloat(i.cost),
-        notes: i.notes,
+        notes: i.notes == "" ? undefined : i.notes,
       })),
       { transaction }
     );
