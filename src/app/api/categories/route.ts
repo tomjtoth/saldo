@@ -11,6 +11,8 @@ import {
 import { TCategory, TCrCategory } from "@/lib/models";
 import { updateMembership } from "@/lib/services/groups";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const data = (await req.json()) as TCrCategory;
   if (data.name === undefined) return new Response(null, { status: 401 });

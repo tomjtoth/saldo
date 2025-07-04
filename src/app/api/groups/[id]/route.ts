@@ -6,6 +6,8 @@ import { auth, signIn } from "@/auth";
 import { joinGroup } from "@/lib/services/groups";
 import { currentUser } from "@/lib/services/user";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   _req: NextRequest,
   {

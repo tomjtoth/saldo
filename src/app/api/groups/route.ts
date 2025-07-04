@@ -6,6 +6,8 @@ import { TCrGroup } from "@/lib/models";
 import { createGroup, GroupUpdater, updateGroup } from "@/lib/services/groups";
 import { currentUser } from "@/lib/services/user";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const sess = await auth();
   if (!sess) return new Response(null, { status: 401 });

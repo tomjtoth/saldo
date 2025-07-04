@@ -4,6 +4,8 @@ import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
 import { addReceipt, TReceiptInput } from "@/lib/services/receipt";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const data: TReceiptInput = await req.json();
   // TODO: preliminary validation of sent data here

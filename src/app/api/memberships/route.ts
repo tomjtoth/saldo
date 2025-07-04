@@ -5,6 +5,8 @@ import { currentUser } from "@/lib/services/user";
 import { getGroupsDataFor, updateMembership } from "@/lib/services/groups";
 import { TMembership } from "@/lib/models";
 
+export const dynamic = "force-dynamic";
+
 export async function PUT(req: NextRequest) {
   const sess = await auth();
   if (!sess) return new Response(null, { status: 401 });

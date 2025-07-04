@@ -1,5 +1,7 @@
 import { alreadyInProd, importV3 } from "@/lib/services/import-v3";
 
+export const dynamic = "force-dynamic";
+
 export async function POST() {
   if (await alreadyInProd())
     return new Response(null, {
