@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 import Canceler from "../canceler";
 
@@ -11,9 +11,9 @@ export default function CliUserMenu({
   srvMenu,
 }: {
   authenticated: boolean;
-  signInButton: React.ReactNode;
-  srvAvatar: React.ReactNode;
-  srvMenu: React.ReactNode;
+  signInButton: ReactNode;
+  srvAvatar: ReactNode;
+  srvMenu: ReactNode;
 }) {
   const [visible, setVisible] = useState(false);
 
