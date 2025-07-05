@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { QueryTypes } from "sequelize";
 
-import { Category, db, User } from "../models";
+import { db, TGroup } from "../models";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
 import { TParetoChartData } from "@/components/pareto/chart";
 
@@ -25,85 +25,75 @@ export async function getParetoDataFor(
     dateCrit.push("AND paidOn < ?");
   }
 
-  const rows: {
-    groupId: number;
-    catId: number;
-    uid: number;
-    total: number;
-  }[] = await db.query(
-    `SELECT groupId, catId, paidTo AS uid, SUM(share) as total
-     FROM memberships ms
-     INNER JOIN consumption c ON ms.group_id = c.groupId
-     WHERE ms.user_id = ? ${dateCrit.join(" ")}
-     GROUP BY groupId, uid, catId`,
+  const rows: (Omit<TGroup, "pareto"> & {
+    users: string;
+    categories: string;
+  })[] = await db.query(
+    `WITH step1 AS (
+      SELECT
+        groupId AS gid,
+        g.name AS gName,
+        cats.name AS cat,
+        u.name AS user,
+        SUM(share) AS total
+      FROM memberships ms
+      INNER JOIN consumption con ON ms.group_id = con.groupId
+      INNER JOIN categories cats ON con.catId = cats.id
+      INNER JOIN users u ON u.id = con.paidTo
+      INNER JOIN groups g ON g.id = con.groupId
+      WHERE ms.user_id = ? ${dateCrit.join(" ")}
+      GROUP BY groupId, paidTo, catId
+    ),
+
+    step2 AS (
+      SELECT 
+        gid, 
+        gName,
+        SUM(total) AS orderer,
+        JSON_INSERT(
+          JSON_GROUP_OBJECT(user, total),
+          '$.category', cat
+        ) AS cats
+      FROM step1
+      GROUP BY gid, cat
+      ORDER BY orderer DESC
+    ),
+  
+    step3 AS (
+      SELECT
+        gid,
+        gName,
+        JSON_GROUP_ARRAY(cats) AS categories
+      FROM step2
+    )
+
+    SELECT
+      s3.gid AS id,
+      s3.gName AS name,
+      JSON_GROUP_ARRAY(DISTINCT s1.user) AS users,
+      categories
+    FROM step3 s3 
+    LEFT JOIN step1 s1 ON s1.gid = s3.gid
+    GROUP BY s3.gid`,
 
     { type: QueryTypes.SELECT, replacements }
   );
 
-  const buffer: {
-    [groupId: number]: {
-      [catId: number]: {
-        [consumer: number]: number;
-      };
+  const groups = rows.map(({ users, categories, ...group }) => {
+    return {
+      ...group,
+      pareto: {
+        users: JSON.parse(users) as string[],
+        categories: (JSON.parse(categories) as string[]).map((strObj) =>
+          JSON.parse(strObj)
+        ),
+      } as unknown as TParetoChartData,
     };
-  } = {};
-
-  // TODO: replace this post-processing with a professional sequelize query
-  rows.forEach(({ groupId, catId, uid, total }) => {
-    if (!buffer[groupId]) buffer[groupId] = {};
-    const group = buffer[groupId];
-
-    if (!group[catId]) group[catId] = {};
-    const cat = group[catId];
-
-    cat[uid] = total;
-  });
-
-  const cats = await Category.findAll({ attributes: ["id", "name"] });
-  const users = await User.findAll({ attributes: ["id", "name"] });
-
-  const data = Object.fromEntries(
-    Object.entries(buffer).map(([groupId, catVals]) => {
-      const nameBuffer: { [uid: number]: string } = {};
-
-      const categories = Object.entries(catVals).map(([catId, consumers]) => {
-        let __sum = 0;
-
-        const rest = Object.fromEntries(
-          Object.entries(consumers).map(([uid, val]) => {
-            const idAsNum = Number(uid);
-            if (!nameBuffer[idAsNum])
-              nameBuffer[idAsNum] = users.find(
-                (u) => u.id === Number(uid)
-              )!.name;
-
-            __sum += val;
-            return [nameBuffer[idAsNum], val];
-          })
-        );
-
-        return {
-          category: cats.find((cat) => cat.id === Number(catId))!.name,
-          __sum,
-          ...rest,
-        };
-      });
-
-      categories.sort((a, b) => b.__sum - a.__sum);
-
-      return [
-        Number(groupId),
-        {
-          names: Object.values(nameBuffer),
-          categories,
-        } as TParetoChartData,
-      ];
-    })
-  );
+  }) as TGroup[];
 
   return {
     from: opts.from,
     to: opts.to,
-    data,
+    groups,
   };
 }
