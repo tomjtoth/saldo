@@ -1,10 +1,9 @@
 import { auth, signIn } from "@/auth";
 import { currentUser } from "@/lib/services/user";
+import { getParetoDataFor } from "@/lib/services/pareto";
 
 import UserMenu from "@/components/user-menu";
 import CliParetoPage from "@/components/pareto";
-import { getParetoDataFor } from "@/lib/services/pareto";
-import { getGroupsDataFor } from "@/lib/services/groups";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +24,6 @@ export default async function ParetoPage({
 
   const user = await currentUser(sess);
   const pareto = await getParetoDataFor(user.id);
-  const groups = await getGroupsDataFor(user.id);
 
   return (
     <CliParetoPage
@@ -33,8 +31,6 @@ export default async function ParetoPage({
         userMenu: <UserMenu />,
 
         groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
-        groups: groups.map((group) => group.get({ plain: true })),
-
         ...pareto,
       }}
     />
