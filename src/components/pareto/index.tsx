@@ -11,7 +11,7 @@ import { appToast, err } from "@/lib/utils";
 import { TGroup } from "@/lib/models";
 import { rCombined as red } from "@/lib/reducers";
 
-import ParetoChart, { TParetoChartData } from "./chart";
+import ParetoChart from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
 
@@ -20,23 +20,21 @@ export default function CliParetoPage(srv: {
 
   groupId?: number;
   groups: TGroup[];
-  data: {
-    [groupId: number]: TParetoChartData;
-  };
   from?: string;
   to?: string;
 }) {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector(srv.groups);
 
-  const [from, setFrom] = useState(srv.from);
-  const [to, setTo] = useState(srv.to);
-  const [data, setData] = useState(srv.data);
+  const [from, setFrom] = useState(srv.from ?? "");
+  const [to, setTo] = useState(srv.to ?? "");
 
   useGroupIdPreselector("/pareto", srv.groupId);
   useEffect(() => {
     dispatch(red.init({ groups: srv.groups }));
   }, []);
+
+  const group = rs.group();
 
   return (
     <>
@@ -53,18 +51,16 @@ export default function CliParetoPage(srv: {
                   if (!res.ok) err(res.statusText);
 
                   const body = await res.json();
-                  setData(body.data);
+                  dispatch(red.init(body));
                 })
                 .catch((err) => {
-                  setFrom(srv.from);
-                  setTo(srv.to);
+                  setFrom(srv.from ?? "");
+                  setTo(srv.to ?? "");
 
                   throw err;
                 }),
               "Fetching data"
             );
-
-            // setData();
           }}
         >
           <label>
@@ -86,10 +82,16 @@ export default function CliParetoPage(srv: {
               onChange={(ev) => setTo(ev.target.value)}
             />
           </label>
-          <button>update</button>
+          <button>fetch</button>
         </form>
 
-        {!!rs.groupId && <ParetoChart {...data[rs.groupId]} />}
+        {!!group && group.pareto!.categories.length > 0 ? (
+          <ParetoChart {...group.pareto!} />
+        ) : (
+          <div className="grow flex items-center">
+            <h2>no data to show</h2>
+          </div>
+        )}
       </div>
     </>
   );

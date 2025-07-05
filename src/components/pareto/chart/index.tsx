@@ -15,10 +15,9 @@ import {
 import ParetoTooltip from "./tooltip";
 
 export type TParetoChartData = {
-  names: string[];
+  users: string[];
   categories: ({
     category: string;
-    __sum: number;
   } & {
     [user: string]: number;
   })[];
@@ -26,7 +25,7 @@ export type TParetoChartData = {
 
 export default class ParetoChart extends PureComponent<TParetoChartData> {
   render() {
-    const { names, categories } = this.props;
+    const { users, categories } = this.props;
 
     return (
       <div className=" h-full w-full">
@@ -44,7 +43,7 @@ export default class ParetoChart extends PureComponent<TParetoChartData> {
             <YAxis />
             <Tooltip content={ParetoTooltip} />
             <Legend />
-            {names.map((s) => (
+            {users.map((s) => (
               <Bar
                 dataKey={s}
                 name={s}
