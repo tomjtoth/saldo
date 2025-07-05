@@ -27,7 +27,7 @@ export default class BalanceChart extends PureComponent<TBalanceChartData> {
     const { data, relations } = this.props;
 
     return (
-      <div className=" h-full w-full">
+      <div className="h-full w-full">
         <ResponsiveContainer>
           <LineChart>
             <CartesianGrid strokeDasharray="3 3" />
@@ -36,6 +36,8 @@ export default class BalanceChart extends PureComponent<TBalanceChartData> {
               type="number"
               height={100}
               tick={BalanceTick}
+              padding={{ left: 10, right: 10 }}
+              domain={[data.at(0)!.date, data.at(-1)!.date]}
             />
             <YAxis />
             <Tooltip content={BalanceTooltip} />
