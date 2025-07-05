@@ -67,10 +67,8 @@ export async function getBalanceDataFor(userId: number) {
     { type: QueryTypes.SELECT, replacements: [userId], nest: true }
   );
 
-  const data = rows.map(({ balance, ...group }) => ({
+  return rows.map(({ balance, ...group }) => ({
     ...group,
     balance: JSON.parse(balance) as TBalanceChartData,
-  }));
-
-  return data;
+  })) as TGroup[];
 }
