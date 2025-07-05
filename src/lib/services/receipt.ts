@@ -108,7 +108,7 @@ export async function getReceiptsDataFor(userId: number, offset = 0) {
         limit: 50,
         offset,
         ...RCPT_INCLUDE,
-        order: [["revId", "DESC"]],
+        order: [["paidOn", "DESC"]],
       } as IncludeOptions,
     ],
     order: [
