@@ -4,7 +4,6 @@ import { getBalanceDataFor } from "@/lib/services/balance";
 
 import UserMenu from "@/components/user-menu";
 import CliBalancePage from "@/components/balance";
-import { getGroupsDataFor } from "@/lib/services/groups";
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +23,7 @@ export default async function BalancePage({
   const gidAsNum = Number(groupId);
 
   const user = await currentUser(sess);
-  const balance = await getBalanceDataFor(user.id);
-  const groups = await getGroupsDataFor(user.id);
+  const groups = await getBalanceDataFor(user.id);
 
   return (
     <CliBalancePage
@@ -33,9 +31,7 @@ export default async function BalancePage({
         userMenu: <UserMenu />,
 
         groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
-        groups: groups.map((group) => group.get({ plain: true })),
-
-        data: balance,
+        groups,
       }}
     />
   );
