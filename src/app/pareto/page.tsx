@@ -16,7 +16,10 @@ export default async function ParetoPage({
   const { groupId } = await params;
 
   const sess = await auth();
-  if (!sess) return signIn("", { redirectTo: "/pareto" });
+  if (!sess)
+    return signIn("", {
+      redirectTo: groupId ? `/groups/${groupId}/pareto` : "/pareto",
+    });
 
   const gidAsNum = Number(groupId);
 
