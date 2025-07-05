@@ -7,6 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { toast } from "react-toastify";
 
 import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
@@ -146,6 +147,15 @@ export default function Adder() {
                   (isMultiUser ? "sm:col-start-5" : "sm:col-start-4")
                 }
                 onClick={() => {
+                  const nanItem = currReceipt.items.findIndex(
+                    (item) => item.cost === "" || isNaN(Number(item.cost))
+                  );
+
+                  if (nanItem > -1) {
+                    dispatch(red.setFocusedRow(nanItem));
+                    return toast.error("Invalid item cost", appToast.theme());
+                  }
+
                   appToast.promise(
                     sendJSON("/api/receipts", {
                       ...currReceipt,
