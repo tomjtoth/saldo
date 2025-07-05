@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Canceler from "./canceler";
 
@@ -24,6 +24,12 @@ export default function NameDescrAdder({
   const [visible, setVisible] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescr] = useState("");
+
+  const ref = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (visible) ref.current?.focus();
+  }, [visible]);
 
   return (
     <>
@@ -57,6 +63,7 @@ export default function NameDescrAdder({
               placeholder={placeholder ?? "Name"}
               value={name}
               onChange={(ev) => setName(ev.target.value)}
+              ref={ref}
             />
 
             <button className="rounded border">💾</button>
