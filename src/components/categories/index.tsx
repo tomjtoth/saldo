@@ -1,10 +1,9 @@
 "use client";
 
-import { ReactNode } from "react";
 import { toast } from "react-toastify";
 import Link from "next/link";
 
-import { TCategory, TGroup } from "@/lib/models";
+import { TCategory } from "@/lib/models";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
@@ -13,16 +12,13 @@ import NameDescrAdder from "../name-descr-adder";
 import Entry from "./entry";
 import GroupSelector from "../groups/selector";
 import Header from "../header";
-import CliCommonCx from "../common-context";
+import CliCommonCx, { TSrv } from "../common-context";
 
-export default function CliCategoriesPage(srv: {
-  userMenu: ReactNode;
-  groupId?: number;
-  defaultGroupId?: number;
-  groups: TGroup[];
-
-  catId?: number;
-}) {
+export default function CliCategoriesPage(
+  srv: TSrv & {
+    catId?: number;
+  }
+) {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector(srv.groups);
 

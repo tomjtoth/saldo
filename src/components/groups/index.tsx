@@ -1,6 +1,5 @@
 "use client";
 
-import { ReactNode } from "react";
 import { toast } from "react-toastify";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
@@ -11,14 +10,9 @@ import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 import Entry from "./entry";
 import NameDescrAdder from "../name-descr-adder";
 import Header from "../header";
-import CliCommonCx from "../common-context";
+import CliCommonCx, { TSrv } from "../common-context";
 
-export default function CliGroupsPage(srv: {
-  userMenu: ReactNode;
-  groupId?: number;
-  defaultGroupId?: number;
-  groups: TGroup[];
-}) {
+export default function CliGroupsPage(srv: TSrv) {
   const rs = useGroupSelector(srv.groups);
   const dispatch = useAppDispatch();
 

@@ -1,22 +1,17 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 
 import { useGroupSelector } from "@/lib/hooks";
 import { dateToInt, EUROPE_HELSINKI } from "@/lib/utils";
-import { TGroup } from "@/lib/models";
 
 import BalanceChart, { TBalanceChartData } from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
-import CliCommonCx from "../common-context";
+import CliCommonCx, { TSrv } from "../common-context";
 
-export default function CliBalancePage(srv: {
-  userMenu: ReactNode;
-  groupId?: number;
-  groups: TGroup[];
-}) {
+export default function CliBalancePage(srv: TSrv) {
   const rs = useGroupSelector(srv.groups);
 
   const [from, setFrom] = useState("");

@@ -8,6 +8,15 @@ import { TGroup } from "@/lib/models";
 
 const cx = createContext<ReactNode>(null);
 
+export type TSrv = {
+  userMenu: ReactNode;
+  userId?: number;
+
+  groupId?: number;
+  defaultGroupId?: number;
+  groups: TGroup[];
+};
+
 export default function CliCommonCx({
   children,
   rewritePath,
@@ -15,14 +24,7 @@ export default function CliCommonCx({
 }: {
   children?: ReactNode;
   rewritePath?: string;
-  srv: {
-    userMenu: ReactNode;
-    userId?: number;
-
-    groupId?: number;
-    defaultGroupId?: number;
-    groups: TGroup[];
-  };
+  srv: TSrv;
 }) {
   const dispatch = useAppDispatch();
 

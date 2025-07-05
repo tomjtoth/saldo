@@ -1,24 +1,15 @@
 "use client";
 
-import { ReactNode } from "react";
 import Link from "next/link";
 
 import { useGroupSelector } from "@/lib/hooks";
-import { TGroup } from "@/lib/models";
 
 import Header from "../header";
 import Adder from "./adder";
 import GroupSelector from "../groups/selector";
-import CliCommonCx from "../common-context";
+import CliCommonCx, { TSrv } from "../common-context";
 
-export default function CliReceiptsPage(srv: {
-  userMenu: ReactNode;
-
-  userId: number;
-  groupId?: number;
-  defaultGroupId?: number;
-  groups: TGroup[];
-}) {
+export default function CliReceiptsPage(srv: TSrv) {
   const rs = useGroupSelector(srv.groups);
 
   return (

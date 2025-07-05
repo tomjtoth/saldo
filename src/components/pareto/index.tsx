@@ -1,26 +1,22 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { appToast, err } from "@/lib/utils";
-import { TGroup } from "@/lib/models";
 import { rCombined as red } from "@/lib/reducers";
 
 import ParetoChart from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
-import CliCommonCx from "../common-context";
+import CliCommonCx, { TSrv } from "../common-context";
 
-export default function CliParetoPage(srv: {
-  userMenu: ReactNode;
-
-  defaultGroupId?: number;
-  groupId?: number;
-  groups: TGroup[];
-  from?: string;
-  to?: string;
-}) {
+export default function CliParetoPage(
+  srv: TSrv & {
+    from?: string;
+    to?: string;
+  }
+) {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector(srv.groups);
 
