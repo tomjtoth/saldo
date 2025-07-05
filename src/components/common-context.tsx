@@ -17,6 +17,8 @@ export default function CliCommonCx({
   rewritePath?: string;
   srv: {
     userMenu: ReactNode;
+    userId?: number;
+
     groupId?: number;
     defaultGroupId?: number;
     groups: TGroup[];
