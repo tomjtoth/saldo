@@ -39,6 +39,30 @@ export default function Adder() {
   );
   const [modal, setModal] = useState<ReactNode>(null);
 
+  const submitReceipt = () => {
+    const nanItem = currReceipt!.items.findIndex(
+      (item) => item.cost === "" || isNaN(Number(item.cost))
+    );
+
+    if (nanItem > -1) {
+      dispatch(red.setFocusedRow(nanItem));
+      return toast.error("Invalid item cost", appToast.theme());
+    }
+
+    appToast.promise(
+      sendJSON("/api/receipts", {
+        ...currReceipt,
+        groupId: rs.groupId,
+      }).then(async (res) => {
+        if (!res.ok) err(res.statusText);
+
+        const body = await res.json();
+        dispatch(red.addReceipt(body));
+      }),
+      "Submitting new receipt"
+    );
+  };
+
   useEffect(() => {
     if (!!userId && rs.groups.length > 0 && !currReceipt)
       dispatch(red.addRow());
@@ -117,7 +141,7 @@ export default function Adder() {
                   key={item.id}
                   autoFocus={rowIdx === currReceipt.focusedIdx}
                   itemId={item.id}
-                  switchRowHandler={(ev) => {
+                  onKeyDown={(ev) => {
                     const lastIdx = currReceipt.items.length - 1;
 
                     if (
@@ -134,7 +158,8 @@ export default function Adder() {
                           newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
                         )
                       );
-                    }
+                    } else if (ev.key === "Enter" && ev.ctrlKey)
+                      submitReceipt();
                   }}
                 />
               ))}
@@ -146,29 +171,7 @@ export default function Adder() {
                   "inline-flex items-center gap-2 " +
                   (isMultiUser ? "sm:col-start-5" : "sm:col-start-4")
                 }
-                onClick={() => {
-                  const nanItem = currReceipt.items.findIndex(
-                    (item) => item.cost === "" || isNaN(Number(item.cost))
-                  );
-
-                  if (nanItem > -1) {
-                    dispatch(red.setFocusedRow(nanItem));
-                    return toast.error("Invalid item cost", appToast.theme());
-                  }
-
-                  appToast.promise(
-                    sendJSON("/api/receipts", {
-                      ...currReceipt,
-                      groupId: rs.groupId,
-                    }).then(async (res) => {
-                      if (!res.ok) err(res.statusText);
-
-                      const body = await res.json();
-                      dispatch(red.addReceipt(body));
-                    }),
-                    "Submitting new receipt"
-                  );
-                }}
+                onClick={submitReceipt}
               >
                 <span className="hidden xl:block grow">Save & clear</span>
                 💾

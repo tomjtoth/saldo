@@ -14,11 +14,11 @@ const RE_ANY_LETTER = /^\p{Letter}$/u;
 export default function ItemRow({
   itemId,
   autoFocus,
-  switchRowHandler,
+  onKeyDown: adderKeyDownHandler,
 }: {
   itemId: number;
   autoFocus: boolean;
-  switchRowHandler: KeyboardEventHandler<HTMLInputElement>;
+  onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 }) {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
@@ -120,7 +120,7 @@ export default function ItemRow({
             if (RE_ANY_LETTER.test(ev.key) || ev.shiftKey) {
               ev.preventDefault();
               catRef.current?.focus();
-            } else switchRowHandler(ev);
+            } else adderKeyDownHandler(ev);
           }}
         />
       </form>
