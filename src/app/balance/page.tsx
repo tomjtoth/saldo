@@ -30,6 +30,7 @@ export default async function BalancePage({
       {...{
         userMenu: <UserMenu />,
 
+        defaultGroupId: user.defaultGroupId,
         groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
         groups,
       }}

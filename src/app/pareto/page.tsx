@@ -30,6 +30,7 @@ export default async function ParetoPage({
       {...{
         userMenu: <UserMenu />,
 
+        defaultGroupId: user.defaultGroupId,
         groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
         ...pareto,
       }}
