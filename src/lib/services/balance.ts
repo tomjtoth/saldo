@@ -1,14 +1,13 @@
 import { QueryTypes } from "sequelize";
 
-import { db } from "@/lib/models";
+import { db, TGroup } from "@/lib/models";
 import { TBalanceChartData } from "@/components/balance/chart";
 
 export async function getBalanceDataFor(userId: number) {
-  const rows: {
-    id: number;
-    name: string;
+  const rows: // silencing TS, selecting only id and name from group...
+  (Omit<TGroup, "balance"> & {
     balance: string;
-  }[] = await db.query(
+  })[] = await db.query(
     `WITH step1 AS (
       SELECT
         groupId AS gid,
