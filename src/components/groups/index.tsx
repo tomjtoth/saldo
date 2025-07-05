@@ -1,13 +1,9 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { toast } from "react-toastify";
 
-import {
-  useAppDispatch,
-  useGroupIdPreselector,
-  useGroupSelector,
-} from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
 import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
@@ -15,15 +11,10 @@ import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 import Entry from "./entry";
 import NameDescrAdder from "../name-descr-adder";
 import Header from "../header";
+import CliCommonCx from "../common-context";
 
-export default function CliGroupsPage({
-  userMenu,
-
-  groupId,
-  ...srv
-}: {
+export default function CliGroupsPage(srv: {
   userMenu: ReactNode;
-
   groupId?: number;
   defaultGroupId?: number;
   groups: TGroup[];
@@ -31,15 +22,9 @@ export default function CliGroupsPage({
   const rs = useGroupSelector(srv.groups);
   const dispatch = useAppDispatch();
 
-  useGroupIdPreselector("/groups", groupId);
-
-  useEffect(() => {
-    dispatch(red.init(srv));
-  }, []);
-
   return (
-    <>
-      <Header {...{ userMenu }}>
+    <CliCommonCx {...{ srv, rewritePath: "/groups" }}>
+      <Header>
         <h2>Groups</h2>
       </Header>
 
@@ -87,10 +72,10 @@ export default function CliGroupsPage({
           <Entry
             key={group.id}
             group={group}
-            preSelected={!!groupId && groupId === group.id}
+            preSelected={!!srv.groupId && srv.groupId === group.id}
           />
         ))}
       </div>
-    </>
+    </CliCommonCx>
   );
 }

@@ -1,12 +1,8 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 
-import {
-  useAppDispatch,
-  useGroupIdPreselector,
-  useGroupSelector,
-} from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { appToast, err } from "@/lib/utils";
 import { TGroup } from "@/lib/models";
 import { rCombined as red } from "@/lib/reducers";
@@ -14,10 +10,12 @@ import { rCombined as red } from "@/lib/reducers";
 import ParetoChart from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
+import CliCommonCx from "../common-context";
 
 export default function CliParetoPage(srv: {
   userMenu: ReactNode;
 
+  defaultGroupId?: number;
   groupId?: number;
   groups: TGroup[];
   from?: string;
@@ -29,16 +27,11 @@ export default function CliParetoPage(srv: {
   const [from, setFrom] = useState(srv.from ?? "");
   const [to, setTo] = useState(srv.to ?? "");
 
-  useGroupIdPreselector("/pareto", srv.groupId);
-  useEffect(() => {
-    dispatch(red.init({ groups: srv.groups }));
-  }, []);
-
   const group = rs.group();
 
   return (
-    <>
-      <Header userMenu={srv.userMenu}>Pareto</Header>
+    <CliCommonCx {...{ srv, rewritePath: "/pareto" }}>
+      <Header>Pareto</Header>
       <div className="p-2 h-full flex flex-col gap-2 items-center">
         <form
           className="flex flex-wrap gap-2 items-center justify-center"
@@ -93,6 +86,6 @@ export default function CliParetoPage(srv: {
           </div>
         )}
       </div>
-    </>
+    </CliCommonCx>
   );
 }

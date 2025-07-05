@@ -1,15 +1,11 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { toast } from "react-toastify";
 import Link from "next/link";
 
 import { TCategory, TGroup } from "@/lib/models";
-import {
-  useAppDispatch,
-  useGroupIdPreselector,
-  useGroupSelector,
-} from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
@@ -17,35 +13,24 @@ import NameDescrAdder from "../name-descr-adder";
 import Entry from "./entry";
 import GroupSelector from "../groups/selector";
 import Header from "../header";
+import CliCommonCx from "../common-context";
 
-export default function CliCategoriesPage({
-  userMenu,
-
-  catId,
-  groupId,
-  ...srv
-}: {
+export default function CliCategoriesPage(srv: {
   userMenu: ReactNode;
-
-  catId?: number;
   groupId?: number;
   defaultGroupId?: number;
   groups: TGroup[];
+
+  catId?: number;
 }) {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector(srv.groups);
 
-  useGroupIdPreselector("/categories", groupId);
-
-  useEffect(() => {
-    dispatch(red.init(srv));
-  }, []);
-
   const group = rs.group();
 
   return (
-    <>
-      <Header {...{ userMenu }}>
+    <CliCommonCx {...{ srv, rewritePath: "/categories" }}>
+      <Header>
         <h2>Categories</h2>
       </Header>
 
@@ -108,10 +93,10 @@ export default function CliCategoriesPage({
           <Entry
             key={cat.id}
             cat={cat}
-            preSelected={!!catId && catId == cat.id}
+            preSelected={!!srv.catId && srv.catId == cat.id}
           />
         ))}
       </div>
-    </>
+    </CliCommonCx>
   );
 }

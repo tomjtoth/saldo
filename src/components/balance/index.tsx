@@ -3,29 +3,20 @@
 import { ReactNode, useEffect, useState } from "react";
 import { DateTime } from "luxon";
 
-import {
-  useAppDispatch,
-  useGroupIdPreselector,
-  useGroupSelector,
-} from "@/lib/hooks";
+import { useGroupSelector } from "@/lib/hooks";
 import { dateToInt, EUROPE_HELSINKI } from "@/lib/utils";
 import { TGroup } from "@/lib/models";
-import { rCombined as red } from "@/lib/reducers";
 
 import BalanceChart, { TBalanceChartData } from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
+import CliCommonCx from "../common-context";
 
-export default function CliBalancePage({
-  userMenu,
-  ...srv
-}: {
+export default function CliBalancePage(srv: {
   userMenu: ReactNode;
-
   groupId?: number;
   groups: TGroup[];
 }) {
-  const dispatch = useAppDispatch();
   const rs = useGroupSelector(srv.groups);
 
   const [from, setFrom] = useState("");
@@ -58,18 +49,13 @@ export default function CliBalancePage({
     });
   };
 
-  useGroupIdPreselector("/balance", srv.groupId);
-  useEffect(() => {
-    dispatch(red.init(srv));
-  }, []);
-
   useEffect(() => {
     if (rs.groupId) filter();
   }, [rs.groupId]);
 
   return (
-    <>
-      <Header userMenu={userMenu}>Balance</Header>
+    <CliCommonCx {...{ srv, rewritePath: "/balance" }}>
+      <Header>Balance</Header>
       <div className="p-2 h-full flex flex-col gap-2 items-center">
         <form
           className="flex flex-wrap gap-2 items-center justify-center"
@@ -110,6 +96,6 @@ export default function CliBalancePage({
           </div>
         )}
       </div>
-    </>
+    </CliCommonCx>
   );
 }

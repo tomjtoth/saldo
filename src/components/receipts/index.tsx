@@ -1,25 +1,17 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import Link from "next/link";
 
-import {
-  useAppDispatch,
-  useGroupIdPreselector,
-  useGroupSelector,
-} from "@/lib/hooks";
+import { useGroupSelector } from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
-import { rCombined as red } from "@/lib/reducers";
 
 import Header from "../header";
 import Adder from "./adder";
 import GroupSelector from "../groups/selector";
+import CliCommonCx from "../common-context";
 
-export default function CliReceiptsPage({
-  userMenu,
-  groupId,
-  ...srv
-}: {
+export default function CliReceiptsPage(srv: {
   userMenu: ReactNode;
 
   userId: number;
@@ -27,18 +19,11 @@ export default function CliReceiptsPage({
   defaultGroupId?: number;
   groups: TGroup[];
 }) {
-  const dispatch = useAppDispatch();
   const rs = useGroupSelector(srv.groups);
 
-  useGroupIdPreselector("/receipts", groupId);
-
-  useEffect(() => {
-    dispatch(red.init(srv));
-  }, []);
-
   return (
-    <>
-      <Header userMenu={userMenu} className="flex gap-2">
+    <CliCommonCx {...{ srv, rewritePath: "/receipts" }}>
+      <Header className="flex gap-2">
         <h2>Receipts</h2>
       </Header>
 
@@ -85,6 +70,6 @@ export default function CliReceiptsPage({
           </>
         )}
       </div>
-    </>
+    </CliCommonCx>
   );
 }
