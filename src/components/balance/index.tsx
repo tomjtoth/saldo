@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
+import { DateTime } from "luxon";
 
 import {
   useAppDispatch,
@@ -14,76 +15,67 @@ import { rCombined as red } from "@/lib/reducers";
 import BalanceChart, { TBalanceChartData } from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
-import { DateTime } from "luxon";
 
-export default function CliBalancePage(srv: {
+export default function CliBalancePage({
+  userMenu,
+  ...srv
+}: {
   userMenu: ReactNode;
 
   groupId?: number;
   groups: TGroup[];
-
-  data: {
-    [groupId: number]: TBalanceChartData;
-  };
 }) {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector(srv.groups);
 
   const [from, setFrom] = useState("");
-  const [to, setTo] = useState("srv.to");
-  const [data, setData] = useState(srv.data);
+  const [to, setTo] = useState("");
+  const [filtered, setFiltered] = useState<TBalanceChartData | undefined>();
+
+  const dateFrom = DateTime.fromISO(from, EUROPE_HELSINKI);
+  const dateTo = DateTime.fromISO(to, EUROPE_HELSINKI);
+
+  const filter = () => {
+    const set = rs.group()?.balance;
+    if (!set) return;
+
+    const { relations, data } = set;
+
+    setFiltered({
+      relations,
+      data: data.filter(({ date }) => {
+        let res = true;
+
+        if (dateFrom.isValid && date < dateToInt(dateFrom.toISODate())) {
+          res = false;
+        }
+        if (dateTo.isValid && date > dateToInt(dateTo.toISODate())) {
+          res = false;
+        }
+
+        return res;
+      }),
+    });
+  };
 
   useGroupIdPreselector("/balance", srv.groupId);
   useEffect(() => {
-    dispatch(red.init({ groups: srv.groups }));
+    dispatch(red.init(srv));
   }, []);
+
+  useEffect(() => {
+    if (rs.groupId) filter();
+  }, [rs.groupId]);
 
   return (
     <>
-      <Header userMenu={srv.userMenu}>Balance</Header>
+      <Header userMenu={userMenu}>Balance</Header>
       <div className="p-2 h-full flex flex-col gap-2 items-center">
         <form
           className="flex flex-wrap gap-2 items-center justify-center"
           onSubmit={(ev) => {
             ev.preventDefault();
-
-            setData(
-              Object.fromEntries(
-                Object.entries(srv.data).map(
-                  ([groupId, { relations, data }]) => [
-                    Number(groupId),
-                    {
-                      relations,
-                      data: data.filter(({ date }) => {
-                        let res = true;
-
-                        const dateFrom = DateTime.fromISO(
-                          from,
-                          EUROPE_HELSINKI
-                        );
-
-                        if (
-                          dateFrom.isValid &&
-                          date < dateToInt(dateFrom.toISODate())
-                        ) {
-                          res = false;
-                        }
-                        const dateTo = DateTime.fromISO(to, EUROPE_HELSINKI);
-
-                        if (
-                          dateTo.isValid &&
-                          date > dateToInt(dateTo.toISODate())
-                        ) {
-                          res = false;
-                        }
-
-                        return res;
-                      }),
-                    },
-                  ]
-                )
-              )
-            );
+            filter();
           }}
         >
           <label>
@@ -108,7 +100,15 @@ export default function CliBalancePage(srv: {
           <button>filter</button>
         </form>
 
-        {!!rs.groupId && <BalanceChart {...data[rs.groupId]} />}
+        {!!filtered && filtered.data.length > 0 ? (
+          <BalanceChart {...filtered} />
+        ) : (
+          <div className="grow flex items-center">
+            <h2 className="rounded border-2 border-red-500">
+              There is no data to show with those filters
+            </h2>
+          </div>
+        )}
       </div>
     </>
   );
