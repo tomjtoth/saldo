@@ -2,15 +2,14 @@
 
 import { useEffect, useRef } from "react";
 
-import { TGroup } from "@/lib/models";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 
 import SvgLink from "../svg-link";
 
-export default function GroupSelector({ fallback }: { fallback: TGroup[] }) {
+export default function GroupSelector() {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector(fallback);
+  const rs = useGroupSelector();
 
   const spanRef = useRef<HTMLSpanElement>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
