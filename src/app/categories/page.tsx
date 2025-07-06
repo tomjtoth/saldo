@@ -1,42 +1,32 @@
-import { auth, signIn } from "@/auth";
-import { currentUser } from "@/lib/services/user";
 import { getCatsDataFor } from "@/lib/services/categories";
 
+import protectedPage from "@/lib/protectedPage";
 import CliCategoriesPage from "@/components/categories";
-import UserMenu from "@/components/user-menu";
 
 export const dynamic = "force-dynamic";
 
-export default async function CategoriesPage({
+export default async ({
   params,
 }: {
-  params: Promise<{ groupId?: string; catId?: string }>;
-}) {
-  const { groupId, catId } = await params;
-  const sess = await auth();
-  if (!sess)
-    return signIn("", {
-      redirectTo: `${groupId ? `/groups/${groupId}` : ""}/categories${
-        catId ? `/${catId}` : ""
-      }`,
-    });
+  params: { groupId?: string; catId?: string };
+}) => {
+  const catId = Number(params.catId);
 
-  const gidAsNum = Number(groupId);
-  const cidAsNum = Number(catId);
+  return protectedPage({
+    params,
+    resolveParams: ({ groupId, catId }) => {
+      const asNum = Number(groupId);
 
-  const user = await currentUser(sess);
-  const groups = await getCatsDataFor(user.id);
+      return {
+        redirectTo: `${groupId ? `/groups/${groupId}` : ""}/categories${
+          catId ? `/${catId}` : ""
+        }`,
+        groupId: isNaN(asNum) ? undefined : asNum,
+      };
+    },
 
-  return (
-    <CliCategoriesPage
-      {...{
-        userMenu: <UserMenu />,
-
-        catId: isNaN(cidAsNum) ? undefined : cidAsNum,
-        groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
-        defaultGroupId: user.defaultGroupId,
-        groups: groups.map((grp) => grp.get({ plain: true })),
-      }}
-    />
-  );
-}
+    getData: getCatsDataFor,
+    children: <CliCategoriesPage catId={isNaN(catId) ? undefined : catId} />,
+    rewritePath: "/categories",
+  });
+};
