@@ -9,10 +9,9 @@ import { dateToInt, EUROPE_HELSINKI } from "@/lib/utils";
 import BalanceChart, { TBalanceChartData } from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
-import CliCommonCx, { TSrv } from "../common-context";
 
-export default function CliBalancePage(srv: TSrv) {
-  const rs = useGroupSelector(srv.groups);
+export default function CliBalancePage() {
+  const rs = useGroupSelector();
 
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -49,7 +48,7 @@ export default function CliBalancePage(srv: TSrv) {
   }, [rs.groupId]);
 
   return (
-    <CliCommonCx {...{ srv, rewritePath: "/balance" }}>
+    <>
       <Header>Balance</Header>
       <div className="p-2 h-full flex flex-col gap-2 items-center">
         <form
@@ -60,7 +59,7 @@ export default function CliBalancePage(srv: TSrv) {
           }}
         >
           <label>
-            group: <GroupSelector fallback={srv.groups} />
+            group: <GroupSelector />
           </label>
           <label>
             from:{" "}
@@ -91,6 +90,6 @@ export default function CliBalancePage(srv: TSrv) {
           </div>
         )}
       </div>
-    </CliCommonCx>
+    </>
   );
 }
