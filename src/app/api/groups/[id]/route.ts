@@ -13,7 +13,7 @@ export async function GET(
   {
     params,
   }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
   }
 ) {
   const [{ id: uuid }, sess] = await Promise.all([params, auth()]);
