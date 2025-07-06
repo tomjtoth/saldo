@@ -9,16 +9,10 @@ import { rCombined as red } from "@/lib/reducers";
 import ParetoChart from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
-import CliCommonCx, { TSrv } from "../common-context";
 
-export default function CliParetoPage(
-  srv: TSrv & {
-    from?: string;
-    to?: string;
-  }
-) {
+export default function CliParetoPage(srv: { from?: string; to?: string }) {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector(srv.groups);
+  const rs = useGroupSelector();
 
   const [from, setFrom] = useState(srv.from ?? "");
   const [to, setTo] = useState(srv.to ?? "");
@@ -26,7 +20,7 @@ export default function CliParetoPage(
   const group = rs.group();
 
   return (
-    <CliCommonCx {...{ srv, rewritePath: "/pareto" }}>
+    <>
       <Header>Pareto</Header>
       <div className="p-2 h-full flex flex-col gap-2 items-center">
         <form
@@ -39,8 +33,8 @@ export default function CliParetoPage(
                 .then(async (res) => {
                   if (!res.ok) err(res.statusText);
 
-                  const body = await res.json();
-                  dispatch(red.init(body));
+                  const groups = await res.json();
+                  dispatch(red.init({ groups }));
                 })
                 .catch((err) => {
                   setFrom(srv.from ?? "");
@@ -53,7 +47,7 @@ export default function CliParetoPage(
           }}
         >
           <label>
-            group: <GroupSelector fallback={srv.groups} />
+            group: <GroupSelector />
           </label>
           <label>
             from:{" "}
@@ -74,7 +68,7 @@ export default function CliParetoPage(
           <button>fetch</button>
         </form>
 
-        {!!group && group.pareto!.categories.length > 0 ? (
+        {!!group && (group.pareto?.categories.length ?? 0) > 0 ? (
           <ParetoChart {...group.pareto!} />
         ) : (
           <div className="grow flex items-center">
@@ -82,6 +76,6 @@ export default function CliParetoPage(
           </div>
         )}
       </div>
-    </CliCommonCx>
+    </>
   );
 }
