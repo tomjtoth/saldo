@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 
 import { addUser } from "../services/user";
 import { Category, Item, migrator, Receipt, Revision, User } from ".";
-import { VALID_USER_DATA } from "../test_helpers";
+import { VALID_USER_DATA } from "../testHelpers";
 
 describe("Item", () => {
   beforeEach(async () => {

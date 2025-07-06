@@ -7,7 +7,7 @@ import { TGroup } from "@/lib/models";
 import Invitation from "./invitation";
 import Title from "./title";
 import Members from "./members";
-import SvgLink from "@/components/svg-link";
+import SvgLink from "@/components/svgLink";
 
 export default function Details({ group }: { group: TGroup }) {
   const [statusId, setStatusId] = useState(group.statusId);

@@ -1,4 +1,4 @@
-import { alreadyInProd, importV3 } from "@/lib/services/import-v3";
+import { alreadyInProd, importV3 } from "@/lib/services/importV3";
 
 export const dynamic = "force-dynamic";
 

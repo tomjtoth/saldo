@@ -10,9 +10,9 @@ import {
   Revision,
   User,
 } from "@/lib/models";
-import { alreadyInProd } from "@/lib/services/import-v3";
+import { alreadyInProd } from "@/lib/services/importV3";
 
-import CliImportSection from "./client-side";
+import CliImportSection from "./clientSide";
 
 export default async function ImportSection() {
   let rendered = null;

@@ -14,7 +14,7 @@ import { rCombined as red } from "@/lib/reducers";
 import { appToast, err, sendJSON } from "@/lib/utils";
 
 import Canceler from "../../canceler";
-import ItemRow from "./item-row";
+import ItemRow from "./itemRow";
 
 const DIFFS = {
   ArrowUp: -1,

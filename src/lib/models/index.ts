@@ -2,7 +2,7 @@ import { User, UserArchive } from "./user";
 import { Category, CategoryArchive } from "./category";
 import { Receipt, ReceiptArchive } from "./receipt";
 import { Item } from "./item";
-import { ItemShare, ItemShareArchive } from "./item_share";
+import { ItemShare, ItemShareArchive } from "./itemShare";
 import { Revision, Status } from "./common";
 import { Group, GroupArchive } from "./group";
 import { Membership } from "./membership";
@@ -14,7 +14,7 @@ export * from "./membership";
 export * from "./category";
 export * from "./receipt";
 export * from "./item";
-export * from "./item_share";
+export * from "./itemShare";
 export { Revision, Status };
 export type { TCrRevision, TStatus } from "./common";
 

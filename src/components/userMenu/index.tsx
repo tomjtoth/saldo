@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 
-import CliUserMenu from "./client-side";
+import CliUserMenu from "./clientSide";
 import { SignInButton, SignOutButton } from "./buttons";
 
 export default async function UserMenu() {

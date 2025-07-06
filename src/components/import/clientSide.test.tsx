@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { it, expect } from "vitest";
 
-import CliImportSection from "./client-side";
+import CliImportSection from "./clientSide";
 
 it("Page renders correctly", () => {
   render(

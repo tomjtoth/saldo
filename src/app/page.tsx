@@ -1,6 +1,6 @@
 import Header from "@/components/header";
-import UserMenu from "@/components/user-menu";
-import HashParagraph from "@/components/hash-paragraph";
+import UserMenu from "@/components/userMenu";
+import HashParagraph from "@/components/hashParagraph";
 import ImportSection from "@/components/import";
 
 export default async function HomePage() {

@@ -11,7 +11,7 @@ import {
 } from "./common";
 import { Category } from "./category";
 import { Receipt } from "./receipt";
-import { ItemShare } from "./item_share";
+import { ItemShare } from "./itemShare";
 
 export type TItem = TIDs & {
   rcptId: number;

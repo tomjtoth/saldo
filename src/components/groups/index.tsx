@@ -8,7 +8,7 @@ import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
 import Entry from "./entry";
-import NameDescrAdder from "../name-descr-adder";
+import NameDescrAdder from "../nameDescrAdder";
 import Header from "../header";
 import { useRootDivCx } from "../rootDiv/clientSide";
 
