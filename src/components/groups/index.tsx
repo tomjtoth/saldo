@@ -10,14 +10,15 @@ import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 import Entry from "./entry";
 import NameDescrAdder from "../name-descr-adder";
 import Header from "../header";
-import CliCommonCx, { TSrv } from "../common-context";
+import { useRootDivCx } from "../rootDiv/clientSide";
 
-export default function CliGroupsPage(srv: TSrv) {
-  const rs = useGroupSelector(srv.groups);
+export default function CliGroupsPage() {
+  const rs = useGroupSelector();
   const dispatch = useAppDispatch();
+  const preSelectedId = useRootDivCx().groupId;
 
   return (
-    <CliCommonCx {...{ srv, rewritePath: "/groups" }}>
+    <>
       <Header>
         <h2>Groups</h2>
       </Header>
@@ -66,10 +67,10 @@ export default function CliGroupsPage(srv: TSrv) {
           <Entry
             key={group.id}
             group={group}
-            preSelected={!!srv.groupId && srv.groupId === group.id}
+            preSelected={preSelectedId === group.id}
           />
         ))}
       </div>
-    </CliCommonCx>
+    </>
   );
 }
