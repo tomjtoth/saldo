@@ -3,7 +3,7 @@
 import { PropsWithChildren, ReactNode } from "react";
 
 import Sidepanel from "./sidepanel";
-import { useUserMenu } from "./common-context";
+import { useRootDivCx } from "./rootDiv/clientSide";
 
 export default function Header({
   children,
@@ -13,7 +13,7 @@ export default function Header({
   userMenu?: ReactNode;
   className?: string;
 }) {
-  if (!userMenu) userMenu = useUserMenu();
+  if (!userMenu) userMenu = useRootDivCx().userMenu;
 
   return (
     <header className="flex gap-2 p-2 items-center">
