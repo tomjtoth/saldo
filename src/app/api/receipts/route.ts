@@ -2,9 +2,29 @@ import { NextRequest } from "next/server";
 
 import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
-import { addReceipt, TReceiptInput } from "@/lib/services/receipt";
+import {
+  addReceipt,
+  getReceiptsDataFor,
+  TReceiptInput,
+} from "@/lib/services/receipt";
 
 export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
+  const sess = await auth();
+  if (!sess) return new Response(null, { status: 401 });
+
+  const user = await currentUser(sess);
+  const { searchParams } = new URL(req.url);
+  const offset = Number(searchParams.get("offset") ?? undefined);
+
+  const groups = await getReceiptsDataFor(
+    user.id,
+    isNaN(offset) ? undefined : offset
+  );
+
+  return Response.json(groups);
+}
 
 export async function POST(req: NextRequest) {
   const data: TReceiptInput = await req.json();

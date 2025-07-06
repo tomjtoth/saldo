@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
-import { useGroupSelector } from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
+import { useRootDivCx } from "../rootDiv/clientSide";
+import { TGroup } from "@/lib/models";
+import { rCombined as red } from "@/lib/reducers";
 
 import Header from "../header";
 import Adder from "./adder";
@@ -10,6 +14,58 @@ import GroupSelector from "../groups/selector";
 
 export default function CliReceiptsPage() {
   const rs = useGroupSelector();
+  const { setOnScroll } = useRootDivCx();
+  const dispatch = useAppDispatch();
+
+  const [fetching, setFetching] = useState(false);
+  const [hasMore, setHasMore] = useState<{ [groupId: number]: boolean }>({});
+
+  function processFetchedReceipts(groups: TGroup[]) {
+    const storing = groups
+      .map((group) => {
+        const len = group.Receipts?.length ?? 0;
+        if (len < 50)
+          setHasMore({
+            ...hasMore,
+            [group.id]: false,
+          });
+
+        return len > 0 ? true : false;
+      })
+      .some(Boolean);
+
+    if (storing) dispatch(red.addFetchedReceipts(groups));
+
+    setFetching(false);
+  }
+
+  setOnScroll(async (ev) => {
+    const triggered =
+      window.innerHeight + ev.currentTarget.scrollTop + 500 >
+      ev.currentTarget.scrollHeight;
+
+    console.log(
+      ev,
+      triggered,
+      window.innerHeight,
+      ev.currentTarget.scrollTop,
+      ev.currentTarget.scrollHeight
+    );
+
+    if (
+      triggered &&
+      !!rs.groupId &&
+      (hasMore[rs.groupId] ?? true) &&
+      !fetching
+    ) {
+      setFetching(true);
+      const body = await fetch(
+        `/api/receipts?offset=${rs.group()!.Receipts!.length}`
+      );
+      const groups: TGroup[] = await body.json();
+      processFetchedReceipts(groups);
+    }
+  });
 
   return (
     <>
