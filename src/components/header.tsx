@@ -7,19 +7,19 @@ import { useRootDivCx } from "./rootDiv/clientSide";
 
 export default function Header({
   children,
-  userMenu,
+  userMenu: userMenuProps,
   className: cn = "",
 }: PropsWithChildren & {
   userMenu?: ReactNode;
   className?: string;
 }) {
-  if (!userMenu) userMenu = useRootDivCx().userMenu;
+  const userMenuCx = useRootDivCx().userMenu;
 
   return (
     <header className="flex gap-2 p-2 items-center">
       <Sidepanel />
       <div className={`grow ${cn}`}>{children}</div>
-      {userMenu}
+      {userMenuProps ?? userMenuCx}
     </header>
   );
 }
