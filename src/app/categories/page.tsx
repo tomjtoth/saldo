@@ -1,18 +1,14 @@
 import { getCatsDataFor } from "@/lib/services/categories";
 
-import protectedPage from "@/lib/protectedPage";
+import protectedPage, { TPage } from "@/lib/protectedPage";
 import CliCategoriesPage from "@/components/categories";
 
 export const dynamic = "force-dynamic";
 
-export default async ({
-  params,
-}: {
-  params: { groupId?: string; catId?: string };
-}) => {
-  const catId = Number(params.catId);
+export default async ({ params }: TPage<{ catId?: string }>) => {
+  const catId = Number((await params).catId);
 
-  return protectedPage({
+  return protectedPage<{ catId?: string }>({
     params,
     resolveParams: ({ groupId, catId }) => {
       const asNum = Number(groupId);

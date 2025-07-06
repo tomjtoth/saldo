@@ -1,11 +1,11 @@
 import { getGroupsDataFor } from "@/lib/services/groups";
 
-import protectedPage, { TCoreParams } from "@/lib/protectedPage";
+import protectedPage, { TPage } from "@/lib/protectedPage";
 import CliGroupsPage from "@/components/groups";
 
 export const dynamic = "force-dynamic";
 
-export default async ({ params }: TCoreParams) =>
+export default async ({ params }: TPage) =>
   protectedPage({
     params,
     resolveParams: ({ groupId }) => {

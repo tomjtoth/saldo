@@ -1,11 +1,11 @@
 import { getBalanceDataFor } from "@/lib/services/balance";
 
-import protectedPage, { TCoreParams } from "@/lib/protectedPage";
+import protectedPage, { TPage } from "@/lib/protectedPage";
 import CliBalancePage from "@/components/balance";
 
 export const dynamic = "force-dynamic";
 
-export default async ({ params }: TCoreParams) =>
+export default async ({ params }: TPage) =>
   protectedPage({
     params,
     getData: getBalanceDataFor,

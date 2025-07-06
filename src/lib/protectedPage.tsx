@@ -6,11 +6,12 @@ import { currentUser } from "@/lib/services/user";
 
 import RootDiv from "@/components/rootDiv";
 
-export type TCoreParams = { params: { groupId?: string } };
+type TCoreParams = { groupId?: string };
+export type TPage<T = object> = { params: Promise<TCoreParams & T> };
 
-type ProtectedPageOptions<TPageParams> = {
-  params: TPageParams;
-  resolveParams?: (params: TPageParams) => {
+type ProtectedPageOptions<T> = {
+  params: TPage<T>["params"];
+  resolveParams?: (params: TCoreParams & T) => {
     redirectTo: string;
     groupId?: number;
   };
@@ -19,16 +20,14 @@ type ProtectedPageOptions<TPageParams> = {
   rewritePath: string;
 };
 
-export default async function protectedPage<
-  TPageParams extends { groupId?: string }
->({
+export default async function protectedPage<T = object>({
   params,
   resolveParams,
   getData,
   children,
   rewritePath,
-}: ProtectedPageOptions<TPageParams>) {
-  const resolveCoreParams = ({ groupId }: { groupId?: string }) => {
+}: ProtectedPageOptions<T>) {
+  const resolveCoreParams = ({ groupId }: TCoreParams) => {
     const gidAsNum = Number(groupId);
     const prefix = groupId ? `/groups/${groupId}` : "";
 
@@ -38,7 +37,9 @@ export default async function protectedPage<
     };
   };
 
-  const { redirectTo, groupId } = (resolveParams ?? resolveCoreParams)(params);
+  const { redirectTo, groupId } = (resolveParams ?? resolveCoreParams)(
+    await params
+  );
 
   const session = await auth();
   if (!session) return signIn("", { redirectTo });
