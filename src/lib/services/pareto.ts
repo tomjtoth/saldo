@@ -79,7 +79,7 @@ export async function getParetoDataFor(
     { type: QueryTypes.SELECT, replacements }
   );
 
-  const groups = rows.map(({ users, categories, ...group }) => {
+  return rows.map(({ users, categories, ...group }) => {
     return {
       ...group,
       pareto: {
@@ -90,10 +90,4 @@ export async function getParetoDataFor(
       } as unknown as TParetoChartData,
     };
   }) as TGroup[];
-
-  return {
-    from: opts.from,
-    to: opts.to,
-    groups,
-  };
 }
