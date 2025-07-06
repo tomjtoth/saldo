@@ -31,7 +31,10 @@ const slice = createSlice({
       if (rs.groupId === undefined) {
         rs.groupId = payload.defaultGroupId ?? payload.groups.at(0)?.id;
       }
-      rs.defaultGroupId = payload.defaultGroupId;
+
+      if (payload.defaultGroupId !== undefined)
+        rs.defaultGroupId = payload.defaultGroupId;
+
       rs.groups = payload.groups;
 
       if (payload.userId !== undefined) rs.userId = payload.userId;
