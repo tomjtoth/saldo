@@ -31,9 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
         <ToastContainer autoClose={2000} closeOnClick />
-        <StoreProvider>
-          <div className="h-full flex flex-col overflow-scroll">{children}</div>
-        </StoreProvider>
+        <StoreProvider>{children}</StoreProvider>
       </body>
     </html>
   );
