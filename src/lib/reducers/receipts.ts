@@ -3,7 +3,7 @@ import { DateTime } from "luxon";
 
 import { AppDispatch } from "../store";
 import { combinedSA as csa, CombinedState as CS } from ".";
-import { Receipt } from "../models";
+import { Receipt, TGroup } from "../models";
 import { EUROPE_HELSINKI } from "../utils";
 
 export type TCliReceipt = {
@@ -78,7 +78,7 @@ export const rReceipts = {
     } else {
       const group = rs.groups.find((group) => group.id === rs.groupId)!;
       const defCat =
-        group.Memberships!.at(0)!.defaultCatId ?? group.Categories!.at(0)!.id!;
+        group.Memberships?.at(0)?.defaultCatId ?? group.Categories!.at(0)!.id!;
 
       curr.items.push(addItem(defCat));
     }
@@ -113,6 +113,14 @@ export const rReceipts = {
 
     delete rs.newReceipts[payload.groupId];
   },
+
+  addFetchedReceipts: (rs: CS, { payload }: PayloadAction<TGroup[]>) => {
+    payload.forEach((grp) => {
+      rs.groups
+        .find((group) => group.id === grp.id)
+        ?.Receipts?.push(...grp.Receipts!);
+    });
+  },
 };
 
 export const tReceipts = {
@@ -142,5 +150,9 @@ export const tReceipts = {
 
   addReceipt: (rcpt: Receipt) => {
     return (dispatch: AppDispatch) => dispatch(csa.addReceipt(rcpt));
+  },
+
+  addFetchedReceipts: (groups: TGroup[]) => {
+    return (dispatch: AppDispatch) => dispatch(csa.addFetchedReceipts(groups));
   },
 };
