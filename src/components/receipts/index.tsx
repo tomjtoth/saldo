@@ -7,20 +7,19 @@ import { useGroupSelector } from "@/lib/hooks";
 import Header from "../header";
 import Adder from "./adder";
 import GroupSelector from "../groups/selector";
-import CliCommonCx, { TSrv } from "../common-context";
 
-export default function CliReceiptsPage(srv: TSrv) {
-  const rs = useGroupSelector(srv.groups);
+export default function CliReceiptsPage() {
+  const rs = useGroupSelector();
 
   return (
-    <CliCommonCx {...{ srv, rewritePath: "/receipts" }}>
+    <>
       <Header className="flex gap-2">
         <h2>Receipts</h2>
       </Header>
 
       {rs.groups.length > 0 ? (
         <div className="p-2 text-center">
-          <Adder /> receipt for group: <GroupSelector fallback={srv.groups} />
+          <Adder /> receipt for group: <GroupSelector />
         </div>
       ) : (
         <p>
@@ -61,6 +60,6 @@ export default function CliReceiptsPage(srv: TSrv) {
           </>
         )}
       </div>
-    </CliCommonCx>
+    </>
   );
 }
