@@ -5,7 +5,7 @@ import CliGroupsPage from "@/components/groups";
 
 export const dynamic = "force-dynamic";
 
-export default async ({ params }: TPage) =>
+export default ({ params }: TPage) =>
   protectedPage({
     params,
     resolveParams: ({ groupId }) => {

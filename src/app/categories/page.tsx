@@ -11,13 +11,13 @@ export default async ({ params }: TPage<{ catId?: string }>) => {
   return protectedPage<{ catId?: string }>({
     params,
     resolveParams: ({ groupId, catId }) => {
-      const asNum = Number(groupId);
+      const gidAsNum = Number(groupId);
 
       return {
         redirectTo: `${groupId ? `/groups/${groupId}` : ""}/categories${
           catId ? `/${catId}` : ""
         }`,
-        groupId: isNaN(asNum) ? undefined : asNum,
+        groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
       };
     },
 

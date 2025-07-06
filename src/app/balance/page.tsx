@@ -5,7 +5,7 @@ import CliBalancePage from "@/components/balance";
 
 export const dynamic = "force-dynamic";
 
-export default async ({ params }: TPage) =>
+export default ({ params }: TPage) =>
   protectedPage({
     params,
     getData: getBalanceDataFor,
