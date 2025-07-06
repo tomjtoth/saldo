@@ -7,11 +7,12 @@ import { currentUser } from "@/lib/services/user";
 import RootDiv from "@/components/rootDiv";
 
 type TCoreParams = { groupId?: string };
-export type TPage<T = object> = { params: Promise<TCoreParams & T> };
+type TPageParams<T> = TCoreParams & T;
+export type TPage<T = object> = { params: Promise<TPageParams<T>> };
 
 type ProtectedPageOptions<T> = {
   params: TPage<T>["params"];
-  resolveParams?: (params: TCoreParams & T) => {
+  resolveParams?: (params: TPageParams<T>) => {
     redirectTo: string;
     groupId?: number;
   };
