@@ -12,20 +12,15 @@ import NameDescrAdder from "../name-descr-adder";
 import Entry from "./entry";
 import GroupSelector from "../groups/selector";
 import Header from "../header";
-import CliCommonCx, { TSrv } from "../common-context";
 
-export default function CliCategoriesPage(
-  srv: TSrv & {
-    catId?: number;
-  }
-) {
+export default function CliCategoriesPage(srv: { catId?: number }) {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector(srv.groups);
+  const rs = useGroupSelector();
 
   const group = rs.group();
 
   return (
-    <CliCommonCx {...{ srv, rewritePath: "/categories" }}>
+    <>
       <Header>
         <h2>Categories</h2>
       </Header>
@@ -69,7 +64,7 @@ export default function CliCategoriesPage(
                 })
               }
             />{" "}
-            category for group: <GroupSelector fallback={srv.groups} />
+            category for group: <GroupSelector />
           </>
         ) : (
           <p>
@@ -86,13 +81,9 @@ export default function CliCategoriesPage(
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
         {group?.Categories?.map((cat) => (
-          <Entry
-            key={cat.id}
-            cat={cat}
-            preSelected={!!srv.catId && srv.catId == cat.id}
-          />
+          <Entry key={cat.id} cat={cat} preSelected={srv.catId == cat.id} />
         ))}
       </div>
-    </CliCommonCx>
+    </>
   );
 }
