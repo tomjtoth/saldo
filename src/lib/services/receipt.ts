@@ -36,6 +36,7 @@ const RCPT_INCLUDE = {
       ],
     },
     Item,
+    { model: User, attributes: ["name"] },
   ],
 };
 
