@@ -15,7 +15,7 @@ export default function Sidepanel() {
     <>
       <nav
         className={`absolute z-1 top-0 h-full w-[85vw] sm:w-60  ${
-          visible ? "left-0" : "-left-[85vw] -sm:left-60"
+          visible ? "left-0 shadow-lg" : "-left-[85vw] -sm:left-60"
         } duration-150 border-r bg-background p-4`}
       >
         <ul>
