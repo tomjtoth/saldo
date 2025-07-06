@@ -15,8 +15,6 @@ describe("datetimeFunctions", () => {
     expect(base).toEqual(0);
   });
 
-  //     datetimeToInt
-  // datetimeFromInt
   it("convert 0 properly to '2020-01-01'", () => {
     const YYYY_MM_DD = dateFromInt(0);
     expect(YYYY_MM_DD).toEqual("2020-01-01");
