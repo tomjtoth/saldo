@@ -1,4 +1,4 @@
-import { getCatsDataFor } from "@/lib/services/categories";
+import { getCategories } from "@/lib/services/categories";
 
 import protectedPage, { TPage } from "@/lib/protectedPage";
 import CliCategoriesPage from "@/components/categories";
@@ -21,7 +21,7 @@ export default async ({ params }: TPage<{ catId?: string }>) => {
       };
     },
 
-    getData: getCatsDataFor,
+    getData: getCategories,
     children: <CliCategoriesPage catId={isNaN(catId) ? undefined : catId} />,
     rewritePath: "/categories",
   });

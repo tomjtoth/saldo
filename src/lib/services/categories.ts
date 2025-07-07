@@ -130,7 +130,7 @@ export async function userAccessToCat(userId: number, catId: number) {
   return !!exists;
 }
 
-export async function getCatsDataFor(userId: number) {
+export async function getCategories(userId: number) {
   return await Group.findAll({
     attributes: ["id", "name"],
     include: [
