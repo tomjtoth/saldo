@@ -5,7 +5,7 @@ import { db, TGroup } from "../models";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
 import { TParetoChartData } from "@/components/pareto/chart";
 
-export async function getParetoDataFor(
+export async function getPareto(
   userId: number,
   opts: {
     from?: string;

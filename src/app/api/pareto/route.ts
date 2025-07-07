@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { getParetoDataFor } from "@/lib/services/pareto";
+import { getPareto } from "@/lib/services/pareto";
 import { currentUser } from "@/lib/services/user";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   const to = searchParams.get("to") ?? undefined;
 
   const user = await currentUser(sess);
-  const data = await getParetoDataFor(user.id, { from, to });
+  const data = await getPareto(user.id, { from, to });
 
   return Response.json(data);
 }
