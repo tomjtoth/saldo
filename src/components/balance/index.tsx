@@ -15,7 +15,9 @@ export default function CliBalancePage() {
 
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [filtered, setFiltered] = useState<TBalanceChartData | undefined>();
+  const [filtered, setFiltered] = useState<TBalanceChartData | undefined>(
+    rs.group()?.balance
+  );
 
   const dateFrom = DateTime.fromISO(from, EUROPE_HELSINKI);
   const dateTo = DateTime.fromISO(to, EUROPE_HELSINKI);
