@@ -50,7 +50,6 @@ export default function Individual({
                   { method: "PUT" }
                 )
                   .then(async (res) => {
-                    console.log(res);
                     if (!res.ok) err(res.statusText);
 
                     const body = await res.json();

@@ -44,14 +44,6 @@ export default function CliReceiptsPage() {
       window.innerHeight + ev.currentTarget.scrollTop + 500 >
       ev.currentTarget.scrollHeight;
 
-    console.log(
-      ev,
-      triggered,
-      window.innerHeight,
-      ev.currentTarget.scrollTop,
-      ev.currentTarget.scrollHeight
-    );
-
     if (
       triggered &&
       !!rs.groupId &&
@@ -86,33 +78,45 @@ export default function CliReceiptsPage() {
         </p>
       )}
 
-      <div className="p-2 flex flex-wrap justify-evenly items-center gap-2">
+      <div className="p-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 justify-evenly items-center gap-2">
         {rs.groups.length == 0 ? null : (
           <>
             {rs.group()?.Receipts?.map((rcpt) => (
               <div
                 key={rcpt.id}
-                className="p-2 shrink-0 border rounded flex gap-2 cursor-pointer select-none"
+                className="p-2 shrink-0 border rounded flex gap-2 cursor-pointer select-none justify-between"
               >
-                <span>🛍️ {rcpt.Items?.length}: </span>
+                <span>
+                  🗓️
+                  <sub>{rcpt.paidOn}</sub>
+                </span>
+
+                <span>
+                  🛍️ <sub>{rcpt.Items?.length}</sub>
+                </span>
 
                 <span>
                   €{" "}
-                  {rcpt.Items?.reduce((sub, { cost }) => sub + cost, 0).toFixed(
-                    2
-                  )}
+                  <sub>
+                    {rcpt.Items?.reduce(
+                      (sub, { cost }) => sub + cost,
+                      0
+                    ).toFixed(2)}
+                  </sub>
                 </span>
 
-                <span>🗓️ {rcpt.paidOn}</span>
-
-                <span>
+                <span className="hidden lg:block">
                   🪪{" "}
-                  {rcpt.archives!.length > 0
-                    ? rcpt.archives?.at(0)?.Revision?.User?.name
-                    : rcpt.Revision?.User?.name}
+                  <sub>
+                    {rcpt.archives!.length > 0
+                      ? rcpt.archives?.at(0)?.Revision?.User?.name
+                      : rcpt.Revision?.User?.name}
+                  </sub>
                 </span>
 
-                <span>💸 {rcpt.User?.name}</span>
+                <span className="hidden lg:block">
+                  💸 <sub>{rcpt.User?.name}</sub>
+                </span>
               </div>
             ))}
           </>
