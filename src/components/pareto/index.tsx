@@ -21,7 +21,9 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
 
   return (
     <>
-      <Header>Pareto</Header>
+      <Header>
+        <h2>Pareto</h2>
+      </Header>
       <div className="p-2 h-full flex flex-col gap-2 items-center">
         <form
           className="flex flex-wrap gap-2 items-center justify-center"

@@ -49,7 +49,9 @@ export default function CliBalancePage() {
 
   return (
     <>
-      <Header>Balance</Header>
+      <Header>
+        <h2>Balance</h2>
+      </Header>
       <div className="p-2 h-full flex flex-col gap-2 items-center">
         <form
           className="flex flex-wrap gap-2 items-center justify-center"
