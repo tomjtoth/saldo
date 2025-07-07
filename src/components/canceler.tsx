@@ -4,7 +4,7 @@ import { PropsWithChildren, useEffect, useState } from "react";
 
 export default function Canceler({
   onClick: callback,
-  className = "",
+  className = "z-1",
   classNameBlurred: clsBlurred = "backdrop-opacity-100 bg-background/50",
   children,
 }: PropsWithChildren & {
