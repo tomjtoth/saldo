@@ -3,6 +3,7 @@
 import {
   createContext,
   ReactNode,
+  RefObject,
   UIEventHandler,
   useCallback,
   useContext,
@@ -39,6 +40,7 @@ export default function CliRootDiv({
   const setOnScroll = useCallback((handler: UIEventHandler<HTMLDivElement>) => {
     scrollHandler.current = handler;
   }, []);
+  const rootDivRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useAppDispatch();
 
@@ -55,11 +57,18 @@ export default function CliRootDiv({
 
   return (
     <RootDivCx.Provider
-      value={{ setOnScroll, userMenu, groups: srv.groups ?? [], groupId }}
+      value={{
+        setOnScroll,
+        userMenu,
+        groups: srv.groups ?? [],
+        groupId,
+        rootDivRef,
+      }}
     >
       <div
         className="h-full flex flex-col overflow-scroll"
         onScroll={(ev) => scrollHandler.current?.(ev)}
+        ref={rootDivRef}
       >
         {children}
       </div>
@@ -72,6 +81,7 @@ const RootDivCx = createContext<{
   userMenu: ReactNode;
   groups: TGroup[];
   groupId?: number;
+  rootDivRef?: RefObject<HTMLDivElement | null>;
 }>({
   setOnScroll: () => {},
   userMenu: null,
