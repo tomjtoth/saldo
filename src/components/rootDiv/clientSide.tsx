@@ -12,9 +12,9 @@ import {
 
 import { useAppDispatch } from "@/lib/hooks";
 import { TGroup } from "@/lib/models";
-import { rCombined } from "@/lib/reducers";
+import { Initializer, rCombined } from "@/lib/reducers";
 
-export type TSrv = {
+export type TRootDiv = {
   children: ReactNode;
 
   rewritePath?: string;
@@ -22,7 +22,7 @@ export type TSrv = {
 
   groupId?: number;
   defaultGroupId?: number;
-  groups: TGroup[];
+  groups?: TGroup[];
 };
 
 export default function CliRootDiv({
@@ -32,7 +32,7 @@ export default function CliRootDiv({
 
   groupId,
   ...srv
-}: TSrv & {
+}: TRootDiv & {
   userMenu: ReactNode;
 }) {
   const scrollHandler = useRef<UIEventHandler<HTMLDivElement>>(null);
@@ -43,7 +43,9 @@ export default function CliRootDiv({
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(rCombined.init(srv));
+    if (srv.groups)
+      // rendered on protectedPages
+      dispatch(rCombined.init(srv as Initializer));
 
     if (groupId) {
       if (rewritePath) window.history.replaceState(null, "", rewritePath);
@@ -53,7 +55,7 @@ export default function CliRootDiv({
 
   return (
     <RootDivCx.Provider
-      value={{ setOnScroll, userMenu, groups: srv.groups, groupId }}
+      value={{ setOnScroll, userMenu, groups: srv.groups ?? [], groupId }}
     >
       <div
         className="h-full flex flex-col overflow-scroll"

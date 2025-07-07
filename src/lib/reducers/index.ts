@@ -18,7 +18,7 @@ export type CombinedState = {
   };
 };
 
-type Initializer = Pick<CombinedState, "groups" | "defaultGroupId"> & {
+export type Initializer = Pick<CombinedState, "groups" | "defaultGroupId"> & {
   userId?: number;
 };
 
