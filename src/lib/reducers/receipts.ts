@@ -52,6 +52,13 @@ function currentReceipt(rs: CS) {
   return current;
 }
 
+export const sortReceipts = (groups: TGroup[]) =>
+  groups.forEach((group) =>
+    group.Receipts?.sort((a, b) =>
+      a.paidOn < b.paidOn ? 1 : a.paidOn > b.paidOn ? -1 : 0
+    )
+  );
+
 export const rReceipts = {
   setPaidOn: (rs: CS, { payload }: PayloadAction<string>) => {
     const curr = currentReceipt(rs);
@@ -109,7 +116,7 @@ export const rReceipts = {
   addReceipt: (rs: CS, { payload }: PayloadAction<Receipt>) => {
     rs.groups
       .find((group) => group.id === payload.groupId)
-      ?.Receipts?.push(payload);
+      ?.Receipts?.splice(0, 0, payload);
 
     delete rs.newReceipts[payload.groupId];
   },
@@ -120,6 +127,8 @@ export const rReceipts = {
         .find((group) => group.id === grp.id)
         ?.Receipts?.push(...grp.Receipts!);
     });
+
+    sortReceipts(rs.groups);
   },
 };
 

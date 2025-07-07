@@ -14,14 +14,13 @@ export async function GET(req: NextRequest) {
   const sess = await auth();
   if (!sess) return new Response(null, { status: 401 });
 
-  const user = await currentUser(sess);
   const { searchParams } = new URL(req.url);
-  const offset = Number(searchParams.get("offset") ?? undefined);
+  const knownIds = (searchParams.get("knownIds") ?? "").split(",").map(Number);
 
-  const groups = await getReceiptsDataFor(
-    user.id,
-    isNaN(offset) ? undefined : offset
-  );
+  if (knownIds.some(isNaN)) return new Response(null, { status: 400 });
+
+  const user = await currentUser(sess);
+  const groups = await getReceiptsDataFor(user.id, knownIds);
 
   return Response.json(groups);
 }

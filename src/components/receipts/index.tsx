@@ -60,7 +60,9 @@ export default function CliReceiptsPage() {
     ) {
       setFetching(true);
       const body = await fetch(
-        `/api/receipts?offset=${rs.group()!.Receipts!.length}`
+        `/api/receipts?knownIds=${rs.groups
+          .flatMap((grp) => grp.Receipts?.map((r) => r.id))
+          .join(",")}`
       );
       const groups: TGroup[] = await body.json();
       processFetchedReceipts(groups);

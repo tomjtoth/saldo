@@ -1,4 +1,4 @@
-import { col, fn, IncludeOptions } from "sequelize";
+import { col, fn, IncludeOptions, Op } from "sequelize";
 
 import {
   atomic,
@@ -89,8 +89,11 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
   });
 }
 
-export async function getReceiptsDataFor(userId: number, offset = 0) {
-  const groups = await Group.findAll({
+export async function getReceiptsDataFor(
+  userId: number,
+  knownIds: number[] = []
+) {
+  return await Group.findAll({
     include: [
       {
         model: Membership,
@@ -107,7 +110,7 @@ export async function getReceiptsDataFor(userId: number, offset = 0) {
         model: Receipt,
         separate: true,
         limit: 50,
-        offset,
+        where: { id: { [Op.not]: knownIds } },
         ...RCPT_INCLUDE,
         order: [["paidOn", "DESC"]],
       } as IncludeOptions,
@@ -117,12 +120,4 @@ export async function getReceiptsDataFor(userId: number, offset = 0) {
       fn("LOWER", col("Categories.name")),
     ],
   });
-
-  groups.forEach((group) =>
-    group.Receipts?.sort((a, b) =>
-      a.paidOn < b.paidOn ? 1 : a.paidOn > b.paidOn ? -1 : 0
-    )
-  );
-
-  return groups;
 }

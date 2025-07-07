@@ -4,7 +4,7 @@ import { AppDispatch } from "../store";
 import { TGroup } from "../models";
 import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
-import { TCliReceipt, rReceipts, tReceipts } from "./receipts";
+import { TCliReceipt, rReceipts, sortReceipts, tReceipts } from "./receipts";
 
 export * from "./receipts";
 
@@ -36,6 +36,8 @@ const slice = createSlice({
         rs.defaultGroupId = payload.defaultGroupId;
 
       rs.groups = payload.groups;
+
+      sortReceipts(rs.groups);
 
       if (payload.userId !== undefined) rs.userId = payload.userId;
     },
