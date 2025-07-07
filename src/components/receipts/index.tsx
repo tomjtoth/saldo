@@ -1,81 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { useRootDivCx } from "../rootDiv/clientSide";
-import { TGroup } from "@/lib/models";
-import { rCombined as red } from "@/lib/reducers";
+import { useGroupSelector } from "@/lib/hooks";
+import useInfiniteScroll from "./hook";
 
 import Header from "../header";
 import Adder from "./adder";
 import GroupSelector from "../groups/selector";
+import Scrollers from "./scrollers";
 
 export default function CliReceiptsPage() {
   const rs = useGroupSelector();
-  const { setOnScroll, rootDivRef } = useRootDivCx();
-  const dispatch = useAppDispatch();
-
-  const [fetching, setFetching] = useState(false);
-  const [hasMore, setHasMore] = useState<{ [groupId: number]: boolean }>({});
-
-  function processFetchedReceipts(groups: TGroup[]) {
-    const storing = groups
-      .map((group) => {
-        const len = group.Receipts?.length ?? 0;
-        if (len < 50)
-          setHasMore({
-            ...hasMore,
-            [group.id]: false,
-          });
-
-        return len > 0 ? true : false;
-      })
-      .some(Boolean);
-
-    if (storing) dispatch(red.addFetchedReceipts(groups));
-
-    setFetching(false);
-  }
-
-  useEffect(() => {
-    const scrollHeight = rootDivRef?.current?.scrollHeight ?? 0;
-
-    if (
-      !!rs.groupId &&
-      (hasMore[rs.groupId] ?? true) &&
-      !fetching &&
-      scrollHeight < window.innerHeight
-    )
-      doFetch();
-  }, [fetching]);
-
-  const doFetch = async () => {
-    setFetching(true);
-    const body = await fetch(
-      `/api/receipts?knownIds=${rs.groups
-        .flatMap((grp) => grp.Receipts?.map((r) => r.id))
-        .join(",")}`
-    );
-    const groups: TGroup[] = await body.json();
-    processFetchedReceipts(groups);
-  };
-
-  setOnScroll(async (ev) => {
-    const triggered =
-      window.innerHeight + ev.currentTarget.scrollTop + 1500 >
-      ev.currentTarget.scrollHeight;
-
-    if (
-      triggered &&
-      !!rs.groupId &&
-      (hasMore[rs.groupId] ?? true) &&
-      !fetching
-    ) {
-      doFetch();
-    }
-  });
+  useInfiniteScroll();
 
   return (
     <>
@@ -138,6 +75,8 @@ export default function CliReceiptsPage() {
           </>
         )}
       </div>
+
+      <Scrollers />
     </>
   );
 }
