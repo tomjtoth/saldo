@@ -26,6 +26,11 @@ export type TRootDiv = {
   groups?: TGroup[];
 };
 
+type TNamedScrollHandler = {
+  name: string;
+  handler: UIEventHandler<HTMLDivElement>;
+};
+
 export default function CliRootDiv({
   children,
   userMenu,
@@ -36,10 +41,19 @@ export default function CliRootDiv({
 }: TRootDiv & {
   userMenu: ReactNode;
 }) {
-  const scrollHandler = useRef<UIEventHandler<HTMLDivElement>>(null);
-  const setOnScroll = useCallback((handler: UIEventHandler<HTMLDivElement>) => {
-    scrollHandler.current = handler;
+  const handlers = useRef<TNamedScrollHandler[]>([]);
+
+  const addOnScroll = useCallback(
+    (name: string, handler: UIEventHandler<HTMLDivElement>) => {
+      handlers.current.push({ name, handler });
+    },
+    []
+  );
+
+  const rmOnScroll = useCallback((name: string) => {
+    handlers.current = handlers.current.filter((x) => x.name !== name);
   }, []);
+
   const rootDivRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useAppDispatch();
@@ -58,7 +72,8 @@ export default function CliRootDiv({
   return (
     <RootDivCx.Provider
       value={{
-        setOnScroll,
+        addOnScroll,
+        rmOnScroll,
         userMenu,
         groups: srv.groups ?? [],
         groupId,
@@ -67,7 +82,9 @@ export default function CliRootDiv({
     >
       <div
         className="h-full flex flex-col overflow-scroll"
-        onScroll={(ev) => scrollHandler.current?.(ev)}
+        onScroll={(ev) => {
+          handlers.current.forEach(({ handler }) => handler(ev));
+        }}
         ref={rootDivRef}
       >
         {children}
@@ -77,13 +94,15 @@ export default function CliRootDiv({
 }
 
 const RootDivCx = createContext<{
-  setOnScroll: (handler: UIEventHandler<HTMLDivElement>) => void;
+  addOnScroll: (name: string, handler: UIEventHandler<HTMLDivElement>) => void;
+  rmOnScroll: (name: string) => void;
   userMenu: ReactNode;
   groups: TGroup[];
   groupId?: number;
   rootDivRef?: RefObject<HTMLDivElement | null>;
 }>({
-  setOnScroll: () => {},
+  addOnScroll: () => {},
+  rmOnScroll: () => {},
   userMenu: null,
   groups: [],
 });
