@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 
 import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
-import { getGroups, updateMembership } from "@/lib/services/groups";
+import { isAdmin, updateMembership } from "@/lib/services/memberships";
 import { TMembership } from "@/lib/models";
 
 export const dynamic = "force-dynamic";
@@ -13,13 +13,13 @@ export async function PUT(req: NextRequest) {
 
   const user = await currentUser(sess);
 
-  const [groups, body] = await Promise.all([getGroups(user.id), req.json()]);
+  const body = await req.json();
 
   const { groupId, userId, statusId, admin } = body as TMembership;
   if (!groupId || !userId) return new Response(null, { status: 400 });
 
-  const group = groups.find((grp) => grp.id === groupId)!;
-  if (!group.Memberships![0].admin) return new Response(null, { status: 403 });
+  if (!(await isAdmin(user.id, groupId)))
+    return new Response(null, { status: 403 });
 
   try {
     const ms = await updateMembership(user.id, {
