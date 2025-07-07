@@ -3,7 +3,7 @@ import { QueryTypes } from "sequelize";
 import { db, TGroup } from "@/lib/models";
 import { TBalanceChartData } from "@/components/balance/chart";
 
-export async function getBalanceDataFor(userId: number) {
+export async function getBalance(userId: number) {
   const rows: // silencing TS, selecting only id and name from group...
   (Omit<TGroup, "balance"> & {
     balance: string;
