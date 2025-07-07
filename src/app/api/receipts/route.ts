@@ -4,9 +4,9 @@ import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
 import {
   addReceipt,
-  getReceiptsDataFor,
+  getReceipts,
   TReceiptInput,
-} from "@/lib/services/receipt";
+} from "@/lib/services/receipts";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   if (knownIds.some(isNaN)) return new Response(null, { status: 400 });
 
   const user = await currentUser(sess);
-  const groups = await getReceiptsDataFor(user.id, knownIds);
+  const groups = await getReceipts(user.id, knownIds);
 
   return Response.json(groups);
 }

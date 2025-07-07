@@ -89,10 +89,7 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
   });
 }
 
-export async function getReceiptsDataFor(
-  userId: number,
-  knownIds: number[] = []
-) {
+export async function getReceipts(userId: number, knownIds: number[] = []) {
   return await Group.findAll({
     include: [
       {
