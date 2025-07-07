@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
@@ -14,7 +14,7 @@ import GroupSelector from "../groups/selector";
 
 export default function CliReceiptsPage() {
   const rs = useGroupSelector();
-  const { setOnScroll } = useRootDivCx();
+  const { setOnScroll, rootDivRef } = useRootDivCx();
   const dispatch = useAppDispatch();
 
   const [fetching, setFetching] = useState(false);
@@ -39,9 +39,32 @@ export default function CliReceiptsPage() {
     setFetching(false);
   }
 
+  useEffect(() => {
+    const scrollHeight = rootDivRef?.current?.scrollHeight ?? 0;
+
+    if (
+      !!rs.groupId &&
+      (hasMore[rs.groupId] ?? true) &&
+      !fetching &&
+      scrollHeight < window.innerHeight
+    )
+      doFetch();
+  }, [fetching]);
+
+  const doFetch = async () => {
+    setFetching(true);
+    const body = await fetch(
+      `/api/receipts?knownIds=${rs.groups
+        .flatMap((grp) => grp.Receipts?.map((r) => r.id))
+        .join(",")}`
+    );
+    const groups: TGroup[] = await body.json();
+    processFetchedReceipts(groups);
+  };
+
   setOnScroll(async (ev) => {
     const triggered =
-      window.innerHeight + ev.currentTarget.scrollTop + 500 >
+      window.innerHeight + ev.currentTarget.scrollTop + 1500 >
       ev.currentTarget.scrollHeight;
 
     if (
@@ -50,14 +73,7 @@ export default function CliReceiptsPage() {
       (hasMore[rs.groupId] ?? true) &&
       !fetching
     ) {
-      setFetching(true);
-      const body = await fetch(
-        `/api/receipts?knownIds=${rs.groups
-          .flatMap((grp) => grp.Receipts?.map((r) => r.id))
-          .join(",")}`
-      );
-      const groups: TGroup[] = await body.json();
-      processFetchedReceipts(groups);
+      doFetch();
     }
   });
 
