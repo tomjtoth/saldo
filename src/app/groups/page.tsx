@@ -1,4 +1,4 @@
-import { getGroupsDataFor } from "@/lib/services/groups";
+import { getGroups } from "@/lib/services/groups";
 
 import protectedPage, { TPage } from "@/lib/protectedPage";
 import CliGroupsPage from "@/components/groups";
@@ -17,7 +17,7 @@ export default ({ params }: TPage) =>
       };
     },
 
-    getData: getGroupsDataFor,
+    getData: getGroups,
     children: <CliGroupsPage />,
     rewritePath: "/groups",
   });

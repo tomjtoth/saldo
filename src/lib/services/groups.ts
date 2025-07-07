@@ -77,20 +77,7 @@ export async function joinGroup(uuid: string, userId: number) {
   return await addMember(group.id, userId);
 }
 
-export async function getGroupsIdsFor(userId: number) {
-  return await Group.findAll({
-    attributes: ["id"],
-    include: [
-      {
-        model: Membership,
-        where: { userId, statusId: 1 },
-        attributes: [],
-      },
-    ],
-  });
-}
-
-export async function getGroupsDataFor(userId: number) {
+export async function getGroups(userId: number) {
   return await Group.findAll({
     include: [
       {
