@@ -9,7 +9,7 @@ import {
   userAccessToCat,
 } from "@/lib/services/categories";
 import { TCategory, TCrCategory } from "@/lib/models";
-import { updateMembership } from "@/lib/services/groups";
+import { updateMembership } from "@/lib/services/memberships";
 
 export const dynamic = "force-dynamic";
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
