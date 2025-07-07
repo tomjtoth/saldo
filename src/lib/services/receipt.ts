@@ -103,7 +103,7 @@ export async function getReceiptsDataFor(
       {
         model: User,
         attributes: ["id", "name", "email", "image"],
-        through: { where: { statusId: 1 } },
+        through: { where: { statusId: 1 }, attributes: [] },
       },
       { model: Category, attributes: ["id", "name"], where: { statusId: 1 } },
       {
