@@ -90,7 +90,7 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
 }
 
 export async function getReceiptsDataFor(userId: number, offset = 0) {
-  return await Group.findAll({
+  const groups = await Group.findAll({
     include: [
       {
         model: Membership,
@@ -117,4 +117,12 @@ export async function getReceiptsDataFor(userId: number, offset = 0) {
       fn("LOWER", col("Categories.name")),
     ],
   });
+
+  groups.forEach((group) =>
+    group.Receipts?.sort((a, b) =>
+      a.paidOn < b.paidOn ? 1 : a.paidOn > b.paidOn ? -1 : 0
+    )
+  );
+
+  return groups;
 }
