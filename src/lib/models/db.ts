@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import sqlite3, { OPEN_READWRITE } from "sqlite3";
+import sqlite3, { OPEN_CREATE, OPEN_READWRITE } from "sqlite3";
 import { Sequelize, Transaction } from "sequelize";
 import { Umzug } from "umzug";
 
@@ -40,7 +40,7 @@ export async function atomic<T>(
   }
 }
 
-const raw = new sqlite3.Database(storage, OPEN_READWRITE);
+const raw = new sqlite3.Database(storage, OPEN_CREATE | OPEN_READWRITE);
 
 export const closeDB = () => raw.close();
 
