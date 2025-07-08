@@ -23,7 +23,7 @@ export default function Scrollers() {
       </div>
       <div
         className={
-          "absolute bottom-10 right-10 flex flex-col sm:flex-row gap-2 " +
+          "absolute bottom-5 right-5 flex flex-col sm:flex-row gap-2 " +
           "[&>button]:bg-background"
         }
       >
