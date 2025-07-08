@@ -20,8 +20,8 @@ export default function CliSidepanel(srv: {
   return (
     <>
       <div
-        className={`absolute z-2 top-0 h-full w-[85vw] sm:w-60  ${
-          visible ? "left-0 shadow-lg" : "-left-[85vw] -sm:left-60"
+        className={`absolute z-2 top-0 h-full w-[85vw] sm:w-75  ${
+          visible ? "left-0 shadow-lg" : "-left-[85vw] -sm:left-75"
         } duration-150 border-r bg-background p-4`}
       >
         <div className="flex justify-between">
@@ -57,8 +57,8 @@ export default function CliSidepanel(srv: {
           </div>
           <div
             className={
-              "absolute bottom-0 -right-3 bg-background h-6 w-6 " +
-              "rounded-[35%] border text-center"
+              "absolute -bottom-1 -right-2 bg-background h-6 w-6 " +
+              "rounded-[35%] border text-center cursor-pointer"
             }
             onClick={(ev) => {
               ev.stopPropagation();
