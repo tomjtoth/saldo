@@ -18,8 +18,15 @@ export default function Scrollers() {
 
   const node = (
     <>
-      <div className="min-h-20"></div>
-      <div className="absolute bottom-10 right-10 [&>button]:bg-background flex flex-col sm:flex-row gap-2">
+      <div className="min-h-30 sm:min-h-20">
+        {/* making space for the buttons, not to cover items on the last line */}
+      </div>
+      <div
+        className={
+          "absolute bottom-10 right-10 flex flex-col sm:flex-row gap-2 " +
+          "[&>button]:bg-background"
+        }
+      >
         <button onClick={() => scrollRootDiv(0)}>🔝</button>
         <button onClick={() => scrollRootDiv(-2000)}>⬆️</button>
         <button onClick={() => scrollRootDiv(2000)}>⬇️</button>
