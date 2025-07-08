@@ -32,6 +32,7 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
         <Slider checked={verbose} onClick={() => setVerbose(!verbose)} /> Show
         calculations
       </div>
+
       <div className="flex flex-wrap gap-6 items-center justify-evenly">
         {users?.map((user) => (
           <ItemShareAvatar

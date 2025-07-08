@@ -48,7 +48,7 @@ export default function ItemRow({
     <>
       <select
         ref={catRef}
-        className="rounded border p-1"
+        className="rounded border p-1 min-w-20"
         value={item.catId}
         onChange={(ev) =>
           dispatch(

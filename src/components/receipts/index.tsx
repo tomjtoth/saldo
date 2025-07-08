@@ -16,7 +16,7 @@ export default function CliReceiptsPage() {
 
   return (
     <>
-      <Header className="flex gap-2">
+      <Header>
         <h2>Receipts</h2>
       </Header>
 
