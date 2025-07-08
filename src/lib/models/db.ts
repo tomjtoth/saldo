@@ -1,15 +1,18 @@
 import fs from "fs";
 
+import sqlite3, { OPEN_READWRITE } from "sqlite3";
 import { Sequelize, Transaction } from "sequelize";
 import { Umzug } from "umzug";
 
+const storage =
+  process.env.NODE_ENV === "test"
+    ? ":memory:"
+    : process.env.DB_PATH ||
+      `data/${process.env.NODE_ENV === "production" ? "prod" : "dev"}.db`;
+
 export const db = new Sequelize({
   dialect: "sqlite",
-  storage:
-    process.env.NODE_ENV === "test"
-      ? ":memory:"
-      : process.env.DB_PATH ||
-        `data/${process.env.NODE_ENV === "production" ? "prod" : "dev"}.db`,
+  storage,
   pool: { max: 1, maxUses: Infinity, idle: Infinity },
 });
 
@@ -37,50 +40,63 @@ export async function atomic<T>(
   }
 }
 
+const raw = new sqlite3.Database(storage, OPEN_READWRITE);
+
+export const closeDB = () => raw.close();
+
 const getRawSqlClient = () => ({
-  query: async (sql: string, values?: unknown[]) =>
-    db.query(sql, { bind: values }),
+  query: (sql: string, values?: unknown[]) =>
+    new Promise<unknown[]>((resolve, reject) => {
+      raw.all(sql, values, (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    }),
+
+  exec: (sql: string) =>
+    new Promise<void>((resolve, reject) => {
+      raw.exec(sql, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    }),
 });
 
-const RE_SINGLE_STMT =
-  /^(?:(?:CREATE|ALTER|DROP) TABLE|(?:CREATE|DROP) VIEW|INSERT|DELETE|UPDATE).+?;/gims;
+const RE_SPLITTER = /(.*)^-- DOWN --$(.*)/ms;
 
 export const migrator = new Umzug({
   migrations: {
     glob: "migrations/*.sql",
-    resolve(params) {
-      const sql = fs.readFileSync(params.path!).toString();
-      const separator = sql.indexOf("-- DOWN --");
+    resolve({ name, path, context: client }) {
+      const sql = fs.readFileSync(path!).toString();
+      const parts = sql.match(RE_SPLITTER);
 
-      const exec = async (script: string) =>
-        Promise.all(
-          script
-            .matchAll(RE_SINGLE_STMT)
-            .map(async (m) => await params.context.query(m[0]))
-        );
+      if (!parts) throw new Error("missing separator '-- DOWN --'");
+
+      const [, up, down] = parts;
 
       return {
-        name: params.name,
-        path: params.path,
-        up: async () => await exec(sql.slice(0, separator)),
-        down: async () => await exec(sql.slice(separator)),
+        name,
+        path,
+        up: async () => await client.exec(up),
+        down: async () => await client.exec(down),
       };
     },
   },
   context: getRawSqlClient(),
   storage: {
     async executed({ context: client }) {
-      await client.query(`CREATE TABLE IF NOT EXISTS migrations (name TEXT)`);
-      const [results] = await client.query(`SELECT name FROM migrations`);
+      await client.query("CREATE TABLE IF NOT EXISTS migrations (name TEXT)");
+      const results = await client.query("SELECT name FROM migrations");
       return (results as { name: string }[]).map((r) => r.name);
     },
 
     async logMigration({ name, context: client }) {
-      await client.query(`INSERT INTO migrations (name) VALUES ($1)`, [name]);
+      await client.query("INSERT INTO migrations (name) VALUES (?)", [name]);
     },
 
     async unlogMigration({ name, context: client }) {
-      await client.query(`DELETE FROM migrations WHERE name = $1`, [name]);
+      await client.query("DELETE FROM migrations WHERE name = ?", [name]);
     },
   },
   logger: console,
