@@ -1,37 +1,59 @@
-"use client";
+import { auth } from "@/auth";
 
-import Link from "next/link";
-import { useState } from "react";
+import CliSidepanel from "./clientSide";
+import { SignInButton, SignOutButton } from "./buttons";
 
-import { LINKS } from "./config";
-import Canceler from "../canceler";
+export default async function Sidepanel() {
+  const session = await auth();
 
-const hrefToLabel = (href: string) => href.replaceAll(/[^\w]+/g, "");
+  const name = session?.user?.name;
+  const email = session?.user?.email;
+  const image = session?.user?.image;
 
-export default function Sidepanel() {
-  const [visible, setVisible] = useState(false);
+  const names = (name ?? "").split(" ")!;
+
+  const avatar = image ? (
+    <img src={image} alt="User Avatar" draggable={false} />
+  ) : (
+    <svg xmlns="">
+      <rect width={200} height={200} fill="red"></rect>
+      <text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill="white"
+        fontFamily="sans-serif"
+        fontWeight="bold"
+        className="select-none"
+      >
+        {names.length > 1
+          ? names?.map((n) => n.slice(0, 1).toUpperCase()).join("")
+          : names[0].slice(0, 2).toUpperCase()}
+      </text>
+    </svg>
+  );
+
+  const greeter = (
+    <p>
+      Hi, {name ?? "XYou"}!
+      {email && (
+        <>
+          <br />({email})
+        </>
+      )}
+    </p>
+  );
 
   return (
-    <>
-      <nav
-        className={`absolute z-2 top-0 h-full w-[85vw] sm:w-60  ${
-          visible ? "left-0 shadow-lg" : "-left-[85vw] -sm:left-60"
-        } duration-150 border-r bg-background p-4`}
-      >
-        <ul>
-          {LINKS.map((a) => (
-            <li key={a.href}>
-              <Link href={a.href} onClick={() => setVisible(false)}>
-                {a.label ?? hrefToLabel(a.href)}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      {visible && <Canceler onClick={() => setVisible(false)} />}
-      <button id="sidepanel-opener" onClick={() => setVisible(true)}>
-        ≡
-      </button>
-    </>
+    <CliSidepanel
+      {...{
+        authenticated: !!session,
+        signInButton: <SignInButton />,
+        signOutButton: <SignOutButton />,
+        avatar,
+        greeter,
+      }}
+    />
   );
 }

@@ -1,6 +1,6 @@
 import CliRootDiv, { TRootDiv } from "./clientSide";
-import UserMenu from "../userMenu";
+import Sidepanel from "../sidepanel";
 
-export default function RootDiv(srv: TRootDiv) {
-  return <CliRootDiv userMenu={<UserMenu />} {...srv} />;
+export default async function RootDiv(srv: TRootDiv) {
+  return <CliRootDiv sidepanel={<Sidepanel />} {...srv} />;
 }

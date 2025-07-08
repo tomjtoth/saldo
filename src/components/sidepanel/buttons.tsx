@@ -9,7 +9,7 @@ export async function SignInButton() {
       }}
     >
       <button type="submit" id="sign-in-button">
-        Sign In
+        Sign In To
       </button>
     </form>
   );

@@ -33,13 +33,13 @@ type TNamedScrollHandler = {
 
 export default function CliRootDiv({
   children,
-  userMenu,
+  sidepanel,
   rewritePath,
 
   groupId,
   ...srv
 }: TRootDiv & {
-  userMenu: ReactNode;
+  sidepanel: ReactNode;
 }) {
   const handlers = useRef<TNamedScrollHandler[]>([]);
 
@@ -74,10 +74,10 @@ export default function CliRootDiv({
       value={{
         addOnScroll,
         rmOnScroll,
-        userMenu,
+        sidepanel,
+        rootDivRef,
         groups: srv.groups ?? [],
         groupId,
-        rootDivRef,
       }}
     >
       <div
@@ -96,14 +96,14 @@ export default function CliRootDiv({
 const RootDivCx = createContext<{
   addOnScroll: (name: string, handler: UIEventHandler<HTMLDivElement>) => void;
   rmOnScroll: (name: string) => void;
-  userMenu: ReactNode;
+  sidepanel: ReactNode;
   groups: TGroup[];
   groupId?: number;
   rootDivRef?: RefObject<HTMLDivElement | null>;
 }>({
   addOnScroll: () => {},
   rmOnScroll: () => {},
-  userMenu: null,
+  sidepanel: null,
   groups: [],
 });
 

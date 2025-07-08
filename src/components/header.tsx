@@ -2,7 +2,6 @@
 
 import { PropsWithChildren } from "react";
 
-import Sidepanel from "./sidepanel";
 import { useRootDivCx } from "./rootDiv/clientSide";
 
 export default function Header({
@@ -11,13 +10,12 @@ export default function Header({
 }: PropsWithChildren & {
   className?: string;
 }) {
-  const userMenu = useRootDivCx().userMenu;
+  const sidepanel = useRootDivCx().sidepanel;
 
   return (
     <header className="flex gap-2 p-2 items-center">
-      <Sidepanel />
+      {sidepanel}
       <div className={`grow ${cn}`}>{children}</div>
-      {userMenu}
     </header>
   );
 }
