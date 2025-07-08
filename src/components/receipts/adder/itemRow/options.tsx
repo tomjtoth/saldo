@@ -26,7 +26,7 @@ export default function Options({
     setModal(
       <Canceler
         className={
-          "z-1" + (hideModal ? " backdrop-opacity-100 bg-background/50" : "")
+          "z-2" + (hideModal ? " backdrop-opacity-100 bg-background/50" : "")
         }
         onClick={() => setModal(null)}
       >
