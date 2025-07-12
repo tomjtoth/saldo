@@ -109,6 +109,10 @@ export const isEmail = (val?: unknown) => {
     err("not a valid email address");
 };
 
+export const isISODate = (val?: unknown) => {
+  if (typeof val !== "string" || !DateTime.fromISO(val).isValid)
+    err("not an ISO date");
+};
 
 function opsDone<
   T extends Pick<TCategory, "name" | "description" | "statusId">
