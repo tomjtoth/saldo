@@ -3,7 +3,9 @@ import fs from "fs";
 import Database from "better-sqlite3";
 
 import { datetimeToInt, err } from "./utils";
+import { TDbRevision } from "./models";
 
+const DB_BACKUP_EVERY_N_REVISIONS = 50;
 const DB_PATH =
   process.env.NODE_ENV === "test"
     ? ":memory:"
@@ -12,6 +14,70 @@ const DB_PATH =
 
 export const db = new Database(DB_PATH);
 db.pragma("foreign_keys = ON");
+
+type AtomicOpts = {
+  operation?: string;
+  transaction?: "deferred" | "immediate" | "exclusive";
+};
+
+type AtomicWithRevOpts = AtomicOpts & {
+  revisedBy: number;
+};
+
+export function atomic<T>(
+  options: AtomicWithRevOpts,
+  operation: (revision: TDbRevision) => T
+): T;
+export function atomic<T>(options: AtomicOpts, operation: () => T): T;
+export function atomic<T>(operation: () => T): T;
+
+export function atomic<T>(
+  optsOrFn: AtomicOpts | (() => T),
+  maybeFn?: ((revision: TDbRevision) => T) | (() => T)
+): T {
+  const isFnOnly = typeof optsOrFn === "function";
+  const opts = isFnOnly ? {} : optsOrFn;
+  const operation = isFnOnly ? optsOrFn : maybeFn!;
+  const {
+    revisedBy,
+    operation: opDescription,
+    transaction: mode,
+  } = opts as AtomicWithRevOpts;
+
+  const t = db.transaction(() => {
+    let res: T;
+
+    if (revisedBy) {
+      const rev = db
+        .prepare(
+          `INSERT INTO revisions (revisedBy, revisedOn) VALUES (?, ?) RETURNING *`
+        )
+        .get(revisedBy, datetimeToInt()) as TDbRevision;
+
+      res = (operation as (rev: TDbRevision) => T)(rev);
+
+      if (rev.id % DB_BACKUP_EVERY_N_REVISIONS == 0)
+        db.backup(`${DB_PATH}.backup.${rev.id}`);
+    } else res = (operation as () => T)();
+
+    return res;
+  });
+
+  try {
+    const res = (mode ? t[mode] : t)();
+
+    console.log(`\n\t${opDescription ?? "Transaction"} succeeded!\n`);
+
+    return res;
+  } catch (err) {
+    console.error(
+      `\n\t${opDescription ?? "Transaction"} failed:`,
+      (err as Error).message,
+      "\n"
+    );
+    throw err;
+  }
+}
 
 const RE_SPLITTER = /(.+)^--\s*DOWN\s*--$(.*)/ms;
 
