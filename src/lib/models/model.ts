@@ -83,6 +83,22 @@ export class Model<M, D = M> {
     if (toDB) this.toDB = toDB;
   }
 
+  get(sql: string): (...params: unknown[]) => M | null;
+  get(sql: string, ...params: unknown[]): M | null;
+  get(
+    sql: string,
+    ...params: unknown[]
+  ): (M | null) | ((...params: unknown[]) => M | null) {
+    const stmt = db.prepare(sql);
+
+    const looper = (...params: unknown[]) => {
+      const res = stmt.get(...params);
+      return this.toJS ? this.toJS(res as D) : (res as M);
+    };
+
+    return params.length > 0 ? looper(...params) : looper;
+  }
+
   all(sql: string): (...params: unknown[]) => M[];
   all(sql: string, ...params: unknown[]): M[];
   all(
