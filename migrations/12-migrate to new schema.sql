@@ -36,7 +36,19 @@ CREATE TABLE revisions (
 );
 
 CREATE TABLE users (
-    id INTEGER,
+    id INTEGER PRIMARY KEY,
+    revisionId INTEGER REFERENCES revisions (id)
+        ON DELETE CASCADE,
+    statusId INTEGER REFERENCES statuses (id)
+        ON UPDATE CASCADE,
+
+    email TEXT NOT NULL,
+    name TEXT,
+    defaultGroupId INTEGER REFERENCES groups (id)
+);
+
+CREATE TABLE usersArchive (
+    id INTEGER REFERENCES users (id),
     revisionId INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
     statusId INTEGER REFERENCES statuses (id)
@@ -50,7 +62,19 @@ CREATE TABLE users (
 ) WITHOUT ROWID;
 
 CREATE TABLE groups (
-    id INTEGER,
+    id INTEGER PRIMARY KEY,
+    revisionId INTEGER REFERENCES revisions (id)
+        ON DELETE CASCADE,
+    statusId INTEGER REFERENCES statuses (id)
+        ON UPDATE CASCADE,
+
+    name TEXT NOT NULL,
+    description TEXT,
+    uuid TEXT
+);
+
+CREATE TABLE groupsArchive (
+    id INTEGER REFERENCES groups (id),
     revisionId INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
     statusId INTEGER REFERENCES statuses (id)
@@ -64,26 +88,52 @@ CREATE TABLE groups (
 ) WITHOUT ROWID;
 
 CREATE TABLE memberships (
-    userId INTEGER REFERENCES users,
-    groupId INTEGER REFERENCES groups,
+    userId INTEGER REFERENCES users (id),
+    groupId INTEGER REFERENCES groups (id),
     revisionId INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
     statusId INTEGER REFERENCES statuses (id)
         ON UPDATE CASCADE,
 
     admin INTEGER,
-    defaultCategoryId INTEGER REFERENCES categories (categoryId),
+    defaultCategoryId INTEGER REFERENCES categories (id),
+
+    PRIMARY KEY (userId, groupId)
+) WITHOUT ROWID;
+
+CREATE TABLE membershipsArchive (
+    userId INTEGER REFERENCES users (id),
+    groupId INTEGER REFERENCES groups (id),
+    revisionId INTEGER REFERENCES revisions (id)
+        ON DELETE CASCADE,
+    statusId INTEGER REFERENCES statuses (id)
+        ON UPDATE CASCADE,
+
+    admin INTEGER,
+    defaultCategoryId INTEGER REFERENCES categories (id),
 
     PRIMARY KEY (userId, groupId, revisionId)
 ) WITHOUT ROWID;
 
 CREATE TABLE categories (
-    id INTEGER,
+    id INTEGER PRIMARY KEY,
     revisionId INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
     statusId INTEGER REFERENCES statuses (id)
         ON UPDATE CASCADE,
-    groupId INTEGER REFERENCES groups,
+    groupId INTEGER REFERENCES groups (id),
+
+    name TEXT,
+    description TEXT
+);
+
+CREATE TABLE categoriesArchive (
+    id INTEGER REFERENCES categories (id),
+    revisionId INTEGER REFERENCES revisions (id)
+        ON DELETE CASCADE,
+    statusId INTEGER REFERENCES statuses (id)
+        ON UPDATE CASCADE,
+    groupId INTEGER REFERENCES groups (id),
 
     name TEXT,
     description TEXT,
@@ -92,28 +142,54 @@ CREATE TABLE categories (
 ) WITHOUT ROWID;
 
 CREATE TABLE receipts (
-    id INTEGER,
+    id INTEGER PRIMARY KEY,
     revisionId INTEGER REFERENCES revisions (id)
-ON DELETE CASCADE,
+        ON DELETE CASCADE,
     statusId INTEGER REFERENCES statuses (id)
-ON UPDATE CASCADE,
-    groupId INTEGER REFERENCES groups,
+        ON UPDATE CASCADE,
+    groupId INTEGER REFERENCES groups (id),
 
+    paidBy INTEGER REFERENCES users (id),
+    paidOn INTEGER
+);
+
+CREATE TABLE receiptsArchive (
+    id INTEGER REFERENCES receipts (id),
+    revisionId INTEGER REFERENCES revisions (id)
+        ON DELETE CASCADE,
+    statusId INTEGER REFERENCES statuses (id)
+        ON UPDATE CASCADE,
+    groupId INTEGER REFERENCES groups (id),
+
+    paidBy INTEGER REFERENCES users (id),
     paidOn INTEGER,
-    paidBy INTEGER REFERENCES users (userId),
 
     PRIMARY KEY (id, revisionId)
 ) WITHOUT ROWID;
 
 CREATE TABLE items (
-    id INTEGER,
+    id INTEGER PRIMARY KEY,
     revisionId INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
     statusId INTEGER REFERENCES statuses (id)
         ON UPDATE CASCADE,
 
-    receiptId INTEGER REFERENCES receipts,
-    categoryId INTEGER REFERENCES categories,
+    receiptId INTEGER REFERENCES receipts (id),
+    categoryId INTEGER REFERENCES categories (id),
+
+    cost INTEGER NOT NULL,
+    notes TEXT
+);
+
+CREATE TABLE itemsArchive (
+    id INTEGER REFERENCES items (id),
+    revisionId INTEGER REFERENCES revisions (id)
+        ON DELETE CASCADE,
+    statusId INTEGER REFERENCES statuses (id)
+        ON UPDATE CASCADE,
+
+    receiptId INTEGER REFERENCES receipts (id),
+    categoryId INTEGER REFERENCES categories (id),
 
     cost INTEGER NOT NULL,
     notes TEXT,
@@ -122,8 +198,21 @@ CREATE TABLE items (
 ) WITHOUT ROWID;
 
 CREATE TABLE itemShares (
-    itemId INTEGER REFERENCES items,
-    userId INTEGER REFERENCES users,
+    itemId INTEGER REFERENCES items (id),
+    userId INTEGER REFERENCES users (id),
+    revisionId INTEGER REFERENCES revisions (id)
+        ON DELETE CASCADE,
+    statusId INTEGER REFERENCES statuses (id)
+        ON UPDATE CASCADE,
+
+    share INTEGER NOT NULL,
+
+    PRIMARY KEY (itemId, userId)
+) WITHOUT ROWID;
+
+CREATE TABLE itemSharesArchive (
+    itemId INTEGER REFERENCES items (id),
+    userId INTEGER REFERENCES users (id),
     revisionId INTEGER REFERENCES revisions (id)
         ON DELETE CASCADE,
     statusId INTEGER REFERENCES statuses (id)
@@ -135,15 +224,6 @@ CREATE TABLE itemShares (
 ) WITHOUT ROWID;
 
 
--- update status_id in archives to reflect the new layout
--- so far I only stored changes to categories, groups, membership
-
-
-UPDATE groups_archive SET status_id = status_id + 2;
-UPDATE memberships_archive SET status_id = status_id + 2;
-UPDATE categories_archive SET status_id = status_id + 2;
-
-
 -- transfer data from old tables to new ones
 
 
@@ -153,40 +233,53 @@ INSERT INTO migrations (name)
 INSERT INTO revisions (id, revisedOn, revisedBy)
     SELECT id, rev_on, rev_by FROM OLD_REVISIONS;
 
-INSERT INTO users (id, revisionId, statusId, email, name, defaultGroupId)
+INSERT INTO users
+    (id, revisionId, statusId, email, name, defaultGroupId)
     SELECT id, rev_id, status_id, email, name, default_group_id
     FROM OLD_USERS;
 
-INSERT INTO groups (id, revisionId, statusId, name, description, uuid)
+INSERT INTO groups
+    (id, revisionId, statusId, name, description, uuid)
     SELECT id, rev_id, status_id, name, description, uuid
-    FROM OLD_GROUPS
-    UNION ALL
+    FROM OLD_GROUPS;
+
+INSERT INTO groupsArchive
+    (id, revisionId, statusId, name, description, uuid)
     SELECT id, rev_id, status_id, name, description, uuid
     FROM groups_archive;
 
-INSERT INTO memberships (groupId, userId, revisionId, statusId, admin, defaultCategoryId)
+INSERT INTO memberships 
+    (groupId, userId, revisionId, statusId, admin, defaultCategoryId)
     SELECT group_id, user_id, rev_id, status_id, admin, default_cat_id
-    FROM OLD_MEMBERSHIPS
-    UNION ALL
+    FROM OLD_MEMBERSHIPS;
+
+INSERT INTO membershipsArchive 
+    (groupId, userId, revisionId, statusId, admin, defaultCategoryId)
     SELECT group_id, user_id, rev_id, status_id, admin, default_cat_id
     FROM memberships_archive;
 
-INSERT INTO categories (id, revisionId, statusId, groupId, name, description)
+INSERT INTO categories 
+    (id, revisionId, statusId, groupId, name, description)
     SELECT id, rev_id, status_id, group_id, name, description
-    FROM OLD_CATEGORIES
-    UNION ALL
+    FROM OLD_CATEGORIES;
+    
+INSERT INTO categoriesArchive 
+    (id, revisionId, statusId, groupId, name, description)
     SELECT id, rev_id, status_id, group_id, name, description
     FROM categories_archive;
 
-INSERT INTO receipts (id, revisionId, statusId, groupId, paidOn, paidBy)
+INSERT INTO receipts 
+    (id, revisionId, statusId, groupId, paidOn, paidBy)
     SELECT id, rev_id, status_id, group_id, paid_on, paid_by
     FROM OLD_RECEIPTS;
 
-INSERT INTO items (id, revisionId, statusId, receiptId, categoryId, cost, notes)
+INSERT INTO items 
+    (id, revisionId, statusId, receiptId, categoryId, cost, notes)
     SELECT id, rev_id, status_id, rcpt_id, cat_id, cost, notes
     FROM OLD_ITEMS;
 
-INSERT INTO itemShares (itemId, userId, revisionId, statusId, share)
+INSERT INTO itemShares 
+    (itemId, userId, revisionId, statusId, share)
     SELECT item_id, user_id, rev_id, status_id, share
     FROM OLD_ITEM_SHARES;
 
@@ -212,6 +305,10 @@ DROP TABLE items_archive;
 DROP TABLE item_shares_archive;
 
 DROP VIEW consumption;
+
+
+-- recreate view
+
 
 CREATE VIEW consumption AS
 SELECT
