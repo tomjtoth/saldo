@@ -120,5 +120,33 @@ export class Model<M, D = M> {
     return arr;
   }
 
+  insert(
+    obj: TMix<D>,
+    {
+      upsert = false,
+    }: {
+      upsert?: boolean;
+    } = {}
+  ) {
+    const arr = asArray(obj);
+
+    const cols = Object.keys(this.columns);
+    const strCols = `(${cols.join(",")})`;
+    const strVals = strCols.replaceAll(/(\w+)/g, "@$1");
+
+    const upsertClause = upsert
+      ? `ON CONFLICT DO UPDATE SET ${cols
+          .filter((col) => !this.primaryKeys.includes(col as keyof M))
+          .map((col) => `${col} = :${col}`)
+          .join(", ")}`
+      : "";
+
+    const stmt = db.prepare(
+      `INSERT INTO ${this.tableName} ${strCols} VALUES ${strVals} ${upsertClause} RETURNING *`
+    );
+
+    return arr.map((obj) => stmt.get(obj));
+  }
+
 }
 
