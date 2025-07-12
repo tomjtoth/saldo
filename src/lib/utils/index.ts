@@ -102,6 +102,14 @@ export function has3ConsecutiveLetters(val?: unknown) {
     err("must have at least 3 consecutive letters");
 }
 
+const RE_EMAIL = /[\w.]+@\w+\.\w{2,}/;
+
+export const isEmail = (val?: unknown) => {
+  if (typeof val !== "string" || !val.match(RE_EMAIL))
+    err("not a valid email address");
+};
+
+
 function opsDone<
   T extends Pick<TCategory, "name" | "description" | "statusId">
 >(before: T, after: T) {
