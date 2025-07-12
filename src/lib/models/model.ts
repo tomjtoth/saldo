@@ -256,3 +256,36 @@ export class ModelSR<
   }
 }
 
+export type TModelColumnSRI = TModelColumnSR & {
+  id: number;
+};
+
+/**
+ * with statusId, revisionId (as primaryKey)
+ * and id (as primaryKey) pre-defined
+ */
+export class ModelSRI<
+  M extends TModelColumnSRI,
+  D extends TModelColumnSRI = M
+> extends ModelSR<M, D> {
+  constructor(
+    tableName: string,
+    columns: { [P in keyof Omit<M, keyof TModelColumnSRI>]: TModelColumn },
+    opts: TModelOpts<M, D> = {}
+  ) {
+    super(
+      tableName,
+      {
+        id: {
+          type: "number",
+          allowNull: false,
+          primaryKey: true,
+        },
+
+        ...columns,
+      } as { [P in keyof Omit<M, keyof TModelColumnSR>]: TModelColumn },
+      opts
+    );
+  }
+
+}
