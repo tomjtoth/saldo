@@ -157,14 +157,7 @@ export class Model<M, D = M> {
     return arr;
   }
 
-  insert(
-    obj: TMix<D>,
-    {
-      upsert = false,
-    }: {
-      upsert?: boolean;
-    } = {}
-  ) {
+  insert(obj: TMix<D>, { upsert = false }: TInsertOpts = {}) {
     const arr = asArray(obj);
 
     const cols = Object.keys(this.columns);
