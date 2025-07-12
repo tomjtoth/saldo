@@ -17,6 +17,7 @@ type TModelColumn = {
 export class Model<M, D = M> {
   tableName;
   columns;
+  primaryKeys;
 
   toDB?(obj: M): D;
   toJS?(row: D): M;
@@ -28,6 +29,10 @@ export class Model<M, D = M> {
   ) {
     this.tableName = tableName;
     this.columns = columns;
+
+    this.primaryKeys = (Object.entries(columns) as [keyof M, TModelColumn][])
+      .filter(([, val]) => !!val.primaryKey)
+      .map(([key]) => key);
 
     if (toJS) this.toJS = toJS;
     if (toDB) this.toDB = toDB;
