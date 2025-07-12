@@ -288,4 +288,21 @@ export class ModelSRI<
     );
   }
 
+  insert(obj: TMix<D | Omit<M, "id">>, opts: TInsertOpts = {}) {
+    const arr = asArray(obj as TMix<Omit<M, "id">>);
+    const notImportingV3 = !!opts.revisionId;
+
+    if (notImportingV3) {
+      const id = db
+        .prepare(`SELECT COALESCE(MAX(id), 0) + 1 FROM ${this.tableName}`)
+        .pluck()
+        .get() as number;
+
+      (arr as M[]).forEach((obj, idx) => {
+        obj.id = id + idx;
+      });
+    }
+
+    return super.insert(arr as M[], opts);
+  }
 }
