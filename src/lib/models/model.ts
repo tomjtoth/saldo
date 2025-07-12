@@ -83,6 +83,22 @@ export class Model<M, D = M> {
     if (toDB) this.toDB = toDB;
   }
 
+  all(sql: string): (...params: unknown[]) => M[];
+  all(sql: string, ...params: unknown[]): M[];
+  all(
+    sql: string,
+    ...params: unknown[]
+  ): M[] | ((...params: unknown[]) => M[]) {
+    const stmt = db.prepare(sql);
+
+    const looper = (...params: unknown[]) => {
+      const res = stmt.all(...params);
+      return this.toJS ? (res as D[]).map(this.toJS) : (res as M[]);
+    };
+
+    return params.length > 0 ? looper(...params) : looper;
+  }
+
   validate(obj: TMix<M>) {
     const arr = asArray(obj);
     const keys = Object.keys(this.columns) as (keyof M)[];
