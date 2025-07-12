@@ -203,5 +203,56 @@ export class ModelSR<
     return super.insert(arr as D[], opts);
   }
 
+  update(updater: Partial<M>, revisionId: number): M {
+    return db.transaction(() => {
+      const idCrit = this.primaryKeys
+        .map((partialKey) => {
+          const pk = partialKey as string;
+          return `${pk} = :${pk}`;
+        })
+        .join(" AND ");
+
+      const curr = this.get(
+        `SELECT * FROM ${this.tableName} WHERE ${idCrit} AND statusId IN (1, 2)`,
+        updater
+      );
+
+      if (!curr) err("group does not exist");
+
+      const prev = { ...curr };
+      let archiving = false;
+      let updating = false;
+
+      Object.entries(updater)
+        .filter(
+          ([col, val]) =>
+            val !== undefined && !this.primaryKeys.includes(col as keyof M)
+        )
+        .forEach(([col, val]) => {
+          if (curr[col as keyof M] != val) {
+            if (!this.skipArchivalOf?.includes(col as keyof M))
+              archiving = true;
+
+            curr[col as keyof M] = val;
+            updating = true;
+          }
+        });
+
+      if (archiving) {
+        db.prepare(
+          `UPDATE ${this.tableName} SET statusId = statusId + 2
+              WHERE ${idCrit} AND revisionId = :revisionId`
+        ).run(prev);
+      }
+
+      // TODO: case when only uuid changes is probably not covered so far...
+      if (updating) {
+        curr.revisionId = revisionId;
+        this.insert(curr);
+      } else err("No changes were made");
+
+      return curr;
+    })();
+  }
 }
 
