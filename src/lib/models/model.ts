@@ -47,6 +47,7 @@ type TModelColumn = {
 export class Model<M, D = M> {
   tableName;
   columns;
+  skipArchivalOf;
   primaryKeys;
 
   toDB?(obj: M): D;
@@ -62,6 +63,13 @@ export class Model<M, D = M> {
 
     this.primaryKeys = (Object.entries(columns) as [keyof M, TModelColumn][])
       .filter(([, val]) => !!val.primaryKey)
+      .map(([key]) => {
+        columns[key].required = true;
+        return key;
+      });
+
+    this.skipArchivalOf = (Object.entries(columns) as [keyof M, TModelColumn][])
+      .filter(([, val]) => !!val.skipArchival)
       .map(([key]) => key);
 
     if (toJS) this.toJS = toJS;
