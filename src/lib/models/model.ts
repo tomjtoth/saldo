@@ -154,3 +154,37 @@ export type TModelColumnSR = {
   statusId: number;
 };
 
+/**
+ * statusId and revisionId (as primaryKey) pre-defined
+ */
+export class ModelSR<
+  M extends TModelColumnSR,
+  D extends TModelColumnSR = M
+> extends Model<M, D> {
+  constructor(
+    tableName: string,
+    columns: { [P in keyof Omit<M, keyof TModelColumnSR>]: TModelColumn },
+    opts: TModelOpts<M, D> = {}
+  ) {
+    super(
+      tableName,
+      {
+        revisionId: {
+          type: "number",
+          allowNull: false,
+          primaryKey: true,
+        },
+        statusId: {
+          type: "number",
+          allowNull: false,
+          defaultValue: 1,
+        },
+
+        ...columns,
+      } as { [P in keyof M]: TModelColumn },
+      opts
+    );
+  }
+
+}
+
