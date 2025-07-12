@@ -147,6 +147,10 @@ export class Model<M, D = M> {
 
     return arr.map((obj) => stmt.get(obj));
   }
-
 }
+
+export type TModelColumnSR = {
+  revisionId: number;
+  statusId: number;
+};
 
