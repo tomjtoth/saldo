@@ -232,7 +232,12 @@ export class ModelSR<
 
     this.validate(arr as M[]);
 
-    return super.insert(arr as D[], opts);
+    const res = super.insert(
+      this.toDB ? (arr as M[]).map(this.toDB) : (arr as D[]),
+      opts
+    );
+
+    return this.toJS ? (res as D[]).map(this.toJS) : (res as M[]);
   }
 
   update(updater: Partial<M>, revisionId: number): M {
