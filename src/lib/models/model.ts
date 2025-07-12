@@ -1,6 +1,36 @@
 import { db } from "../db";
 import { asArray, err } from "../utils";
 
+type TModelOpts<M, D> = {
+  toJS?: (row: D) => M;
+  toDB?: (obj: M) => D;
+};
+
+type TValidatorFn = (val: unknown) => void;
+
+type TColBase = {
+  /**
+   * defaults to false
+   */
+  required?: true;
+
+  /**
+   * defaults to false
+   */
+  allowNull?: true;
+
+  /**
+   * setting multiple columns to true results in a compound key
+   */
+  primaryKey?: true;
+
+  /**
+   * when updating only this oclumn of a row, archival will be skipped
+   */
+  skipArchival?: true;
+  validators?: TValidatorFn[];
+};
+
 type TypeMap = {
   string: string;
   number: number;
