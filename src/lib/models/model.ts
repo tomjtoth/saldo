@@ -51,7 +51,7 @@ type TInsertOpts = {
   upsert?: boolean;
 };
 
-export class Model<M, D = M> {
+export class Model<M, C, D = M> {
   tableName;
   columns;
   skipArchivalOf;
@@ -115,14 +115,14 @@ export class Model<M, D = M> {
     return params.length > 0 ? looper(...params) : looper;
   }
 
-  validate(obj: TMix<M>) {
+  validate(obj: TMix<C | M>) {
     const arr = asArray(obj);
-    const keys = Object.keys(this.columns) as (keyof M)[];
+    const keys = Object.keys(this.columns);
 
     arr.forEach((row) => {
       keys.forEach((key) => {
-        const val = row[key] as unknown;
-        const col = this.columns[key];
+        const val = row[key as keyof (C | M)] as unknown;
+        const col = this.columns[key as keyof M];
         const schema = `${this.tableName}.${col}`;
 
         const valType = typeof val;
@@ -130,7 +130,7 @@ export class Model<M, D = M> {
           if (col.required) err(`${schema} is required, but undefined`);
 
           if (col.defaultValue)
-            (row[key] as boolean | string | number) =
+            (row[key as keyof (C | M)] as boolean | string | number) =
               typeof col.defaultValue === "function"
                 ? col.defaultValue()
                 : col.defaultValue;
@@ -154,11 +154,13 @@ export class Model<M, D = M> {
       });
     });
 
-    return arr;
+    return arr as M[];
   }
 
-  insert(obj: TMix<D>, { upsert = false }: TInsertOpts = {}) {
+  insert(obj: TMix<C>, { upsert = false }: TInsertOpts = {}) {
     const arr = asArray(obj);
+
+    const validated = this.validate(arr);
 
     const cols = Object.keys(this.columns);
     const strCols = `(${cols.join(",")})`;
@@ -175,25 +177,33 @@ export class Model<M, D = M> {
       `INSERT INTO ${this.tableName} ${strCols} VALUES ${strVals} ${upsertClause} RETURNING *`
     );
 
-    return arr.map((obj) => stmt.get(obj));
+    const rows = this.toDB ? validated.map(this.toDB) : validated;
+
+    const res = rows.map((obj) => stmt.get(obj));
+
+    return this.toJS ? (res as D[]).map(this.toJS) : (res as M[]);
   }
+
 }
 
-export type TModelColumnSR = {
+export type TModelSR = {
   revisionId: number;
   statusId: number;
 };
+
+export type TCrModelSR = Partial<TModelSR>;
 
 /**
  * statusId and revisionId (as primaryKey) pre-defined
  */
 export class ModelSR<
-  M extends TModelColumnSR,
-  D extends TModelColumnSR = M
-> extends Model<M, D> {
+  M extends TModelSR,
+  C extends TCrModelSR,
+  D extends TModelSR = M
+> extends Model<M, C, D> {
   constructor(
     tableName: string,
-    columns: { [P in keyof Omit<M, keyof TModelColumnSR>]: TModelColumn },
+    columns: { [P in keyof Omit<M, keyof TModelSR>]: TModelColumn },
     opts: TModelOpts<M, D> = {}
   ) {
     super(
@@ -216,21 +226,13 @@ export class ModelSR<
     );
   }
 
-  insert(obj: TMix<D | M>, opts: TInsertOpts = {}) {
-    const arr = asArray(obj);
-    const notImportingV3 = !!opts.revisionId;
+  insert(obj: TMix<C>, opts?: TInsertOpts) {
+    let arr = asArray(obj);
 
-    if (notImportingV3)
+    if (!!opts?.revisionId)
       arr.forEach((obj) => (obj.revisionId = opts.revisionId!));
 
-    this.validate(arr as M[]);
-
-    const res = super.insert(
-      this.toDB ? (arr as M[]).map(this.toDB) : (arr as D[]),
-      opts
-    );
-
-    return this.toJS ? (res as D[]).map(this.toJS) : (res as M[]);
+    return super.insert(arr, opts);
   }
 
   update(updater: Partial<M>, revisionId: number): M {
@@ -278,7 +280,10 @@ export class ModelSR<
       // TODO: case when only uuid changes is probably not covered so far...
       if (updating) {
         curr.revisionId = revisionId;
-        this.insert(curr);
+
+        // silencing TS, C is a Partial subset of M,
+        // conversion is safe
+        this.insert(curr as unknown as C);
       } else err("No changes were made");
 
       return curr;
@@ -286,21 +291,24 @@ export class ModelSR<
   }
 }
 
-export type TModelColumnSRI = TModelColumnSR & {
+export type TModelSRI = TModelSR & {
   id: number;
 };
+
+export type TCrModelSRI = TCrModelSR & { id?: number };
 
 /**
  * with statusId, revisionId (as primaryKey)
  * and id (as primaryKey) pre-defined
  */
 export class ModelSRI<
-  M extends TModelColumnSRI,
-  D extends TModelColumnSRI = M
-> extends ModelSR<M, D> {
+  M extends TModelSRI,
+  C extends TCrModelSRI,
+  D extends TModelSRI = M
+> extends ModelSR<M, C, D> {
   constructor(
     tableName: string,
-    columns: { [P in keyof Omit<M, keyof TModelColumnSRI>]: TModelColumn },
+    columns: { [P in keyof Omit<M, keyof TModelSRI>]: TModelColumn },
     opts: TModelOpts<M, D> = {}
   ) {
     super(
@@ -313,26 +321,25 @@ export class ModelSRI<
         },
 
         ...columns,
-      } as { [P in keyof Omit<M, keyof TModelColumnSR>]: TModelColumn },
+      } as { [P in keyof Omit<M, keyof TModelSR>]: TModelColumn },
       opts
     );
   }
 
-  insert(obj: TMix<D | Omit<M, "id">>, opts: TInsertOpts = {}) {
-    const arr = asArray(obj as TMix<Omit<M, "id">>);
-    const notImportingV3 = !!opts.revisionId;
+  insert(obj: TMix<C>, opts?: TInsertOpts) {
+    const arr = asArray(obj);
 
-    if (notImportingV3) {
+    if (!!opts?.revisionId) {
       const id = db
         .prepare(`SELECT COALESCE(MAX(id), 0) + 1 FROM ${this.tableName}`)
         .pluck()
         .get() as number;
 
-      (arr as M[]).forEach((obj, idx) => {
+      arr.forEach((obj, idx) => {
         obj.id = id + idx;
       });
     }
 
-    return super.insert(arr as M[], opts);
+    return super.insert(arr, opts);
   }
 }
