@@ -60,9 +60,18 @@ export function datetimeFromInt(val: number) {
   return date.toISO();
 }
 
-export function datetimeToInt(val?: DateTime) {
-  const millis = (val ?? DateTime.local(EUROPE_HELSINKI)).toMillis();
-  return Math.round((millis - DT_ANCHOR) / 1000);
+export function datetimeToInt(val?: DateTime | string) {
+  if (typeof val === "string") {
+    let parsed = DateTime.fromFormat(val, "y.M.d. H:m:s", EUROPE_HELSINKI);
+    parsed = parsed.isValid ? parsed : DateTime.fromISO(val, EUROPE_HELSINKI);
+
+    if (!parsed.isValid) err(`failed to parse "${val}"`);
+    val = parsed;
+  }
+
+  if (val === undefined) val = DateTime.local(EUROPE_HELSINKI);
+
+  return Math.round((val.toMillis() - DT_ANCHOR) / 1000);
 }
 
 export async function sleep(ms: number) {
