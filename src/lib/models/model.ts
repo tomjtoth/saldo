@@ -46,6 +46,11 @@ type TModelColumn = {
   };
 }[keyof TypeMap];
 
+type TInsertOpts = {
+  revisionId?: number;
+  upsert?: boolean;
+};
+
 export class Model<M, D = M> {
   tableName;
   columns;
@@ -184,6 +189,18 @@ export class ModelSR<
       } as { [P in keyof M]: TModelColumn },
       opts
     );
+  }
+
+  insert(obj: TMix<D | M>, opts: TInsertOpts = {}) {
+    const arr = asArray(obj);
+    const notImportingV3 = !!opts.revisionId;
+
+    if (notImportingV3)
+      arr.forEach((obj) => (obj.revisionId = opts.revisionId!));
+
+    this.validate(arr as M[]);
+
+    return super.insert(arr as D[], opts);
   }
 
 }
