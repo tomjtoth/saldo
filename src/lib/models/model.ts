@@ -1,6 +1,8 @@
 import { db } from "../db";
 import { asArray, err } from "../utils";
 
+type TMix<T> = T | T[];
+
 type TModelOpts<M, D> = {
   toJS?: (row: D) => M;
   toDB?: (obj: M) => D;
@@ -74,6 +76,48 @@ export class Model<M, D = M> {
 
     if (toJS) this.toJS = toJS;
     if (toDB) this.toDB = toDB;
+  }
+
+  validate(obj: TMix<M>) {
+    const arr = asArray(obj);
+    const keys = Object.keys(this.columns) as (keyof M)[];
+
+    arr.forEach((row) => {
+      keys.forEach((key) => {
+        const val = row[key] as unknown;
+        const col = this.columns[key];
+        const schema = `${this.tableName}.${col}`;
+
+        const valType = typeof val;
+        if (valType === "undefined") {
+          if (col.required) err(`${schema} is required, but undefined`);
+
+          if (col.defaultValue)
+            (row[key] as boolean | string | number) =
+              typeof col.defaultValue === "function"
+                ? col.defaultValue()
+                : col.defaultValue;
+        }
+
+        if (col.type !== valType && !(col.allowNull && val === null))
+          err(`${schema} should be of type ${col.type}, but got a ${valType}`);
+
+        if (col.validators)
+          Object.values(col.validators).forEach((validator) => {
+            try {
+              validator(val);
+            } catch (vErr) {
+              err(
+                `${schema} failed validation of "${validator.name}": ${
+                  (vErr as Error).message
+                }`
+              );
+            }
+          });
+      });
+    });
+
+    return arr;
   }
 
 }
