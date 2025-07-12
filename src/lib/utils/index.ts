@@ -95,8 +95,8 @@ export function err(msg?: string): never {
 
 const RE_3_CONSECUTIVE_LETTERS = /\p{Letter}{3,}/u;
 
-export function has3ConsecutiveLetters(val: string) {
-  if (!val.match(RE_3_CONSECUTIVE_LETTERS))
+export function has3ConsecutiveLetters(val?: unknown) {
+  if (typeof val !== "string" || !val.match(RE_3_CONSECUTIVE_LETTERS))
     err("must have at least 3 consecutive letters");
 }
 
