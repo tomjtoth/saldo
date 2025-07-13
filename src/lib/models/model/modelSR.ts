@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
 import { asArray, err, TMix } from "@/lib/utils";
-import { TInsertOpts, TModelColumn } from "./types";
-import { Model, TModelOpts } from "./model";
+import { TModelColumn, TModelOpts } from "./types";
+import { Model } from "./model";
+import { TInsertOpts } from "./inserter";
 
 export type TModelSR = {
   revisionId: number;
@@ -28,7 +29,7 @@ export class ModelSR<
       {
         revisionId: {
           type: "number",
-          primaryKey: true,
+          reqiured: true,
         },
         statusId: {
           type: "number",
@@ -41,26 +42,19 @@ export class ModelSR<
     );
   }
 
-  insert(obj: TMix<C>, opts?: TInsertOpts) {
-    let arr = asArray(obj);
-
-    if (!!opts?.revisionId)
-      arr.forEach((obj) => (obj.revisionId = opts.revisionId!));
-
-    return super.insert(arr, opts);
+  protected get idCrit() {
+    return this.primaryKeys
+      .map((partialKey) => {
+        const pk = partialKey as string;
+        return `${pk} = :${pk}`;
+      })
+      .join(" AND ");
   }
 
   update(updater: Partial<M>, revisionId: number): M {
     return db.transaction(() => {
-      const idCrit = this.primaryKeys
-        .map((partialKey) => {
-          const pk = partialKey as string;
-          return `${pk} = :${pk}`;
-        })
-        .join(" AND ");
-
       const curr = this.get(
-        `SELECT * FROM ${this.tableName} WHERE ${idCrit} AND statusId IN (1, 2)`,
+        `SELECT * FROM ${this.tableName} WHERE ${this.idCrit}`,
         updater
       );
 
@@ -88,7 +82,7 @@ export class ModelSR<
       if (archiving) {
         db.prepare(
           `UPDATE ${this.tableName} SET statusId = statusId + 2
-              WHERE ${idCrit} AND revisionId = :revisionId`
+              WHERE ${this.idCrit} AND revisionId = :revisionId`
         ).run(prev);
       }
 
@@ -103,5 +97,14 @@ export class ModelSR<
 
       return curr;
     })();
+  }
+
+  insert(obj: TMix<C>, opts?: TInsertOpts) {
+    let arr = asArray(obj);
+
+    if (!!opts?.revisionId)
+      arr.forEach((obj) => (obj.revisionId = opts.revisionId!));
+
+    return super.insert(arr, opts);
   }
 }

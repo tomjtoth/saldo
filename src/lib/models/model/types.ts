@@ -36,13 +36,7 @@ export type TModelColumn = {
   };
 }[keyof TypeMap];
 
-export type TInsertOpts = {
-  revisionId?: number;
-  upsert?: boolean;
+export type TModelOpts<M, D> = {
+  toJS?: (fromDB: D) => M;
+  toDB?: (fromJS: M) => D;
 };
-
-// type TQuery<T> = {
-//   where: {
-//     [K in keyof T]: number | string | number[] | string[];
-//   };
-// };
