@@ -6,22 +6,29 @@ export async function register() {
     const TAB = "\t";
     const LF = "\n\n";
 
-    const { migrator, closeDB } = await import("./lib/models/db");
+    const { migrator } = await import("./lib/db");
 
-    migrator
-      .up()
-      .then((res) => {
-        if (res.length > 0)
-          console.log(
-            LF,
-            TAB,
-            `${
-              res.length > 1 ? `${res.length} migrations` : "Migration"
-            } succeeded.`,
-            LF
-          );
-      })
-      .then(closeDB)
-      .catch((err) => console.error(LF, TAB, "Migration failed:", LF, err, LF));
+    try {
+      const res = migrator.up();
+
+      if (res.length > 0)
+        console.log(
+          LF,
+          TAB,
+          `${
+            res.length > 1 ? `${res.length} migrations` : "Migration"
+          } succeeded.`,
+          LF
+        );
+    } catch (err) {
+      console.error(
+        LF,
+        TAB,
+        "Migration failed:",
+        LF,
+        (err as Error).message,
+        LF
+      );
+    }
   }
 }
