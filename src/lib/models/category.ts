@@ -1,89 +1,24 @@
-import { DataTypes, Model, ModelAttributes } from "sequelize";
-
-import {
-  seqIdCols,
-  seqInitOpts,
-  REV_ID_INTEGER_PK,
-  TIDs,
-  TCrIDs,
-  Status,
-  Revision,
-} from "./common";
 import { has3ConsecutiveLetters } from "../utils";
-import { Group } from "./group";
+import { ModelSRI, TCrModelSRI, TModelSRI } from "./model";
+import { TRevision } from "./revision";
 
-/**
- * used in both Xy and XyArchive, but Archive additionally implements revId as PK
- */
-const COLS: ModelAttributes<Category, TCategory> = {
-  ...seqIdCols,
-  groupId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  name: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    validate: {
-      has3ConsecutiveLetters,
-    },
-  },
-  description: {
-    type: DataTypes.TEXT,
-  },
-};
-
-export type TCategory = TIDs & {
+type TCategoryBase = {
   groupId: number;
   name: string;
   description?: string;
 
-  Revision?: Revision;
-  Status?: Status;
-  Group?: Group;
-
-  current?: Category;
-  archives?: CategoryArchive[];
+  Revision?: TRevision;
+  Archives?: TCategory[];
 };
 
-export type TCrCategory = TCrIDs &
-  Pick<TCategory, "name" | "description" | "groupId">;
+export type TCategory = TModelSRI & TCategoryBase;
+export type TCrCategory = TCrModelSRI & TCategoryBase;
 
-class Common extends Model<TCategory, TCrCategory> {
-  id!: number;
-  revId!: number;
-  statusId!: number;
-  groupId!: number;
-
-  name!: string;
-  description?: string;
-
-  Revision?: Revision;
-  Status?: Status;
-  Group?: Group;
-}
-
-export class Category extends Common {
-  archives?: CategoryArchive[];
-}
-
-Category.init(COLS, {
-  ...seqInitOpts,
-  modelName: "Category",
-});
-
-export class CategoryArchive extends Common {
-  current?: Category;
-}
-
-CategoryArchive.init(
-  {
-    ...COLS,
-    ...REV_ID_INTEGER_PK,
+export const Categories = new ModelSRI<TCategory, TCrCategory>("categories", {
+  groupId: { type: "number", required: true },
+  name: {
+    type: "string",
+    required: true,
+    validators: [has3ConsecutiveLetters],
   },
-  {
-    ...seqInitOpts,
-    modelName: "CategoryArchive",
-    tableName: "categories_archive",
-  }
-);
+});
