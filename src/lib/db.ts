@@ -77,11 +77,10 @@ export function atomic<T>(
 
 const RE_SPLITTER = /(.+)^--\s*DOWN\s*--$(.*)/ms;
 
-export const migrator: {
-  truncate: () => void;
-  up: () => { changes: number; migration: string }[];
-} = {
-  truncate: () => db.exec("DELETE FROM revisions;"),
+export const migrator = {
+  truncate: () => {
+    db.exec("DELETE FROM revisions;");
+  },
 
   up: () => {
     db.exec(`CREATE TABLE IF NOT EXISTS migrations (
@@ -108,12 +107,15 @@ export const migrator: {
 
         const [, up] = split;
 
-        return db.transaction(() => {
-          const { changes } = db.prepare(up).run();
+        db.pragma("foreign_keys = OFF");
+        db.transaction(() => {
+          db.exec(up);
           db.prepare("INSERT INTO migrations (name) VALUES (?)").run(migTodo);
-
-          return { changes, migration: migTodo };
+          return migTodo;
         })();
+        db.pragma("foreign_keys = ON");
+
+        return migTodo;
       });
 
     db.exec("VACUUM");
