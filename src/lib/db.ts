@@ -2,8 +2,8 @@ import fs from "fs";
 
 import Database from "better-sqlite3";
 
-import { datetimeToInt, err } from "./utils";
-import { TDbRevision } from "./models";
+import { err } from "./utils";
+import { Revisions, TRevision } from "./models";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 const DB_PATH =
@@ -26,14 +26,14 @@ type AtomicWithRevOpts = AtomicOpts & {
 
 export function atomic<T>(
   options: AtomicWithRevOpts,
-  operation: (revision: TDbRevision) => T
+  operation: (revision: TRevision) => T
 ): T;
 export function atomic<T>(options: AtomicOpts, operation: () => T): T;
 export function atomic<T>(operation: () => T): T;
 
 export function atomic<T>(
   optsOrFn: AtomicOpts | (() => T),
-  maybeFn?: ((revision: TDbRevision) => T) | (() => T)
+  maybeFn?: ((revision: TRevision) => T) | (() => T)
 ): T {
   const isFnOnly = typeof optsOrFn === "function";
   const opts = isFnOnly ? {} : optsOrFn;
@@ -48,13 +48,9 @@ export function atomic<T>(
     let res: T;
 
     if (revisedBy) {
-      const rev = db
-        .prepare(
-          `INSERT INTO revisions (revisedBy, revisedOn) VALUES (?, ?) RETURNING *`
-        )
-        .get(revisedBy, datetimeToInt()) as TDbRevision;
+      const [rev] = Revisions.insert({ revisedBy });
 
-      res = (operation as (rev: TDbRevision) => T)(rev);
+      res = (operation as (rev: TRevision) => T)(rev);
 
       if (rev.id % DB_BACKUP_EVERY_N_REVISIONS == 0)
         db.backup(`${DB_PATH}.backup.${rev.id}`);
