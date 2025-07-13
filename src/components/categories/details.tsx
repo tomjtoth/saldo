@@ -24,9 +24,9 @@ export default function Details({
       }}
     >
       <Updater cat={cat} />
-      {cat.archives!.toReversed().map((cat) => (
+      {cat.Archives!.toReversed().map((cat) => (
         <div
-          key={`${cat.id}-${cat.revId!}`}
+          key={`${cat.id}-${cat.revisionId!}`}
           className={
             "p-2 bg-background rounded border-2 cursor-not-allowed " +
             (cat.statusId === 1 ? "border-green-500" : "border-red-500") +
@@ -53,7 +53,7 @@ export default function Details({
 
           <div className="col-span-2 text-center">
             🗓️
-            <sub> {cat.Revision!.revOn} </sub>
+            <sub> {cat.Revision!.revisedOn} </sub>
             🪪
             <sub> {cat.Revision!.User?.name} </sub>
           </div>

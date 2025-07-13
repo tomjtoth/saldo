@@ -19,7 +19,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
   return (
     <form
       id="category-updater-form"
-      key={`${cat.id}-${cat.revId!}`}
+      key={`${cat.id}-${cat.revisionId}`}
       className={
         "p-2 bg-background rounded border-2 " +
         (statusId === 1 ? "border-green-500" : "border-red-500") +
@@ -102,7 +102,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
       <div className="col-span-3 text-center">
         🗓️
-        <sub> {cat.Revision!.revOn} </sub>
+        <sub> {cat.Revision!.revisedOn} </sub>
         🪪
         <sub> {cat.Revision!.User?.name} </sub>
       </div>
