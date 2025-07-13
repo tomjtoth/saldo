@@ -4,18 +4,20 @@ import { datetimeFromInt, datetimeToInt, EUROPE_HELSINKI } from "../utils";
 import { Model } from "./model";
 import { TUser } from "./user";
 
-export type TRevision = {
+type TRevisionBase = {
   id: number;
   revisedOn: string;
   revisedBy: number;
+};
 
+export type TRevision = TRevisionBase & {
   User?: TUser;
 };
 
-export type TCrRevision = Pick<TRevision, "revisedBy"> &
-  Partial<Omit<TRevision, "revisedBy">>;
+export type TCrRevision = Pick<TRevisionBase, "revisedBy"> &
+  Partial<Omit<TRevisionBase, "revisedBy">>;
 
-type TDatabase = Omit<TRevision, "revisedOn"> & {
+type TDatabase = Omit<TRevisionBase, "revisedOn"> & {
   revisedOn: number;
 };
 

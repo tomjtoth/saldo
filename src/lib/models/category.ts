@@ -6,12 +6,13 @@ type TCategoryBase = {
   groupId: number;
   name: string;
   description?: string;
-
-  Revision?: TRevision;
-  Archives?: TCategory[];
 };
 
-export type TCategory = TModelSRI & TCategoryBase;
+export type TCategory = TModelSRI &
+  TCategoryBase & {
+    Revision?: TRevision;
+    Archives?: TCategory[];
+  };
 export type TCrCategory = TCrModelSRI & TCategoryBase;
 
 export const Categories = new ModelSRI<TCategory, TCrCategory>("categories", {

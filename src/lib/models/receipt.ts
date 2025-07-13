@@ -1,5 +1,7 @@
 import { dateFromInt, dateToInt, isISODate } from "@/lib/utils";
 import { ModelSRI, TCrModelSRI, TModelSRI } from "./model";
+import { TGroup } from "./group";
+import { TUser } from "./user";
 
 type TReceiptBase = {
   groupId: number;
@@ -7,7 +9,12 @@ type TReceiptBase = {
   paidBy: number;
 };
 
-export type TReceipt = TModelSRI & TReceiptBase;
+export type TReceipt = TModelSRI &
+  TReceiptBase & {
+    Group?: TGroup;
+    Payer?: TUser;
+  };
+
 export type TCrReceipt = TCrModelSRI & TReceiptBase;
 
 type TDbReceipt = Omit<TReceipt, "paidOn"> & { paidOn: number };

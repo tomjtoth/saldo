@@ -1,4 +1,6 @@
 import { ModelSR, TCrModelSR, TModelSR } from "./model";
+import { TGroup } from "./group";
+import { TUser } from "./user";
 
 type TMembershipBase = {
   groupId: number;
@@ -7,7 +9,12 @@ type TMembershipBase = {
   admin: boolean;
 };
 
-export type TMembership = TModelSR & TMembershipBase;
+export type TMembership = TModelSR &
+  TMembershipBase & {
+    Group?: TGroup;
+    User?: TUser;
+  };
+
 export type TCrMembership = TCrModelSR & TMembershipBase;
 
 export const Memberships = new ModelSR<TMembership, TCrMembership>(

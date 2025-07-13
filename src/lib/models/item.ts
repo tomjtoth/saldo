@@ -1,4 +1,5 @@
 import { ModelSRI, TCrModelSRI, TModelSRI } from "./model";
+import { TReceipt } from "./receipt";
 
 type TItemBase = {
   receiptId: number;
@@ -7,7 +8,11 @@ type TItemBase = {
   notes?: string;
 };
 
-export type TItem = TModelSRI & TItemBase;
+export type TItem = TModelSRI &
+  TItemBase & {
+    Receipt?: TReceipt;
+  };
+
 export type TCrItem = TCrModelSRI & TItemBase;
 
 export const Items = new ModelSRI<TItem, TCrItem>(

@@ -1,4 +1,6 @@
 import { ModelSR, TCrModelSR, TModelSR } from "./model";
+import { TItem } from "./item";
+import { TUser } from "./user";
 
 type TItemShareBase = {
   itemId: number;
@@ -6,7 +8,12 @@ type TItemShareBase = {
   share: number;
 };
 
-export type TItemShare = TModelSR & TItemShareBase;
+export type TItemShare = TModelSR &
+  TItemShareBase & {
+    Item?: TItem;
+    User?: TUser;
+  };
+
 export type TCrItemShare = TCrModelSR & TItemShareBase;
 
 export const ItemShares = new ModelSR<TItemShare, TCrItemShare>("itemShares", {

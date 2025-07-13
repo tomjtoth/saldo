@@ -12,17 +12,18 @@ type TGroupBase = {
   name: string;
   description?: string;
   uuid?: string;
-
-  Users?: TUser[];
-  Categories?: TCategory[];
-  Archives?: TGroup[];
-  Memberships?: TMembership[];
-
-  Balance?: TBalanceChartData;
-  Pareto?: TParetoChartData;
 };
 
-export type TGroup = TModelSRI & TGroupBase;
+export type TGroup = TModelSRI &
+  TGroupBase & {
+    Users?: TUser[];
+    Categories?: TCategory[];
+    Archives?: TGroup[];
+    Memberships?: TMembership[];
+
+    Balance?: TBalanceChartData;
+    Pareto?: TParetoChartData;
+  };
 export type TCrGroup = TCrModelSRI & TGroupBase;
 
 export const Groups = new ModelSRI<TGroup, TCrGroup>("groups", {
