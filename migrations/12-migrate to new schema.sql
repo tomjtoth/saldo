@@ -1,12 +1,6 @@
--------- this will get rid of the archives tables, use camelCase for column names
--- UP -- and make use of statusId to represent archived values of which values
--------- are still subject to change
-
-
-PRAGMA foreign_keys = OFF;
-
-
--- rename existing tables
+-------- this migration converts all table and column names to camelCase
+-- UP -- and extends the migrations table with a rowid
+-------- 
 
 
 ALTER TABLE migrations RENAME TO OLD_MIGRATIONS;
@@ -44,6 +38,7 @@ CREATE TABLE users (
 
     email TEXT NOT NULL,
     name TEXT,
+    image TEXT,
     defaultGroupId INTEGER REFERENCES groups (id)
 );
 
@@ -56,6 +51,7 @@ CREATE TABLE usersArchive (
 
     email TEXT NOT NULL,
     name TEXT,
+    image TEXT,
     defaultGroupId INTEGER REFERENCES groups (id),
 
     PRIMARY KEY (id, revisionId)
@@ -324,13 +320,6 @@ INNER JOIN items i ON r.id = i.receiptId
 LEFT JOIN itemShares sh ON (sh.itemId = i.id AND sh.statusId = 1)
 WHERE r.statusId = 1 AND i.statusId = 1
 ORDER BY paidOn;
-
-PRAGMA foreign_keys = ON;
-
-
--- transaction with queries don't work as expected, so did this migration manually...
-INSERT INTO migrations (name) VALUES ('12-migrate to new schema.sql');
-
 
 
 ----------
