@@ -72,6 +72,13 @@ export class Model<M, C, D = M> {
   //   }
   // }
 
+  count() {
+    return db
+      .prepare(`SELECT COUNT(*) FROM ${this.tableName};`)
+      .pluck()
+      .get() as number;
+  }
+
   get(sql: string): (...params: unknown[]) => M | null;
   get(sql: string, ...params: unknown[]): M | null;
   get(
