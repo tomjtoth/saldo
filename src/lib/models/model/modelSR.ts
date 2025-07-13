@@ -42,15 +42,6 @@ export class ModelSR<
     );
   }
 
-  protected get idCrit() {
-    return this.primaryKeys
-      .map((partialKey) => {
-        const pk = partialKey as string;
-        return `${pk} = :${pk}`;
-      })
-      .join(" AND ");
-  }
-
   update(updater: Partial<M>, revisionId: number): M {
     return db.transaction(() => {
       const curr = this.get(
