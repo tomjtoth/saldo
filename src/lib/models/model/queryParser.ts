@@ -24,7 +24,9 @@ type TVal = TMix<number> | TMix<string> | Partial<Record<Op, TValObject>>;
 type ExtractD<T> = T extends Model<any, any, infer D> ? D : never;
 
 type TWhere<T> = {
-  [Op.eq]: number;
+  [K in keyof T]: {
+    [Op.eq]: number;
+  };
 };
 
 type TQuery<T> = {
@@ -67,23 +69,44 @@ export class QueryParser<M, C, D> extends Connector<M, C, D> {
   //   }
   // }
 
-  protected parse<T extends { id: number; type: string }>(query?: TQuery<T>) {
+  protected parse<T extends { id: number; type: string }>(query: TQuery<T>) {
     const ph = (id: string) => id;
 
-    query = {
-      select: ["id"],
-      where: {},
-      join: [
-        {
-          table: Memberships,
-          select: ["userId", ""],
-          where: {},
-        },
-      ],
-    };
+    const stmt = ["SELECT"];
 
-    `FROM categories c
-        INNER JOIN groups g on (g.id = c.groupId)
-        INNER JOIN `;
+    let columns = "*";
+
+    if (query.select !== undefined && query.select.length > 0)
+      columns = query.select.join(", ");
+
+    stmt.push(columns, "FROM", this.tableName);
+
+    let joins = "";
+
+    stmt.push(joins);
+
+    let where = "";
+
+    // Object.entries(query.where);
+
+    // query = {
+    //   select: ["id"],
+    //   where: {},
+    //   join: [
+    //     {
+    //       table: Memberships,
+    //       select: ["userId", ""],
+    //       where: {},
+    //     },
+    //   ],
+    // };
+
+    stmt.push(where);
+
+    // `FROM categories c
+    //     INNER JOIN groups g on (g.id = c.groupId)
+    //     INNER JOIN `;
+
+    return stmt.join(" ");
   }
 }
