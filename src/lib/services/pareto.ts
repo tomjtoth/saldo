@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
-import { QueryTypes } from "sequelize";
 
-import { db, TGroup } from "../models";
+import { db } from "../db";
+import { TGroup } from "../models";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
 import { TParetoChartData } from "@/components/pareto/chart";
 
@@ -13,23 +13,23 @@ export async function getPareto(
   } = {}
 ) {
   const dateCrit: string[] = [];
-  const replacements = [userId];
+  const replacements: { userId: number; from?: number; to?: number } = {
+    userId,
+  };
 
   if (opts.from && DateTime.fromISO(opts.from, EUROPE_HELSINKI).isValid) {
-    replacements.push(dateToInt(opts.from));
-    dateCrit.push("AND paidOn > ?");
+    replacements.from = dateToInt(opts.from);
+    dateCrit.push("AND paidOn > :from");
   }
 
   if (opts.to && DateTime.fromISO(opts.to, EUROPE_HELSINKI).isValid) {
-    replacements.push(dateToInt(opts.to));
-    dateCrit.push("AND paidOn < ?");
+    replacements.to = dateToInt(opts.to);
+    dateCrit.push("AND paidOn < :to");
   }
 
-  const rows: (Omit<TGroup, "pareto"> & {
-    users: string;
-    categories: string;
-  })[] = await db.query(
-    `WITH step1 AS (
+  const rows = db
+    .prepare(
+      `WITH step1 AS (
       SELECT
         groupId AS gid,
         g.name AS gName,
@@ -74,10 +74,12 @@ export async function getPareto(
       categories
     FROM step3 s3 
     LEFT JOIN step1 s1 ON s1.gid = s3.gid
-    GROUP BY s3.gid`,
-
-    { type: QueryTypes.SELECT, replacements }
-  );
+    GROUP BY s3.gid`
+    )
+    .all(replacements) as (Omit<TGroup, "pareto"> & {
+    users: string;
+    categories: string;
+  })[];
 
   return rows.map(({ users, categories, ...group }) => {
     return {
