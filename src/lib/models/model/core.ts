@@ -17,14 +17,14 @@ export class Core<M, D> {
     this.tableName = tableName;
     this.columns = columns;
 
-    this.primaryKeys = (Object.entries(columns) as [keyof M, TModelColumn][])
+    this.primaryKeys = this.iterCols
       .filter(([, val]) => !!val.primaryKey)
       .map(([key]) => {
         columns[key].required = true;
         return key;
       });
 
-    this.skipArchivalOf = (Object.entries(columns) as [keyof M, TModelColumn][])
+    this.skipArchivalOf = this.iterCols
       .filter(([, val]) => !!val.skipArchival)
       .map(([key]) => key);
 
@@ -32,9 +32,7 @@ export class Core<M, D> {
     if (toDB) this._toDB = toDB;
   }
 
-  protected get boolCols() {
-    return Object.entries<TModelColumn>(this.columns).filter(
-      ([, { type }]) => type === "boolean"
-    );
+  protected get iterCols() {
+    return Object.entries(this.columns) as [keyof M, TModelColumn][];
   }
 }
