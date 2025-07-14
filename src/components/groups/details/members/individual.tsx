@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { User } from "@/lib/models";
+import { TUser } from "@/lib/models";
 import { rCombined as red } from "@/lib/reducers";
 import { err, sendJSON, appToast } from "@/lib/utils";
 
@@ -14,7 +14,7 @@ export default function Individual({
   isAdmin,
   groupId,
 }: {
-  user: User;
+  user: TUser;
   isAdmin?: boolean;
   groupId: number;
 }) {

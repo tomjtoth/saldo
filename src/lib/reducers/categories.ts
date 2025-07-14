@@ -30,7 +30,7 @@ export const rCategories = {
     const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
     const ms = group.Memberships?.at(0);
 
-    ms!.defaultCatId = payload.catId;
+    ms!.defaultCategoryId = payload.catId;
   },
 };
 

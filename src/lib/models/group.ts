@@ -24,6 +24,7 @@ export type TGroup = TModelSRI &
     Balance?: TBalanceChartData;
     Pareto?: TParetoChartData;
   };
+
 export type TCrGroup = TCrModelSRI & TGroupBase;
 
 export const Groups = new ModelSRI<TGroup, TCrGroup>("groups", {
