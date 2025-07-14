@@ -103,7 +103,8 @@ export function err(msg?: string): never {
   throw new Error(msg);
 }
 
-export const asArray = <T>(obj: T | T[]) => (Array.isArray(obj) ? obj : [obj]);
+export type TMix<T> = T | T[];
+export const asArray = <T>(obj: TMix<T>) => (Array.isArray(obj) ? obj : [obj]);
 
 const RE_3_CONSECUTIVE_LETTERS = /\p{Letter}{3,}/u;
 
