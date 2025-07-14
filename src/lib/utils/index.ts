@@ -27,12 +27,13 @@ export function approxFloat(value: number, maxDenominator = 1000) {
   return [bestNumerator, bestDenominator];
 }
 
+// TODO: store this in the DB for consistency along with the data
 export const EUROPE_HELSINKI = {
   zone: "Europe/Helsinki",
 } satisfies DateTimeJSOptions;
 
-// TODO: store this in the DB for consistency with the data
-export const DT_ANCHOR = DateTime.fromFormat(
+// TODO: store this in the DB for consistency along with the data
+const DT_ANCHOR = DateTime.fromFormat(
   "2020-01-01",
   "y-M-d",
   EUROPE_HELSINKI
