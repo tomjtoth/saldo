@@ -1,15 +1,13 @@
 type TValidatorFn = (val: unknown) => void;
 
+export type TDbValids = number | string | null;
+export type TValids = TDbValids | boolean | object;
+
 type TColBase = {
   /**
    * defaults to false
    */
   required?: true;
-
-  /**
-   * defaults to false is this the same as `required = false` ?
-   */
-  allowNull?: true;
 
   /**
    * setting multiple columns to true results in a compound key
@@ -21,6 +19,9 @@ type TColBase = {
    */
   skipArchival?: true;
   validators?: TValidatorFn[];
+
+  toJS?: (fromDB: TDbValids) => TValids;
+  toDB?: (fromJS: TValids) => TDbValids;
 };
 
 type TypeMap = {
@@ -35,11 +36,6 @@ export type TModelColumn = {
     defaultValue?: (() => TypeMap[K]) | TypeMap[K];
   };
 }[keyof TypeMap];
-
-export type TModelOpts<M, D> = {
-  toJS?: (fromDB: D) => M;
-  toDB?: (fromJS: M) => D;
-};
 
 export type NumericKeys<T> = {
   [K in keyof T]: T[K] extends number ? K : never;
