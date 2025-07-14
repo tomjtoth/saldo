@@ -30,20 +30,12 @@ export const Receipts = new ModelSRI<TReceipt, TCrModelSRI, TDbReceipt>(
       type: "string",
       required: true,
       validators: [isISODate],
+      toJS: (val) => dateFromInt(val as number),
+      toDB: (val) => dateToInt(val as string),
     },
     paidBy: {
       type: "number",
       required: true,
     },
-  },
-  {
-    toJS: (row) => ({
-      ...row,
-      paidOn: dateFromInt(row.paidOn),
-    }),
-    toDB: (obj) => ({
-      ...obj,
-      paidOn: dateToInt(obj.paidOn),
-    }),
   }
 );
