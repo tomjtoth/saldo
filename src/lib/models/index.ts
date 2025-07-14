@@ -17,18 +17,18 @@ export * from "./item";
 export * from "./itemShare";
 
 Revisions.column("revisedBy").joinsTo(Users);
-
 Users.have(Revisions.via("revisedBy"));
+
 Users.column("revisionId").joinsTo(Revisions);
-Users.have(Memberships.via("userId"));
+Users.have(Memberships);
+Users.joinTo(Groups.through(Memberships));
 
 Groups.have(Categories.via("groupId"));
 Groups.have(Memberships.via("groupId"));
 Groups.have(Receipts.via("groupId"));
-
 Groups.have(Users.through(Memberships));
 
-Categories.joinTo(Groups);
-Items.joinTo(ItemShares.via("itemId"));
+Receipts.have(Items.via("receiptId"));
 
-Users.joinTo(Groups.through(Memberships));
+Categories.column("groupId").joinsTo(Groups);
+Items.joinTo(ItemShares);
