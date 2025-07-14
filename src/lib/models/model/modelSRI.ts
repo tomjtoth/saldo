@@ -1,8 +1,8 @@
 import { db } from "@/lib/db";
 import { asArray, TMix } from "@/lib/utils";
-import { TInsertOpts, TModelColumn } from "./types";
-import { TModelOpts } from "./model";
+import { TModelColumn, TModelOpts } from "./types";
 import { ModelSR, TCrModelSR, TModelSR } from "./modelSR";
+import { TInsertOpts } from "./inserter";
 
 export type TModelSRI = TModelSR & {
   id: number;

@@ -40,3 +40,7 @@ export type TModelOpts<M, D> = {
   toJS?: (fromDB: D) => M;
   toDB?: (fromJS: M) => D;
 };
+
+export type NumericKeys<T> = {
+  [K in keyof T]: T[K] extends number ? K : never;
+}[keyof T];

@@ -1,13 +1,7 @@
 import { db } from "@/lib/db";
-import { Inserter } from "./inserter";
+import { QueryParser } from "./queryParser";
 
-// type TQuery<T> = {
-//   where: {
-//     [K in keyof T]: number | string | number[] | string[];
-//   };
-// };
-
-export class Model<M, C, D = M> extends Inserter<M, C, D> {
+export class Model<M, C, D = M> extends QueryParser<M, C, D> {
   protected get idCrit() {
     return this.primaryKeys
       .map((partialKey) => {
@@ -28,35 +22,6 @@ export class Model<M, C, D = M> extends Inserter<M, C, D> {
       ORDER BY r.revisedOn DESC`
     );
   }
-
-  // sqlFromQuery(query: string | TQuery<D>) {
-  //   let stmt: Statement;
-
-  //   if (typeof query === "string") stmt = db.prepare(query);
-  //   else {
-  //     const sql = `SELECT * FROM ${this.tableName} WHERE ${Object.entries(
-  //       query.where
-  //     ).map(([key, val]) => `${key} = ${val}`)}`;
-  //   }
-
-  //   function recurse(arr, { lop = `and` } = {}) {
-  //     if (arr.length == 0) return ``;
-
-  //     let [key, val] = arr.pop();
-
-  //     const col = key;
-  //     const op = Array.isArray(val) ? `in` : `=`;
-  //     val = Array.isArray(val) ? val : val;
-
-  //     return sql`${lop} (${col} ${op} ${val} ${recurse(arr)})`;
-  //   }
-
-  //   function where(crit = {}) {
-  //     return sql`where true ${recurse(Object.entries(crit))}`;
-  //   }
-  // }
-
-  joinTo() {}
 
   count() {
     return db
