@@ -100,7 +100,7 @@ export async function sendJSON(
 }
 
 export function err(msg?: string): never {
-  throw new Error(msg);
+  throw new Error(`\n\n\t${msg}\n`);
 }
 
 export type TMix<T> = T | T[];
