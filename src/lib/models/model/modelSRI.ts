@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { asArray, TMix } from "@/lib/utils";
-import { TModelColumn, TModelOpts } from "./types";
+import { TModelColumn } from "./types";
 import { ModelSR, TCrModelSR, TModelSR } from "./modelSR";
 import { TInsertOpts } from "./inserter";
 
@@ -21,21 +21,16 @@ export class ModelSRI<
 > extends ModelSR<M, C, D> {
   constructor(
     tableName: string,
-    columns: { [P in keyof Omit<M, keyof TModelSRI>]: TModelColumn },
-    opts: TModelOpts<M, D> = {}
+    columns: { [P in keyof Omit<M, keyof TModelSRI>]: TModelColumn }
   ) {
-    super(
-      tableName,
-      {
-        id: {
-          type: "number",
-          primaryKey: true,
-        },
+    super(tableName, {
+      id: {
+        type: "number",
+        primaryKey: true,
+      },
 
-        ...columns,
-      } as { [P in keyof Omit<M, keyof TModelSR>]: TModelColumn },
-      opts
-    );
+      ...columns,
+    } as { [P in keyof Omit<M, keyof TModelSR>]: TModelColumn });
   }
 
   insert(obj: TMix<C>, opts?: TInsertOpts) {
