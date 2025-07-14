@@ -1,19 +1,12 @@
-import { TModelColumn, TModelOpts } from "./types";
+import { TModelColumn } from "./types";
 
-export class Core<M, D> {
+export class Core<M> {
   protected tableName;
   protected columns;
   protected skipArchivalOf;
   protected primaryKeys;
 
-  protected _toDB?(fromJS: M): D;
-  protected _toJS?(fromDB: D): M;
-
-  constructor(
-    tableName: string,
-    columns: { [P in keyof M]: TModelColumn },
-    { toJS, toDB }: TModelOpts<M, D> = {}
-  ) {
+  constructor(tableName: string, columns: { [P in keyof M]: TModelColumn }) {
     this.tableName = tableName;
     this.columns = columns;
 
@@ -27,9 +20,6 @@ export class Core<M, D> {
     this.skipArchivalOf = this.iterCols
       .filter(([, val]) => !!val.skipArchival)
       .map(([key]) => key);
-
-    if (toJS) this._toJS = toJS;
-    if (toDB) this._toDB = toDB;
   }
 
   protected get iterCols() {
