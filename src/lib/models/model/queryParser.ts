@@ -1,19 +1,44 @@
 import { TMix } from "@/lib/utils";
 import { Connector } from "./connector";
 import { Model } from "./model";
-import { Memberships } from "../membership";
+import { TValids } from "./types";
 
-enum Op {
+export enum Op {
   eq,
   ne,
+  between,
+
   lt,
   le,
   gt,
   ge,
+
   like,
   iLike,
-  between,
 }
+
+type TOpEq = { [Op.eq]?: number | string | null };
+type TOpNe = { [Op.ne]?: number | string | null };
+type TOpBetween = { [Op.between]?: [number, number] };
+
+type TOpLt = { [Op.lt]?: number | string };
+type TOpLe = { [Op.le]?: number | string };
+type TOpGt = { [Op.gt]?: number | string };
+type TOpGe = { [Op.ge]?: number | string };
+
+type TOpLike = { [Op.like]?: string };
+type TOpILike = { [Op.iLike]?: string };
+
+type TStrOps = TOpEq &
+  TOpNe &
+  TOpLt &
+  TOpLe &
+  TOpGt &
+  TOpGe &
+  TOpLike &
+  TOpILike;
+
+type TNumOps = TOpEq & TOpNe & TOpBetween;
 
 type TValObject = {
   [op in Op]?: TVal;
@@ -24,20 +49,26 @@ type TVal = TMix<number> | TMix<string> | Partial<Record<Op, TValObject>>;
 type ExtractD<T> = T extends Model<any, any, infer D> ? D : never;
 
 type TWhere<T> = {
-  [K in keyof T]: {
-    [Op.eq]: number;
-  };
+  [P in TSelectKeys<T>]?: T[P] extends number
+    ? number | null | TNumOps
+    : T[P] extends string
+    ? string | null | TStrOps
+    : never;
 };
 
-type TQuery<T> = {
-  select?: (keyof T)[];
+export type TQuery<T> = {
+  select?: TSelectKeys<T> | TSelectKeys<T>[];
   join?: JoinClause<any>[];
   where?: TWhere<T>;
 };
 
+type TSelectKeys<T> = {
+  [P in keyof T]: T[P] extends Exclude<TValids, object> ? P : never;
+}[keyof T];
+
 type JoinClause<T extends Model<any, any, any>> = {
-  table: T;
-  select?: (keyof T)[];
+  table: string;
+  select?: TSelectKeys<ExtractD<T>>[];
   where?: TWhere<ExtractD<T>>;
 };
 
