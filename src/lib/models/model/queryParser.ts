@@ -1,9 +1,11 @@
 import { TMix } from "@/lib/utils";
-import { Connector } from "./connector";
-import { Model } from "./model";
+import { Model } from "../model";
 import { TValids } from "./types";
+import { Connector } from "./connector";
 
 export enum Op {
+  or,
+
   eq,
   ne,
   between,
@@ -12,10 +14,13 @@ export enum Op {
   le,
   gt,
   ge,
+  in,
 
   like,
   iLike,
 }
+
+type TOpOr<T> = { [Op.or]?: TWhere<T>[] };
 
 type TOpEq = { [Op.eq]?: number | string | null };
 type TOpNe = { [Op.ne]?: number | string | null };
@@ -25,52 +30,67 @@ type TOpLt = { [Op.lt]?: number | string };
 type TOpLe = { [Op.le]?: number | string };
 type TOpGt = { [Op.gt]?: number | string };
 type TOpGe = { [Op.ge]?: number | string };
+type TOpIn<T> = { [Op.in]?: T[] };
 
 type TOpLike = { [Op.like]?: string };
-type TOpILike = { [Op.iLike]?: string };
 
-type TStrOps = TOpEq &
+type TStrOps = TOpIn<string> &
+  TOpEq &
   TOpNe &
   TOpLt &
   TOpLe &
   TOpGt &
   TOpGe &
-  TOpLike &
-  TOpILike;
+  TOpLike;
 
-type TNumOps = TOpEq & TOpNe & TOpBetween;
-
-type TValObject = {
-  [op in Op]?: TVal;
-};
-
-type TVal = TMix<number> | TMix<string> | Partial<Record<Op, TValObject>>;
-
-type ExtractD<T> = T extends Model<any, any, infer D> ? D : never;
-
-type TWhere<T> = {
-  [P in TSelectKeys<T>]?: T[P] extends number
-    ? number | null | TNumOps
-    : T[P] extends string
-    ? string | null | TStrOps
-    : never;
-};
-
-export type TQuery<T> = {
-  select?: TSelectKeys<T> | TSelectKeys<T>[];
-  join?: JoinClause<any>[];
-  where?: TWhere<T>;
-};
+type TNumOps = TOpIn<number> &
+  TOpEq &
+  TOpNe &
+  TOpLt &
+  TOpLe &
+  TOpGt &
+  TOpGe &
+  TOpBetween;
 
 type TSelectKeys<T> = {
   [P in keyof T]: T[P] extends Exclude<TValids, object> ? P : never;
 }[keyof T];
 
-type JoinClause<T extends Model<any, any, any>> = {
-  table: string;
-  select?: TSelectKeys<ExtractD<T>>[];
-  where?: TWhere<ExtractD<T>>;
+type TWhere<T> = TOpOr<T> & {
+  [P in TSelectKeys<T>]?: T[P] extends number
+    ? number | null | TNumOps | TLiteral
+    : T[P] extends string
+    ? string | null | TStrOps | TLiteral
+    : never;
 };
+
+export type TQuery<T> = {
+  select?: TMix<TSelectKeys<T>>;
+  join?: TMix<JoinClause<Model<any, any>>>;
+  /**
+   * all members of this level are connected by "AND"
+   */
+  where?: TWhere<T>;
+};
+
+type ExtractM<T> = T extends Model<infer M, any> ? M : never;
+
+type JoinClause<T extends Model<any, any>> = {
+  table: T;
+  select?: TMix<TSelectKeys<ExtractM<T>>>;
+
+  /**
+   * all members of this level are connected by "AND"
+   */
+  where?: TWhere<ExtractM<T>>;
+};
+
+type TLiteral = () => string;
+
+/**
+ * injects the provided string into the statement
+ */
+export const literal = (sql: string) => (() => sql) as TLiteral;
 
 export class QueryParser<M, C, D> extends Connector<M, C, D> {
   // sqlFromQuery(query: string | TQuery<D>) {
@@ -100,20 +120,48 @@ export class QueryParser<M, C, D> extends Connector<M, C, D> {
   //   }
   // }
 
-  protected parse<T extends { id: number; type: string }>(query: TQuery<T>) {
-    const ph = (id: string) => id;
+  protected parse(query: TQuery<M>) {
+    const aliases = [this.tableName];
+
+    const ex1 = `SELECT 1 FROM categories c 
+      INNER JOIN memberships ms ON (
+        ms.groupId = c.groupId AND
+        ms.userId = :userId AND
+        ms.statusId = 1
+      )
+      WHERE c.id = :categoryId`;
+
+    const ex2 = `SELECT 
+        g.id, g.name, 
+        ms.defaultCategoryId AS "memberships.defaultCategoryId"
+      FROM groups g
+      INNER JOIN memberships ms ON (
+        ms.groupId = g.id AND
+        ms.userId = :userId AND
+        ms.statusId = 1
+      )
+      WHERE g.statusId = 1
+      ORDER BY g.name`;
 
     const stmt = ["SELECT"];
 
     let columns = "*";
 
-    if (query.select !== undefined && query.select.length > 0)
-      columns = query.select.join(", ");
+    if (query.select !== undefined) {
+      if (Array.isArray(query.select))
+        columns = query.select
+          .map((col) => `${aliases[0]}.${col as string}`)
+          .join(", ");
+      else {
+        columns = `${aliases[0]}.${query.select as string}`;
+      }
+    }
 
-    stmt.push(columns, "FROM", this.tableName);
+    let from = "";
 
     let joins = "";
 
+    stmt.push(columns, "FROM", ...[this.tableName, "qwe"]);
     stmt.push(joins);
 
     let where = "";
