@@ -66,9 +66,7 @@ export function userAccessToCat(userId: number, categoryId: number) {
 
 export function getCategories(userId: number) {
   return db.transaction(() => {
-    const groups = Groups.all<{
-      defaultCategoryId: number;
-    }>(
+    const groups = Groups.all(
       `SELECT 
           g.id, g.name, 
           ms.defaultCategoryId AS "memberships.defaultCategoryId"
