@@ -7,7 +7,9 @@ import { Model } from "./model";
 import { ModelSR } from "./modelSR";
 import { ModelSRI } from "./modelSRI";
 
-const CONNECTION_TABLE: {
+let tempKey: string | undefined;
+
+const connections: {
   [fromTable: string]: {
     [toTable: string]:
       | {
@@ -17,23 +19,6 @@ const CONNECTION_TABLE: {
       | { through: string };
   };
 } = {};
-
-let tempKey: string | undefined;
-
-function connect(...params: string[]): void {
-  const [tableA, tableB, ...rest] = params;
-
-  const route =
-    rest.length > 1 ? { fromId: rest[0], toId: rest[1] } : { through: rest[0] };
-
-  if (CONNECTION_TABLE[tableA] === undefined) {
-    CONNECTION_TABLE[tableA] = { [tableB]: route };
-    console.info(`RELATION: ${tableA}.${rest[0]} => ${tableB}.${rest[1]}`);
-  } else {
-    CONNECTION_TABLE[tableA][tableB] = route;
-    console.info(`RELATION: ${tableA} -> ${tableB} via ${rest[0]}`);
-  }
-}
 
 type TAnyModel = Model<any, any> | ModelSR<any, any> | ModelSRI<any, any>;
 type TConnectionHelper = { table: string; keys?: string[]; through?: string };
@@ -77,14 +62,17 @@ export class Connector<M, C, D> extends Inserter<M, C, D> {
    * used during establishing relations between models
    */
   joinsTo(other: TJoin) {
+    const tblA = this.tableName;
     const {
-      table: otherTableName,
+      table: tblB,
       keys,
       through,
     } = other instanceof Model ? other.keysAndTable : other;
 
+    let route: { fromId: string; toId: string } | { through: string };
+
     if (keys) {
-      const thisSingularId = pluralize.singular(this.tableName) + "Id";
+      const thisSingularId = pluralize.singular(tblA) + "Id";
       // const otherSingularId = pluralize.singular(otherTableName) + "Id";
 
       const fromId =
@@ -99,14 +87,18 @@ export class Connector<M, C, D> extends Inserter<M, C, D> {
 
       if (!toId)
         err(
-          `Could not resolve relation between ${
-            this.tableName
-          }.${fromId} and ${otherTableName}.${toId ?? "???"}`
+          `Could not resolve relation between ${tblA}.${fromId} and ${tblB}.${
+            toId ?? "???"
+          }`
         );
 
-      connect(this.tableName, otherTableName, fromId, toId);
-    } else if (through) connect(this.tableName, otherTableName, through);
+      route = { fromId, toId };
+    } else route = { through: through! };
 
+    if (connections[tblA] === undefined) connections[tblA] = {};
+    connections[tblA][tblB] = route;
+
+    console.debug(`RELATION: ${tblA} => ${tblB}:`, route);
     tempKey = undefined;
   }
 
