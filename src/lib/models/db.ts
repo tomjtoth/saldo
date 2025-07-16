@@ -48,7 +48,7 @@ const RE_SINGLE_STMT =
 export const migrator = new Umzug({
   migrations: {
     glob: "migrations/*.sql",
-    resolve({ name, path, context: client }) {
+    resolve({ name, path }) {
       const sql = fs.readFileSync(path!).toString();
       const separator = sql.indexOf("-- DOWN --");
 
