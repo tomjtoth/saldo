@@ -6,7 +6,7 @@ export async function register() {
     const TAB = "\t";
     const LF = "\n\n";
 
-    const { migrator, closeDB } = await import("./lib/models/db");
+    const { migrator } = await import("./lib/models/db");
 
     migrator
       .up()
@@ -21,7 +21,6 @@ export async function register() {
             LF
           );
       })
-      .then(closeDB)
       .catch((err) => console.error(LF, TAB, "Migration failed:", LF, err, LF));
   }
 }
