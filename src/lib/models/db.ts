@@ -43,25 +43,29 @@ const getRawSqlClient = () => ({
 });
 
 const RE_SINGLE_STMT =
-  /^(?:(?:CREATE|ALTER|DROP) TABLE|(?:CREATE|DROP) VIEW|INSERT|DELETE|UPDATE).+?;/gims;
+  /^(?:(?:CREATE|ALTER|DROP) TABLE|(?:CREATE|DROP) VIEW|CREATE INDEX|INSERT|DELETE|UPDATE).+?;/gims;
 
 export const migrator = new Umzug({
   migrations: {
     glob: "migrations/*.sql",
-    resolve(params) {
-      const sql = fs.readFileSync(params.path!).toString();
+    resolve({ name, path, context: client }) {
+      const sql = fs.readFileSync(path!).toString();
       const separator = sql.indexOf("-- DOWN --");
 
-      const exec = async (script: string) =>
-        Promise.all(
-          script
-            .matchAll(RE_SINGLE_STMT)
-            .map(async (m) => await params.context.query(m[0]))
-        );
+      const exec = async (script: string) => {
+        await db.query("PRAGMA foreign_keys = OFF;");
 
+        await db.transaction(async (transaction) => {
+          for (const [stmt] of script.matchAll(RE_SINGLE_STMT)) {
+            await db.query(stmt, { transaction });
+          }
+        });
+
+        await db.query("PRAGMA foreign_keys = ON;");
+      };
       return {
-        name: params.name,
-        path: params.path,
+        name,
+        path,
         up: async () => await exec(sql.slice(0, separator)),
         down: async () => await exec(sql.slice(separator)),
       };
