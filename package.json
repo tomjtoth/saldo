@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "next dev",
     "lint": "next lint",
-    "test": "vitest",
+    "test": "DB_PATH=:memory: vitest",
     "coverage": "vitest run --coverage",
     "cypress:open": "cypress open",
     "e2e": "start-server-and-test dev http://localhost:3000 \"cypress open --e2e\"",
@@ -22,6 +22,7 @@
     "not op_mini all"
   ],
   "dependencies": {
+    "@prisma/client": "^6.12.0",
     "@reduxjs/toolkit": "^2.8.2",
     "csv-parser": "^3.0.0",
     "luxon": "^3.6.1",
