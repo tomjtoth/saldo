@@ -4,8 +4,6 @@ import { err } from "@/lib/utils";
 import { NumericKeys } from "./types";
 import { Inserter } from "./inserter";
 import { Model } from "./model";
-import { ModelSR } from "./modelSR";
-import { ModelSRI } from "./modelSRI";
 
 let tempKey: string | undefined;
 
@@ -20,15 +18,11 @@ const connections: {
   };
 } = {};
 
-type TAnyModel = Model<any, any> | ModelSR<any, any> | ModelSRI<any, any>;
+type TAnyModel = Model<any, any>;
 type TConnectionHelper = { table: string; keys?: string[]; through?: string };
 type TJoin = TAnyModel | TConnectionHelper;
 
 export class Connector<M, C, D> extends Inserter<M, C, D> {
-  protected get iterColNames() {
-    return this.iterCols.map(([col]) => col as string);
-  }
-
   get keysAndTable() {
     return {
       table: this.tableName,

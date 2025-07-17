@@ -2,14 +2,38 @@ import { db } from "@/lib/db";
 import { asArray, TMix } from "@/lib/utils";
 import { Converter } from "./converter";
 
-export type TInsertOpts = {
-  revisionId?: number;
-  upsert?: boolean;
-};
-
 export class Inserter<M, C, D> extends Converter<M, C, D> {
-  insert(obj: TMix<C>, { upsert = false }: TInsertOpts = {}) {
-    const arr = asArray(obj);
+  protected get iterColNames() {
+    return this.iterCols.map(([col]) => col as string);
+  }
+
+  insert(
+    obj: TMix<C>,
+    {
+      upsert = false,
+      revisionId,
+    }: {
+      revisionId?: number;
+      upsert?: boolean;
+    } = {}
+  ) {
+    const arr = asArray(obj) as (C & { id?: number; revisionId: number })[];
+
+    if (!!revisionId) {
+      const id = this.iterColNames.includes("id")
+        ? (db
+            .prepare(`SELECT COALESCE(MAX(id), 0) + 1 FROM ${this.tableName}`)
+            .pluck()
+            .get() as number)
+        : -1;
+
+      const hasId = id > -1;
+
+      arr.forEach((obj, idx) => {
+        obj.revisionId = revisionId;
+        if (hasId) obj.id = id + idx;
+      });
+    }
 
     const validated = this.validate(arr);
 

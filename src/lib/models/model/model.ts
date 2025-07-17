@@ -1,50 +1,36 @@
-import { db } from "@/lib/db";
-import { QueryParser, TQuery } from "./queryParser";
+import { Updater } from "./updater";
 
-export class Model<M, C, D = M> extends QueryParser<M, C, D> {
-  count() {
-    return db
-      .prepare(`SELECT COUNT(*) FROM ${this.tableName};`)
-      .pluck()
-      .get() as number;
-  }
+export const COL_RS = {
+  revisionId: {
+    type: "number",
+    reqiured: true,
+  },
+  statusId: {
+    type: "number",
+    defaultValue: 1,
+  },
+};
 
-  get(query: string | TQuery<M>): (...params: unknown[]) => M | null;
-  get(query: string | TQuery<M>, ...params: unknown[]): M | null;
+export const COL_RSI = {
+  id: {
+    type: "number",
+    primaryKey: true,
+  },
 
-  get(
-    query: string | TQuery<M>,
-    ...params: unknown[]
-  ): (M | null) | ((...params: unknown[]) => M | null) {
-    const sql = typeof query === "string" ? query : this.parse(query);
-    const stmt = db.prepare(sql);
+  ...COL_RS,
+};
 
-    const looper = (...params: unknown[]) => {
-      const res = stmt.get(...params);
-      if (!res) return null;
+export type TModelSR = {
+  revisionId: number;
+  statusId: number;
+};
 
-      return this.toJS(res as D)[0] as M;
-    };
+export type TCrModelSR = Partial<TModelSR>;
 
-    return params.length > 0 ? looper(...params) : looper;
-  }
+export type TModelSRI = TModelSR & {
+  id: number;
+};
 
-  all<T = object>(
-    query: string | TQuery<M>
-  ): (...params: unknown[]) => (M & T)[];
-  all<T = object>(query: string | TQuery<M>, ...params: unknown[]): (M & T)[];
-  all<T = object>(
-    query: string | TQuery<M>,
-    ...params: unknown[]
-  ): (M & T)[] | ((...params: unknown[]) => (M & T)[]) {
-    const sql = typeof query === "string" ? query : this.parse(query);
-    const stmt = db.prepare(sql);
+export type TCrModelSRI = TCrModelSR & { id?: number };
 
-    const looper = (...params: unknown[]) => {
-      const res = stmt.all(...params);
-      return this.toJS(res as D[]) as (M & T)[];
-    };
-
-    return params.length > 0 ? looper(...params) : looper;
-  }
-}
+export class Model<M, C, D = M> extends Updater<M, C, D> {}

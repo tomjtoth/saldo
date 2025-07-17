@@ -1,71 +1,14 @@
 import { db } from "@/lib/db";
-import { asArray, err, TMix } from "@/lib/utils";
-import { TModelColumn } from "./types";
-import { Model } from "./model";
-import { TInsertOpts } from "./inserter";
+import { err } from "@/lib/utils";
+import { QueryWrapper } from "./queryWrapper";
 
-export type TModelSR = {
-  revisionId: number;
-  statusId: number;
-};
-
-export type TCrModelSR = Partial<TModelSR>;
-
-/**
- * statusId and revisionId pre-defined
- */
-export class ModelSR<
-  M extends TModelSR,
-  C extends TCrModelSR,
-  D extends TModelSR = M
-> extends Model<M, C, D> {
-  constructor(
-    tableName: string,
-    columns: { [P in keyof Omit<M, keyof TModelSR>]: TModelColumn }
-  ) {
-    super(tableName, {
-      revisionId: {
-        type: "number",
-        reqiured: true,
-      },
-      statusId: {
-        type: "number",
-        defaultValue: 1,
-      },
-
-      ...columns,
-    } as { [P in keyof M]: TModelColumn });
-  }
-
-  protected get pkReplInWhereClause() {
-    return (this.primaryKeys as string[])
-      .map((pk) => `${pk} = :${pk}`)
-      .join(" AND ");
-  }
-
-  /**
-   * returns a looper
-   */
-  get archives() {
-    const originId = db
-      .prepare("SELECT id FROM origins WHERE origin = ?")
-      .pluck()
-      .get() as number | null;
-
-    return this.all(
-      `SELECT a.revisionId, a.payload FROM archives a
-      INNER JOIN revisions r ON (r.id = a.revisionId) 
-      WHERE originId = ${originId} AND ${this.pkReplInWhereClause}
-      ORDER BY r.revisedOn DESC`
-    );
-  }
-
+export class Updater<M, C, D> extends QueryWrapper<M, C, D> {
   update(updater: Partial<M>, revisionId: number): M {
     return db.transaction(() => {
       const curr = this.get(
         `SELECT * FROM ${this.tableName} WHERE ${this.pkReplInWhereClause}`,
         updater
-      );
+      ) as M & { revisionId: number };
 
       if (!curr) err("entity not found");
 
@@ -86,7 +29,11 @@ export class ModelSR<
 
             if (!this.skipArchivalOf?.includes(keyM)) archiver[keyM] = currVal;
 
-            curr[keyM] = nextVal;
+            (curr[keyM] as number | string | boolean) = nextVal as
+              | number
+              | string
+              | boolean;
+
             updating = true;
           }
         });
@@ -141,14 +88,5 @@ export class ModelSR<
 
       return curr;
     })();
-  }
-
-  insert(obj: TMix<C>, opts?: TInsertOpts) {
-    let arr = asArray(obj);
-
-    if (!!opts?.revisionId)
-      arr.forEach((obj) => (obj.revisionId = opts.revisionId!));
-
-    return super.insert(arr, opts);
   }
 }

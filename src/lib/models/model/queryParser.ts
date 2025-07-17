@@ -1,4 +1,5 @@
 import { TMix } from "@/lib/utils";
+
 import { Model } from "../model";
 import { TValids } from "./types";
 import { Connector } from "./connector";
@@ -141,7 +142,7 @@ export class QueryParser<M, C, D> extends Connector<M, C, D> {
   //   }
   // }
 
-  protected parse(query: TQuery<M>) {
+  protected parseQuery(query: TQuery<M>) {
     const aliases = [this.tableName];
 
     const ex1 = `SELECT 1 FROM categories c 
