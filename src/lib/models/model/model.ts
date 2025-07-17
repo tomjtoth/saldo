@@ -2,19 +2,19 @@ import { Updater } from "./updater";
 
 export const COL_RS = {
   revisionId: {
-    type: "number",
-    reqiured: true,
+    type: "number" as const,
+    required: true as const,
   },
   statusId: {
-    type: "number",
+    type: "number" as const,
     defaultValue: 1,
   },
 };
 
 export const COL_RSI = {
   id: {
-    type: "number",
-    primaryKey: true,
+    type: "number" as const,
+    primaryKey: true as const,
   },
 
   ...COL_RS,
