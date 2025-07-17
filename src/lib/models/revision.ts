@@ -32,21 +32,13 @@ export const Revisions = new Model<TRevision, TCrRevision, TDatabase>(
     revisedOn: {
       type: "string",
       defaultValue: () => DateTime.local(EUROPE_HELSINKI).toISO(),
+      toJS: (fromDB) => datetimeFromInt(fromDB as number),
+      toDB: (fromJS) => datetimeToInt(fromJS as string),
     },
 
     revisedBy: {
       type: "number",
       required: true,
     },
-  },
-  {
-    toJS: (row) => ({
-      ...row,
-      revisedOn: datetimeFromInt(row.revisedOn)!,
-    }),
-    toDB: (obj) => ({
-      ...obj,
-      revisedOn: datetimeToInt(obj.revisedOn),
-    }),
   }
 );

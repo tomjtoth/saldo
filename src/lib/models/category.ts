@@ -1,5 +1,5 @@
 import { has3ConsecutiveLetters } from "../utils";
-import { ModelSRI, TCrModelSRI, TModelSRI } from "./model";
+import { COL_RS, COL_RSI, Model, TCrModelSRI, TModelSRI } from "./model";
 import { TRevision } from "./revision";
 
 type TCategoryBase = {
@@ -15,7 +15,9 @@ export type TCategory = TModelSRI &
   };
 export type TCrCategory = TCrModelSRI & TCategoryBase;
 
-export const Categories = new ModelSRI<TCategory, TCrCategory>("categories", {
+export const Categories = new Model<TCategory, TCrCategory>("categories", {
+  ...COL_RSI,
+
   groupId: { type: "number", required: true },
   name: {
     type: "string",

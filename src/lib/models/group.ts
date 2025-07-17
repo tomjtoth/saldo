@@ -1,6 +1,6 @@
 import { has3ConsecutiveLetters } from "../utils";
 
-import { ModelSRI, TCrModelSRI, TModelSRI } from "./model";
+import { COL_RSI, Model, TCrModelSRI, TModelSRI } from "./model";
 import { TCategory } from "./category";
 import { TMembership } from "./membership";
 import { TUser } from "./user";
@@ -27,7 +27,9 @@ export type TGroup = TModelSRI &
 
 export type TCrGroup = TCrModelSRI & TGroupBase;
 
-export const Groups = new ModelSRI<TGroup, TCrGroup>("groups", {
+export const Groups = new Model<TGroup, TCrGroup>("groups", {
+  ...COL_RSI,
+
   name: {
     type: "string",
     required: true,

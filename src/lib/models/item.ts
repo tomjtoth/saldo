@@ -1,4 +1,4 @@
-import { ModelSRI, TCrModelSRI, TModelSRI } from "./model";
+import { COL_RSI, Model, TCrModelSRI, TModelSRI } from "./model";
 import { TReceipt } from "./receipt";
 
 type TItemBase = {
@@ -15,27 +15,24 @@ export type TItem = TModelSRI &
 
 export type TCrItem = TCrModelSRI & TItemBase;
 
-export const Items = new ModelSRI<TItem, TCrItem>(
-  "items",
-  {
-    receiptId: {
-      type: "number",
-      required: true,
-    },
-    categoryId: {
-      type: "number",
-      required: true,
-    },
-    cost: {
-      type: "number",
-      required: true,
-    },
-    notes: {
-      type: "string",
-    },
+export const Items = new Model<TItem, TCrItem>("items", {
+  ...COL_RSI,
+
+  receiptId: {
+    type: "number",
+    required: true,
   },
-  {
-    toJS: (row) => ({ ...row, cost: row.cost / 100 }),
-    toDB: (obj) => ({ ...obj, cost: Math.round(obj.cost * 100) }),
-  }
-);
+  categoryId: {
+    type: "number",
+    required: true,
+  },
+  cost: {
+    type: "number",
+    required: true,
+    toJS: (fromDB) => (fromDB as number) / 100,
+    toDB: (fromJS) => Math.round((fromJS as number) * 100),
+  },
+  notes: {
+    type: "string",
+  },
+});
