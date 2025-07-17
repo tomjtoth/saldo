@@ -4,6 +4,7 @@ import { TValids } from "./types";
 import { Connector } from "./connector";
 
 export enum Op {
+  not,
   or,
 
   eq,
@@ -17,9 +18,9 @@ export enum Op {
   in,
 
   like,
-  iLike,
 }
 
+type TOpNot<T> = { [Op.not]?: TWhere<T>[] };
 type TOpOr<T> = { [Op.or]?: TWhere<T>[] };
 
 type TOpEq = { [Op.eq]?: number | string | null };
