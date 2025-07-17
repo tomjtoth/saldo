@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/lib/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DB_PATH")
+}
+
+model Meta {
+  id   Int    @id @default(autoincrement())
+  info String
+  data Bytes
+}
+
+model Archive {
+  id         Int   @id @default(autoincrement())
+  tableId    Int
+  entityPk1  Int
+  entityPk2  Int?
+  revisionId Int
+  payload    Bytes
+
+  revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+
+  @@index([tableId, entityPk1, entityPk2])
+  @@map("archives")
+}
+
+model Revision {
+  id          Int @id @default(autoincrement())
+  revisedOn   Int
+  revisedById Int @map("revisedById")
+
+  revisedBy   User         @relation("createdByUser", fields: [revisedById], references: [id])
+  users       User[]
+  groups      Group[]
+  memberships Membership[]
+  categories  Category[]
+  receipts    Receipt[]
+  items       Item[]
+  itemShares  ItemShare[]
+  archives    Archive[]
+
+  @@map("revisions")
+}
+
+model User {
+  id             Int     @id @default(autoincrement())
+  revisionId     Int
+  statusId       Int     @default(0)
+  email          String
+  name           String?
+  image          String?
+  defaultGroupId Int?
+
+  revision         Revision     @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  createdRevisions Revision[]   @relation("createdByUser")
+  memberships      Membership[]
+  groups           Group[]
+
+  @@map("users")
+}
+
+model Group {
+  id          Int     @id @default(autoincrement())
+  revisionId  Int
+  statusId    Int     @default(0)
+  name        String
+  description String?
+  uuid        String?
+
+  revision    Revision     @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  memberships Membership[]
+  categories  Category[]
+  receipts    Receipt[]
+  users       User[]
+
+  @@map("groups")
+}
+
+model Membership {
+  userId            Int
+  groupId           Int
+  revisionId        Int
+  statusId          Int  @default(0)
+  admin             Int  @default(0)
+  defaultCategoryId Int?
+
+  revision        Revision  @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  user            User      @relation(fields: [userId], references: [id])
+  group           Group     @relation(fields: [groupId], references: [id])
+  defaultCategory Category? @relation(fields: [defaultCategoryId], references: [id])
+
+  @@id([userId, groupId])
+  @@map("memberships")
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  revisionId  Int
+  statusId    Int     @default(0)
+  groupId     Int
+  name        String
+  description String?
+
+  revision   Revision     @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  group      Group        @relation(fields: [groupId], references: [id])
+  Membership Membership[]
+
+  @@map("categories")
+}
+
+model Receipt {
+  id         Int @id @default(autoincrement())
+  revisionId Int
+  statusId   Int @default(0)
+  groupId    Int
+  paidBy     Int
+  paidOn     Int
+
+  revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  group    Group    @relation(fields: [groupId], references: [id])
+  items    Item[]
+
+  @@map("receipts")
+}
+
+model Item {
+  id         Int     @id @default(autoincrement())
+  revisionId Int
+  statusId   Int     @default(0)
+  receiptId  Int
+  categoryId Int
+  cost       Int
+  notes      String?
+
+  revision   Revision    @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  receipt    Receipt     @relation(fields: [receiptId], references: [id])
+  itemShares ItemShare[]
+
+  @@map("items")
+}
+
+model ItemShare {
+  itemId     Int
+  userId     Int
+  revisionId Int
+  statusId   Int @default(0)
+  share      Int
+
+  revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  item     Item     @relation(fields: [itemId], references: [id])
+
+  @@id([itemId, userId])
+  @@map("itemShares")
+}
