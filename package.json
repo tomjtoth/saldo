@@ -2,7 +2,7 @@
   "name": "saldo",
   "version": "1.0.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "DB_PATH=data/dev.db next dev",
     "lint": "next lint",
     "test": "DB_PATH=:memory: vitest",
     "coverage": "vitest run --coverage",
