@@ -40,7 +40,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/migrations ./migrations
 
 ARG GIT_HASH
-ENV GIT_HASH=${GIT_HASH} NODE_ENV=production
+ENV GIT_HASH=${GIT_HASH} NODE_ENV=production DB_PATH=data/prod.db
 
 USER nextjs
 
