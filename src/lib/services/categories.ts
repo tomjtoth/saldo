@@ -1,5 +1,6 @@
 import { atomic, db } from "../db";
 import { Categories, Groups, TCategory, TCrCategory, Users } from "../models";
+import { literal } from "../models/model/queryParser";
 import { Revisions } from "../models/revision";
 
 export type TCategoryUpdater = Partial<
@@ -11,10 +12,14 @@ export function createCategory(revisedBy: number, data: TCrCategory) {
     const [cat] = Categories.insert(data);
 
     cat.Revision = rev;
-    cat.Revision.User = Users.get(
-      `SELECT name FROM users WHERE id = :revisedBy`,
-      { revisedBy }
-    )!;
+    // cat.Revision.User = Users.get(
+    //   `SELECT name FROM users WHERE id = :revisedBy`,
+    //   { revisedBy }
+    // )!;
+    cat.Revision.User = Users.select("name")
+      .where({ id: revisedBy })
+      .get(null, null)!;
+
     cat.Archives = [];
 
     return cat;
@@ -31,16 +36,26 @@ export function updateCategory(
 
     cat.Archives = Categories.archives(cat);
 
-    const getRevOn = Revisions.get(
-      "SELECT revisedOn FROM revisions WHERE id = :revisionId"
-    );
+    // const getRevOn = Revisions.get(
+    //   "SELECT revisedOn FROM revisions WHERE id = :revisionId"
+    // );
+
+    const getRevOn = Revisions.select("revisedOn")
+      .where({
+        id: literal(":revisionId"),
+      })
+      .get();
     cat.Revision = getRevOn(cat)!;
     cat.Archives.forEach((cat) => (cat.Revision = getRevOn(cat)!));
 
-    const getUsername = Users.get(`
-      SELECT name FROM revisions r
-      INNER JOIN users u ON (r.revisedBy = u.id)
-      WHERE r.id = :revisionId`);
+    // const getUsername = Users.get(`
+    //   SELECT name FROM revisions r
+    //   INNER JOIN users u ON (r.revisedBy = u.id)
+    //   WHERE r.id = :revisionId`);
+
+    const getUsername = Users.select("name")
+      .innerJoin(Revisions.where({ id: literal(":revisionId") }))
+      .get();
 
     cat.Revision.User = getUsername(cat)!;
     cat.Archives.forEach((cat) => (cat.Revision!.User = getUsername(cat)!));
