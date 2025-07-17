@@ -2,6 +2,8 @@ import { TMix } from "@/lib/utils";
 import { Model } from "../model";
 import { TValids } from "./types";
 import { Connector } from "./connector";
+import { Users } from "../user";
+import { Revisions } from "../revision";
 
 export enum Op {
   not,
@@ -67,7 +69,8 @@ type TWhere<T> = TOpOr<T> & {
 
 export type TQuery<T> = {
   select?: TMix<TSelectKeys<T>>;
-  join?: TMix<JoinClause<Model<any, any>>>;
+  join?: TMix<JoinClause>;
+
   /**
    * all members of this level are connected by "AND"
    */
@@ -76,7 +79,7 @@ export type TQuery<T> = {
 
 type ExtractM<T> = T extends Model<infer M, any> ? M : never;
 
-type JoinClause<T extends Model<any, any>> = {
+type JoinClause<T = Model<any, any>> = {
   table: T;
   select?: TMix<TSelectKeys<ExtractM<T>>>;
 
@@ -87,6 +90,23 @@ type JoinClause<T extends Model<any, any>> = {
 };
 
 type TLiteral = () => string;
+
+Users.get({
+  select: ["email", "id", "name"],
+
+  where: {
+    [Op.or]: [
+      { email: { [Op.in]: ["exception1", "exception2"] } },
+      { email: { [Op.like]: "%jotain%" } },
+    ],
+  },
+
+  join: {
+    table: Revisions,
+    select: [],
+    where: {},
+  },
+});
 
 /**
  * injects the provided string into the statement
