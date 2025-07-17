@@ -36,8 +36,6 @@
     "react-redux": "^9.2.0",
     "react-toastify": "^11.0.5",
     "recharts": "^3.0.2",
-    "sequelize": "^6.37.7",
-    "sqlite3": "^5.1.7",
     "umzug": "^3.8.2",
     "uuid": "^11.1.0",
     "web-push": "^3.6.7"
