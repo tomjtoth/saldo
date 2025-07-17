@@ -43,17 +43,15 @@ export function atomic<T>(
     operation: opDescription,
     transaction: mode,
   } = opts as AtomicWithRevOpts;
+  let revision: TRevision | null = null;
 
   const t = db.transaction(() => {
     let res: T;
 
     if (revisedBy) {
-      const [rev] = Revisions.insert({ revisedBy });
+      revision = Revisions.insert({ revisedBy })[0]!;
 
-      res = (operation as (rev: TRevision) => T)(rev);
-
-      if (rev.id % DB_BACKUP_EVERY_N_REVISIONS == 0)
-        db.backup(`${DB_PATH}.backup.${rev.id}`);
+      res = (operation as (rev: TRevision) => T)(revision);
     } else res = (operation as () => T)();
 
     return res;
@@ -61,6 +59,12 @@ export function atomic<T>(
 
   try {
     const res = (mode ? t[mode] : t)();
+
+    if (revision) {
+      const rev = revision as TRevision;
+      if (rev.id % DB_BACKUP_EVERY_N_REVISIONS == 0)
+        db.backup(`${DB_PATH}.backup.${rev.id}`);
+    }
 
     console.log(`\n\t${opDescription ?? "Transaction"} succeeded!\n`);
 
