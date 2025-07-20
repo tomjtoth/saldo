@@ -1,5 +1,5 @@
 import { has3ConsecutiveLetters, isEmail } from "../utils";
-import { COL_RSI, Model, TCrModelSRI, TModelSRI } from "./model";
+import { COL_SRI, Model, TCrModelSRI, TModelSRI } from "./model";
 import { TGroup } from "./group";
 import { TMembership } from "./membership";
 
@@ -19,7 +19,7 @@ export type TUser = TModelSRI &
 export type TCrUser = TCrModelSRI & TUserBase;
 
 export const Users = new Model<TUser, TCrUser>("users", {
-  ...COL_RSI,
+  ...COL_SRI,
 
   email: {
     type: "string",

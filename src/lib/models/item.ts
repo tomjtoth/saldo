@@ -1,4 +1,4 @@
-import { COL_RSI, Model, TCrModelSRI, TModelSRI } from "./model";
+import { COL_SRI, Model, TCrModelSRI, TModelSRI } from "./model";
 import { TReceipt } from "./receipt";
 
 type TItemBase = {
@@ -16,7 +16,7 @@ export type TItem = TModelSRI &
 export type TCrItem = TCrModelSRI & TItemBase;
 
 export const Items = new Model<TItem, TCrItem>("items", {
-  ...COL_RSI,
+  ...COL_SRI,
 
   receiptId: {
     type: "number",

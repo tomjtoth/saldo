@@ -1,5 +1,5 @@
 import { dateFromInt, dateToInt, isISODate } from "@/lib/utils";
-import { COL_RSI, Model, TCrModelSRI, TModelSRI } from "./model";
+import { COL_SRI, Model, TCrModelSRI, TModelSRI } from "./model";
 import { TGroup } from "./group";
 import { TUser } from "./user";
 
@@ -22,7 +22,7 @@ type TDbReceipt = Omit<TReceipt, "paidOn"> & { paidOn: number };
 export const Receipts = new Model<TReceipt, TCrModelSRI, TDbReceipt>(
   "receipts",
   {
-    ...COL_RSI,
+    ...COL_SRI,
 
     groupId: {
       type: "number",

@@ -1,4 +1,4 @@
-import { COL_RSI, Model, TCrModelSR, TModelSR } from "./model";
+import { COL_SRI, Model, TCrModelSR, TModelSR } from "./model";
 import { TGroup } from "./group";
 import { TUser } from "./user";
 
@@ -20,7 +20,7 @@ export type TCrMembership = TCrModelSR & TMembershipBase;
 export const Memberships = new Model<TMembership, TCrMembership>(
   "memberships",
   {
-    ...COL_RSI,
+    ...COL_SRI,
 
     groupId: {
       type: "number",
