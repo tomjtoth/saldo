@@ -18,23 +18,9 @@ export class Inserter<M, C, D> extends Converter<M, C, D> {
       upsert?: boolean;
     } = {}
   ) {
-    const arr = asArray(obj) as (C & { id?: number; revisionId: number })[];
+    const arr = asArray(obj) as (C & { revisionId: number })[];
 
-    if (!!revisionId) {
-      const id = this.iterColNames.includes("id")
-        ? (db
-            .prepare(`SELECT COALESCE(MAX(id), 0) + 1 FROM ${this.tableName}`)
-            .pluck()
-            .get() as number)
-        : -1;
-
-      const hasId = id > -1;
-
-      arr.forEach((obj, idx) => {
-        obj.revisionId = revisionId;
-        if (hasId) obj.id = id + idx;
-      });
-    }
+    if (!!revisionId) arr.forEach((obj) => (obj.revisionId = revisionId));
 
     const validated = this.validate(arr);
 

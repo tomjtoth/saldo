@@ -3,7 +3,6 @@ import { Groups } from "./group";
 import { Items } from "./item";
 import { ItemShares } from "./itemShare";
 import { Memberships } from "./membership";
-import { literal, Op } from "./model/queryParser";
 import { Receipts } from "./receipt";
 import { Revisions } from "./revision";
 import { Users } from "./user";
@@ -22,7 +21,7 @@ Users.have(Revisions.via("revisedBy"));
 
 Users.column("revisionId").joinsTo(Revisions);
 Users.have(Memberships);
-Users.joinTo(Groups.through(Memberships));
+Users.have(Groups.through(Memberships));
 
 Groups.have(Categories.via("groupId"));
 Groups.have(Memberships.via("groupId"));
@@ -33,15 +32,3 @@ Receipts.have(Items.via("receiptId"));
 
 Categories.column("groupId").joinsTo(Groups);
 Items.joinTo(ItemShares);
-
-const getterFn = Users.get({
-  select: ["id", "email", "id", "id"],
-  where: {
-    email: { [Op.like]: "%tito%" },
-    statusId: { [Op.in]: [1, 2] },
-    [Op.or]: [
-      { revisionId: literal(":someId") },
-      { name: { [Op.like]: "%tito%" }, statusId: 1 },
-    ],
-  },
-});
