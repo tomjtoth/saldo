@@ -2,6 +2,7 @@ import { Draft, WritableDraft } from "immer";
 import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
 import { TCategory } from "../models";
+import { TMix } from "../types";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value == 0.5) return [1, 2];
@@ -79,16 +80,14 @@ export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));
 }
 
-type SendJsonOptions = {
-  method?: "POST" | "PUT";
-};
-
 export async function sendJSON(
   endpoint: string,
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: any,
-  options?: SendJsonOptions
+  options?: {
+    method?: "POST" | "PUT";
+  }
 ) {
   return await fetch(endpoint, {
     method: options?.method ?? "POST",
@@ -103,7 +102,6 @@ export function err(msg?: string): never {
   throw new Error(`\n\n\t${msg}\n`);
 }
 
-export type TMix<T> = T | T[];
 export const asArray = <T>(obj: TMix<T>) => (Array.isArray(obj) ? obj : [obj]);
 
 const RE_3_CONSECUTIVE_LETTERS = /\p{Letter}{3,}/u;

@@ -1,6 +1,7 @@
-import { asArray, err, TMix } from "@/lib/utils";
-import { Core } from "./core";
+import { asArray, err } from "@/lib/utils";
+import { TMix } from "@/lib/types";
 import { TValids } from "./types";
+import { Core } from "./core";
 
 export class Validator<M, C> extends Core<M> {
   /**

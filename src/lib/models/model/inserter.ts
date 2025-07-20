@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
-import { asArray, TMix } from "@/lib/utils";
+import { TMix } from "@/lib/types";
+import { asArray } from "@/lib/utils";
 import { Converter } from "./converter";
 
 export class Inserter<M, C, D> extends Converter<M, C, D> {

@@ -1,6 +1,7 @@
-import { asArray, TMix } from "@/lib/utils";
-import { Validator } from "./validator";
+import { asArray } from "@/lib/utils";
+import { TMix } from "@/lib/types";
 import { TDbValids, TValids } from "./types";
+import { Validator } from "./validator";
 
 export class Converter<M, C, D> extends Validator<M, C> {
   protected toDB(fromJS: TMix<M>) {
