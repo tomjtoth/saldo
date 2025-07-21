@@ -2,13 +2,13 @@ import { atomic } from "../db";
 import { Groups, Memberships, TGroup, Users } from "../models";
 import { err } from "../utils";
 
-export function createGroup(
+export async function createGroup(
   revisedBy: number,
   data: Pick<TGroup, "id" | "name" | "description">
 ) {
   return atomic(
     { operation: "creating new group", revisedBy },
-    ({ id: revisionId }) => {
+    async ({ id: revisionId }) => {
       const group = Groups.insert(data, { revisionId });
 
       await Group.create({ ...data, revId: rev.id }, { transaction: rev });
@@ -43,7 +43,7 @@ export function createGroup(
 export function addMember(groupId: number, userId: number) {
   return atomic(
     { operation: "adding new member", revisedBy: userId },
-    (rev) => {
+    async (rev) => {
       const group = Groups.get(
         "SELECT * FROM groups WHERE id = ? AND statusId = 1",
         groupId
