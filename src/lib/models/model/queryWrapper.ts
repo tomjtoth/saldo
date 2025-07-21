@@ -1,7 +1,31 @@
 import { db } from "@/lib/db";
-import { QueryParser, TQuery } from "./queryParser";
+import { TOther, TQuery, TSelectKeys, TWhere } from "./types";
+import { Connector } from "./connector";
+import { QueryBuilder } from "./queryBuilder";
 
-export class QueryWrapper<M, C, D> extends QueryParser<M, C, D> {
+export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
+  select(...columns: TSelectKeys<D>[]) {
+    return new QueryBuilder(this, { select: columns });
+  }
+
+  where(criteria: TWhere<D>) {
+    return new QueryBuilder(this, { where: criteria });
+  }
+
+  flushQuery(): TQuery<D> {
+    return { table: this.tableName };
+  }
+
+  innerJoin(other: TOther) {
+    const builder = new QueryBuilder(this);
+    return builder.innerJoin(other);
+  }
+
+  leftJoin(other: TOther) {
+    const builder = new QueryBuilder(this);
+    return builder.leftJoin(other);
+  }
+
   protected get pkReplInWhereClause() {
     return (this.primaryKeys as string[])
       .map((pk) => `${pk} = :${pk}`)
