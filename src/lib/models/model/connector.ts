@@ -1,71 +1,69 @@
 import pluralize from "pluralize";
 
 import { err } from "@/lib/utils";
-import { NumericKeys } from "./types";
 import { Inserter } from "./inserter";
-import { Model } from "./model";
+import { Model } from ".";
 
 let tempKey: string | undefined;
 
-const connections: {
+type OneToManyRoute = {
+  fromId: string;
+  toId: string;
+  single: boolean;
+};
+
+type ManyToManyRoute = { through: string };
+
+export const connections: {
   [fromTable: string]: {
-    [toTable: string]:
-      | {
-          fromId: string;
-          toId: string;
-        }
-      | { through: string };
+    [toTable: string]: OneToManyRoute | ManyToManyRoute;
   };
 } = {};
 
-type TAnyModel = Model<any, any>;
-type TConnectionHelper = { table: string; keys?: string[]; through?: string };
-type TJoin = TAnyModel | TConnectionHelper;
+type NumericKeys<T> = {
+  [P in keyof T]: T[P] extends number ? P : never;
+}[keyof T];
+
+type AnyModel = Model<any, any, any>;
+type ManyToMany = { table: string; through: string };
+type OneToMany = { table: string; keys: string[] };
+type Joint = AnyModel | OneToMany | ManyToMany;
+
+type ExtractM<T> = T extends Connector<infer M, any, any> ? M : never;
 
 export class Connector<M, C, D> extends Inserter<M, C, D> {
-  get keysAndTable() {
-    return {
-      table: this.tableName,
-      keys: this.primaryKeys.length > 1 ? this.iterColNames : this.primaryKeys,
-    } as TConnectionHelper;
-  }
-
-  column(key: NumericKeys<M>) {
+  column(key: Exclude<NumericKeys<M>, "id">) {
     tempKey = key as string;
     return this;
   }
 
   /**
-   * `.have(...)` `.joinTo(...)` `.joinsTo(...)` are synonyms
-   * used during establishing relations between models
+   * in a `1:1` or `1:M` relation
+   * @param single represents the left side
+   * @param this represents the right side
    */
-  have(other: TJoin) {
-    return this.joinsTo(other);
+  joinTo(single: Joint) {
+    this.connect(single, true);
   }
 
   /**
-   * `.have(...)` `.joinTo(...)` `.joinsTo(...)` are synonyms
-   * used during establishing relations between models
+   * in a `1:1` or `1:M` relation
+   * @param single represents the left side
+   * @param this represents the right side
    */
-  joinTo(other: TJoin) {
-    return this.joinsTo(other);
+  joinsTo(single: Joint) {
+    this.connect(single, true);
   }
 
-  /**
-   * `.have(...)` `.joinTo(...)` `.joinsTo(...)` are synonyms
-   * used during establishing relations between models
-   */
-  joinsTo(other: TJoin) {
+  private connect(obj: Joint, single: boolean) {
     const tblA = this.tableName;
-    const {
-      table: tblB,
-      keys,
-      through,
-    } = other instanceof Model ? other.keysAndTable : other;
 
-    let route: { fromId: string; toId: string } | { through: string };
+    let tblB: string;
+    let keys: string[];
+    let through: string;
+    let route: OneToManyRoute | ManyToManyRoute;
 
-    if (keys) {
+    const resolveIds = () => {
       const thisSingularId = pluralize.singular(tblA) + "Id";
       // const otherSingularId = pluralize.singular(otherTableName) + "Id";
 
@@ -74,39 +72,73 @@ export class Connector<M, C, D> extends Inserter<M, C, D> {
         // this.iterColNames.find((col) => col === otherSingularId) ??
         (this.primaryKeys[0] as string);
 
+      const find = (key: string) => keys.find((k) => k === key);
+
       const toId =
-        keys.length > 1
-          ? keys.find((key) => key === thisSingularId)
-          : keys.at(0);
+        (single
+          ? find("id") ?? find(thisSingularId)
+          : find(thisSingularId) ?? find("id")) ?? keys.at(0);
 
       if (!toId)
         err(
-          `Could not resolve relation between ${tblA}.${fromId} and ${tblB}.${
-            toId ?? "???"
-          }`
+          `Could not resolve relation between ${tblA}.${fromId} and ${tblB}.???`
         );
 
-      route = { fromId, toId };
-    } else route = { through: through! };
+      route = { fromId, toId, single };
+    };
+
+    if (obj instanceof Connector) {
+      tblB = obj.tableName;
+      keys = obj.iterColNames;
+
+      resolveIds();
+    } else if ("keys" in obj) {
+      keys = obj.keys;
+      tblB = obj.table;
+
+      resolveIds();
+    } else if ("through" in obj) {
+      tblB = obj.table;
+      through = obj.through;
+
+      route = { through, single: false };
+    } else return;
 
     if (connections[tblA] === undefined) connections[tblA] = {};
-    connections[tblA][tblB] = route;
+    connections[tblA][tblB] = route!;
 
-    console.debug(`RELATION: ${tblA} => ${tblB}:`, route);
+    console.debug(`RELATION: ${tblA} => ${tblB}:`, route!);
     tempKey = undefined;
   }
 
-  via(key: NumericKeys<M>) {
-    return {
-      table: this.tableName,
-      keys: [key as string],
-    } as TConnectionHelper;
+  /**
+   * in a `N:M` relation
+   * @param multipleThrough represents the right side
+   * @param this represents the left side
+   */
+  have(multipleThrough: ManyToMany): void;
+
+  /**
+   * in a `1:M` relations
+   * @param multiple represents the right side
+   * @param this represents the left side
+   */
+  have(multiple: AnyModel | OneToMany): void;
+  have(multiple: Joint) {
+    this.connect(multiple, false);
   }
 
-  through(other: TAnyModel) {
+  via(column: Exclude<NumericKeys<M>, "id">): OneToMany {
     return {
       table: this.tableName,
-      through: other.keysAndTable.table,
-    } as TConnectionHelper;
+      keys: [column as string],
+    };
+  }
+
+  through(other: AnyModel): ManyToMany {
+    return {
+      table: this.tableName,
+      through: other.tableName,
+    };
   }
 }
