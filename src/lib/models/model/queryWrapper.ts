@@ -32,14 +32,13 @@ export class QueryWrapper<M, C, D> extends QueryParser<M, C, D> {
       .get() as number;
   }
 
-  get(query: string | TQuery<M>): (...params: unknown[]) => M | null;
-  get(query: string | TQuery<M>, ...params: unknown[]): M | null;
+  get(sql: string): (...params: unknown[]) => M | null;
+  get(sql: string, ...params: unknown[]): M | null;
 
   get(
-    query: string | TQuery<M>,
+    sql: string,
     ...params: unknown[]
   ): (M | null) | ((...params: unknown[]) => M | null) {
-    const sql = typeof query === "string" ? query : this.parseQuery(query);
     const stmt = db.prepare(sql);
 
     const looper = (...params: unknown[]) => {
@@ -52,20 +51,17 @@ export class QueryWrapper<M, C, D> extends QueryParser<M, C, D> {
     return params.length > 0 ? looper(...params) : looper;
   }
 
-  all<T = object>(
-    query: string | TQuery<M>
-  ): (...params: unknown[]) => (M & T)[];
-  all<T = object>(query: string | TQuery<M>, ...params: unknown[]): (M & T)[];
-  all<T = object>(
-    query: string | TQuery<M>,
+  all(sql: string): (...params: unknown[]) => M[];
+  all(sql: string, ...params: unknown[]): M[];
+  all(
+    sql: string,
     ...params: unknown[]
-  ): (M & T)[] | ((...params: unknown[]) => (M & T)[]) {
-    const sql = typeof query === "string" ? query : this.parseQuery(query);
+  ): M[] | ((...params: unknown[]) => M[]) {
     const stmt = db.prepare(sql);
 
     const looper = (...params: unknown[]) => {
       const res = stmt.all(...params);
-      return this.toJS(res as D[]) as (M & T)[];
+      return this.toJS(res as D[]) as M[];
     };
 
     return params.length > 0 ? looper(...params) : looper;
