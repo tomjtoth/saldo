@@ -20,15 +20,16 @@ Revisions.column("revisedBy").joinsTo(Users);
 Users.have(Revisions.via("revisedBy"));
 
 Users.column("revisionId").joinsTo(Revisions);
+// TODO: impl the .as("ALIAS") to disambiguate the above 2
 Users.have(Memberships);
 Users.have(Groups.through(Memberships));
 
-Groups.have(Categories.via("groupId"));
-Groups.have(Memberships.via("groupId"));
-Groups.have(Receipts.via("groupId"));
+Groups.have(Categories);
+Groups.have(Memberships);
+Groups.have(Receipts);
 Groups.have(Users.through(Memberships));
 
-Receipts.have(Items.via("receiptId"));
+Receipts.have(Items);
 
 Categories.column("groupId").joinsTo(Groups);
-Items.joinTo(ItemShares);
+Items.have(ItemShares);
