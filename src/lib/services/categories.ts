@@ -1,6 +1,12 @@
 import { atomic, db } from "../db";
-import { Categories, Groups, TCategory, TCrCategory, Users } from "../models";
-import { literal } from "../models/model/queryParser";
+import {
+  Categories,
+  Groups,
+  Memberships,
+  TCategory,
+  TCrCategory,
+  Users,
+} from "../models";
 import { Revisions } from "../models/revision";
 
 export type TCategoryUpdater = Partial<
@@ -16,9 +22,10 @@ export function createCategory(revisedBy: number, data: TCrCategory) {
     //   `SELECT name FROM users WHERE id = :revisedBy`,
     //   { revisedBy }
     // )!;
-    cat.Revision.User = Users.select("name")
-      .where({ id: revisedBy })
-      .get(null, null)!;
+
+    cat.Revision.User = Users.select("email")
+      .where({ id: { $SQL: ":revisedBy" } })
+      .get({ revisedBy })!;
 
     cat.Archives = [];
 
@@ -41,10 +48,9 @@ export function updateCategory(
     // );
 
     const getRevOn = Revisions.select("revisedOn")
-      .where({
-        id: literal(":revisionId"),
-      })
+      .where({ id: { $SQL: ":revisionId" } })
       .get();
+
     cat.Revision = getRevOn(cat)!;
     cat.Archives.forEach((cat) => (cat.Revision = getRevOn(cat)!));
 
@@ -54,7 +60,7 @@ export function updateCategory(
     //   WHERE r.id = :revisionId`);
 
     const getUsername = Users.select("name")
-      .innerJoin(Revisions.where({ id: literal(":revisionId") }))
+      .innerJoin(Revisions.where({ id: { $SQL: ":revisionId" } }))
       .get();
 
     cat.Revision.User = getUsername(cat)!;
@@ -96,24 +102,30 @@ export function getCategories(userId: number) {
       { userId }
     );
 
-    const allUsers = Users.all(
-      `SELECT u.id, u.name FROM memberships ms 
-      INNER JOIN users u ON (
-        ms.userId = u.id AND
-        ms.statusId = 1
-      )
-      WHERE ms.groupId = :id`
-    );
+    // const allUsers = Users.all(
+    //   `SELECT u.id, u.name FROM memberships ms
+    //   INNER JOIN users u ON (
+    //     ms.userId = u.id AND
+    //     ms.statusId = 1
+    //   )
+    //   WHERE ms.groupId = :id`
+    // );
+
+    const allUsers = Users.select("id", "name")
+      .innerJoin(Memberships.where({ statusId: 1, groupId: { $SQL: ":id" } }))
+      .all();
 
     groups.forEach((group) => {
       group.Users = allUsers(group);
     });
 
-    const allCats = Categories.all(
-      `SELECT * FROM categories
-      WHERE groupId = :id
-      AND statusId IN (1, 2)`
-    );
+    // const allCats = Categories.all(
+    //   `SELECT * FROM categories
+    //   WHERE groupId = :id
+    //   AND statusId IN (1, 2)`
+    // );
+
+    const allCats = Categories.where({ groupId: { $SQL: ":id" } }).all();
 
     groups.forEach((group) => {
       group.Categories = allCats(group);
@@ -127,25 +139,31 @@ export function getCategories(userId: number) {
       });
     });
 
-    const getRevOn = Revisions.get(
-      "SELECT revisedOn FROM revisions WHERE id = ?"
-    );
+    // const getRevOn = Revisions.get(
+    //   "SELECT revisedOn FROM revisions WHERE id = ?"
+    // );
+
+    const getRevOn = Revisions.select("revisedOn")
+      .where({ id: { $SQL: ":revisionId" } })
+      .get();
 
     groups.forEach((group) => {
       group.Categories!.forEach((cat) => {
-        cat.Revision = getRevOn(cat.revisionId)!;
-        cat.Archives!.forEach(
-          (cat) => (cat.Revision = getRevOn(cat.revisionId)!)
-        );
+        cat.Revision = getRevOn(cat)!;
+        cat.Archives!.forEach((cat) => (cat.Revision = getRevOn(cat)!));
       });
     });
 
-    const getUsername = Users.get(
-      `SELECT u.name FROM users u
-      INNER JOIN revisions r ON (r.revisedBy = u.userId)
-      WHERE categoryId = :id
-      ORDER BY r.revisedOn DESC`
-    );
+    // const getUsername = Users.get(
+    //   `SELECT u.name FROM users u
+    //   INNER JOIN revisions r ON (r.revisedBy = u.userId)
+    //   WHERE categoryId = :id
+    //   ORDER BY r.revisedOn DESC`
+    // );
+
+    const getUsername = Users.select("name")
+      .innerJoin(Revisions.orderBy("revisedOn"))
+      .get();
 
     groups.forEach((group) => {
       group.Categories!.forEach((cat) => {
