@@ -75,7 +75,7 @@ export class Updater<M, C, D> extends QueryWrapper<M, C, D> {
 
           db.prepare(
             `INSERT INTO archives (tableId, revisionId, ${pkCols}, payload) 
-          SELECT ?, ?, ${pkRepl}, JSONB_OBJECT(${valRepl});`
+            SELECT ?, ?, ${pkRepl}, JSONB_OBJECT(${valRepl});`
           ).run(tableId, curr.revisionId, converted);
 
           // only change the revisionId after archival
