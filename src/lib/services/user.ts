@@ -1,18 +1,24 @@
 import { Session } from "next-auth";
 
-import { Revision, TCrUser, atomic, User } from "../models";
+import { Users } from "../models";
 import { createGroup } from "./groups";
+import { atomic } from "../db";
 
 export async function addUser(userData: TCrUser) {
-  return await atomic("Adding new user", async (transaction) => {
-    const user = await User.create(userData, { transaction });
+  return atomic(
+    {
+      operation: "Adding new user",
+    },
+    () => {
+      const [user] = Users.insert(userData);
 
-    const rev = await Revision.create({ revBy: user.id }, { transaction });
+      const rev = await Revision.create({ revBy: user.id }, { transaction });
 
-    await user.update({ revId: rev.id }, { transaction });
+      await user.update({ revId: rev.id }, { transaction });
 
-    return user;
-  });
+      return user;
+    }
+  );
 }
 
 export async function currentUser(session: Session) {
