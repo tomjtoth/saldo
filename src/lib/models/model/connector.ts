@@ -16,7 +16,9 @@ type ManyToManyRoute = { through: string };
 
 export const connections: {
   [fromTable: string]: {
-    [toTable: string]: OneToManyRoute | ManyToManyRoute;
+    [toTable: string]: {
+      [alias: string]: OneToManyRoute | ManyToManyRoute;
+    };
   };
 } = {};
 
@@ -42,8 +44,8 @@ export class Connector<M, C, D> extends Inserter<M, C, D> {
    * @param single represents the left side
    * @param this represents the right side
    */
-  joinTo(single: Joint) {
-    this.connect(single, true);
+  joinTo(single: Joint, alias?: string) {
+    this.connect(single, true, alias);
   }
 
   /**
@@ -51,11 +53,11 @@ export class Connector<M, C, D> extends Inserter<M, C, D> {
    * @param single represents the left side
    * @param this represents the right side
    */
-  joinsTo(single: Joint) {
-    this.connect(single, true);
+  joinsTo(single: Joint, alias?: string) {
+    this.connect(single, true, alias);
   }
 
-  private connect(obj: Joint, single: boolean) {
+  private connect(obj: Joint, single: boolean, alias = "default") {
     const tblA = this.tableName;
 
     let tblB: string;
@@ -104,12 +106,13 @@ export class Connector<M, C, D> extends Inserter<M, C, D> {
       route = { through, single: false };
     } else return;
 
-    if (connections[tblA] === undefined) connections[tblA] = {};
-    if (connections[tblA][tblB] !== undefined) err("ambiguous route");
-
-    connections[tblA][tblB] = route!;
-
-    console.debug(`RELATION: ${tblA} => ${tblB}:`, route!);
+    if (!connections[tblA]) connections[tblA] = {};
+    if (!connections[tblA][tblB]) connections[tblA][tblB] = { [alias]: route! };
+    else {
+      if (!!connections[tblA][tblB][alias]) err("ambiguous route");
+      connections[tblA][tblB][alias] = route!;
+    }
+    console.debug(`RELATION: ${tblA} => ${tblB} (${alias}):`, route!);
     tempKey = undefined;
   }
 
@@ -125,9 +128,9 @@ export class Connector<M, C, D> extends Inserter<M, C, D> {
    * @param multiple represents the right side
    * @param this represents the left side
    */
-  have(multiple: AnyModel | OneToMany): void;
-  have(multiple: Joint) {
-    this.connect(multiple, false);
+  have(multiple: AnyModel | OneToMany, alias?: string): void;
+  have(multiple: Joint, alias?: string) {
+    this.connect(multiple, false, alias);
   }
 
   via(column: Exclude<NumericKeys<M>, "id">): OneToMany {
