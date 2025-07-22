@@ -105,6 +105,8 @@ export class Connector<M, C, D> extends Inserter<M, C, D> {
     } else return;
 
     if (connections[tblA] === undefined) connections[tblA] = {};
+    if (connections[tblA][tblB] !== undefined) err("ambiguous route");
+
     connections[tblA][tblB] = route!;
 
     console.debug(`RELATION: ${tblA} => ${tblB}:`, route!);
