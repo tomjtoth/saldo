@@ -1,9 +1,3 @@
--------- this migration converts all table and column names to camelCase
--- UP -- and extends the migrations table with a rowid
--------- 
-
-
-ALTER TABLE migrations RENAME TO OLD_MIGRATIONS;
 ALTER TABLE revisions RENAME TO OLD_REVISIONS;
 ALTER TABLE users RENAME TO OLD_USERS;
 ALTER TABLE groups RENAME TO OLD_GROUPS;
@@ -14,55 +8,40 @@ ALTER TABLE items RENAME TO OLD_ITEMS;
 ALTER TABLE item_shares RENAME TO OLD_ITEM_SHARES;
 
 
--- create new tables
+-- the new schema
 
 
-CREATE TABLE migrations (
+CREATE TABLE meta (
     id INTEGER PRIMARY KEY,
-    name TEXT
+    info TEXT NOT NULL UNIQUE,
+    data BLOB
 );
 
-/*
-    -- USAGE --
-
-    INSERT INTO tableNames (name) SELECT 'categories'
-	ON CONFLICT DO UPDATE SET name = name RETURNING id;
-*/
-
-CREATE TABLE tableNames (
+CREATE TABLE revisions (
     id INTEGER PRIMARY KEY,
-
-    -- "table"
-    name TEXT NOT NULL UNIQUE
+    createdOn INTEGER NOT NULL,
+    createdById INTEGER NOT NULL REFERENCES users (id) DEFERRABLE INITIALLY DEFERRED
 );
 
 CREATE TABLE archives (
     id INTEGER PRIMARY KEY,
-    tableId INTEGER NOT NULL REFERENCES tableNames (id),
+    /*
+    SELECT key FROM meta, json_each(data) 
+    WHERE info = 'tableNames' AND value = :tableName;
+    */
+    tableId INTEGER NOT NULL, -- REFERENCES the above key
     entityPk1 INTEGER NOT NULL,
     entityPk2 INTEGER,
     revisionId INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    
-    /*
-        typeof payload = {
-            [column: string]: number | string
-        }
-    */
     payload BLOB
 );
 
 CREATE INDEX idx_archives_table_pk1_pk2 ON archives (tableId, entityPk1, entityPk2);
 
-CREATE TABLE revisions (
-    id INTEGER PRIMARY KEY,
-    revisedOn INTEGER NOT NULL,
-    revisedBy INTEGER REFERENCES users (id) DEFERRABLE INITIALLY DEFERRED
-);
-
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,
     revisionId INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    statusId INTEGER REFERENCES statuses (id),
+    statusId INTEGER NOT NULL DEFAULT (0),
 
     email TEXT NOT NULL,
     name TEXT,
@@ -73,7 +52,7 @@ CREATE TABLE users (
 CREATE TABLE groups (
     id INTEGER PRIMARY KEY,
     revisionId INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    statusId INTEGER REFERENCES statuses (id),
+    statusId INTEGER NOT NULL DEFAULT (0),
 
     name TEXT NOT NULL,
     description TEXT,
@@ -84,9 +63,8 @@ CREATE TABLE memberships (
     userId INTEGER REFERENCES users (id),
     groupId INTEGER REFERENCES groups (id),
     revisionId INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    statusId INTEGER REFERENCES statuses (id),
-
-    admin INTEGER,
+    statusId INTEGER NOT NULL DEFAULT (0),
+    isAdmin INTEGER NOT NULL DEFAULT (0),
     defaultCategoryId INTEGER REFERENCES categories (id),
 
     PRIMARY KEY (userId, groupId)
@@ -95,7 +73,7 @@ CREATE TABLE memberships (
 CREATE TABLE categories (
     id INTEGER PRIMARY KEY,
     revisionId INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    statusId INTEGER REFERENCES statuses (id),
+    statusId INTEGER NOT NULL DEFAULT (0),
 
     groupId INTEGER REFERENCES groups (id),
     name TEXT,
@@ -105,20 +83,20 @@ CREATE TABLE categories (
 CREATE TABLE receipts (
     id INTEGER PRIMARY KEY,
     revisionId INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    statusId INTEGER REFERENCES statuses (id),
+    statusId INTEGER NOT NULL DEFAULT (0),
 
-    groupId INTEGER REFERENCES groups (id),
-    paidBy INTEGER REFERENCES users (id),
+    groupId INTEGER NOT NULL REFERENCES groups (id),
+    paidBy INTEGER NOT NULL REFERENCES users (id),
     paidOn INTEGER
 );
 
 CREATE TABLE items (
     id INTEGER PRIMARY KEY,
     revisionId INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    statusId INTEGER REFERENCES statuses (id),
+    statusId INTEGER NOT NULL DEFAULT (0),
 
-    receiptId INTEGER REFERENCES receipts (id),
-    categoryId INTEGER REFERENCES categories (id),
+    receiptId INTEGER NOT NULL REFERENCES receipts (id),
+    categoryId INTEGER NOT NULL REFERENCES categories (id),
 
     cost INTEGER NOT NULL,
     notes TEXT
@@ -128,7 +106,7 @@ CREATE TABLE itemShares (
     itemId INTEGER REFERENCES items (id),
     userId INTEGER REFERENCES users (id),
     revisionId INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    statusId INTEGER REFERENCES statuses (id),
+    statusId INTEGER NOT NULL DEFAULT (0),
 
     share INTEGER NOT NULL,
 
@@ -139,10 +117,17 @@ CREATE TABLE itemShares (
 -- transfer data from old tables to new ones
 
 
-INSERT INTO migrations (name) 
-    SELECT name FROM OLD_MIGRATIONS;
+INSERT INTO meta (info, data)
+    SELECT 'datetime', jsonb_object('anchor', '2020-01-01', 'timezone', 'Europe/Helsinki')
+    UNION
+    SELECT 'statuses',  jsonb_array('ACTIVE', 'INACTIVE')
+    UNION
+    SELECT 'migrations', jsonb_group_array(name)
+    FROM migrations
+    UNION
+    SELECT 'tableNames', jsonb_array('groups', 'categories', 'memberships');
 
-INSERT INTO revisions (id, revisedOn, revisedBy)
+INSERT INTO revisions (id, createdOn, createdById)
     SELECT id, rev_on, rev_by FROM OLD_REVISIONS;
 
 INSERT INTO users
@@ -155,10 +140,9 @@ INSERT INTO groups
     SELECT id, rev_id, status_id, name, description, uuid
     FROM OLD_GROUPS;
 
-INSERT INTO tableNames (id, name) VALUES (1, 'groups'), (2, 'categories'), (3, 'memberships');
 
 INSERT INTO archives (tableId, entityPk1, revisionId, payload)
-    SELECT 1, id, rev_id, JSONB_OBJECT(
+    SELECT 0, id, rev_id, jsonb_object(
         'statusId', status_id, 
         'name', name, 
         'description', description, 
@@ -167,12 +151,12 @@ INSERT INTO archives (tableId, entityPk1, revisionId, payload)
     FROM groups_archive;
 
 INSERT INTO memberships 
-    (groupId, userId, revisionId, statusId, admin, defaultCategoryId)
+    (groupId, userId, revisionId, statusId, isAdmin, defaultCategoryId)
     SELECT group_id, user_id, rev_id, status_id, admin, default_cat_id
     FROM OLD_MEMBERSHIPS;
 
 INSERT INTO archives (tableId, entityPk1, entityPk2, revisionId, payload)
-    SELECT 3, group_id, user_id, rev_id, JSONB_OBJECT(
+    SELECT 2, group_id, user_id, rev_id, jsonb_object(
         'statusId', status_id,
         'admin', admin,
         'defaultCategoryId', default_cat_id
@@ -185,7 +169,7 @@ INSERT INTO categories
     FROM OLD_CATEGORIES;
     
 INSERT INTO archives (tableId, entityPk1, revisionId, payload)
-    SELECT 2, id, rev_id, JSONB_OBJECT(
+    SELECT 1, id, rev_id, jsonb_object(
         'status_id', status_id,
         'group_id', group_id,
         'name', name,
@@ -229,6 +213,7 @@ DROP TABLE receipts_archive;
 DROP TABLE items_archive;
 DROP TABLE item_shares_archive;
 
+DROP TABLE migrations;
 DROP VIEW consumption;
 
 
