@@ -87,16 +87,20 @@ export const migrator = {
   },
 
   up: () => {
-    db.exec(`CREATE TABLE IF NOT EXISTS migrations (
+    db.exec(`CREATE TABLE IF NOT EXISTS meta (
       id INTEGER PRIMARY KEY,
-      name TEXT
+      info TEXT NOT NULL UNIQUE,
+      data BLOB
     );`);
 
     const done = db
-      .prepare("SELECT name FROM migrations")
+      .prepare(
+        "SELECT value FROM meta, json_each(data) WHERE info = 'migrations'"
+      )
       .pluck()
       .all() as string[];
 
+    db.pragma("foreign_keys = OFF");
     const res = fs
       .readdirSync("migrations")
       .filter((file) => file.endsWith(".sql") && !done.includes(file))
@@ -111,17 +115,18 @@ export const migrator = {
 
         const [, up] = split;
 
-        db.pragma("foreign_keys = OFF");
         db.transaction(() => {
           db.exec(up);
-          db.prepare("INSERT INTO migrations (name) VALUES (?)").run(migTodo);
-          return migTodo;
+          db.prepare(
+            `INSERT INTO meta (info, data) VALUES ('migrations', jsonb_array(:migTodo))
+            ON CONFLICT DO UPDATE SET data = jsonb_insert(data, '$[#]', :migTodo)`
+          ).run({ migTodo });
         })();
-        db.pragma("foreign_keys = ON");
 
         return migTodo;
       });
 
+    db.pragma("foreign_keys = ON");
     db.exec("VACUUM");
 
     return res;
