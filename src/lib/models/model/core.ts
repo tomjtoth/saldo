@@ -1,6 +1,6 @@
 import { TDbValids, TValids } from "./types";
 
-type TColBase = {
+type ColumnBase = {
   /**
    * defaults to false
    */
@@ -27,10 +27,10 @@ type TypeMap = {
   boolean: boolean;
 };
 
-type TModelColumn = {
-  [K in keyof TypeMap]: TColBase & {
-    type: K;
-    defaultValue?: (() => TypeMap[K]) | TypeMap[K];
+type Column = {
+  [P in keyof TypeMap]: ColumnBase & {
+    type: P;
+    defaultValue?: (() => TypeMap[P]) | TypeMap[P];
   };
 }[keyof TypeMap];
 
@@ -40,7 +40,7 @@ export class Core<M> {
   protected skipArchivalOf;
   protected primaryKeys;
 
-  constructor(tableName: string, columns: { [P in keyof M]: TModelColumn }) {
+  constructor(tableName: string, columns: { [P in keyof M]: Column }) {
     this.tableName = tableName;
     this.columns = columns;
 
@@ -57,6 +57,6 @@ export class Core<M> {
   }
 
   protected get iterCols() {
-    return Object.entries(this.columns) as [keyof M, TModelColumn][];
+    return Object.entries(this.columns) as [keyof M, Column][];
   }
 }
