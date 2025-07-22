@@ -6,7 +6,7 @@ type TMembershipBase = {
   groupId: number;
   userId: number;
   defaultCategoryId?: number;
-  admin: boolean;
+  isAdmin: boolean;
 };
 
 export type TMembership = TModelSR &
@@ -33,7 +33,7 @@ export const Memberships = new Model<TMembership, TCrMembership>(
     defaultCategoryId: {
       type: "number",
     },
-    admin: {
+    isAdmin: {
       type: "boolean",
     },
   }

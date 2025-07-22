@@ -23,7 +23,7 @@ export default function Title({
   const [name, setName] = useState(group.name);
   const [description, setDescription] = useState(group.description);
 
-  const isAdmin = group.Memberships?.at(0)?.admin;
+  const isAdmin = group.Memberships?.at(0)?.isAdmin;
 
   return isAdmin ? (
     <form

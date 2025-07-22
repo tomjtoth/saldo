@@ -4,7 +4,7 @@ import { TGroup } from "@/lib/models";
 import Individual from "./individual";
 
 export default function Members({ group }: { group: TGroup }) {
-  const isAdmin = group.Memberships?.at(0)?.admin;
+  const isAdmin = group.Memberships?.at(0)?.isAdmin;
 
   return (
     <>

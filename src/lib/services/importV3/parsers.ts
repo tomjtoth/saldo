@@ -101,7 +101,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
         groupId: 1,
         userId: u.id,
         revisionId: 1,
-        admin: false,
+        isAdmin: false,
       });
 
       return dd.users.push(u);
