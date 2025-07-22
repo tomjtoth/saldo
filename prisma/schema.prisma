@@ -28,15 +28,14 @@ model Archive {
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 
   @@index([tableId, entityPk1, entityPk2])
-  @@map("archives")
 }
 
 model Revision {
   id          Int @id @default(autoincrement())
-  revisedOn   Int
-  revisedById Int @map("revisedById")
+  createdOn   Int
+  createdById Int
 
-  revisedBy   User         @relation("createdByUser", fields: [revisedById], references: [id])
+  createdBy   User         @relation("createdByUser", fields: [createdById], references: [id])
   users       User[]
   groups      Group[]
   memberships Membership[]
@@ -45,14 +44,12 @@ model Revision {
   items       Item[]
   itemShares  ItemShare[]
   archives    Archive[]
-
-  @@map("revisions")
 }
 
 model User {
   id             Int     @id @default(autoincrement())
   revisionId     Int
-  statusId       Int     @default(0)
+  deleted        Int     @default(0)
   email          String
   name           String?
   image          String?
@@ -61,33 +58,29 @@ model User {
   revision         Revision     @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   createdRevisions Revision[]   @relation("createdByUser")
   memberships      Membership[]
-  groups           Group[]
-
-  @@map("users")
+  defaultGroup     Group?       @relation("defaultGroup", fields: [defaultGroupId], references: [id])
 }
 
 model Group {
   id          Int     @id @default(autoincrement())
   revisionId  Int
-  statusId    Int     @default(0)
+  deleted     Int     @default(0)
   name        String
   description String?
   uuid        String?
 
-  revision    Revision     @relation(fields: [revisionId], references: [id], onDelete: Cascade)
-  memberships Membership[]
-  categories  Category[]
-  receipts    Receipt[]
-  users       User[]
-
-  @@map("groups")
+  revision        Revision     @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  memberships     Membership[]
+  categories      Category[]
+  receipts        Receipt[]
+  defaultingUsers User[]       @relation("defaultGroup")
 }
 
 model Membership {
   userId            Int
   groupId           Int
   revisionId        Int
-  statusId          Int  @default(0)
+  deleted           Int  @default(0)
   admin             Int  @default(0)
   defaultCategoryId Int?
 
@@ -97,28 +90,25 @@ model Membership {
   defaultCategory Category? @relation(fields: [defaultCategoryId], references: [id])
 
   @@id([userId, groupId])
-  @@map("memberships")
 }
 
 model Category {
   id          Int     @id @default(autoincrement())
   revisionId  Int
-  statusId    Int     @default(0)
+  deleted     Int     @default(0)
   groupId     Int
   name        String
   description String?
 
-  revision   Revision     @relation(fields: [revisionId], references: [id], onDelete: Cascade)
-  group      Group        @relation(fields: [groupId], references: [id])
-  Membership Membership[]
-
-  @@map("categories")
+  revision              Revision     @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  group                 Group        @relation(fields: [groupId], references: [id])
+  defaultingMemberships Membership[]
 }
 
 model Receipt {
   id         Int @id @default(autoincrement())
   revisionId Int
-  statusId   Int @default(0)
+  deleted    Int @default(0)
   groupId    Int
   paidBy     Int
   paidOn     Int
@@ -126,14 +116,12 @@ model Receipt {
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   group    Group    @relation(fields: [groupId], references: [id])
   items    Item[]
-
-  @@map("receipts")
 }
 
 model Item {
   id         Int     @id @default(autoincrement())
   revisionId Int
-  statusId   Int     @default(0)
+  deleted    Int     @default(0)
   receiptId  Int
   categoryId Int
   cost       Int
@@ -142,20 +130,17 @@ model Item {
   revision   Revision    @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   receipt    Receipt     @relation(fields: [receiptId], references: [id])
   itemShares ItemShare[]
-
-  @@map("items")
 }
 
 model ItemShare {
   itemId     Int
   userId     Int
   revisionId Int
-  statusId   Int @default(0)
+  deleted    Int @default(0)
   share      Int
 
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   item     Item     @relation(fields: [itemId], references: [id])
 
   @@id([itemId, userId])
-  @@map("itemShares")
 }
