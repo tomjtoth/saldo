@@ -47,8 +47,9 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
     if (tableId === null)
       tableId = db
         .prepare(
-          `INSERT INTO meta (info, data) VALUES ('migrations', jsonb_array(:tableName))
-          ON CONFLICT DO UPDATE SET data = jsonb_insert(data, '$[#]', :tableName)`
+          `INSERT INTO meta (info, data) VALUES ('tableNames', jsonb_array(:tableName))
+          ON CONFLICT DO UPDATE SET data = jsonb_insert(data, '$[#]', :tableName)
+          RETURNING json_array_length(data) - 1`
         )
         .pluck()
         .get(this) as number;
