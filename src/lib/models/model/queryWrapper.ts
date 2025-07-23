@@ -26,9 +26,9 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
     return builder.leftJoin(other);
   }
 
-  protected get pkReplInWhereClause() {
+  protected pkReplInWhereClause(forArchives = false) {
     return (this.primaryKeys as string[])
-      .map((pk) => `${pk} = :${pk}`)
+      .map((pk, idx) => `${forArchives ? "entityPk" + (idx + 1) : pk} = :${pk}`)
       .join(" AND ");
   }
 
@@ -36,15 +36,27 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
    * returns a looper
    */
   get archives() {
-    const originId = db
-      .prepare("SELECT id FROM origins WHERE origin = ?")
+    let tableId = db
+      .prepare(
+        `SELECT key FROM meta, json_each(data) 
+        WHERE info = 'tableNames' AND value = :tableName`
+      )
       .pluck()
-      .get() as number | null;
+      .get(this) as number | null;
+
+    if (tableId === null)
+      tableId = db
+        .prepare(
+          `INSERT INTO meta (info, data) VALUES ('migrations', jsonb_array(:tableName))
+          ON CONFLICT DO UPDATE SET data = jsonb_insert(data, '$[#]', :tableName)`
+        )
+        .pluck()
+        .get(this) as number;
 
     return this.all(
       `SELECT a.revisionId, a.payload FROM archives a
         INNER JOIN revisions r ON (r.id = a.revisionId) 
-        WHERE originId = ${originId} AND ${this.pkReplInWhereClause}
+        WHERE tableId = ${tableId} AND ${this.pkReplInWhereClause(true)}
         ORDER BY r.revisedOn DESC`
     );
   }

@@ -6,7 +6,7 @@ export class Updater<M, C, D> extends QueryWrapper<M, C, D> {
   update(updater: Partial<M>, revisionId: number): M {
     return db.transaction(() => {
       const curr = this.get(
-        `SELECT * FROM ${this.tableName} WHERE ${this.pkReplInWhereClause}`,
+        `SELECT * FROM ${this.tableName} WHERE ${this.pkReplInWhereClause()}`,
         updater
       ) as M & { revisionId: number };
 
@@ -75,7 +75,7 @@ export class Updater<M, C, D> extends QueryWrapper<M, C, D> {
 
           db.prepare(
             `INSERT INTO archives (tableId, revisionId, ${pkCols}, payload) 
-            SELECT ?, ?, ${pkRepl}, JSONB_OBJECT(${valRepl});`
+            SELECT ?, ?, ${pkRepl}, jsonb_object(${valRepl});`
           ).run(tableId, curr.revisionId, converted);
 
           // only change the revisionId after archival
