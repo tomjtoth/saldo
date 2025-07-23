@@ -11,11 +11,7 @@ ALTER TABLE item_shares RENAME TO OLD_ITEM_SHARES;
 -- the new schema
 
 
-CREATE TABLE meta (
-    id INTEGER PRIMARY KEY,
-    info TEXT NOT NULL UNIQUE,
-    data BLOB
-);
+-- an additional "meta" table is created via the migrator
 
 CREATE TABLE revisions (
     id INTEGER PRIMARY KEY,
@@ -122,9 +118,6 @@ INSERT INTO meta (info, data)
     UNION
     SELECT 'statuses',  jsonb_array('ACTIVE', 'INACTIVE')
     UNION
-    SELECT 'migrations', jsonb_group_array(name)
-    FROM migrations
-    UNION
     SELECT 'tableNames', jsonb_array('groups', 'categories', 'memberships');
 
 INSERT INTO revisions (id, createdOn, createdById)
@@ -213,7 +206,6 @@ DROP TABLE receipts_archive;
 DROP TABLE items_archive;
 DROP TABLE item_shares_archive;
 
-DROP TABLE migrations;
 DROP VIEW consumption;
 
 

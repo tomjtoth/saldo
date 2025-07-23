@@ -93,6 +93,21 @@ export const migrator = {
       data BLOB
     );`);
 
+    const separateMigrationsTableExists = !!db
+      .prepare("SELECT 1 FROM sqlite_master WHERE tbl_name = 'migrations'")
+      .pluck()
+      .get() as boolean;
+
+    if (separateMigrationsTableExists) {
+      db.exec(`
+        INSERT INTO meta (info, data)
+        SELECT 'migrations', jsonb_group_array(name)
+        FROM migrations ORDER BY name;
+
+        DROP TABLE migrations;
+      `);
+    }
+
     const done = db
       .prepare(
         "SELECT value FROM meta, json_each(data) WHERE info = 'migrations'"
