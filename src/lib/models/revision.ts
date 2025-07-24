@@ -6,16 +6,15 @@ import { TUser } from "./user";
 
 type TRevisionBase = {
   id: number;
-  revisedOn: string;
-  revisedBy: number;
+  createdOn: string;
+  createdById: number;
 };
 
 export type TRevision = TRevisionBase & {
-  User?: TUser;
+  createdBy?: TUser;
 };
 
-export type TCrRevision = Pick<TRevisionBase, "revisedBy"> &
-  Partial<Omit<TRevisionBase, "revisedBy">>;
+export type TCrRevision = Partial<TRevisionBase>;
 
 type TDatabase = Omit<TRevisionBase, "revisedOn"> & {
   revisedOn: number;
@@ -29,14 +28,14 @@ export const Revisions = new Model<TRevision, TCrRevision, TDatabase>(
       primaryKey: true,
     },
 
-    revisedOn: {
+    createdOn: {
       type: "string",
       defaultValue: () => DateTime.local(EUROPE_HELSINKI).toISO(),
       toJS: (fromDB) => datetimeFromInt(fromDB as number),
       toDB: (fromJS) => datetimeToInt(fromJS as string),
     },
 
-    revisedBy: {
+    createdById: {
       type: "number",
       required: true,
     },

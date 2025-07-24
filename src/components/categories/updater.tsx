@@ -102,9 +102,9 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
       <div className="col-span-3 text-center">
         🗓️
-        <sub> {cat.Revision!.revisedOn} </sub>
+        <sub> {cat.Revision!.createdOn} </sub>
         🪪
-        <sub> {cat.Revision!.User?.name} </sub>
+        <sub> {cat.Revision!.createdBy?.name} </sub>
       </div>
     </form>
   );

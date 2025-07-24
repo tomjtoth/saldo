@@ -3,7 +3,7 @@ import { Readable } from "stream";
 
 import csv from "csv-parser";
 
-import { approxFloat, EUROPE_HELSINKI } from "../../utils";
+import { approxFloat } from "../../utils";
 import {
   TCrGroup,
   TRevision,
@@ -69,21 +69,21 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const {
       category: strCategory,
       date: strPaidOn,
-      timestamp_of_entry: revisedOn,
+      timestamp_of_entry: createdOn,
       cost: strCost,
       comment: strNotes,
       ratio: strRatio,
     } = row;
 
     let lastRev =
-      dd.revisions.find((rev) => rev.revisedOn === revisedOn) ??
+      dd.revisions.find((rev) => rev.createdOn === createdOn) ??
       dd.revisions.at(-1);
 
-    if (!lastRev || lastRev.revisedOn !== revisedOn) {
+    if (!lastRev || lastRev.createdOn !== createdOn) {
       lastRev = {
         id: dd.revisions.length + 1,
-        revisedBy: 1,
-        revisedOn,
+        createdById: 1,
+        createdOn,
       };
       dd.revisions.push(lastRev);
     }
@@ -112,12 +112,12 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const paidBy =
       dd.users.find((u) => u.name === strPaidBy)?.id ?? newUser(strPaidBy);
 
-    lastRev.revisedBy = paidBy;
+    lastRev.createdById = paidBy;
     let userId = -1;
 
     if (strPaidTo) {
       const paidToUser = dd.users.find((u) => u.name === strPaidTo);
-      userId = paidToUser ? paidToUser.id : newUser(strPaidTo);
+      userId = paidToUser ? paidToUser.id! : newUser(strPaidTo);
     }
 
     const paidOn = strPaidOn.replaceAll(".", "-").slice(0, 10);
@@ -139,7 +139,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       dd.receipts.push(lastRcpt);
     }
 
-    const receiptId = lastRcpt.id;
+    const receiptId = lastRcpt.id!;
 
     let cat = dd.categories.find((c) => c.name === strCategory);
     if (!cat) {

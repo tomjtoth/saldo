@@ -49,7 +49,7 @@ export function atomic<T>(
     let res: T;
 
     if (revisedBy) {
-      revision = Revisions.insert({ revisedBy })[0]!;
+      revision = Revisions.insert({ createdById: revisedBy })[0]!;
 
       res = (operation as (rev: TRevision) => T)(revision);
     } else res = (operation as () => T)();
@@ -116,6 +116,7 @@ export const migrator = {
       .all() as string[];
 
     db.pragma("foreign_keys = OFF");
+
     const res = fs
       .readdirSync("migrations")
       .filter((file) => file.endsWith(".sql") && !done.includes(file))

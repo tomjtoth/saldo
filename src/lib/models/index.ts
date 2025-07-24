@@ -16,8 +16,8 @@ export * from "./receipt";
 export * from "./item";
 export * from "./itemShare";
 
-Revisions.column("revisedBy").joinsTo(Users);
-Users.have(Revisions.via("revisedBy"), "created");
+Revisions.column("createdById").joinsTo(Users);
+Users.have(Revisions.via("createdById"), "created");
 
 Users.column("revisionId").joinsTo(Revisions);
 Users.have(Memberships);

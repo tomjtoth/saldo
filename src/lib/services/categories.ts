@@ -23,7 +23,7 @@ export function createCategory(revisedBy: number, data: TCrCategory) {
     //   { revisedBy }
     // )!;
 
-    cat.Revision.User = Users.select("email")
+    cat.Revision.createdBy = Users.select("email")
       .where({ id: { $SQL: ":revisedBy" } })
       .get({ revisedBy })!;
 
@@ -63,8 +63,10 @@ export function updateCategory(
       .innerJoin(Revisions.where({ id: { $SQL: ":revisionId" } }))
       .get();
 
-    cat.Revision.User = getUsername(cat)!;
-    cat.Archives.forEach((cat) => (cat.Revision!.User = getUsername(cat)!));
+    cat.Revision.createdBy = getUsername(cat)!;
+    cat.Archives.forEach(
+      (cat) => (cat.Revision!.createdBy = getUsername(cat)!)
+    );
 
     return cat;
   });
@@ -167,9 +169,9 @@ export function getCategories(userId: number) {
 
     groups.forEach((group) => {
       group.Categories!.forEach((cat) => {
-        cat.Revision!.User = getUsername(cat)!;
+        cat.Revision!.createdBy = getUsername(cat)!;
         cat.Archives!.forEach(
-          (cat) => (cat.Revision!.User = getUsername(cat)!)
+          (cat) => (cat.Revision!.createdBy = getUsername(cat)!)
         );
       });
     });
