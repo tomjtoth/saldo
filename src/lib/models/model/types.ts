@@ -5,19 +5,26 @@ export type TDbValids = number | string | null;
 export type TValids = TDbValids | boolean | object;
 
 export type TSelectKeys<T> = {
-  [P in keyof T]: T[P] extends TDbValids ? P : never;
+  [P in keyof T]: T[P] extends Exclude<TValids, object> ? P : never;
 }[keyof T];
+
+export type TwoOrMore<T> = [T, T, ...T[]];
 
 type TOpOr<T> = {
   /**
-   * An array of alternatives
+   * An array of alternatives joined by the logical operator "OR"
    */
-  $OR: TWhere<T>[];
+  $EITHER: TwoOrMore<TWhere<T>>;
 };
 
-type TOpNot<T> = { $NOT: T };
+export type TOpNot<T> = {
+  /**
+   * All criteria are joined by the logical operator "AND"
+   */
+  $NOT: T;
+};
 
-type TLiteral = {
+export type TLiteral = {
   /**
    * injects the provided string into the statement
    */
@@ -28,14 +35,14 @@ type TOpLt<T> = {
   /**
    * Less Than
    */
-  $LT: T;
+  $LT: T | TLiteral;
 };
 
 type TOpLe<T> = {
   /**
    * Less than or Equal to
    */
-  $LE: T;
+  $LE: T | TLiteral;
 };
 
 type TOpGt<T> = {
@@ -49,43 +56,49 @@ type TOpGe<T> = {
   /**
    * Greater than or Equal to
    */
-  $GE: T;
+  $GE: T | TLiteral;
 };
 
-type TOpBetween<T> = { $BETWEEN: [T, T] };
-type TOpIn<T> = { $IN: T[] };
+type TOpBetween<T> = { $BETWEEN: [T | TLiteral, T | TLiteral] };
+type TOpIn<T> = { $IN: TwoOrMore<T | TLiteral> };
 type TOpLike = { $LIKE: string };
 
-type TStrOps =
-  | null
-  | string
-  | TLiteral
-  | TOpIn<string>
-  | TOpBetween<string>
-  | TOpLt<string>
-  | TOpLe<string>
-  | TOpGt<string>
-  | TOpGe<string>
-  | TOpLike;
+type OnlyOne<T> = {
+  [K in keyof T]: { [P in K]: T[K] } & Partial<
+    Record<Exclude<keyof T, K>, never>
+  >;
+}[keyof T];
 
-type TNumOps =
+type TOpCommon<T> =
+  | T
   | null
-  | number
   | TLiteral
-  | TOpIn<number>
-  | TOpBetween<number>
-  | TOpLt<number>
-  | TOpLe<number>
-  | TOpGt<number>
-  | TOpGe<number>;
+  | TOpIn<T>
+  | TOpBetween<T>
+
+  // TODO: figure out how to mutually exclude
+  // - GT vs GE
+  // - LT vs LE
+  // - BETWEEN vs IN
+  // while allowing the others...
+  // | OnlyOne<TOpBetween<T> & TOpIn<T>>
+  // | OnlyOne<TOpLt<T> & TOpLe<T>>
+  // | OnlyOne<TOpGt<T> & TOpGe<T>>;
+  | TOpLt<T>
+  | TOpLe<T>
+  | TOpGt<T>
+  | TOpGe<T>;
+
+export type TStrOps<T = TOpCommon<string> | TOpLike> = T | TOpNot<T>;
+export type TNumOps<T = TOpCommon<number>> = T | TOpNot<T>;
 
 export type TWhere<D> =
   | TOpOr<D>
   | {
-      [P in keyof D]?: D[P] extends number
-        ? TNumOps | TOpNot<TNumOps>
-        : D[P] extends string
-        ? TStrOps | TOpNot<TStrOps>
+      [P in keyof D]?: D[P] extends number | undefined
+        ? TNumOps
+        : D[P] extends string | undefined
+        ? TStrOps
         : never;
     };
 
