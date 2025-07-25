@@ -16,8 +16,8 @@ export type TRevision = TRevisionBase & {
 
 export type TCrRevision = Partial<TRevisionBase>;
 
-type TDatabase = Omit<TRevisionBase, "revisedOn"> & {
-  revisedOn: number;
+type TDatabase = Omit<TRevisionBase, "createdOn"> & {
+  createdOn: number;
 };
 
 export const Revisions = new Model<TRevision, TCrRevision, TDatabase>(

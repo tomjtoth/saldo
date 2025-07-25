@@ -47,9 +47,9 @@ export function updateCategory(
     //   "SELECT revisedOn FROM revisions WHERE id = :revisionId"
     // );
 
-    const getRevOn = Revisions.select("revisedOn")
+    const getRevOn = Revisions.select("createdOn")
       .where({ id: { $SQL: ":revisionId" } })
-      .looper().get;
+      .prepare().get;
 
     cat.Revision = getRevOn(cat)!;
     cat.Archives.forEach((cat) => (cat.Revision = getRevOn(cat)!));
@@ -61,7 +61,7 @@ export function updateCategory(
 
     const getUsername = Users.select("name")
       .innerJoin(Revisions.where({ id: { $SQL: ":revisionId" } }))
-      .looper().get;
+      .prepare().get;
 
     cat.Revision.createdBy = getUsername(cat)!;
     cat.Archives.forEach(
@@ -115,7 +115,7 @@ export function getCategories(userId: number) {
 
     const allUsers = Users.select("id", "name")
       .innerJoin(Memberships.where({ statusId: 1, groupId: { $SQL: ":id" } }))
-      .looper().all;
+      .prepare().all;
 
     groups.forEach((group) => {
       group.Users = allUsers(group);
@@ -127,7 +127,8 @@ export function getCategories(userId: number) {
     //   AND statusId IN (1, 2)`
     // );
 
-    const allCats = Categories.where({ groupId: { $SQL: ":id" } }).looper().all;
+    const allCats = Categories.where({ groupId: { $SQL: ":id" } }).prepare()
+      .all;
 
     groups.forEach((group) => {
       group.Categories = allCats(group);
@@ -145,9 +146,9 @@ export function getCategories(userId: number) {
     //   "SELECT revisedOn FROM revisions WHERE id = ?"
     // );
 
-    const getRevOn = Revisions.select("revisedOn")
+    const getRevOn = Revisions.select("createdOn")
       .where({ id: { $SQL: ":revisionId" } })
-      .looper().get;
+      .prepare().get;
 
     groups.forEach((group) => {
       group.Categories!.forEach((cat) => {
@@ -164,8 +165,8 @@ export function getCategories(userId: number) {
     // );
 
     const getUsername = Users.select("name")
-      .innerJoin(Revisions.orderBy("revisedOn"))
-      .looper().get;
+      .innerJoin(Revisions.orderBy("createdOn"))
+      .prepare().get;
 
     groups.forEach((group) => {
       group.Categories!.forEach((cat) => {
