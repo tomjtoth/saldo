@@ -11,7 +11,7 @@ import { TParetoChartData } from "@/components/pareto/chart";
 type TGroupBase = {
   name: string;
   description?: string;
-  uuid?: string;
+  uuid?: string | null;
 };
 
 export type TGroup = TModelSRI &
