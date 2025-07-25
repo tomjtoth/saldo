@@ -5,6 +5,7 @@ import {
   TSelectKeys,
   TWhere,
   TwoOrMore,
+  JoinTypes,
 } from "./types";
 
 import { QueryWrapper } from "./queryWrapper";
@@ -38,12 +39,12 @@ export class QueryBuilder<M, D> {
     return this;
   }
 
-  private join(other: TOther, inner?: true) {
+  private join(other: TOther, type: JoinTypes = "LEFT") {
     if (!this.query.join) this.query.join = [];
 
     const othersQuery = other.flushQuery();
 
-    if (inner) othersQuery.required = true;
+    othersQuery.joinType = type;
 
     this.query.join.push(othersQuery);
 
@@ -51,7 +52,7 @@ export class QueryBuilder<M, D> {
   }
 
   innerJoin(other: TOther) {
-    return this.join(other, true);
+    return this.join(other, "INNER");
   }
 
   leftJoin(other: TOther) {
@@ -189,7 +190,7 @@ export class QueryBuilder<M, D> {
       parentTable: string,
       parentAlias: string = parentTable
     ) {
-      query.forEach(({ table, select, join, required, where }) => {
+      query.forEach(({ table, select, join, joinType, where, order }) => {
         const alias = table ? `${parentAlias}.${table}` : parentAlias;
 
         select?.forEach((col) =>
@@ -212,7 +213,7 @@ export class QueryBuilder<M, D> {
           const joinCrit = resolveWhereClause(alias, where);
 
           joinClause.push(
-            required ? "INNER" : "LEFT",
+            joinType!,
             "JOIN",
             table,
             `AS "${alias}"`,

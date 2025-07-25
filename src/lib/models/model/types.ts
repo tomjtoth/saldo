@@ -10,6 +10,8 @@ export type TSelectKeys<T> = {
 
 export type TwoOrMore<T> = [T, T, ...T[]];
 
+export type JoinTypes = "LEFT" | "INNER";
+
 type TOpOr<T> = {
   /**
    * An array of alternatives joined by the logical operator "OR"
@@ -106,11 +108,7 @@ export type TQuery<D> = {
   select?: (keyof D)[];
   join?: TQuery<D>[];
   table?: string;
-
-  /**
-   * turns the `LEFT JOIN` into an `INNER JOIN`
-   */
-  required?: true;
+  joinType?: JoinTypes;
 
   /**
    * all members of this level are connected by "AND"
