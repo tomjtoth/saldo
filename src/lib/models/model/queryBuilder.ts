@@ -1,4 +1,5 @@
 import {
+  TSortableFields,
   TLiteral,
   TOther,
   TQuery,
@@ -66,6 +67,11 @@ export class QueryBuilder<M, D> {
     return this;
   }
 
+  orderBy(...columns: TSortableFields<D>[]) {
+    this.query.order = columns;
+    return this;
+  }
+
   flushQuery() {
     return { ...this.model.flushQuery(), ...this.query } as TQuery<D>;
   }
@@ -93,6 +99,7 @@ export class QueryBuilder<M, D> {
     const columns: string[] = [];
     const joinClause: string[] = [];
     const whereClause: string[] = [];
+    const orderByClauses: string[] = [];
 
     function param(val: unknown) {
       if (typeof val === "object" && "$SQL" in (val as TLiteral))
@@ -201,6 +208,8 @@ export class QueryBuilder<M, D> {
           )
         );
 
+        order?.forEach((crit) => orderByClauses.push(`${alias}.${crit}`));
+
         if (table) {
           const relation = connections[parentTable][table];
 
@@ -244,6 +253,9 @@ export class QueryBuilder<M, D> {
         ...(columns.length > 0 ? [columns.join(", ")] : ["*"]),
         ...joinClause,
         ...whereClause,
+        ...(orderByClauses.length > 0
+          ? [`ORDER BY ${orderByClauses.join(", ")}`]
+          : []),
       ].join(" "),
       params,
     };

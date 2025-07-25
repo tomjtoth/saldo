@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { TOther, TQuery, TSelectKeys, TWhere } from "./types";
+import { TSortableFields, TOther, TQuery, TSelectKeys, TWhere } from "./types";
 import { Connector } from "./connector";
 import { QueryBuilder } from "./queryBuilder";
 
@@ -24,6 +24,9 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
   leftJoin(other: TOther) {
     const builder = new QueryBuilder(this);
     return builder.leftJoin(other);
+  }
+  orderBy(...columns: TSortableFields<D>[]) {
+    return new QueryBuilder(this, { order: columns });
   }
 
   protected pkReplInWhereClause(forArchives = false) {

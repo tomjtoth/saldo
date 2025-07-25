@@ -8,6 +8,10 @@ export type TSelectKeys<T> = {
   [P in keyof T]: T[P] extends Exclude<TValids, object> ? P : never;
 }[keyof T];
 
+export type TSortableFields<T> = {
+  [K in TSelectKeys<T> & string]: K | `${K} DESC`;
+}[TSelectKeys<T> & string];
+
 export type TwoOrMore<T> = [T, T, ...T[]];
 
 export type JoinTypes = "LEFT" | "INNER";
@@ -111,9 +115,11 @@ export type TQuery<D> = {
   joinType?: JoinTypes;
 
   /**
-   * all members of this level are connected by "AND"
+   * all criteria of this level are connected by "AND"
    */
   where?: TWhere<D>;
+
+  order?: string[];
 };
 
 export type TOther<M = any, D = any> =
