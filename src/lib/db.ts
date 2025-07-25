@@ -62,7 +62,7 @@ export function atomic<T>(
 
     if (revision) {
       const rev = revision as TRevision;
-      if (rev.id % DB_BACKUP_EVERY_N_REVISIONS == 0)
+      if (rev.id % DB_BACKUP_EVERY_N_REVISIONS === 0)
         db.backup(`${DB_PATH}.backup.${rev.id}`);
     }
 

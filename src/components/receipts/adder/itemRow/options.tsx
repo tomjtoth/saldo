@@ -68,7 +68,7 @@ export default function Options({
               share === 0 ? null : (
                 <ItemShareAvatar
                   key={`${item.id}-${userId}`}
-                  user={users!.find((user) => user.id == Number(userId))!}
+                  user={users!.find((user) => user.id === Number(userId))!}
                   value={share}
                 />
               )

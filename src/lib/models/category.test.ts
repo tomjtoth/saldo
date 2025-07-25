@@ -10,7 +10,7 @@ describe("Category", () => {
     migrator.up();
     migrator.truncate();
 
-    // revId == 1 is created with this function call
+    // revId === 1 is created with this function call
     const user = await addUser(VALID_USER_DATA);
     await createGroup(user.id, { name: "just you" });
   });

@@ -32,7 +32,7 @@ export default function Details({ group }: { group: TGroup }) {
 
       <Invitation {...{ group }} />
 
-      {group.statusId == 1 && (
+      {group.statusId === 1 && (
         <>
           <h3>
             Categories <SvgLink href={`/groups/${group.id}/categories`} />

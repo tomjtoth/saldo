@@ -77,7 +77,7 @@ export default function Title({
       />
 
       <Slider
-        checked={statusId == 1}
+        checked={statusId === 1}
         onClick={() => setStatusId(1 + (statusId % 2))}
       />
 

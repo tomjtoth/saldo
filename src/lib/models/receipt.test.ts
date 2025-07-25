@@ -8,7 +8,7 @@ describe("Receipt", () => {
     await migrator.up();
     await Revision.truncate();
 
-    // revId == 1 is created with this function call
+    // revId === 1 is created with this function call
     await addUser(VALID_USER_DATA);
     await Group.create({ name: "faf" });
   });
