@@ -76,18 +76,19 @@ export class QueryBuilder<M, D> {
     return { ...this.model.flushQuery(), ...this.query } as TQuery<D>;
   }
 
-  get(): (...params: unknown[]) => M | null;
-  get(...params: unknown[]): M | null;
-  get(...params: unknown[]): (M | null) | ((...params: unknown[]) => M | null) {
-    const sql = this.parseQuery();
-    return this.model.get(sql, ...params);
+  prepare(...params: unknown[]) {
+    const { sql, params: injectedParams } = this.parseQuery();
+    return this.model.prepare(sql, ...params.concat(injectedParams));
   }
 
-  all(): (...params: unknown[]) => M[];
-  all(...params: unknown[]): M[];
-  all(...params: unknown[]): M[] | ((...params: unknown[]) => M[]) {
-    const sql = this.parseQuery();
-    return this.model.all(sql, ...params);
+  get(...params: unknown[]): M | null {
+    const { sql, params: injectedParams } = this.parseQuery();
+    return this.model.get(sql, ...params.concat(injectedParams));
+  }
+
+  all(...params: unknown[]): M[] {
+    const { sql, params: injectedParams } = this.parseQuery();
+    return this.model.all(sql, ...params.concat(injectedParams));
   }
 
   private parseQuery() {
@@ -136,7 +137,7 @@ export class QueryBuilder<M, D> {
                   col(`IS ${negated || key === "$NOT" ? "NOT " : ""}NULL`);
                 else if (key === "$IN") {
                   col(
-                    `${negated ? "NOT " : ""}IN (${val.map(quoted).join(", ")})`
+                    `${negated ? "NOT " : ""}IN (${val.map(param).join(", ")})`
                   );
                 } else if (key === "$BETWEEN") {
                   const [lower, upper] = val as
@@ -144,21 +145,21 @@ export class QueryBuilder<M, D> {
                     | [string | TLiteral, string | TLiteral];
 
                   col(
-                    `${negated ? "NOT " : ""}BETWEEN ${quoted(
+                    `${negated ? "NOT " : ""}BETWEEN ${param(
                       lower
-                    )} AND ${quoted(upper)}`
+                    )} AND ${param(upper)}`
                   );
                 } else if (key === "$LIKE") {
-                  col(`${negated ? "NOT " : ""}LIKE ${quoted(val)}`);
+                  col(`${negated ? "NOT " : ""}LIKE ${param(val)}`);
                 } else if (compIdx > -1) {
                   if (negated) compIdx = (compIdx + 2) % 4;
 
-                  col(`${COMPARISONS[compIdx][1]} ${quoted(val)}`);
+                  col(`${COMPARISONS[compIdx][1]} ${param(val)}`);
                 } else if (typeof val === "object" && key !== "$EQ") {
                   recurseCol(val, "$NOT" === key);
                 } else {
                   col(
-                    `${negated || key === "$NOT" ? "!=" : "="} ${quoted(
+                    `${negated || key === "$NOT" ? "!=" : "="} ${param(
                       key === "$SQL" ? { $SQL: val } : val
                     )}`
                   );

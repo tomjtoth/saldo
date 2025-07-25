@@ -49,7 +49,7 @@ export function updateCategory(
 
     const getRevOn = Revisions.select("revisedOn")
       .where({ id: { $SQL: ":revisionId" } })
-      .get();
+      .looper().get;
 
     cat.Revision = getRevOn(cat)!;
     cat.Archives.forEach((cat) => (cat.Revision = getRevOn(cat)!));
@@ -61,7 +61,7 @@ export function updateCategory(
 
     const getUsername = Users.select("name")
       .innerJoin(Revisions.where({ id: { $SQL: ":revisionId" } }))
-      .get();
+      .looper().get;
 
     cat.Revision.createdBy = getUsername(cat)!;
     cat.Archives.forEach(
@@ -115,7 +115,7 @@ export function getCategories(userId: number) {
 
     const allUsers = Users.select("id", "name")
       .innerJoin(Memberships.where({ statusId: 1, groupId: { $SQL: ":id" } }))
-      .all();
+      .looper().all;
 
     groups.forEach((group) => {
       group.Users = allUsers(group);
@@ -127,7 +127,7 @@ export function getCategories(userId: number) {
     //   AND statusId IN (1, 2)`
     // );
 
-    const allCats = Categories.where({ groupId: { $SQL: ":id" } }).all();
+    const allCats = Categories.where({ groupId: { $SQL: ":id" } }).looper().all;
 
     groups.forEach((group) => {
       group.Categories = allCats(group);
@@ -147,7 +147,7 @@ export function getCategories(userId: number) {
 
     const getRevOn = Revisions.select("revisedOn")
       .where({ id: { $SQL: ":revisionId" } })
-      .get();
+      .looper().get;
 
     groups.forEach((group) => {
       group.Categories!.forEach((cat) => {
@@ -165,7 +165,7 @@ export function getCategories(userId: number) {
 
     const getUsername = Users.select("name")
       .innerJoin(Revisions.orderBy("revisedOn"))
-      .get();
+      .looper().get;
 
     groups.forEach((group) => {
       group.Categories!.forEach((cat) => {

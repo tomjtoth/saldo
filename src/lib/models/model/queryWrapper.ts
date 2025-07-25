@@ -54,12 +54,12 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
         .pluck()
         .get(this) as number;
 
-    return this.all(
+    return this.prepare(
       `SELECT a.revisionId, a.payload FROM archives a
         INNER JOIN revisions r ON (r.id = a.revisionId) 
         WHERE tableId = ${tableId} AND ${this.pkReplInWhereClause(true)}
         ORDER BY r.revisedOn DESC`
-    );
+    ).all;
   }
 
   count() {
@@ -69,38 +69,32 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
       .get() as number;
   }
 
-  get(sql: string): (...params: unknown[]) => M | null;
-  get(sql: string, ...params: unknown[]): M | null;
-
-  get(
-    sql: string,
-    ...params: unknown[]
-  ): (M | null) | ((...params: unknown[]) => M | null) {
+  prepare(sql: string, ...params: unknown[]) {
     const stmt = db.prepare(sql);
+    const looperParams = params;
 
-    const looper = (...params: unknown[]) => {
-      const res = stmt.get(...params);
-      if (!res) return null;
+    return {
+      get: (...params: unknown[]) => {
+        const res = stmt.get(...params.concat(looperParams));
+        if (!res) return null;
 
-      return this.toJS(res as D)[0] as M;
+        const [one] = this.toJS(res as D);
+        return one;
+      },
+
+      all: (...params: unknown[]) => {
+        const res = stmt.all(...params.concat(looperParams));
+
+        return this.toJS(res as D[]);
+      },
     };
-
-    return params.length > 0 ? looper(...params) : looper;
   }
 
-  all(sql: string): (...params: unknown[]) => M[];
-  all(sql: string, ...params: unknown[]): M[];
-  all(
-    sql: string,
-    ...params: unknown[]
-  ): M[] | ((...params: unknown[]) => M[]) {
-    const stmt = db.prepare(sql);
+  get(sql: string, ...params: unknown[]): M | null {
+    return this.prepare(sql).get(...params);
+  }
 
-    const looper = (...params: unknown[]) => {
-      const res = stmt.all(...params);
-      return this.toJS(res as D[]) as M[];
-    };
-
-    return params.length > 0 ? looper(...params) : looper;
+  all(sql: string, ...params: unknown[]): M[] {
+    return this.prepare(sql).all(...params);
   }
 }
