@@ -1,10 +1,30 @@
-import { TOther, TQuery, TSelectKeys, TValids, TWhere } from "./types";
+import {
+  TLiteral,
+  TOther,
+  TQuery,
+  TSelectKeys,
+  TWhere,
+  TwoOrMore,
+} from "./types";
 
 import { QueryWrapper } from "./queryWrapper";
-import { connections } from "./connector";
+import { AnyModel, connections } from "./connector";
 
-const sql = (val: TValids) =>
-  typeof val === "string" ? `'${val!.replaceAll("'", "''")}'` : val;
+type OneOrMore<T> = T | TwoOrMore<T>;
+
+const quoted = (val: unknown) =>
+  typeof val === "object" && "$SQL" in (val as TLiteral)
+    ? (val as TLiteral).$SQL
+    : typeof val === "string"
+    ? `'${val.replaceAll("'", "''")}'`
+    : (val as string | number);
+
+const COMPARISONS = Object.entries({
+  $LT: "<",
+  $LE: "<=",
+  $GE: ">=",
+  $GT: ">",
+});
 
 export class QueryBuilder<M, D> {
   query: TQuery<D>;
@@ -45,6 +65,13 @@ export class QueryBuilder<M, D> {
     return this.join(other);
   }
 
+  /**
+   *  same as `through` in `include: [{ model, through: {} }]`
+   */
+  andFrom(other: TOther) {
+    return this;
+  }
+
   flushQuery() {
     return { ...this.model.flushQuery(), ...this.query } as TQuery<D>;
   }
@@ -69,56 +96,84 @@ export class QueryBuilder<M, D> {
     const whereClause: string[] = [];
 
     function resolveWhereClause(alias: string, where?: TWhere<TOther | D>) {
-      const clause: string[] = [];
-
       function recurseWhere(where: TWhere<TOther | D>) {
-        (Object.entries(where) as [string, TWhere<TOther>][]).forEach(
-          ([keyOrOR, valOrObj]) => {
-            if (keyOrOR === "OR") {
-              (valOrObj as TWhere<TOther | D>[]).forEach((obj) => {
-                clause.push("OR (");
-                recurseWhere(obj);
-                clause.push(")");
+        const clause: string[] = [];
+
+        const entries = Object.entries(where) as (
+          | [keyof AnyModel, TWhere<TOther | D>]
+          | ["$EITHER", TWhere<TOther | D>[]]
+        )[];
+
+        entries.forEach(([keyOrEither, objOrArr]) => {
+          if (keyOrEither === "$EITHER") {
+            const inner = objOrArr
+              // .map((obj) => `(${recurseWhere(obj)})`)
+              .map((obj) => recurseWhere(obj))
+              .join(" OR ");
+
+            clause.push(
+              entries.length > 1
+                ? // additional criterium exists on this level, must wrap in (alt1 OR alt2 OR ... OR altN)
+                  `(${inner})`
+                : // there's no pre-existing criteria on this level, no need for additional parenths
+                  inner
+            );
+          } else {
+            const colName = `"${alias}".${keyOrEither}`;
+            const col = (val: string) => clause.push(`${colName} ${val}`);
+
+            function recurseCol(valOrObj: TWhere<TOther | D>, negated = false) {
+              Object.entries(
+                typeof valOrObj === "object" && valOrObj !== null
+                  ? valOrObj
+                  : { $EQ: valOrObj }
+              ).map(([key, val]) => {
+                let compIdx = COMPARISONS.findIndex(
+                  ([operator]) => key === operator
+                );
+
+                if (val === null)
+                  col(`IS ${negated || key === "$NOT" ? "NOT " : ""}NULL`);
+                else if (key === "$IN") {
+                  col(
+                    `${negated ? "NOT " : ""}IN (${val.map(quoted).join(", ")})`
+                  );
+                } else if (key === "$BETWEEN") {
+                  const [lower, upper] = val as
+                    | [number | TLiteral, number | TLiteral]
+                    | [string | TLiteral, string | TLiteral];
+
+                  col(
+                    `${negated ? "NOT " : ""}BETWEEN ${quoted(
+                      lower
+                    )} AND ${quoted(upper)}`
+                  );
+                } else if (key === "$LIKE") {
+                  col(`${negated ? "NOT " : ""}LIKE ${quoted(val)}`);
+                } else if (compIdx > -1) {
+                  if (negated) compIdx = (compIdx + 2) % 4;
+
+                  col(`${COMPARISONS[compIdx][1]} ${quoted(val)}`);
+                } else if (typeof val === "object" && key !== "$EQ") {
+                  recurseCol(val, "$NOT" === key);
+                } else {
+                  col(
+                    `${negated || key === "$NOT" ? "!=" : "="} ${quoted(
+                      key === "$SQL" ? { $SQL: val } : val
+                    )}`
+                  );
+                }
               });
-            } else {
-              const valT = typeof valOrObj;
-              const col = `"${alias}".${keyOrOR}`;
-
-              if (valOrObj === null) {
-                clause.push(`${col} IS NULL`);
-              } else if (valT === "function") {
-                clause.push(`${col} = ${(valOrObj as Function)()}`);
-              } else if (valT === "string") {
-                clause.push(`${col} = '${valOrObj}'`);
-              } else if (valT === "number" || valT === "bigint") {
-                clause.push(`${col} = '${valOrObj}'`);
-              } else if (valT === "object") {
-                Object.entries(valOrObj).map(([key, val]) => {
-                  const operators = {
-                    EQ: "=",
-                    NE: "!=",
-                    LT: "<",
-                    LE: "<=",
-                    GT: ">",
-                    GE: ">=",
-                    IN: "IN",
-                  };
-                  switch (key) {
-                    case "EQ":
-                      clause.push(`${key} = ${sql(val)}`);
-
-                    default:
-                  }
-                });
-              }
             }
+
+            recurseCol(objOrArr);
           }
-        );
+        });
+
+        return clause.join(" AND ");
       }
 
-      if (where) recurseWhere(where);
-
-      return clause.join(" AND ");
+      return where ? recurseWhere(where) : "";
     }
 
     function recurseQuery(
@@ -141,6 +196,7 @@ export class QueryBuilder<M, D> {
           const relation = connections[parentTable][table];
 
           let connStr = "";
+          // TODO: handle junction table connections
           if ("fromId" in relation) {
             connStr = `"${parentAlias}".${relation.fromId} = "${alias}".${relation.toId}`;
           }
@@ -177,31 +233,7 @@ export class QueryBuilder<M, D> {
       "SELECT",
       ...(columns.length > 0 ? [columns.join(", ")] : ["*"]),
       ...joinClause,
-      ...(whereClause.length > 0 ? [whereClause] : []),
+      ...whereClause,
     ].join(" ");
   }
-
-  // sqlFromQuery(query: string | TQuery<D>) {
-  //   let stmt: Statement;
-
-  //   if (typeof query === "string") stmt = db.prepare(query);
-  //   else {
-  //     const sql = `SELECT * FROM ${this.tableName} WHERE ${Object.entries(
-  //       query.where
-  //     ).map(([key, val]) => `${key} = ${val}`)}`;
-  //   }
-
-  //   function recurse(arr, { lop = `and` } = {}) {
-  //     if (arr.length == 0) return ``;
-  //     let [key, val] = arr.pop();
-  //     const col = key;
-  //     const op = Array.isArray(val) ? `in` : `=`;
-  //     val = Array.isArray(val) ? val : val;
-  //     return sql`${lop} (${col} ${op} ${val} ${recurse(arr)})`;
-  //   }
-
-  //   function where(crit = {}) {
-  //     return sql`where true ${recurse(Object.entries(crit))}`;
-  //   }
-  // }
 }

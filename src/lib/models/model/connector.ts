@@ -26,7 +26,7 @@ type NumericKeys<T> = {
   [P in keyof T]: T[P] extends number ? P : never;
 }[keyof T];
 
-type AnyModel = Model<any, any, any>;
+export type AnyModel = Model<any, any, any>;
 type ManyToMany = { table: string; through: string };
 type OneToMany = { table: string; keys: string[] };
 type Joint = AnyModel | OneToMany | ManyToMany;
