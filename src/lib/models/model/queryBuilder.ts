@@ -12,13 +12,6 @@ import { AnyModel, connections } from "./connector";
 
 type OneOrMore<T> = T | TwoOrMore<T>;
 
-const quoted = (val: unknown) =>
-  typeof val === "object" && "$SQL" in (val as TLiteral)
-    ? (val as TLiteral).$SQL
-    : typeof val === "string"
-    ? `'${val.replaceAll("'", "''")}'`
-    : (val as string | number);
-
 const COMPARISONS = Object.entries({
   $LT: "<",
   $LE: "<=",
@@ -92,9 +85,23 @@ export class QueryBuilder<M, D> {
   }
 
   private parseQuery() {
+    const params: {
+      [key: string]: number | string;
+    } = {};
+
     const columns: string[] = [];
     const joinClause: string[] = [];
     const whereClause: string[] = [];
+
+    function param(val: unknown) {
+      if (typeof val === "object" && "$SQL" in (val as TLiteral))
+        return (val as TLiteral).$SQL;
+
+      const id = `boundParam${Object.keys(params).length}`;
+      params[id] = val as number | string;
+
+      return `:${id}`;
+    }
 
     function resolveWhereClause(alias: string, where?: TWhere<TOther | D>) {
       function recurseWhere(where: TWhere<TOther | D>) {
@@ -230,11 +237,14 @@ export class QueryBuilder<M, D> {
       this.model.flushQuery().table!
     );
 
-    return [
-      "SELECT",
-      ...(columns.length > 0 ? [columns.join(", ")] : ["*"]),
-      ...joinClause,
-      ...whereClause,
-    ].join(" ");
+    return {
+      sql: [
+        "SELECT",
+        ...(columns.length > 0 ? [columns.join(", ")] : ["*"]),
+        ...joinClause,
+        ...whereClause,
+      ].join(" "),
+      params,
+    };
   }
 }

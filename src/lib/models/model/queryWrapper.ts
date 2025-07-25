@@ -75,7 +75,7 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
 
     return {
       get: (...params: unknown[]) => {
-        const res = stmt.get(...params.concat(looperParams));
+        const res = stmt.get(...params.concat(...looperParams));
         if (!res) return null;
 
         const [one] = this.toJS(res as D);
@@ -83,7 +83,7 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
       },
 
       all: (...params: unknown[]) => {
-        const res = stmt.all(...params.concat(looperParams));
+        const res = stmt.all(...params.concat(...looperParams));
 
         return this.toJS(res as D[]);
       },
