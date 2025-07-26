@@ -8,6 +8,7 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
     return new QueryBuilder(this, { select: columns });
   }
 
+  // TODO: eliminate the links to other tables, such as Users."Memberships"
   where(criteria: TWhere<D>) {
     return new QueryBuilder(this, { where: criteria });
   }
