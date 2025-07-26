@@ -1,41 +1,37 @@
 import { Session } from "next-auth";
 
-import { Users } from "../models";
+import { Revisions, TCrUser, Users } from "../models";
 import { createGroup } from "./groups";
-import { atomic } from "../db";
+import { atomic, db } from "../db";
 
-export async function addUser(userData: TCrUser) {
-  return atomic(
-    {
-      operation: "Adding new user",
-    },
-    () => {
-      const [user] = Users.insert(userData);
+export function addUser(userData: TCrUser) {
+  return atomic({ operation: "Adding new user" }, () => {
+    const [rev] = Revisions.insert({ createdById: -1 });
+    const [user] = Users.insert(userData, { revisionId: rev.id });
 
-      const rev = await Revision.create({ revBy: user.id }, { transaction });
+    rev.createdById = user.id;
 
-      await user.update({ revId: rev.id }, { transaction });
+    // this should be the only place in the app where updating via raw SQL
+    db.prepare(
+      "UPDATE revisions SET createdById = :createdById WHERE id = :id"
+    ).run(rev);
 
-      return user;
-    }
-  );
+    return user;
+  });
 }
 
 export async function currentUser(session: Session) {
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const email = session?.user?.email!;
-  const name = session?.user?.name ?? `User #${await User.count()}`;
+  const name = session?.user?.name ?? `User #${Users.count()}`;
   const image = session?.user?.image;
 
-  let user = await User.findOne({ where: { email } });
+  let user = Users.where({ email }).get(0);
   if (!user) {
-    user = await addUser({
-      name,
-      email,
-    });
+    user = addUser({ name, email });
 
-    await createGroup(user.id, { name: "just you" });
+    createGroup(user.id, { name: "just you" });
   }
 
   let updating = false;
@@ -50,7 +46,7 @@ export async function currentUser(session: Session) {
     user.image = image;
   }
 
-  if (updating) await user.save();
+  if (updating) Users.insert(user, { upsert: true });
 
   return user;
 }
