@@ -13,57 +13,56 @@ import {
 import { alreadyInProd } from "@/lib/services/importV3";
 
 import CliImportSection from "./clientSide";
-import { datetimeToInt, dateToInt } from "@/lib/utils";
 
 export default async function ImportSection() {
   let rendered = null;
 
-  const user_rev_user = Users.select("email")
-    .innerJoin(
-      Revisions.where({
-        revisedOn: datetimeToInt("2020-01-01T05:30:00Z"),
-        revisedBy: 12,
-        $OR: [{ id: { $NOT: null, $GE: 12 } }],
-      }).innerJoin(Users.select("name"))
-    )
-    .where({ email: { $GT: "1" } });
+  /**
+ * 
+ * 
+ * 
+ SELECT * FROM users WHERE "users".statusId = :boundParam0 AND "users".email LIKE :boundParam1 AND "users".email = :email AND "users".name <= :name_not_gt AND "users".image IN (:boundParam2, :image_IN) AND "users".id BETWEEN :boundParam3 AND :boundParam4 AND "users".id NOT IN (:boundParam5, :boundParam6, :boundParam7, :boundParam8) AND "users".id <= :boundParam9 AND ("users".name IS NOT NULL AND "users".name LIKE :boundParam10 AND "users".name > :boundParam11 OR "users".email = :boundParam12 AND ("users".email IS NULL OR "users".name IS NOT NULL) OR "users".id = :boundParam13 AND "users".email NOT LIKE :boundParam14) AND "users".revisionId = :boundParam15
 
-  const a = Users.select("email");
-  const b = Revisions.where({ revisedBy: { $SQL: ":qwe" } });
-  const c = Users.select("name");
-  const d = b.innerJoin(c);
-  const final = a.innerJoin(d);
-  const getter = final.get();
+ {
+  boundParam0: 123,
+  boundParam1: "%.com",
+  boundParam2: "qweq",
+  boundParam3: 10,
+  boundParam4: 20,
+  boundParam5: 12,
+  boundParam6: 13,
+  boundParam7: 14,
+  boundParam8: 18,
+  boundParam9: 22,
+  boundParam10: "%13sad%",
+  boundParam11: "null",
+  boundParam12: "dfaaaf",
+  boundParam13: 123,
+  boundParam14: "%FAAF%",
+  boundParam15: 123,
+}
 
-  Users.select("id").where({
-    $OR: [{ id: { $LE: 10 } }, { id: {} }],
-  });
 
-  Receipts.where({ paidOn: { $LT: dateToInt("2020-02-01") } }).get();
+ */
 
-  const getUsername = Users.select("name")
-    .innerJoin(
-      Revisions.where({
-        id: { $SQL: ":revisionId" },
-        $OR: [
-          {
-            revisedBy: { $NOT: 12 },
-          },
-          {
-            revisedOn: { $BETWEEN: [123, 321], $NOT: 200 },
+  const tt = Users.where({
+    statusId: 123,
+    email: { $LIKE: "%.com", $SQL: ":email" },
+    name: { $NOT: { $GT: { $SQL: ":name_not_gt" } } },
+    image: { $IN: ["qweq", { $SQL: ":image_IN" }] },
+    id: { $BETWEEN: [10, 20], $NOT: { $IN: [12, 13, 14, 18], $GT: 22 } },
 
-            $OR: [{}],
-          },
-        ],
-      })
-    )
-    .get();
+    $EITHER: [
+      { name: { $NOT: null, $LIKE: "%13sad%", $GT: "null" } },
+      { email: "dfaaaf", $EITHER: [{ email: null }, { name: { $NOT: null } }] },
+      { id: 123, email: { $NOT: { $LIKE: "%FAAF%" } } },
+    ],
 
-  const getRevOn = Revisions.select("revisedOn")
-    .where({
-      id: { $GT: { $SQL: ":revisionId" } },
-    })
-    .get();
+    revisionId: 123,
+  })
+    .innerJoin(Revisions.orderBy("createdOn"))
+    .orderBy("id", { col: "revisionId", direction: "DESC", fn: "LOWER" })
+    .prepare();
 
   if (!(await alreadyInProd())) {
     rendered = (
