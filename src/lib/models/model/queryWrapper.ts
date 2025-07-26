@@ -25,6 +25,15 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
     const builder = new QueryBuilder(this);
     return builder.leftJoin(other);
   }
+
+  /**
+   *  same as `through` in `include: [{ model, through }]`
+   */
+  andFrom(other: TOther) {
+    const builder = new QueryBuilder(this);
+    return builder.andFrom(other);
+  }
+
   orderBy(...columns: TSortableFields<D>[]) {
     return new QueryBuilder(this, { order: columns });
   }
