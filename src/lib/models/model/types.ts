@@ -8,9 +8,13 @@ export type TSelectKeys<T> = {
   [P in keyof T]: T[P] extends Exclude<TValids, object> ? P : never;
 }[keyof T];
 
-export type TSortableFields<T> = {
-  [K in TSelectKeys<T> & string]: K | `${K} DESC`;
-}[TSelectKeys<T> & string];
+type SortingOptions<T> = {
+  col: TSelectKeys<T>;
+  direction?: "ASC" | "DESC";
+  fn?: "LOWER";
+};
+
+export type TSortableFields<T> = TSelectKeys<T> | SortingOptions<T>;
 
 export type TwoOrMore<T> = [T, T, ...T[]];
 
@@ -119,7 +123,7 @@ export type TQuery<D> = {
    */
   where?: TWhere<D>;
 
-  order?: string[];
+  order?: TSortableFields<D>[];
 };
 
 export type TOther<M = any, D = any> =

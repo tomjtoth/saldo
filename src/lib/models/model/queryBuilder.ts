@@ -208,7 +208,19 @@ export class QueryBuilder<M, D> {
           )
         );
 
-        order?.forEach((crit) => orderByClauses.push(`${alias}.${crit}`));
+        order?.forEach((obj) => {
+          const {
+            col: column,
+            direction: dir,
+            fn,
+          } = typeof obj === "string" ? { col: obj } : obj;
+
+          let final = `${alias}.${column}`;
+          if (fn) final = `${fn}(${final})`;
+          if (dir) final = `${final} ${dir}`;
+
+          orderByClauses.push(final);
+        });
 
         if (table) {
           const relation = connections[parentTable][table];
