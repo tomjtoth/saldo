@@ -1,5 +1,12 @@
 import { atomic } from "../db";
-import { Groups, Memberships, TGroup, Users } from "../models";
+import {
+  Groups,
+  Memberships,
+  Revisions,
+  TCrGroup,
+  TGroup,
+  Users,
+} from "../models";
 import { err } from "../utils";
 
 export async function createGroup(
@@ -9,33 +16,25 @@ export async function createGroup(
   return atomic(
     { operation: "creating new group", revisedBy },
     async ({ id: revisionId }) => {
-      const group = Groups.insert(data, { revisionId });
+      const [group] = Groups.insert(data, { revisionId });
 
-      await Group.create({ ...data, revId: rev.id }, { transaction: rev });
-
-      await Membership.create(
+      Memberships.insert(
         {
           groupId: group.id,
           userId: revisedBy,
-          revId: rev.id,
-          admin: true,
+          isAdmin: true,
         },
-        { transaction: rev }
+        { revisionId }
       );
 
-      return await group.reload({
-        transaction: rev,
-        include: [
-          {
-            model: Membership,
-            attributes: ["admin", "statusId"],
-          },
-          {
-            model: User,
-            through: { attributes: ["admin", "statusId"] },
-          },
-        ],
-      });
+      return (
+        Groups.innerJoin(Memberships.select("statusId", "isAdmin"))
+          .innerJoin(Users.andFrom(Memberships.select("statusId", "isAdmin")))
+
+          // TODO: make this compatible
+          .innerJoin(Revisions)
+          .all(0)
+      );
     }
   );
 }
@@ -43,23 +42,12 @@ export async function createGroup(
 export function addMember(groupId: number, userId: number) {
   return atomic(
     { operation: "adding new member", revisedBy: userId },
-    async (rev) => {
-      const group = Groups.get(
-        "SELECT * FROM groups WHERE id = ? AND statusId = 1",
-        groupId
-      )!;
+    (rev) => {
+      const group = Groups.where({ id: groupId, statusId: 1 }).get()!;
 
-      Groups.update({ uuid: null }, rev.id);
+      Groups.update({ uuid: null, id: group.id }, rev.id);
 
-      await group!.update(
-        { uuid: null },
-        { transaction, where: { id: groupId } }
-      );
-
-      return await Membership.create(
-        { userId, groupId, revId: rev.id },
-        { transaction }
-      );
+      return Memberships.insert({ userId, groupId }, { revisionId: rev.id });
     }
   );
 }
@@ -89,7 +77,12 @@ export function joinGroup(uuid: string, userId: number) {
 
 export function getGroups(userId: number) {
   return atomic(() => {
-    const groups = Groups.all(
+    const groups = Groups.innerJoin(Memberships.where({ userId })).orderBy({
+      col: "name",
+      fn: "LOWER",
+    });
+
+    Groups.all(
       `SELECT g.* FROM groups g INNER JOIN memberships ms ON (
         g.id = ms.groupId AND ms.userId = ?
       )
@@ -97,17 +90,21 @@ export function getGroups(userId: number) {
       userId
     );
 
-    const getUsers = Users.all(
-      `SELECT u.* FROM users u INNER JOIN memberships ms ON (
-        ms.groupId = :id AND ms.statusId = 1
-      )
-      ORDER BY LOWER(u.name)`
-    );
+    const getUsers = Users.innerJoin(
+      Memberships.where({ statusId: 1, groupId: { $SQL: ":id" } })
+    ).orderBy({ col: "name", fn: "LOWER" }).all;
+
     groups.forEach((group) => (group.Users = getUsers(group)));
+
+    Memberships.select("isAdmin", "statusId").where({
+      groupId: { $SQL: ":groupId" },
+      userId: { $SQL: ":userId" },
+    }).get;
 
     const get2FromMemberships = Memberships.get(
       "SELECT admin, statusId FROM memberships WHERE groupId = :id AND userId = ?"
     );
+
     groups.forEach((group) =>
       group.Users!.forEach((u) => get2FromMemberships(u.id, group))
     );
