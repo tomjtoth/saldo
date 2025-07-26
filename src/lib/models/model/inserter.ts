@@ -4,7 +4,7 @@ import { asArray } from "@/lib/utils";
 import { Converter } from "./converter";
 
 export class Inserter<M, C, D> extends Converter<M, C, D> {
-  protected get iterColNames() {
+  get iterColNames() {
     return this.iterCols.map(([col]) => col as string);
   }
 
