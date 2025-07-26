@@ -105,9 +105,9 @@ export type TNumOps<T = TOpCommon<number>> = T | TOpNot<T>;
 export type TWhere<D> =
   | TOpOr<D>
   | {
-      [P in keyof D]?: D[P] extends number | undefined
+      [P in keyof D]?: D[P] extends number | null | undefined
         ? TNumOps
-        : D[P] extends string | undefined
+        : D[P] extends string | null | undefined
         ? TStrOps
         : never;
     };
