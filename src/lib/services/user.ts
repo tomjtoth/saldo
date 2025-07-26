@@ -31,7 +31,7 @@ export async function currentUser(session: Session) {
   if (!user) {
     user = addUser({ name, email });
 
-    createGroup(user.id, { name: "just you" });
+    await createGroup(user.id, { name: "just you" });
   }
 
   let updating = false;

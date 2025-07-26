@@ -15,7 +15,7 @@ export async function createGroup(
 ) {
   return atomic(
     { operation: "creating new group", revisedBy },
-    async ({ id: revisionId }) => {
+    ({ id: revisionId }) => {
       const [group] = Groups.insert(data, { revisionId });
 
       Memberships.insert(
