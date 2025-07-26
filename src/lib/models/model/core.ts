@@ -25,6 +25,7 @@ type TypeMap = {
   string: string;
   number: number;
   boolean: boolean;
+  object: object;
 };
 
 type Column = {

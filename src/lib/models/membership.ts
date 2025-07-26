@@ -15,7 +15,9 @@ export type TMembership = TModelSR &
     User?: TUser;
   };
 
-export type TCrMembership = TCrModelSR & TMembershipBase;
+export type TCrMembership = TCrModelSR &
+  Pick<TMembershipBase, "groupId" | "userId"> &
+  Partial<Pick<TMembershipBase, "isAdmin" | "defaultCategoryId">>;
 
 export const Memberships = new Model<TMembership, TCrMembership>(
   "memberships",

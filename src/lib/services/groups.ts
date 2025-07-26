@@ -4,7 +4,7 @@ import { err } from "../utils";
 
 export async function createGroup(
   revisedBy: number,
-  data: Pick<TGroup, "id" | "name" | "description">
+  data: Pick<TCrGroup, "id" | "name" | "description">
 ) {
   return atomic(
     { operation: "creating new group", revisedBy },
