@@ -4,6 +4,9 @@ import { Connector } from "./connector";
 import { QueryBuilder } from "./queryBuilder";
 
 export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
+  /**
+   * omitting keys equals to `SELECT *`
+   */
   select(...columns: TSelectKeys<D>[]) {
     return new QueryBuilder(this).select(...columns);
   }

@@ -29,6 +29,9 @@ export class QueryBuilder<M, D> {
     this.model = model;
   }
 
+  /**
+   * omitting keys equals to `SELECT *`
+   */
   select(...columns: TSelectKeys<D>[]) {
     this.query.select =
       columns.length === 0
