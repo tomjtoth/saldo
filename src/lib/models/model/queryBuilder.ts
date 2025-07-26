@@ -229,7 +229,7 @@ export class QueryBuilder<M, D> {
         });
 
         if (table) {
-          const relation = connections[parentTable][table];
+          const relation = connections[parentTable][table].default;
 
           let connStr = "";
           // TODO: handle junction table connections
