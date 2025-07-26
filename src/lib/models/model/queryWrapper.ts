@@ -5,12 +5,12 @@ import { QueryBuilder } from "./queryBuilder";
 
 export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
   select(...columns: TSelectKeys<D>[]) {
-    return new QueryBuilder(this, { select: columns });
+    return new QueryBuilder(this).select(...columns);
   }
 
   // TODO: eliminate the links to other tables, such as Users."Memberships"
   where(criteria: TWhere<D>) {
-    return new QueryBuilder(this, { where: criteria });
+    return new QueryBuilder(this).where(criteria);
   }
 
   flushQuery(): TQuery<D> {
@@ -18,25 +18,22 @@ export class QueryWrapper<M, C, D> extends Connector<M, C, D> {
   }
 
   innerJoin(other: TOther) {
-    const builder = new QueryBuilder(this);
-    return builder.innerJoin(other);
+    return new QueryBuilder(this).innerJoin(other);
   }
 
   leftJoin(other: TOther) {
-    const builder = new QueryBuilder(this);
-    return builder.leftJoin(other);
+    return new QueryBuilder(this).leftJoin(other);
   }
 
   /**
    *  same as `through` in `include: [{ model, through }]`
    */
   andFrom(other: TOther) {
-    const builder = new QueryBuilder(this);
-    return builder.andFrom(other);
+    return new QueryBuilder(this).andFrom(other);
   }
 
   orderBy(...columns: TSortableFields<D>[]) {
-    return new QueryBuilder(this, { order: columns });
+    return new QueryBuilder(this).orderBy(...columns);
   }
 
   protected pkReplInWhereClause(forArchives = false) {

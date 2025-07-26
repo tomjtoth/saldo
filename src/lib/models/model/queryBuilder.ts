@@ -22,16 +22,19 @@ const COMPARISONS = Object.entries({
 });
 
 export class QueryBuilder<M, D> {
-  query: TQuery<D>;
+  query: TQuery<D> = {};
   model: QueryWrapper<M, any, D>;
 
-  constructor(model: QueryWrapper<M, any, D>, query?: TQuery<D>) {
+  constructor(model: QueryWrapper<M, any, D>) {
     this.model = model;
-    this.query = query ?? {};
   }
 
   select(...columns: TSelectKeys<D>[]) {
-    this.query.select = columns;
+    this.query.select =
+      columns.length === 0
+        ? (this.model.iterColNames as (keyof D)[])
+        : (columns as (keyof D)[]);
+
     return this;
   }
 
