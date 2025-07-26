@@ -27,87 +27,66 @@ export async function createGroup(
         { revisionId }
       );
 
-      return (
-        Groups.innerJoin(Memberships.select("statusId", "isAdmin"))
-          .innerJoin(Users.andFrom(Memberships.select("statusId", "isAdmin")))
+      group.Memberships = Memberships.select("isAdmin", "statusId")
+        .where({ groupId: group.id })
+        .all();
 
-          // TODO: make this compatible
-          .innerJoin(Revisions)
-          .all(0)
-      );
+      group.Users = Users.select()
+        .innerJoin(Memberships.where({ groupId: group.id }))
+        .all();
+
+      return group;
     }
   );
 }
 
-export function addMember(groupId: number, userId: number) {
+export function addMember(group: TGroup, userId: number) {
   return atomic(
     { operation: "adding new member", revisedBy: userId },
     (rev) => {
-      const group = Groups.where({ id: groupId, statusId: 1 }).get()!;
-
       Groups.update({ uuid: null, id: group.id }, rev.id);
 
-      return Memberships.insert({ userId, groupId }, { revisionId: rev.id });
+      return Memberships.insert(
+        { userId, groupId: group.id },
+        { revisionId: rev.id }
+      );
     }
   );
 }
 
 export function joinGroup(uuid: string, userId: number) {
   return atomic(() => {
-    const group = Groups.get(
-      "SELECT * FROM groups WHERE uuid = ? AND statusId = 1",
-      uuid
-    );
+    const group = Groups.select().where({ statusId: 1, uuid }).get();
 
     if (!group) err("link expired");
 
     if (
-      !!Memberships.get(
-        `SELECT * FROM memberships WHERE statusId IN (1, 2)
-        AND userId = ? AND groupId = ?`,
-        userId,
-        group.id
-      )
+      !!Memberships.select("groupId")
+        .where({ statusId: 1, userId, groupId: group.id })
+        .get()
     )
       err("already a member");
 
-    return addMember(group.id, userId);
+    return addMember(group, userId);
   });
 }
 
 export function getGroups(userId: number) {
   return atomic(() => {
-    const groups = Groups.innerJoin(Memberships.where({ userId })).orderBy({
-      col: "name",
-      fn: "LOWER",
-    });
+    const groups = Groups.select()
+      .innerJoin(Memberships.select("isAdmin").where({ userId, statusId: 1 }))
+      .orderBy({
+        col: "name",
+        fn: "LOWER",
+      })
+      .all();
 
-    Groups.all(
-      `SELECT g.* FROM groups g INNER JOIN memberships ms ON (
-        g.id = ms.groupId AND ms.userId = ?
-      )
-      ORDER BY g.name`,
-      userId
-    );
-
-    const getUsers = Users.innerJoin(
-      Memberships.where({ statusId: 1, groupId: { $SQL: ":id" } })
-    ).orderBy({ col: "name", fn: "LOWER" }).all;
+    const getUsers = Users.select()
+      .innerJoin(Memberships.where({ statusId: 1, groupId: { $SQL: ":id" } }))
+      .orderBy({ col: "name", fn: "LOWER" })
+      .prepare().all;
 
     groups.forEach((group) => (group.Users = getUsers(group)));
-
-    Memberships.select("isAdmin", "statusId").where({
-      groupId: { $SQL: ":groupId" },
-      userId: { $SQL: ":userId" },
-    }).get;
-
-    const get2FromMemberships = Memberships.get(
-      "SELECT admin, statusId FROM memberships WHERE groupId = :id AND userId = ?"
-    );
-
-    groups.forEach((group) =>
-      group.Users!.forEach((u) => get2FromMemberships(u.id, group))
-    );
 
     return groups;
   });
