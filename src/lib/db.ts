@@ -74,6 +74,8 @@ export async function atomic<T>(
           },
         });
 
+        revId = rev.id;
+
         res = await (operation as AtomicFunWithRevision<T>)(tx, rev);
       } else res = await (operation as AtomicFun<T>)(tx);
 
@@ -81,6 +83,7 @@ export async function atomic<T>(
     });
 
     if (revId % DB_BACKUP_EVERY_N_REVISIONS == 0) {
+      // TODO:
       // db.backup(`${DB_PATH}.backup.${rev.id}`);
     }
 
