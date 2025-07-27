@@ -1,5 +1,6 @@
 "use server";
 
+import { db } from "@/lib/db";
 import { parseCSV, parseData, TDBData } from "./parsers";
 import {
   Revision,
@@ -14,9 +15,11 @@ import {
 } from "@/lib/models";
 
 export const alreadyInProd = async () => {
-  const user = await User.findByPk(1);
+  const user = await db.user.findFirst({
+    where: { id: 1, email: { not: "user0@just.imported" } },
+  });
 
-  return !!user && user.email !== "user0@just.imported";
+  return !!user;
 };
 
 export async function importV3() {
