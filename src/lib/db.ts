@@ -1,4 +1,4 @@
-import { PrismaClient, Revision } from "./prisma";
+import { PrismaClient, Revision } from "@prisma/client";
 import { dateFromInt, datetimeFromInt, datetimeToInt } from "./utils";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
