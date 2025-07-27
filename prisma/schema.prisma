@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DB_PATH")
+  url      = env("DATABASE_URL")
 }
 
 model Meta {
@@ -31,9 +31,9 @@ model Archive {
 }
 
 model Revision {
-  id          Int @id @default(autoincrement())
-  createdOn   Int
-  createdById Int
+  id           Int @id @default(autoincrement())
+  createdOnInt Int @map("createdOn")
+  createdById  Int
 
   createdBy   User         @relation("createdByUser", fields: [createdById], references: [id], onDelete: NoAction)
   users       User[]
@@ -113,7 +113,7 @@ model Receipt {
   statusId   Int @default(0)
   groupId    Int
   paidById   Int
-  paidOn     Int
+  paidOnInt  Int @map("paidOn")
 
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   group    Group    @relation(fields: [groupId], references: [id], onDelete: NoAction)
