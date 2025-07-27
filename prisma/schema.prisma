@@ -18,12 +18,12 @@ model Meta {
 }
 
 model Archive {
-  id         Int   @id @default(autoincrement())
+  id         Int  @id @default(autoincrement())
   tableId    Int
   entityPk1  Int
   entityPk2  Int?
   revisionId Int
-  payload    Bytes
+  payload    Json
 
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 
@@ -59,6 +59,8 @@ model User {
   createdRevisions Revision[]   @relation("createdByUser")
   memberships      Membership[]
   defaultGroup     Group?       @relation("defaultGroup", fields: [defaultGroupId], references: [id])
+  itemShares       ItemShare[]
+  receipts         Receipt[]
 }
 
 model Group {
@@ -81,7 +83,6 @@ model Membership {
   groupId           Int
   revisionId        Int
   statusId          Int  @default(0)
-  admin             Int  @default(0)
   defaultCategoryId Int?
 
   revision        Revision  @relation(fields: [revisionId], references: [id], onDelete: Cascade)
@@ -110,12 +111,13 @@ model Receipt {
   revisionId Int
   statusId   Int @default(0)
   groupId    Int
-  paidBy     Int
+  paidById   Int
   paidOn     Int
 
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   group    Group    @relation(fields: [groupId], references: [id])
   items    Item[]
+  paidBy   User     @relation(fields: [paidById], references: [id])
 }
 
 model Item {
@@ -141,6 +143,7 @@ model ItemShare {
 
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   item     Item     @relation(fields: [itemId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 
   @@id([itemId, userId])
 }
