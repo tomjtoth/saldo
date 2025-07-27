@@ -219,6 +219,8 @@ DROP TABLE "statuses";
 DROP TABLE "users";
 DROP TABLE "users_archive";
 
+DROP VIEW consumption;
+
 
 COMMIT TRANSACTION;
 PRAGMA foreign_keys = ON;
