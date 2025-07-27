@@ -49,7 +49,7 @@ model Revision {
 model User {
   id             Int     @id @default(autoincrement())
   revisionId     Int
-  deleted        Int     @default(0)
+  statusId       Int     @default(0)
   email          String
   name           String?
   image          String?
@@ -64,7 +64,7 @@ model User {
 model Group {
   id          Int     @id @default(autoincrement())
   revisionId  Int
-  deleted     Int     @default(0)
+  statusId    Int     @default(0)
   name        String
   description String?
   uuid        String?
@@ -80,7 +80,7 @@ model Membership {
   userId            Int
   groupId           Int
   revisionId        Int
-  deleted           Int  @default(0)
+  statusId          Int  @default(0)
   admin             Int  @default(0)
   defaultCategoryId Int?
 
@@ -95,7 +95,7 @@ model Membership {
 model Category {
   id          Int     @id @default(autoincrement())
   revisionId  Int
-  deleted     Int     @default(0)
+  statusId    Int     @default(0)
   groupId     Int
   name        String
   description String?
@@ -108,7 +108,7 @@ model Category {
 model Receipt {
   id         Int @id @default(autoincrement())
   revisionId Int
-  deleted    Int @default(0)
+  statusId   Int @default(0)
   groupId    Int
   paidBy     Int
   paidOn     Int
@@ -121,7 +121,7 @@ model Receipt {
 model Item {
   id         Int     @id @default(autoincrement())
   revisionId Int
-  deleted    Int     @default(0)
+  statusId   Int     @default(0)
   receiptId  Int
   categoryId Int
   cost       Int
@@ -136,7 +136,7 @@ model ItemShare {
   itemId     Int
   userId     Int
   revisionId Int
-  deleted    Int @default(0)
+  statusId   Int @default(0)
   share      Int
 
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
