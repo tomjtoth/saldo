@@ -1,89 +1,88 @@
-import { Category, PrismaClient, Revision, User } from "./prisma";
-import { dateFromInt, datetimeToInt } from "./utils";
+import { PrismaClient, Revision } from "./prisma";
+import { dateFromInt, datetimeFromInt, datetimeToInt } from "./utils";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 
-const x:Category = {}
-
 export const db = new PrismaClient().$extends({
-  query: {
+  result: {
     receipt: {
-      async findMany({ model, operation, args, query }) {
-        const receipts = await query(args);
-
-        receipts.forEach((receipt) => {
-          if (receipt.paidOn) receipt.paidOn = dateFromInt(receipt.paidOn),
-        })
-
-
-        return receipts
+      paidOn: {
+        needs: { paidOnInt: true },
+        compute: (rec) => dateFromInt(rec.paidOnInt),
+      },
+    },
+    revision: {
+      createdOn: {
+        needs: { createdOnInt: true },
+        compute: (rev) => datetimeFromInt(rev.createdOnInt),
       },
     },
   },
 });
 
+type PrismaTransaction = Omit<
+  typeof db,
+  "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
+>;
+
 type AtomicOpts = {
   operation?: string;
-  transaction?: "deferred" | "immediate" | "exclusive";
 };
 
 type AtomicWithRevOpts = AtomicOpts & {
   revisedBy: number;
 };
 
-type AtomicFun = (db: PrismaClient) => Promise<T>;
+type AtomicFun<T> = (tx: PrismaTransaction) => Promise<T>;
+type AtomicFunWithRevision<T> = (
+  tx: PrismaTransaction,
+  revision: Revision
+) => Promise<T>;
 
 export function atomic<T>(
   options: AtomicWithRevOpts,
-  operation: (db: PrismaClient, revision: Revision) => T
+  operation: (tx: PrismaTransaction, revision: Revision) => T
 ): T;
 
 export function atomic<T>(
   options: AtomicOpts,
-  operation: () => Promise<T>
+  operation: AtomicFun<T>
 ): Promise<T>;
 
-export function atomic<T>(
-  operation: (db: PrismaClient) => Promise<T>
-): Promise<T>;
+export function atomic<T>(operation: AtomicFun<T>): Promise<T>;
 
-export function atomic<T>(
-  optsOrFn: AtomicOpts | ((db: PrismaClient) => Promise<T>),
-  maybeFn?:
-    | ((db: PrismaClient, revision: Revision) => Promise<T>)
-    | ((db: PrismaClient) => Promise<T>)
+export async function atomic<T>(
+  optsOrFn: AtomicOpts | AtomicFun<T>,
+  maybeFn?: AtomicFunWithRevision<T> | AtomicFun<T>
 ): Promise<T> {
   const isFnOnly = typeof optsOrFn === "function";
   const opts = isFnOnly ? {} : optsOrFn;
   const operation = isFnOnly ? optsOrFn : maybeFn!;
-  const {
-    revisedBy,
-    operation: opDescription,
-    transaction: mode,
-  } = opts as AtomicWithRevOpts;
+  const { revisedBy, operation: opDescription } = opts as AtomicWithRevOpts;
 
   let revId = -1;
 
   try {
-    const res = db.$transaction(async (db) => {
+    const res = await db.$transaction(async (tx) => {
       let res: T;
 
       if (revisedBy) {
-        const rev = await db.revision.create({
+        const rev = await tx.revision.create({
           data: {
-            revisedById: revisedBy,
-            revisedOn: datetimeToInt(),
+            createdById: revisedBy,
+            createdOnInt: datetimeToInt(),
           },
         });
 
-        res = (operation as (db, rev: Revision) => T)(rev);
-      } else res = (operation as () => T)(db);
+        res = await (operation as AtomicFunWithRevision<T>)(tx, rev);
+      } else res = await (operation as AtomicFun<T>)(tx);
 
       return res;
     });
 
-    // if (revId % DB_BACKUP_EVERY_N_REVISIONS == 0)
-    //   db.backup(`${DB_PATH}.backup.${rev.id}`);
+    if (revId % DB_BACKUP_EVERY_N_REVISIONS == 0) {
+      // db.backup(`${DB_PATH}.backup.${rev.id}`);
+    }
 
     console.log(`\n\t${opDescription ?? "Transaction"} succeeded!\n`);
 
