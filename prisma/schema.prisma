@@ -14,7 +14,7 @@ datasource db {
 model Meta {
   id   Int    @id @default(autoincrement())
   info String
-  data Bytes
+  data Json
 }
 
 model Archive {
@@ -35,7 +35,7 @@ model Revision {
   createdOn   Int
   createdById Int
 
-  createdBy   User         @relation("createdByUser", fields: [createdById], references: [id])
+  createdBy   User         @relation("createdByUser", fields: [createdById], references: [id], onDelete: NoAction)
   users       User[]
   groups      Group[]
   memberships Membership[]
@@ -58,7 +58,7 @@ model User {
   revision         Revision     @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   createdRevisions Revision[]   @relation("createdByUser")
   memberships      Membership[]
-  defaultGroup     Group?       @relation("defaultGroup", fields: [defaultGroupId], references: [id])
+  defaultGroup     Group?       @relation("defaultGroup", fields: [defaultGroupId], references: [id], onDelete: NoAction)
   itemShares       ItemShare[]
   receipts         Receipt[]
 }
@@ -86,9 +86,9 @@ model Membership {
   defaultCategoryId Int?
 
   revision        Revision  @relation(fields: [revisionId], references: [id], onDelete: Cascade)
-  user            User      @relation(fields: [userId], references: [id])
-  group           Group     @relation(fields: [groupId], references: [id])
-  defaultCategory Category? @relation(fields: [defaultCategoryId], references: [id])
+  user            User      @relation(fields: [userId], references: [id], onDelete: NoAction)
+  group           Group     @relation(fields: [groupId], references: [id], onDelete: NoAction)
+  defaultCategory Category? @relation(fields: [defaultCategoryId], references: [id], onDelete: NoAction)
 
   @@id([userId, groupId])
 }
@@ -102,8 +102,9 @@ model Category {
   description String?
 
   revision              Revision     @relation(fields: [revisionId], references: [id], onDelete: Cascade)
-  group                 Group        @relation(fields: [groupId], references: [id])
+  group                 Group        @relation(fields: [groupId], references: [id], onDelete: NoAction)
   defaultingMemberships Membership[]
+  items                 Item[]
 }
 
 model Receipt {
@@ -115,9 +116,9 @@ model Receipt {
   paidOn     Int
 
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
-  group    Group    @relation(fields: [groupId], references: [id])
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: NoAction)
   items    Item[]
-  paidBy   User     @relation(fields: [paidById], references: [id])
+  paidBy   User     @relation(fields: [paidById], references: [id], onDelete: NoAction)
 }
 
 model Item {
@@ -130,7 +131,8 @@ model Item {
   notes      String?
 
   revision   Revision    @relation(fields: [revisionId], references: [id], onDelete: Cascade)
-  receipt    Receipt     @relation(fields: [receiptId], references: [id])
+  receipt    Receipt     @relation(fields: [receiptId], references: [id], onDelete: NoAction)
+  category   Category    @relation(fields: [categoryId], references: [id], onDelete: NoAction)
   itemShares ItemShare[]
 }
 
@@ -142,8 +144,8 @@ model ItemShare {
   share      Int
 
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
-  item     Item     @relation(fields: [itemId], references: [id])
-  user     User     @relation(fields: [userId], references: [id])
+  item     Item     @relation(fields: [itemId], references: [id], onDelete: NoAction)
+  user     User     @relation(fields: [userId], references: [id], onDelete: NoAction)
 
   @@id([itemId, userId])
 }
