@@ -1,15 +1,6 @@
 "use server";
 
-import {
-  Category,
-  Group,
-  Item,
-  ItemShare,
-  Membership,
-  Receipt,
-  Revision,
-  User,
-} from "@/lib/models";
+import { db } from "@/lib/db";
 import { alreadyInProd } from "@/lib/services/importV3";
 
 import CliImportSection from "./clientSide";
@@ -28,14 +19,14 @@ export default async function ImportSection() {
       items,
       itemShares,
     ] = await Promise.all([
-      User.count(),
-      Revision.count(),
-      Group.count(),
-      Membership.count(),
-      Category.count(),
-      Receipt.count(),
-      Item.count(),
-      ItemShare.count(),
+      db.user.count(),
+      db.revision.count(),
+      db.group.count(),
+      db.membership.count(),
+      db.category.count(),
+      db.receipt.count(),
+      db.item.count(),
+      db.itemShare.count(),
     ]);
 
     rendered = (
