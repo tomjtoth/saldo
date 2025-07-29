@@ -1,15 +1,19 @@
 import fs from "fs";
 
 import { Sequelize, Transaction } from "sequelize";
-import { Umzug } from "umzug";
+import { Database, OPEN_CREATE, OPEN_READWRITE } from "sqlite3";
+
+import { err } from "../utils";
+
+const storage =
+  process.env.NODE_ENV === "test"
+    ? ":memory:"
+    : process.env.DB_PATH ||
+      `data/${process.env.NODE_ENV === "production" ? "prod" : "dev"}.db`;
 
 export const db = new Sequelize({
   dialect: "sqlite",
-  storage:
-    process.env.NODE_ENV === "test"
-      ? ":memory:"
-      : process.env.DB_PATH ||
-        `data/${process.env.NODE_ENV === "production" ? "prod" : "dev"}.db`,
+  storage,
   pool: { max: 1, maxUses: Infinity, idle: Infinity },
 });
 
@@ -37,58 +41,80 @@ export async function atomic<T>(
   }
 }
 
-const getRawSqlClient = () => ({
-  query: async (sql: string, values?: unknown[]) =>
-    db.query(sql, { bind: values }),
-});
+export const migrator = {
+  up: async () => {
+    const db = new Database(storage, OPEN_CREATE | OPEN_READWRITE);
 
-const RE_SINGLE_STMT =
-  /^(?:(?:CREATE|ALTER|DROP) TABLE|(?:CREATE|DROP) VIEW|CREATE INDEX|INSERT|DELETE|UPDATE).+?;/gims;
+    const query = (sql: string, values?: unknown[]) =>
+      new Promise<unknown[]>((resolve, reject) => {
+        db.all(sql, values, (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        });
+      });
 
-export const migrator = new Umzug({
-  migrations: {
-    glob: "migrations/*.sql",
-    resolve({ name, path }) {
-      const sql = fs.readFileSync(path!).toString();
-      const separator = sql.indexOf("-- DOWN --");
+    const exec = (sql: string) =>
+      new Promise<void>((resolve, reject) => {
+        db.exec(sql, (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
 
-      const exec = async (script: string) => {
-        await db.query("PRAGMA foreign_keys = OFF;");
+    await exec(`CREATE TABLE IF NOT EXISTS meta (
+      id INTEGER PRIMARY KEY,
+      info TEXT NOT NULL UNIQUE,
+      payload BLOB
+    );`);
 
-        await db.transaction(async (transaction) => {
-          for (const [stmt] of script.matchAll(RE_SINGLE_STMT)) {
-            await db.query(stmt, { transaction });
-          }
+    const separateMigrationsTableExists =
+      (await query("SELECT 1 FROM sqlite_master WHERE tbl_name = 'migrations'"))
+        .length > 0;
+
+    if (separateMigrationsTableExists) {
+      await exec(`
+        INSERT INTO meta (info, payload)
+        SELECT 'migrations', jsonb_group_array(name)
+        FROM migrations ORDER BY name;
+
+        DROP TABLE migrations;
+      `);
+    }
+
+    const done = (await query(
+      "SELECT value FROM meta, json_each(payload) WHERE info = 'migrations'"
+    )) as string[];
+
+    const splitter = /(.+)^--\s*DOWN\s*--$(.*)/ms;
+
+    const res = fs
+      .readdirSync("migrations")
+      .filter((file) => file.endsWith(".sql") && !done.includes(file))
+      .map(async (migTodo) => {
+        const mig = fs.readFileSync(`migrations/${migTodo}`, {
+          encoding: "utf-8",
         });
 
-        await db.query("PRAGMA foreign_keys = ON;");
-      };
-      return {
-        name,
-        path,
-        up: async () => await exec(sql.slice(0, separator)),
-        down: async () => await exec(sql.slice(separator)),
-      };
-    },
-  },
-  context: getRawSqlClient(),
-  storage: {
-    async executed({ context: client }) {
-      await client.query(`CREATE TABLE IF NOT EXISTS migrations (name TEXT)`);
-      const [results] = await client.query(`SELECT name FROM migrations`);
-      return (results as { name: string }[]).map((r) => r.name);
-    },
+        const split = mig.match(splitter);
 
-    async logMigration({ name, context: client }) {
-      await client.query(`INSERT INTO migrations (name) VALUES ($1)`, [name]);
-    },
+        if (!split) err(`missing '^-- DOWN --$' line in "${migTodo}"`);
 
-    async unlogMigration({ name, context: client }) {
-      await client.query(`DELETE FROM migrations WHERE name = $1`, [name]);
-    },
+        const [, up] = split;
+
+        await exec(up);
+
+        await query(
+          `INSERT INTO meta (info, payload) VALUES ('migrations', jsonb_array(:migTodo))
+            ON CONFLICT DO UPDATE SET payload = jsonb_insert(payload, '$[#]', :migTodo)`,
+          [{ migTodo }]
+        );
+
+        return migTodo;
+      });
+
+    await exec("VACUUM");
+    db.close();
+
+    return res;
   },
-  logger: console,
-  create: {
-    folder: "migrations",
-  },
-});
+};
