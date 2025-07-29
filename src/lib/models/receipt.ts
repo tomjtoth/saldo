@@ -1,104 +1,77 @@
-import { DataTypes, Model, ModelAttributes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
 import { dateFromInt, dateToInt } from "@/lib/utils";
-import {
-  seqIdCols,
-  seqInitOpts,
-  REV_ID_INTEGER_PK,
-  TIDs,
-  TCrIDs,
-  Revision,
-  Status,
-} from "./common";
+import { seqInitOpts, TColSRI, Revision, seqCols } from "./common";
 import { User } from "./user";
 import { Item } from "./item";
 import { Group } from "./group";
 
-export type TReceipt = TIDs & {
+export type TReceipt = TColSRI & {
   groupId: number;
-  paidOn: number | string;
-  paidBy: number;
+  paidOnInt: number;
+  paidOn: string;
+  paidById: number;
 
   Revision?: Revision;
-  Status?: Status;
-  User?: User;
+  paidBy?: User;
   Items?: Item[];
-
-  archives?: TReceipt[];
-  current?: TReceipt;
 };
 
-export type TCrReceipt = TCrIDs &
-  Partial<Pick<TReceipt, "paidOn">> &
+export type TCrReceipt = Partial<TColSRI> &
+  Partial<Pick<TReceipt, "paidOnInt">> &
   Pick<TReceipt, "paidBy" | "groupId">;
 
-/**
- * used in both Xy and XyArchive, but Archive additionally implements revId as PK
- */
-const COLS: ModelAttributes<Receipt, TReceipt> = {
-  ...seqIdCols,
-  groupId: {
-    type: DataTypes.INTEGER,
-    references: { model: Group, key: "id" },
-  },
-  paidOn: {
-    type: DataTypes.INTEGER,
-    defaultValue: dateToInt,
-
-    get() {
-      const raw = this.getDataValue("paidOn") as number;
-      return dateFromInt(raw);
-    },
-
-    set(val: string) {
-      const int = dateToInt(val);
-      this.setDataValue("paidOn", int);
-    },
-  },
-  paidBy: {
-    type: DataTypes.INTEGER,
-    references: { model: User, key: "id" },
-    allowNull: false,
-  },
-};
-
-class Common extends Model<TReceipt, TCrReceipt> {
+export class Receipt extends Model<TReceipt, TCrReceipt> {
   id!: number;
-  revId?: number;
+  revisionId?: number;
   statusId!: number;
   groupId!: number;
 
-  paidOn!: number;
+  paidOnInt!: number;
   paidBy!: number;
 
+  paidOn!: string;
   Revision?: Revision;
-  Status?: Status;
   User?: User;
 
   Items?: Item[];
 }
 
-export class Receipt extends Common {
-  archives?: ReceiptArchive[];
-}
-
-Receipt.init(COLS, {
-  ...seqInitOpts,
-  modelName: "Receipt",
-});
-
-export class ReceiptArchive extends Common {
-  current?: Receipt;
-}
-
-ReceiptArchive.init(
+Receipt.init(
   {
-    ...COLS,
-    ...REV_ID_INTEGER_PK,
+    ...seqCols.SRI,
+
+    groupId: {
+      type: DataTypes.INTEGER,
+      references: { model: Group, key: "id" },
+    },
+
+    paidOnInt: {
+      type: DataTypes.INTEGER,
+      field: "paid_on",
+      defaultValue: dateToInt,
+    },
+
+    paidOn: {
+      type: DataTypes.VIRTUAL,
+
+      get() {
+        const raw = this.getDataValue("paidOnInt");
+        return dateFromInt(raw);
+      },
+
+      set(val: string) {
+        const int = dateToInt(val);
+        this.setDataValue("paidOnInt", int);
+      },
+    },
+
+    paidById: {
+      type: DataTypes.INTEGER,
+      references: { model: User, key: "id" },
+      allowNull: false,
+    },
   },
-  {
-    ...seqInitOpts,
-    modelName: "ReceiptArchive",
-    tableName: "receipts_archive",
-  }
+
+  seqInitOpts("Receipt")
 );
