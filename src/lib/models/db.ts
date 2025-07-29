@@ -74,23 +74,29 @@ export const migrator = {
     if (separateMigrationsTableExists) {
       await exec(`
         INSERT INTO meta (info, payload)
-        SELECT 'migrations', jsonb_group_array(name)
+        SELECT 'migrations', json_group_array(name)
         FROM migrations ORDER BY name;
 
         DROP TABLE migrations;
       `);
     }
 
-    const done = (await query(
-      "SELECT value FROM meta, json_each(payload) WHERE info = 'migrations'"
-    )) as string[];
+    const done = (
+      (await query(
+        "SELECT value FROM meta, json_each(payload) WHERE info = 'migrations'"
+      )) as { value: string }[]
+    ).map((x) => x.value);
 
     const splitter = /(.+)^--\s*DOWN\s*--$(.*)/ms;
 
-    const res = fs
+    const migs = fs
       .readdirSync("migrations")
-      .filter((file) => file.endsWith(".sql") && !done.includes(file))
-      .map(async (migTodo) => {
+      .filter((file) => file.endsWith(".sql") && !done.includes(file));
+
+    const res: string[] = [];
+
+    try {
+      for (const migTodo of migs) {
         const mig = fs.readFileSync(`migrations/${migTodo}`, {
           encoding: "utf-8",
         });
@@ -99,21 +105,48 @@ export const migrator = {
 
         if (!split) err(`missing '^-- DOWN --$' line in "${migTodo}"`);
 
-        const [, up] = split;
+        const [, script] = split;
 
-        await exec(up);
+        await exec("PRAGMA foreign_keys = OFF;");
+        await exec("BEGIN;");
 
-        await query(
-          `INSERT INTO meta (info, payload) VALUES ('migrations', jsonb_array(:migTodo))
-            ON CONFLICT DO UPDATE SET payload = jsonb_insert(payload, '$[#]', :migTodo)`,
-          [{ migTodo }]
-        );
+        try {
+          await exec(script);
 
-        return migTodo;
-      });
+          const violations = await query("PRAGMA foreign_key_check;");
+          const len = violations.length;
 
-    await exec("VACUUM");
-    db.close();
+          if (len > 0)
+            err(
+              `${len} foreign_key violations occured during "${migTodo}":\n\n${JSON.stringify(
+                violations,
+                null,
+                "\t"
+              )}\n`
+            );
+
+          await exec("COMMIT;");
+
+          await query(
+            `INSERT INTO meta (info, payload) VALUES ('migrations', json_array(?1))
+            ON CONFLICT DO UPDATE SET payload = json_insert(payload, '$[#]', ?1)`,
+            [migTodo]
+          );
+        } catch (err) {
+          await exec("ROLLBACK;");
+          throw err;
+        } finally {
+          await exec("PRAGMA foreign_keys = ON;");
+        }
+
+        res.push(migTodo);
+      }
+    } catch (err) {
+      throw err;
+    } finally {
+      await exec("VACUUM");
+      db.close();
+    }
 
     return res;
   },
