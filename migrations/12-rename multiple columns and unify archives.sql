@@ -1,8 +1,3 @@
-PRAGMA foreign_keys = OFF;
-BEGIN TRANSACTION;
-
-
-
 -- rename old tables
 
 
@@ -28,13 +23,13 @@ CREATE TABLE archives (
      *   REFERENCES the column of a table
      *   TODO: example query
      */
-    table_column_id INTEGER NOT NULL, 
-    
+    table_column_id INTEGER NOT NULL,
+
     -- REFERENCES 1st/only PK of a table
-    entity_pk1 INTEGER NOT NULL, 
-    
+    entity_pk1 INTEGER NOT NULL,
+
     -- REFERENCES the 2nd PK of a table
-    entity_pk2 INTEGER, 
+    entity_pk2 INTEGER,
     revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
     payload BLOB -- TEXT | INTEGER
 );
@@ -130,11 +125,11 @@ CREATE TABLE item_shares (
 
 
 INSERT INTO meta (info, payload)
-    SELECT 'datetime', jsonb_object('anchor', '2020-01-01', 'timezone', 'Europe/Helsinki')
+    SELECT 'datetime', json_object('anchor', '2020-01-01', 'timezone', 'Europe/Helsinki')
     UNION
-    SELECT 'statuses',  jsonb_array('ACTIVE', 'INACTIVE')
+    SELECT 'statuses',  json_array('ACTIVE', 'INACTIVE')
     UNION
-    SELECT 'table_column_id', jsonb_array(
+    SELECT 'table_column_id', json_array(
         'categories.name', 'categories.description', 'categories.status_id', 'categories.group_id',
         'groups.name', 'groups.description', 'groups.status_id', 'groups.uuid',
         'memberships.status_id', 'memberships.default_category_id'
@@ -179,7 +174,7 @@ INSERT INTO memberships (group_id, user_id, revision_id, status_id, default_cate
 INSERT INTO categories (id, revision_id, status_id, group_id, name, description)
     SELECT id, rev_id, status_id - 1, group_id, name, description
     FROM OLD_CATEGORIES;
-    
+
 INSERT INTO receipts (id, revision_id, status_id, group_id, paid_on, paid_by)
     SELECT id, rev_id, status_id - 1, group_id, paid_on, paid_by
     FROM OLD_RECEIPTS;
@@ -237,10 +232,6 @@ INNER JOIN items i ON r.id = i.receiptId
 LEFT JOIN itemShares sh ON (sh.itemId = i.id AND sh.statusId = 1)
 WHERE r.statusId = 1 AND i.statusId = 1
 ORDER BY paidOn;
-
-
-COMMIT TRANSACTION;
-PRAGMA foreign_keys = ON;
 
 
 
