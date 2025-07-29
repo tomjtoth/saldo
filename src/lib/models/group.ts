@@ -1,43 +1,17 @@
-import { DataTypes, Model, ModelAttributes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { v4 as uuid } from "uuid";
 
-import {
-  REV_ID_INTEGER_PK,
-  seqIdCols,
-  seqInitOpts,
-  TCrIDs,
-  TIDs,
-} from "./common";
+import { seqCols, seqInitOpts, TColSRI } from "./common";
 import { has3ConsecutiveLetters } from "../utils";
 import { User } from "./user";
 import { Category } from "./category";
 import { Membership } from "./membership";
 import { Receipt } from "./receipt";
+
 import { TParetoChartData } from "@/components/pareto/chart";
 import { TBalanceChartData } from "@/components/balance/chart";
 
-/**
- * used in both Xy and XyArchive, but Archive additionally implements revId as PK
- */
-const COLS: ModelAttributes<Group, TGroup> = {
-  ...seqIdCols,
-  name: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    validate: {
-      has3ConsecutiveLetters,
-    },
-  },
-  description: {
-    type: DataTypes.TEXT,
-  },
-  uuid: {
-    type: DataTypes.TEXT,
-    defaultValue: uuid,
-  },
-};
-
-export type TGroup = TIDs & {
+export type TGroup = TColSRI & {
   name: string;
   description?: string;
   uuid?: string | null;
@@ -51,9 +25,9 @@ export type TGroup = TIDs & {
   balance?: TBalanceChartData;
 };
 
-export type TCrGroup = TCrIDs & Pick<TGroup, "name" | "description">;
+export type TCrGroup = Partial<TColSRI> & Pick<TGroup, "name" | "description">;
 
-class Common extends Model<TGroup, TCrGroup> {
+export class Group extends Model<TGroup, TCrGroup> {
   id!: number;
   revId!: number;
   statusId!: number;
@@ -71,21 +45,27 @@ class Common extends Model<TGroup, TCrGroup> {
   balance?: TBalanceChartData;
 }
 
-export class Group extends Common {}
-Group.init(COLS, {
-  ...seqInitOpts,
-  modelName: "Group",
-});
+Group.init(
+  {
+    ...seqCols.SRI,
 
-export class GroupArchive extends Common {}
-GroupArchive.init(
-  {
-    ...COLS,
-    ...REV_ID_INTEGER_PK,
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        has3ConsecutiveLetters,
+      },
+    },
+
+    description: {
+      type: DataTypes.TEXT,
+    },
+
+    uuid: {
+      type: DataTypes.TEXT,
+      defaultValue: uuid,
+    },
   },
-  {
-    ...seqInitOpts,
-    modelName: "GroupArchive",
-    tableName: "groups_archive",
-  }
+
+  seqInitOpts("Group")
 );
