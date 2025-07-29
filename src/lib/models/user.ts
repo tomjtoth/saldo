@@ -1,12 +1,12 @@
-import { DataTypes, Model, ModelAttributes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
-import type { TCrIDs, TIDs } from "./common";
-import { seqIdCols, seqInitOpts, REV_ID_INTEGER_PK } from "./common";
+import type { TCrIDs, TColSRI } from "./common";
+import { seqCols, seqInitOpts } from "./common";
 import { has3ConsecutiveLetters } from "../utils";
 import { Membership } from "./membership";
 import { Group } from "./group";
 
-export type TUser = TIDs & {
+export type TUser = TColSRI & {
   email: string;
   name: string;
   image?: string;
@@ -18,40 +18,7 @@ export type TUser = TIDs & {
 
 export type TCrUser = TCrIDs & Pick<TUser, "email" | "name">;
 
-/**
- * used in both Xy and XyArchive, but Archive additionally implements revId as PK
- */
-const COLS: ModelAttributes<User, TUser> = {
-  ...seqIdCols,
-
-  email: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    unique: true,
-    validate: {
-      isEmail: true,
-    },
-  },
-
-  name: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    validate: {
-      has3ConsecutiveLetters,
-    },
-  },
-
-  image: {
-    type: DataTypes.TEXT,
-  },
-
-  defaultGroupId: {
-    type: DataTypes.INTEGER,
-    references: { model: Group, key: "id" },
-  },
-};
-
-class Common extends Model<TUser, TCrUser> {
+export class User extends Model<TUser, TCrUser> {
   id!: number;
   revId?: number;
   statusId!: number;
@@ -60,31 +27,40 @@ class Common extends Model<TUser, TCrUser> {
   image?: string;
   defaultGroupId?: number;
 
-  Membership?: Membership;
+  Membership?: Membership[];
   Groups?: Group[];
 }
 
-export class User extends Common {
-  archives?: UserArchive[];
-}
-
-User.init(COLS, {
-  ...seqInitOpts,
-  modelName: "User",
-});
-
-export class UserArchive extends Common {
-  current?: User;
-}
-
-UserArchive.init(
+User.init(
   {
-    ...COLS,
-    ...REV_ID_INTEGER_PK,
+    ...seqCols.SRI,
+
+    email: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true,
+      },
+    },
+
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        has3ConsecutiveLetters,
+      },
+    },
+
+    image: {
+      type: DataTypes.TEXT,
+    },
+
+    defaultGroupId: {
+      type: DataTypes.INTEGER,
+      references: { model: Group, key: "id" },
+    },
   },
-  {
-    ...seqInitOpts,
-    modelName: "UserArchive",
-    tableName: "users_archive",
-  }
+
+  seqInitOpts("User")
 );
