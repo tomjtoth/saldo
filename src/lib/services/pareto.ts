@@ -46,8 +46,8 @@ export async function getPareto(
     ),
 
     step2 AS (
-      SELECT 
-        gid, 
+      SELECT
+        gid,
         gName,
         SUM(total) AS orderer,
         JSON_INSERT(
@@ -58,7 +58,7 @@ export async function getPareto(
       GROUP BY gid, cat
       ORDER BY orderer DESC
     ),
-  
+
     step3 AS (
       SELECT
         gid,
@@ -72,7 +72,7 @@ export async function getPareto(
       s3.gName AS name,
       JSON_GROUP_ARRAY(DISTINCT s1.user) AS users,
       categories
-    FROM step3 s3 
+    FROM step3 s3
     LEFT JOIN step1 s1 ON s1.gid = s3.gid
     GROUP BY s3.gid`,
 

@@ -25,8 +25,8 @@ export async function getBalance(userId: number) {
     ),
 
     step2 AS (
-      SELECT 
-        gid, 
+      SELECT
+        gid,
         gName,
         date,
         CONCAT(u1.name, ' vs ', u2.name) AS relation,
@@ -38,7 +38,7 @@ export async function getBalance(userId: number) {
     ),
 
     step3 AS (
-      SELECT 
+      SELECT
         gid,
         gName,
         date,
@@ -51,14 +51,14 @@ export async function getBalance(userId: number) {
       GROUP BY gid, date, relation
     )
 
-    SELECT 
+    SELECT
     	gid AS id,
       gName AS name,
       JSON_OBJECT(
         'relations',
-        JSON_GROUP_ARRAY(distinct relation), 
-        
-        'data', 
+        JSON_GROUP_ARRAY(distinct relation),
+
+        'data',
         JSON_GROUP_ARRAY(JSON_OBJECT('date', date, relation, share))
       ) AS balance
     FROM step3
