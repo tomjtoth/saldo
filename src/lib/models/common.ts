@@ -1,110 +1,93 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, ModelAttributeColumnOptions } from "sequelize";
 
 import { db } from "./db";
 import { User } from "./user";
 import { datetimeFromInt, datetimeToInt } from "../utils";
 
-export type TIDs = {
+export type TColI = {
   id: number;
+};
+
+export type TColSR = {
   revId: number;
   statusId: number;
 };
 
-export type TCrIDs = Partial<TIDs>;
+export type TColSRI = TColI & TColSR;
 
-const id = {
-  type: DataTypes.INTEGER,
-  primaryKey: true,
-  autoIncrement: true,
-};
-
-export const seqInitOpts = {
-  sequelize: db,
-  timestamps: false,
-  underscored: true,
-};
+export type TCrIDs = Partial<TColSRI>;
 
 type TRevision = {
   id: number;
   revOn: number;
   revBy: number;
+
+  createdOn: string;
 };
 
-export type TCrRevision = Partial<Omit<TRevision, "revBy">> &
+export type TCrRevision = Partial<Omit<TRevision, "revBy" | "revOn">> &
   Pick<TRevision, "revBy">;
 
 export class Revision extends Model<TRevision, TCrRevision> {
   id!: number;
-  revOn!: number;
-  revBy!: number;
-
+  revOn!: string;
   User?: User;
 }
 
+const id: ModelAttributeColumnOptions = {
+  type: DataTypes.INTEGER,
+  primaryKey: true,
+  autoIncrement: true,
+};
+
+const revId: ModelAttributeColumnOptions = {
+  type: DataTypes.INTEGER,
+  references: { model: Revision, key: "id" },
+};
+
+const statusId: ModelAttributeColumnOptions = {
+  type: DataTypes.INTEGER,
+  defaultValue: 0,
+};
+
+export const seqCols = {
+  I: { id },
+  IR: { id, revId },
+  SR: { statusId, revId },
+  SRI: { statusId, revId, id },
+};
+
+export const seqInitOpts = (modelName: string) => ({
+  modelName,
+  sequelize: db,
+  timestamps: false,
+  underscored: true,
+});
+
 Revision.init(
   {
-    id,
+    ...seqCols.I,
+
     revOn: {
       type: DataTypes.BIGINT,
+      field: "created_on",
       defaultValue: datetimeToInt,
+    },
+
+    createdOn: {
+      type: DataTypes.VIRTUAL,
       get() {
-        const rawValue = this.getDataValue("revOn") as number;
+        const rawValue = this.getDataValue("revOn");
         return datetimeFromInt(rawValue);
       },
     },
+
     revBy: {
       type: DataTypes.INTEGER,
-      references: { model: "users", key: "id" },
+      field: "created_by",
+      references: { model: User, key: "id" },
     },
   },
 
-  {
-    ...seqInitOpts,
-    modelName: "Revision",
-  }
+  seqInitOpts("Revision")
 );
-
-export type TStatus = {
-  id: number;
-  description: string;
-};
-
-type TCrStatus = Pick<TStatus, "description">; //&Partial<Pick<TStatus, "id">>
-
-export class Status extends Model<TStatus, TCrStatus> {
-  id!: number;
-  description!: string;
-}
-
-Status.init(
-  {
-    id,
-    description: { type: DataTypes.TEXT, allowNull: false },
-  },
-
-  {
-    ...seqInitOpts,
-    modelName: "Status",
-  }
-);
-
-export const seqIdCols = {
-  id,
-  revId: {
-    type: DataTypes.INTEGER,
-    references: { model: Revision, key: "id" },
-    // allowNull: false,
-  },
-  statusId: {
-    type: DataTypes.INTEGER,
-    defaultValue: 1,
-    references: { model: Status, key: "id" },
-  },
-};
-
-export const REV_ID_INTEGER_PK = {
-  revId: {
-    ...seqIdCols.revId,
-    primaryKey: true,
-  },
-};
