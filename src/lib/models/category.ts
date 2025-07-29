@@ -1,55 +1,22 @@
-import { DataTypes, Model, ModelAttributes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
-import {
-  seqIdCols,
-  seqInitOpts,
-  REV_ID_INTEGER_PK,
-  TIDs,
-  TCrIDs,
-  Status,
-  Revision,
-} from "./common";
+import { seqInitOpts, TColSRI, Revision, seqCols } from "./common";
 import { has3ConsecutiveLetters } from "../utils";
 import { Group } from "./group";
 
-/**
- * used in both Xy and XyArchive, but Archive additionally implements revId as PK
- */
-const COLS: ModelAttributes<Category, TCategory> = {
-  ...seqIdCols,
-  groupId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  name: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    validate: {
-      has3ConsecutiveLetters,
-    },
-  },
-  description: {
-    type: DataTypes.TEXT,
-  },
-};
-
-export type TCategory = TIDs & {
+export type TCategory = TColSRI & {
   groupId: number;
   name: string;
   description?: string;
 
   Revision?: Revision;
-  Status?: Status;
   Group?: Group;
-
-  current?: Category;
-  archives?: CategoryArchive[];
 };
 
-export type TCrCategory = TCrIDs &
+export type TCrCategory = Partial<TColSRI> &
   Pick<TCategory, "name" | "description" | "groupId">;
 
-class Common extends Model<TCategory, TCrCategory> {
+export class Category extends Model<TCategory, TCrCategory> {
   id!: number;
   revId!: number;
   statusId!: number;
@@ -76,14 +43,27 @@ export class CategoryArchive extends Common {
   current?: Category;
 }
 
-CategoryArchive.init(
+Category.init(
   {
-    ...COLS,
-    ...REV_ID_INTEGER_PK,
+    ...seqCols.SRI,
+
+    groupId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        has3ConsecutiveLetters,
+      },
+    },
+
+    description: {
+      type: DataTypes.TEXT,
+    },
   },
-  {
-    ...seqInitOpts,
-    modelName: "CategoryArchive",
-    tableName: "categories_archive",
-  }
+
+  seqInitOpts("Category")
 );
