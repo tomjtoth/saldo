@@ -50,3 +50,6 @@ Item.hasMany(ItemShare, { foreignKey: "itemId", as: "shares" });
 ItemShare.belongsTo(Item, { foreignKey: "itemId" });
 ItemShare.belongsTo(User, { foreignKey: "userId" });
 ItemShare.belongsTo(Revision, { foreignKey: "revId" });
+
+export const syncDb = async () =>
+  await db.sync({ force: true, match: /^:memory:$/ });
