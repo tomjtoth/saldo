@@ -1,54 +1,24 @@
-import { DataTypes, Model, ModelAttributes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
-import {
-  seqIdCols,
-  seqInitOpts,
-  REV_ID_INTEGER_PK,
-  Revision,
-  Status,
-} from "./common";
+import { seqInitOpts, Revision, TColSR, seqCols } from "./common";
 import { Item } from "./item";
 import { User } from "./user";
 
-type TItemShare = {
+type TItemShare = TColSR & {
   itemId: number;
   userId: number;
-  revId: number;
-  statusId: number;
 
   share: number;
 
   Item?: Item;
   User?: User;
   Revision?: Revision;
-  Status?: Status;
 };
 
 export type TCrItemShare = Omit<TItemShare, "statusId"> &
   Partial<Pick<TItemShare, "statusId">>;
 
-/**
- * used in both Xy and XyArchive, but Archive additionally implements revId as PK
- */
-const COLS: ModelAttributes<ItemShare, TItemShare> = {
-  itemId: {
-    type: DataTypes.INTEGER,
-    references: { model: Item, key: "id" },
-    primaryKey: true,
-  },
-  userId: {
-    type: DataTypes.INTEGER,
-    references: { model: User, key: "id" },
-    primaryKey: true,
-  },
-  revId: seqIdCols.revId,
-
-  statusId: seqIdCols.statusId,
-
-  share: { type: DataTypes.INTEGER, allowNull: false },
-};
-
-class Common extends Model<TItemShare, TCrItemShare> {
+export class ItemShare extends Model<TItemShare, TCrItemShare> {
   itemId!: number;
   userId!: number;
   revId!: number;
@@ -59,30 +29,26 @@ class Common extends Model<TItemShare, TCrItemShare> {
   Item?: Item;
   User?: User;
   Revision?: Revision;
-  Status?: Status;
 }
 
-export class ItemShare extends Common {
-  archives?: ItemShareArchive[];
-}
-
-ItemShare.init(COLS, {
-  ...seqInitOpts,
-  modelName: "ItemShare",
-});
-
-export class ItemShareArchive extends Common {
-  current?: ItemShare;
-}
-
-ItemShareArchive.init(
+ItemShare.init(
   {
-    ...COLS,
-    ...REV_ID_INTEGER_PK,
+    ...seqCols.SR,
+
+    itemId: {
+      type: DataTypes.INTEGER,
+      references: { model: Item, key: "id" },
+      primaryKey: true,
+    },
+
+    userId: {
+      type: DataTypes.INTEGER,
+      references: { model: User, key: "id" },
+      primaryKey: true,
+    },
+
+    share: { type: DataTypes.INTEGER, allowNull: false },
   },
-  {
-    ...seqInitOpts,
-    modelName: "ItemShareArchive",
-    tableName: "item_shares_archive",
-  }
+
+  seqInitOpts("ItemShare")
 );
