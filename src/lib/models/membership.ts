@@ -1,26 +1,7 @@
-import { DataTypes, Model, ModelAttributes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
-import { REV_ID_INTEGER_PK, seqIdCols, seqInitOpts } from "./common";
+import { seqCols, seqInitOpts } from "./common";
 import { Category } from "./category";
-
-/**
- * used in both Xy and XyArchive, but Archive additionally implements revId as PK
- */
-const COLS: ModelAttributes<Membership, TMembership> = {
-  groupId: { type: DataTypes.INTEGER, primaryKey: true },
-  userId: { type: DataTypes.INTEGER, primaryKey: true },
-  revId: seqIdCols.revId,
-  statusId: seqIdCols.statusId,
-  defaultCatId: {
-    type: DataTypes.INTEGER,
-    references: { model: Category, key: "id" },
-  },
-
-  admin: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
-};
 
 export type TMembership = {
   groupId: number;
@@ -30,15 +11,12 @@ export type TMembership = {
   defaultCatId?: number;
 
   admin: boolean;
-
-  current?: Membership;
-  archives?: MembershipArchive[];
 };
 
 type TCrMembership = Pick<TMembership, "groupId" | "userId" | "revId"> &
   Partial<Pick<TMembership, "admin" | "statusId">>;
 
-class Common extends Model<TMembership, TCrMembership> {
+export class Membership extends Model<TMembership, TCrMembership> {
   groupId!: number;
   userId!: number;
   revId!: number;
@@ -46,28 +24,42 @@ class Common extends Model<TMembership, TCrMembership> {
   defaultCatId?: number;
 
   admin!: boolean;
-
-  current?: Membership;
-  archives?: MembershipArchive[];
 }
 
-export class Membership extends Common {
-  archives?: MembershipArchive[];
-}
-Membership.init(COLS, {
-  ...seqInitOpts,
-  modelName: "Membership",
-});
-
-export class MembershipArchive extends Common {}
-MembershipArchive.init(
+Membership.init(
   {
-    ...COLS,
-    ...REV_ID_INTEGER_PK,
+    ...seqCols.SR,
+
+    groupId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+    },
+
+    userId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+    },
+
+    defaultCatId: {
+      type: DataTypes.INTEGER,
+      references: { model: Category, key: "id" },
+    },
+
+    admin: {
+      type: DataTypes.VIRTUAL,
+
+      get() {
+        const int = this.getDataValue("statusId");
+        return int & 2;
+      },
+
+      set(state: boolean) {
+        let int = this.getDataValue("statusId");
+        int = state ? int | (1 << 1) : int & ~(1 << 1);
+        this.setDataValue("statusId", int);
+      },
+    },
   },
-  {
-    ...seqInitOpts,
-    modelName: "MembershipArchive",
-    tableName: "memberships_archive",
-  }
+
+  seqInitOpts("Membership")
 );
