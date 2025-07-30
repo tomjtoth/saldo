@@ -47,9 +47,6 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 COPY --from=builder /app/prisma ./prisma
 
-# Install minimal prisma CLI (not the whole dev deps)
-RUN npm install prisma --no-save
-
 ARG GIT_HASH
 ENV GIT_HASH=${GIT_HASH} \
     NODE_ENV=production \
@@ -61,4 +58,4 @@ USER nextjs
 EXPOSE 3000
 
 # Run migrations and then start the app
-CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
+CMD ["node", "server.js"]
