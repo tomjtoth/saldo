@@ -1,7 +1,7 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TGroup, TMembership } from "../models";
+import { TGroup, TMembership } from "@/lib/db";
 import { insertAlphabetically } from "../utils";
 import { combinedSA as csa, CombinedState as CS } from ".";
 
@@ -26,8 +26,7 @@ export const rGroups = {
 
   updateMS: (rs: CS, { payload }: PayloadAction<TMembership>) => {
     const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
-    const user = group.Users!.find((user) => user.id === payload.userId)!;
-    const ms = user.Membership!;
+    const ms = group.memberships?.find((x) => x.user?.id === payload.userId)!;
 
     ms.admin = payload.admin;
     ms.statusId = payload.statusId;
