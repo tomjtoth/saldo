@@ -12,7 +12,7 @@ import {
 } from "react";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { TGroup } from "@/lib/models";
+import { TGroup } from "@/lib/db";
 import { Initializer, rCombined } from "@/lib/reducers";
 
 export type TRootDiv = {
