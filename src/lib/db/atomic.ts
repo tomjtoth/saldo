@@ -1,26 +1,9 @@
-import { PrismaClient, Revision } from "@prisma/client";
-import { dateFromInt, datetimeFromInt, datetimeToInt } from "./utils";
+import { db, TRevision } from ".";
+import { datetimeToInt } from "../utils";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 
-export const db = new PrismaClient().$extends({
-  result: {
-    receipt: {
-      paidOn: {
-        needs: { paidOnInt: true },
-        compute: (rec) => dateFromInt(rec.paidOnInt),
-      },
-    },
-    revision: {
-      createdOn: {
-        needs: { createdOnInt: true },
-        compute: (rev) => datetimeFromInt(rev.createdOnInt),
-      },
-    },
-  },
-});
-
-type PrismaTransaction = Omit<
+type Transaction = Omit<
   typeof db,
   "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
 >;
@@ -33,16 +16,16 @@ type AtomicWithRevOpts = AtomicOpts & {
   revisedBy: number;
 };
 
-type AtomicFun<T> = (tx: PrismaTransaction) => Promise<T>;
+type AtomicFun<T> = (tx: Transaction) => Promise<T>;
 type AtomicFunWithRevision<T> = (
-  tx: PrismaTransaction,
-  revision: Revision
+  tx: Transaction,
+  revision: Pick<TRevision, "id">
 ) => Promise<T>;
 
 export function atomic<T>(
   options: AtomicWithRevOpts,
-  operation: (tx: PrismaTransaction, revision: Revision) => T
-): T;
+  operation: AtomicFunWithRevision<T>
+): Promise<T>;
 
 export function atomic<T>(
   options: AtomicOpts,
@@ -68,9 +51,10 @@ export async function atomic<T>(
 
       if (revisedBy) {
         const rev = await tx.revision.create({
+          select: { id: true },
           data: {
             createdById: revisedBy,
-            createdOnInt: datetimeToInt(),
+            createdAtInt: datetimeToInt(),
           },
         });
 
