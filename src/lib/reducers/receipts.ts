@@ -3,7 +3,7 @@ import { DateTime } from "luxon";
 
 import { AppDispatch } from "../store";
 import { combinedSA as csa, CombinedState as CS } from ".";
-import { Receipt, TGroup } from "../models";
+import { TReceipt, TGroup } from "@/lib/db";
 import { EUROPE_HELSINKI } from "../utils";
 
 export type TCliReceipt = {
@@ -54,8 +54,8 @@ function currentReceipt(rs: CS) {
 
 export const sortReceipts = (groups: TGroup[]) =>
   groups.forEach((group) =>
-    group.Receipts?.sort((a, b) =>
-      a.paidOn < b.paidOn ? 1 : a.paidOn > b.paidOn ? -1 : 0
+    group.receipts?.sort((a, b) =>
+      a.paidOnInt! < b.paidOnInt! ? 1 : a.paidOnInt! > b.paidOnInt! ? -1 : 0
     )
   );
 
@@ -85,7 +85,8 @@ export const rReceipts = {
     } else {
       const group = rs.groups.find((group) => group.id === rs.groupId)!;
       const defCat =
-        group.Memberships?.at(0)?.defaultCatId ?? group.Categories!.at(0)!.id!;
+        group.memberships?.at(0)?.defaultCategoryId ??
+        group.categories!.at(0)!.id!;
 
       curr.items.push(addItem(defCat));
     }
@@ -113,19 +114,19 @@ export const rReceipts = {
     if (payload.shares !== undefined) item.shares = payload.shares;
   },
 
-  addReceipt: (rs: CS, { payload }: PayloadAction<Receipt>) => {
+  addReceipt: (rs: CS, { payload }: PayloadAction<TReceipt>) => {
     rs.groups
       .find((group) => group.id === payload.groupId)
-      ?.Receipts?.splice(0, 0, payload);
+      ?.receipts?.splice(0, 0, payload);
 
-    delete rs.newReceipts[payload.groupId];
+    delete rs.newReceipts[payload.groupId!];
   },
 
   addFetchedReceipts: (rs: CS, { payload }: PayloadAction<TGroup[]>) => {
     payload.forEach((grp) => {
       rs.groups
         .find((group) => group.id === grp.id)
-        ?.Receipts?.push(...grp.Receipts!);
+        ?.receipts?.push(...grp.receipts!);
     });
 
     sortReceipts(rs.groups);
@@ -157,7 +158,7 @@ export const tReceipts = {
     return (dispatch: AppDispatch) => dispatch(csa.updateItem(updater));
   },
 
-  addReceipt: (rcpt: Receipt) => {
+  addReceipt: (rcpt: TReceipt) => {
     return (dispatch: AppDispatch) => dispatch(csa.addReceipt(rcpt));
   },
 
