@@ -12,27 +12,29 @@ datasource db {
 
 model Meta {
   id   Int    @id @default(autoincrement())
-  info String
-  data Json
+  info String @unique
+  data Bytes?
+
+  @@ignore
 }
 
+// SED-MARKER
+
 model Archive {
-  id         Int  @id @default(autoincrement())
-  tableId    Int
-  entityPk1  Int
-  entityPk2  Int?
-  revisionId Int
-  payload    Json
+  id            Int    @id @default(autoincrement())
+  tableColumnId Int
+  entityPk1     Int
+  entityPk2     Int?
+  revisionId    Int
+  data          Bytes?
 
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
-
-  @@index([tableId, entityPk1, entityPk2])
 }
 
 model Revision {
   id           Int @id @default(autoincrement())
-  createdOnInt Int @map("createdOn")
-  createdById  Int
+  createdAtInt Int @map("createdAt")
+  createdById  Int @map("createdBy")
 
   createdBy   User         @relation("createdByUser", fields: [createdById], references: [id], onDelete: NoAction)
   users       User[]
@@ -111,7 +113,7 @@ model Receipt {
   revisionId Int
   statusId   Int @default(0)
   groupId    Int
-  paidById   Int
+  paidById   Int @map("paidBy")
   paidOnInt  Int @map("paidOn")
 
   revision Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
