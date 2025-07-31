@@ -50,7 +50,7 @@ COPY --from=builder /app/prisma ./prisma
 ARG GIT_HASH
 ENV GIT_HASH=${GIT_HASH} \
     NODE_ENV=production \
-    DB_PATH=data/prod.db \
+    MIGRATE=true \
     DATABASE_URL=file:../data/prod.db
 
 USER nextjs
