@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS "Meta" (
     "data" BLOB
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS "Meta_info_key" ON "Meta"("info");
+
 CREATE TABLE "Archive" (
     "id" INTEGER PRIMARY KEY,
     "tableColumnId" INTEGER NOT NULL,
@@ -116,8 +118,6 @@ CREATE TABLE "ItemShare" (
     CONSTRAINT "ItemShare_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "Item" ("id") ON UPDATE CASCADE,
     CONSTRAINT "ItemShare_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON UPDATE CASCADE
 );
-
-CREATE UNIQUE INDEX IF NOT EXISTS "Meta_info_key" ON "Meta"("info");
 
 
 
