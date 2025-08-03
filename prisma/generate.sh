@@ -1,6 +1,7 @@
 #!/bin/bash
 
-npx prisma generate
+DATABASE_URL=file:../data/dev.db \
+  npx prisma generate
 
 IN=./prisma/schema.prisma
 OUT=./src/lib/db/types.ts
