@@ -14,12 +14,21 @@ sed -E '
   i // invoke ./prisma/generate.sh upon schema changes
   i
   i import { '"$TYPES"' } from "@prisma/client";
+  i import { TBalanceChartData } from "@/components/balance/chart";
+  i import { TParetoChartData } from "@/components/pareto/chart";
   i
   i export type { '"$TYPES"' }
   i
   i export interface TRevision { createdOn?: string }
+  i
   i export interface TReceipt { paidOn?: string }
+  i
   i export interface TMembership { admin?: boolean }
+  i
+  i export interface TGroup {
+  i   balance?: TBalanceChartData;
+  i   pareto?: TParetoChartData;
+  i }
   i
 }
 1,/\/\/ SED-MARKER/d;                                       # Delete everything until the marker
