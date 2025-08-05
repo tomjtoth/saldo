@@ -165,38 +165,38 @@ INSERT INTO "Revision" (id, createdAt, createdBy)
 
 INSERT INTO "User"
     (id, revisionId, statusId, email, name, defaultGroupId)
-    SELECT id, rev_id, status_id, email, name, default_group_id
+    SELECT id, rev_id, status_id - 1, email, name, default_group_id
     FROM users;
 
 INSERT INTO "Group"
     (id, revisionId, statusId, name, description, uuid)
-    SELECT id, rev_id, status_id, name, description, uuid
+    SELECT id, rev_id, status_id - 1, name, description, uuid
     FROM groups;
 
 INSERT INTO "Membership" 
     (groupId, userId, revisionId, statusId, defaultCategoryId)
-    SELECT group_id, user_id, rev_id, status_id + 2 * admin, default_cat_id
+    SELECT group_id, user_id, rev_id, status_id + 2 * admin - 1, default_cat_id
     FROM memberships;
 
 
 INSERT INTO "Category" 
     (id, revisionId, statusId, groupId, name, description)
-    SELECT id, rev_id, status_id, group_id, name, description
+    SELECT id, rev_id, status_id - 1, group_id, name, description
     FROM categories;
 
 INSERT INTO "Receipt" 
     (id, revisionId, statusId, groupId, paidOn, paidBy)
-    SELECT id, rev_id, status_id, group_id, paid_on, paid_by
+    SELECT id, rev_id, status_id - 1, group_id, paid_on, paid_by
     FROM receipts;
 
 INSERT INTO "Item" 
     (id, revisionId, statusId, receiptId, categoryId, cost, notes)
-    SELECT id, rev_id, status_id, rcpt_id, cat_id, cost, notes
+    SELECT id, rev_id, status_id - 1, rcpt_id, cat_id, cost, notes
     FROM items;
 
 INSERT INTO "ItemShare" 
     (itemId, userId, revisionId, statusId, share)
-    SELECT item_id, user_id, rev_id, status_id, share
+    SELECT item_id, user_id, rev_id, status_id - 1, share
     FROM item_shares;
 
 
