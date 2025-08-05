@@ -133,9 +133,9 @@ INSERT INTO "Meta" ("info", "data")
     SELECT 'statuses',  json_array('ACTIVE', 'INACTIVE')
     UNION
     SELECT 'tableColumnId', json_array(
-        'categories.name', 'categories.description', 'categories.status_id', 'categories.group_id',
-        'groups.name', 'groups.description', 'groups.status_id', 'groups.uuid',
-        'memberships.status_id', 'memberships.default_category_id'
+       'categories.name', 'categories.description','categories.statusId','categories.groupId',
+       'groups.name','groups.description','groups.statusId','groups.uuid',
+       'memberships.statusId','memberships.defaultCategoryId'
     );
 
 INSERT INTO Archive (entityPk1, entityPk2, revisionId, tableColumnId, data)
