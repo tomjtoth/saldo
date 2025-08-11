@@ -54,9 +54,7 @@ function currentReceipt(rs: CS) {
 
 export const sortReceipts = (groups: TGroup[]) =>
   groups.forEach((group) =>
-    group.receipts?.sort((a, b) =>
-      a.paidOnInt! < b.paidOnInt! ? 1 : a.paidOnInt! > b.paidOnInt! ? -1 : 0
-    )
+    group.receipts?.sort((a, b) => b.paidOnInt! - a.paidOnInt!)
   );
 
 export const rReceipts = {
