@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   sqliteTable,
   integer,
@@ -33,12 +33,12 @@ const datetimeInt = customType<{
   // toDriver: (value) => datetimeToInt(value),
 });
 
-const active = integer({ mode: "boolean" }).generatedAlwaysAs(
-  sql`("statusId" & 1) = 0`,
-  {
-    mode: "virtual",
-  }
-);
+// const active = integer({ mode: "boolean" }).generatedAlwaysAs(
+//   sql`("statusId" & 1) = 0`,
+//   {
+//     mode: "virtual",
+//   }
+// );
 
 const id = integer().primaryKey();
 const revisionId = integer()
