@@ -10,7 +10,7 @@ export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppSelector = useSelector.withTypes<RootState>();
 export const useAppStore = useStore.withTypes<AppStore>();
 
-// TODO: rename to useGroupState
+// TODO: rename to useClientState
 export const useGroupSelector = () => {
   const dispatch = useAppDispatch();
 
@@ -22,13 +22,26 @@ export const useGroupSelector = () => {
   const groupId = useAppSelector(
     (s) => s.combined.groupId ?? fallback.groupId ?? groups.at(0)?.id
   );
+  const userId = useAppSelector((s) => s.combined.userId ?? fallback.userId);
 
   const group = () => groups.find((group) => group.id === groupId);
 
   useEffect(() => {
     if (groups.length > 0 && !group())
-      dispatch(rCombined.setGroupId(groups[0].id));
+      dispatch(rCombined.setGroupId(groups[0].id!));
   }, [groups]);
 
-  return { groups, groupId, group };
+  return {
+    groups,
+    groupId,
+
+    // TODO: change this to a getter too, once migration to Prisma is done
+    group,
+
+    get users() {
+      return group()?.memberships!.map(({ user }) => user!) ?? [];
+    },
+
+    userId,
+  };
 };
