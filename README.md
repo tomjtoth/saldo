@@ -11,5 +11,5 @@ Using `Sequelize` with raw `*.sql` migration files, handled previously by `Umzug
 
 ### Prisma
 
-Running `npx prisma migrate resolve --applied 0-pre-prisma` is necessary before the new Docker image can be run.
-Or `docker run --volume ./data:/app/data $IMAGE_ID npx prisma migrate resolve --applied 0-pre-prisma`.
+Using `prisma/generate.sh` to generate types with relations.
+Running `npx prisma migrate resolve --applied 20250708_pre-prisma` is necessary before handling additional migrations via Prisma during development.
