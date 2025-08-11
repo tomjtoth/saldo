@@ -23,9 +23,11 @@
     "not op_mini all"
   ],
   "dependencies": {
+    "@libsql/client": "^0.15.10",
     "@prisma/client": "^6.12.0",
     "@reduxjs/toolkit": "^2.8.2",
     "csv-parser": "^3.0.0",
+    "drizzle-orm": "^0.44.4",
     "luxon": "^3.6.1",
     "next": "15.3.2",
     "next-auth": "^5.0.0-beta.28",
@@ -51,6 +53,7 @@
     "@vitejs/plugin-react": "^4.5.0",
     "@vitest/coverage-v8": "^3.1.4",
     "cypress": "^14.4.0",
+    "drizzle-kit": "^0.31.4",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "jsdom": "^26.1.0",
