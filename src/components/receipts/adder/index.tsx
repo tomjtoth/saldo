@@ -64,11 +64,12 @@ export default function Adder() {
   };
 
   useEffect(() => {
-    if (!!userId && !currReceipt && (rs.group()?.Categories?.length ?? 0) > 0)
+    if (!!userId && !currReceipt && (rs.group()?.categories?.length ?? 0) > 0)
       dispatch(red.addRow());
   }, [currReceipt, rs.groups, rs.groupId, userId]);
 
-  const isMultiUser = (rs.group()?.Users?.length ?? 0) > 1;
+  const users = rs.users;
+  const isMultiUser = users.length > 1;
 
   return !currReceipt ? null : (
     <Ctx.Provider value={{ setModal }}>
@@ -102,9 +103,7 @@ export default function Adder() {
                 <span>
                   paid by{" "}
                   {isMultiUser
-                    ? rs
-                        .group()
-                        ?.Users?.find((u) => u.id === currReceipt.paidBy)?.name
+                    ? users.find((u) => u.id === currReceipt.paidBy)?.name
                     : "You"}
                 </span>
 
@@ -115,7 +114,7 @@ export default function Adder() {
                     value={currReceipt.paidBy}
                     onChange={(ev) => dispatch(red.setPaidBy(ev.target.value))}
                   >
-                    {rs.group()?.Users?.map((u) => (
+                    {users.map((u) => (
                       <option key={u.id} value={u.id}>
                         {u.email}
                       </option>
