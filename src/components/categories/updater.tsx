@@ -3,26 +3,33 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
+import {
+  err,
+  has3ConsecutiveLetters,
+  sendJSON,
+  appToast,
+  datetimeFromInt,
+  status,
+} from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
-import { TCategory } from "@/lib/models";
+import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
 import Slider from "../slider";
 
 export default function Updater({ cat }: { cat: TCategory }) {
   const dispatch = useAppDispatch();
-  const [name, setName] = useState(cat.name);
-  const [description, setDescr] = useState(cat.description);
-  const [statusId, setStatusId] = useState(cat.statusId);
+  const [name, setName] = useState(cat.name!);
+  const [description, setDescr] = useState(cat.description ?? "");
+  const [statusId, setStatusId] = useState(cat.statusId!);
 
   return (
     <form
       id="category-updater-form"
-      key={`${cat.id}-${cat.revId!}`}
+      key={`${cat.id}-${cat.revisionId!}`}
       className={
         "p-2 bg-background rounded border-2 " +
-        (statusId === 1 ? "border-green-500" : "border-red-500") +
+        (status({ statusId }).active ? "border-green-500" : "border-red-500") +
         " grid items-center gap-2 grid-cols-[min-width_min-width_min-width]"
       }
       onSubmit={(ev) => {
@@ -44,7 +51,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
               id: cat.id,
               groupId: cat.groupId,
               name,
-              description,
+              description: description === "" ? null : description,
               statusId,
             },
             { method: "PUT" }
@@ -69,9 +76,9 @@ export default function Updater({ cat }: { cat: TCategory }) {
               }" succeeded!`;
             })
             .catch((err) => {
-              setName(cat.name);
-              setDescr(cat.description);
-              setStatusId(cat.statusId);
+              setName(cat.name!);
+              setDescr(cat.description ?? "");
+              setStatusId(cat.statusId!);
               throw err;
             }),
           `Updating "${cat.name}"`
@@ -86,8 +93,8 @@ export default function Updater({ cat }: { cat: TCategory }) {
       />
 
       <Slider
-        checked={statusId === 1}
-        onClick={() => setStatusId(1 + (statusId % 2))}
+        checked={status({ statusId }).active}
+        onClick={() => status({ statusId }, setStatusId).toggle("active")}
       />
 
       <button>💾</button>
@@ -95,16 +102,16 @@ export default function Updater({ cat }: { cat: TCategory }) {
       <textarea
         className="col-span-3 resize-none"
         rows={2}
-        value={description}
+        value={description ?? ""}
         placeholder="Optional description..."
         onChange={(ev) => setDescr(ev.target.value)}
       />
 
       <div className="col-span-3 text-center">
         🗓️
-        <sub> {cat.Revision!.revOn} </sub>
+        <sub> {datetimeFromInt(cat.revision!.createdAtInt!)} </sub>
         🪪
-        <sub> {cat.Revision!.User?.name} </sub>
+        <sub> {cat.revision!.createdBy!.name} </sub>
       </div>
     </form>
   );
