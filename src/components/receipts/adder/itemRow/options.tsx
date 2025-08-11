@@ -37,8 +37,8 @@ export default function Options({
 
   const item = currReceipt.items.find((item) => item.id === itemId)!;
 
-  const users = rs.group()?.Users;
-  const isMultiUser = (users?.length ?? 0) > 1;
+  const users = rs.users;
+  const isMultiUser = users.length > 1;
   const shares = Object.entries(item.shares).filter(([, val]) => !!val);
 
   return (
@@ -68,7 +68,7 @@ export default function Options({
               share === 0 ? null : (
                 <ItemShareAvatar
                   key={`${item.id}-${userId}`}
-                  user={users!.find((user) => user.id == Number(userId))!}
+                  user={users.find((user) => user.id == Number(userId))!}
                   value={share}
                 />
               )
