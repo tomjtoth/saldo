@@ -26,9 +26,8 @@ export const rGroups = {
 
   updateMS: (rs: CS, { payload }: PayloadAction<TMembership>) => {
     const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
-    const ms = group.memberships?.find((x) => x.user?.id === payload.userId)!;
+    const ms = group.memberships!.find((x) => x.user!.id === payload.userId!)!;
 
-    ms.admin = payload.admin;
     ms.statusId = payload.statusId;
   },
 };
