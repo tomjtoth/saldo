@@ -1,5 +1,6 @@
 # Project related
 /data/
+/src/lib/db/types.ts
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
