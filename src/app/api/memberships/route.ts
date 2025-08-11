@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
 import { isAdmin, updateMembership } from "@/lib/services/memberships";
-import { TMembership } from "@/lib/models";
+import { TMembership } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,7 @@ export async function PUT(req: NextRequest) {
 
   const body = await req.json();
 
-  const { groupId, userId, statusId, admin } = body as TMembership;
+  const { groupId, userId, statusId } = body as TMembership;
   if (!groupId || !userId) return new Response(null, { status: 400 });
 
   if (!(await isAdmin(user.id, groupId)))
@@ -26,7 +26,6 @@ export async function PUT(req: NextRequest) {
       groupId,
       userId,
       statusId,
-      admin,
     });
 
     if (!ms) return new Response(null, { status: 404 });
