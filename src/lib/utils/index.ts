@@ -1,7 +1,9 @@
 import { Draft, WritableDraft } from "immer";
 import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
-import { TCategory } from "../models";
+
+import { TCategory } from "@/lib/db";
+import { Dispatch, SetStateAction } from "react";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value == 0.5) return [1, 2];
@@ -165,3 +167,48 @@ export function sortByName<T extends { name?: string | null }>(a: T, b: T) {
   return 0;
 }
 
+export type NumericKeys<T> = {
+  [P in keyof T]: T[P] extends number ? P : never;
+}[keyof T];
+
+export const status = <T extends { statusId?: number }>(
+  entity: T,
+  setter?: Dispatch<SetStateAction<number>>
+) => {
+  let int =
+    entity.statusId ??
+    (process.env.NODE_ENV === "development"
+      ? err("calling status without statusId")
+      : 0);
+
+  return {
+    get active() {
+      // active if 1st bit is 0, inactive if 1
+      return (int & 1) === 0;
+    },
+
+    set active(value: boolean) {
+      int = !value ? int | 1 : int & ~1;
+
+      if (setter) setter(int);
+      else entity.statusId = int;
+    },
+
+    get admin() {
+      return (int & 2) === 2;
+    },
+
+    set admin(value: boolean) {
+      int = value ? int | (1 << 1) : int & ~(1 << 1);
+
+      if (setter) setter(int);
+      else entity.statusId = int;
+    },
+
+    toggle(key: "active" | "admin") {
+      this[key] = !this[key];
+
+      return int;
+    },
+  };
+};
