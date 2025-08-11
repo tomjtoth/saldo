@@ -1,62 +1,45 @@
-import {
-  atomic,
-  Membership,
-  MembershipArchive,
-  Revision,
-  TMembership,
-} from "../models";
-import { err } from "../utils";
+import { atomic, db, Membership, TMembership, updater } from "@/lib/db";
+import { err, status } from "../utils";
 
-type MembershipUpdater = Pick<TMembership, "groupId" | "userId"> &
-  Partial<Pick<TMembership, "admin" | "statusId" | "defaultCatId">>;
+type MembershipUpdater = Pick<Membership, "groupId" | "userId"> &
+  Pick<TMembership, "statusId" | "defaultCategoryId">;
 
 export async function updateMembership(
-  revBy: number,
-  { userId, groupId, statusId, admin, defaultCatId }: MembershipUpdater
+  revisedBy: number,
+  { userId, groupId, ...modifier }: MembershipUpdater
 ) {
-  return await atomic("Updating membership", async (transaction) => {
-    const ms = await Membership.findOne({
-      where: { userId, groupId },
-      transaction,
-    });
-    if (!ms) return null;
+  return await atomic(
+    { operation: "Updating membership", revisedBy },
+    async (tx, rev) => {
+      const ms = await tx.membership.findUnique({
+        where: { userId_groupId: { userId, groupId } },
+      });
 
-    const preChanges = ms.get({ plain: true, clone: true });
-    let saving = false;
+      if (!ms) return null;
 
-    if (statusId !== undefined && statusId !== ms.statusId) {
-      saving = true;
-      ms.statusId = statusId;
+      const saving = await updater(ms, modifier, {
+        tx,
+        tableName: "Membership",
+        entityPk1: userId,
+        entityPk2: groupId,
+        revisionId: rev.id!,
+      });
+
+      if (saving)
+        return await tx.membership.update({
+          select: { statusId: true },
+          data: ms,
+          where: { userId_groupId: { userId, groupId } },
+        });
+      else err("No changes were made");
     }
-
-    if (admin !== undefined && admin !== ms.admin) {
-      saving = true;
-      ms.admin = admin;
-    }
-
-    if (defaultCatId !== undefined && defaultCatId !== ms.defaultCatId) {
-      saving = true;
-      ms.defaultCatId = defaultCatId;
-    }
-
-    if (saving) {
-      await MembershipArchive.create(preChanges, { transaction });
-      const rev = await Revision.create({ revBy }, { transaction });
-      ms.revId = rev.id;
-      await ms.save({ transaction });
-    } else err("No changes were made");
-
-    return await ms.reload({
-      attributes: ["admin", "statusId"],
-      transaction,
-    });
-  });
+  );
 }
 
 export async function isAdmin(userId: number, groupId: number) {
-  const ms = await Membership.findOne({
-    where: { userId, groupId, admin: true },
+  const ms = await db.membership.findUnique({
+    where: { userId_groupId: { userId, groupId } },
   });
 
-  return !!ms;
+  return !!ms && status(ms).admin;
 }
