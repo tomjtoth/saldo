@@ -1,182 +1,172 @@
-import { atomic, db } from "../db";
+import { col, fn } from "sequelize";
+
 import {
-  Categories,
-  Groups,
-  Memberships,
+  atomic,
+  Category,
+  CategoryArchive,
+  Group,
+  Membership,
+  Revision,
   TCategory,
   TCrCategory,
-  Users,
+  User,
 } from "../models";
-import { Revisions } from "../models/revision";
+import { err } from "../utils";
 
 export type TCategoryUpdater = Partial<
   Pick<TCategory, "name" | "description" | "statusId">
 >;
 
-export function createCategory(revisedBy: number, data: TCrCategory) {
-  return atomic({ operation: "Creating category", revisedBy }, (rev) => {
-    const [cat] = Categories.insert(data);
+export async function createCategory(revBy: number, data: TCrCategory) {
+  return await atomic("Creating category", async (transaction) => {
+    const rev = await Revision.create({ revBy }, { transaction });
+    const cat = await Category.create(
+      {
+        revId: rev.id,
+        ...data,
+      },
+      { transaction }
+    );
 
-    cat.Revision = rev;
-    // cat.Revision.User = Users.get(
-    //   `SELECT name FROM users WHERE id = :revisedBy`,
-    //   { revisedBy }
-    // )!;
-
-    cat.Revision.createdBy = Users.select("email")
-      .where({ id: { $SQL: ":revisedBy" } })
-      .get({ revisedBy })!;
-
-    cat.Archives = [];
+    await cat.reload({
+      transaction,
+      include: [
+        {
+          model: Revision,
+          attributes: ["revOn"],
+          include: [{ model: User, attributes: ["name"] }],
+        },
+        {
+          model: CategoryArchive,
+          as: "archives",
+          include: [
+            {
+              model: Revision,
+              attributes: ["revOn"],
+              include: [{ model: User, attributes: ["name"] }],
+            },
+          ],
+        },
+      ],
+    });
 
     return cat;
   });
 }
 
-export function updateCategory(
-  categoryId: number,
-  revisedBy: number,
-  updater: TCategoryUpdater
+export async function updateCategory(
+  id: number,
+  revBy: number,
+  { name, description, statusId }: TCategoryUpdater
 ) {
-  return atomic({ operation: "Updating category", revisedBy }, (rev) => {
-    const cat = Categories.update!({ ...updater, id: categoryId }, rev.id);
+  return await atomic("Updating category", async (transaction) => {
+    const cat = (await Category.findByPk(id, { transaction }))!;
 
-    cat.Archives = Categories.archives(cat);
+    const preChanges = cat.get({ plain: true, clone: true });
+    let saving = false;
 
-    // const getRevOn = Revisions.get(
-    //   "SELECT revisedOn FROM revisions WHERE id = :revisionId"
-    // );
+    if (name !== undefined && cat.name !== name) {
+      cat.name = name;
+      saving = true;
+    }
 
-    const getRevOn = Revisions.select("createdOn")
-      .where({ id: { $SQL: ":revisionId" } })
-      .prepare().get;
+    if (description !== undefined && cat.description !== description) {
+      cat.description = description;
+      saving = true;
+    }
 
-    cat.Revision = getRevOn(cat)!;
-    cat.Archives.forEach((cat) => (cat.Revision = getRevOn(cat)!));
+    if (statusId !== undefined && cat.statusId !== statusId) {
+      cat.statusId = statusId;
+      saving = true;
+    }
 
-    // const getUsername = Users.get(`
-    //   SELECT name FROM revisions r
-    //   INNER JOIN users u ON (r.revisedBy = u.id)
-    //   WHERE r.id = :revisionId`);
+    if (saving) {
+      await CategoryArchive.create(preChanges, { transaction });
+      const rev = await Revision.create({ revBy }, { transaction });
+      cat.revId = rev.id;
+      await cat.save({ transaction });
+    } else err("No changes were made");
 
-    const getUsername = Users.select("name")
-      .innerJoin(Revisions.where({ id: { $SQL: ":revisionId" } }))
-      .prepare().get;
-
-    cat.Revision.createdBy = getUsername(cat)!;
-    cat.Archives.forEach(
-      (cat) => (cat.Revision!.createdBy = getUsername(cat)!)
-    );
-
-    return cat;
+    return await cat.reload({
+      transaction,
+      include: [
+        {
+          model: Revision,
+          attributes: ["revOn"],
+          include: [{ model: User, attributes: ["name"] }],
+        },
+        {
+          model: CategoryArchive,
+          as: "archives",
+          include: [
+            {
+              model: Revision,
+              attributes: ["revOn"],
+              include: [{ model: User, attributes: ["name"] }],
+            },
+          ],
+        },
+      ],
+    })!;
   });
 }
 
-export function userAccessToCat(userId: number, categoryId: number) {
-  return !!db
-    .prepare(
-      `SELECT 1 FROM categories c 
-      INNER JOIN memberships ms ON (
-        ms.groupId = c.groupId AND
-        ms.userId = :userId AND
-        ms.statusId = 1
-      )
-      WHERE c.id = :categoryId`
-    )
-    .pluck()
-    .get({ userId, categoryId });
+export async function userAccessToCat(userId: number, catId: number) {
+  const exists = await Category.findAll({
+    attributes: ["id"],
+    include: [
+      {
+        model: Group,
+        attributes: [],
+        required: true,
+        include: [
+          { model: Membership, attributes: [], where: { userId, statusId: 1 } },
+        ],
+      },
+    ],
+    where: { id: catId },
+  });
+
+  return !!exists;
 }
 
-export function getCategories(userId: number) {
-  return db.transaction(() => {
-    const groups = Groups.all(
-      `SELECT 
-          g.id, g.name, 
-          ms.defaultCategoryId AS "memberships.defaultCategoryId"
-        FROM groups g
-        INNER JOIN memberships ms ON (
-          ms.groupId = g.id AND
-          ms.userId = :userId AND
-          ms.statusId = 1
-        )
-        WHERE g.statusId = 1
-        ORDER BY g.name`,
-      { userId }
-    );
-
-    // const allUsers = Users.all(
-    //   `SELECT u.id, u.name FROM memberships ms
-    //   INNER JOIN users u ON (
-    //     ms.userId = u.id AND
-    //     ms.statusId = 1
-    //   )
-    //   WHERE ms.groupId = :id`
-    // );
-
-    const allUsers = Users.select("id", "name")
-      .innerJoin(Memberships.where({ statusId: 1, groupId: { $SQL: ":id" } }))
-      .prepare().all;
-
-    groups.forEach((group) => {
-      group.Users = allUsers(group);
-    });
-
-    // const allCats = Categories.all(
-    //   `SELECT * FROM categories
-    //   WHERE groupId = :id
-    //   AND statusId IN (1, 2)`
-    // );
-
-    const allCats = Categories.where({ groupId: { $SQL: ":id" } }).prepare()
-      .all;
-
-    groups.forEach((group) => {
-      group.Categories = allCats(group);
-    });
-
-    const arcihvedCats = Categories.archives;
-
-    groups.forEach((group) => {
-      group.Categories!.forEach((cat) => {
-        cat.Archives = arcihvedCats(cat);
-      });
-    });
-
-    // const getRevOn = Revisions.get(
-    //   "SELECT revisedOn FROM revisions WHERE id = ?"
-    // );
-
-    const getRevOn = Revisions.select("createdOn")
-      .where({ id: { $SQL: ":revisionId" } })
-      .prepare().get;
-
-    groups.forEach((group) => {
-      group.Categories!.forEach((cat) => {
-        cat.Revision = getRevOn(cat)!;
-        cat.Archives!.forEach((cat) => (cat.Revision = getRevOn(cat)!));
-      });
-    });
-
-    // const getUsername = Users.get(
-    //   `SELECT u.name FROM users u
-    //   INNER JOIN revisions r ON (r.revisedBy = u.userId)
-    //   WHERE categoryId = :id
-    //   ORDER BY r.revisedOn DESC`
-    // );
-
-    const getUsername = Users.select("name")
-      .innerJoin(Revisions.orderBy("createdOn"))
-      .prepare().get;
-
-    groups.forEach((group) => {
-      group.Categories!.forEach((cat) => {
-        cat.Revision!.createdBy = getUsername(cat)!;
-        cat.Archives!.forEach(
-          (cat) => (cat.Revision!.createdBy = getUsername(cat)!)
-        );
-      });
-    });
-
-    return groups;
-  })();
+export async function getCategories(userId: number) {
+  return await Group.findAll({
+    attributes: ["id", "name"],
+    include: [
+      {
+        model: Membership,
+        attributes: ["defaultCatId"],
+        where: { userId, statusId: 1 },
+      },
+      { model: Revision, attributes: ["revOn"] },
+      { model: User, attributes: ["id", "name"] },
+      {
+        model: Category,
+        include: [
+          {
+            model: Revision,
+            attributes: ["revOn"],
+            include: [{ model: User, attributes: ["name"] }],
+          },
+          {
+            model: CategoryArchive,
+            as: "archives",
+            include: [
+              {
+                model: Revision,
+                attributes: ["revOn"],
+                include: [{ model: User, attributes: ["name"] }],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    where: { statusId: 1 },
+    order: [
+      fn("LOWER", col("Group.name")),
+      fn("LOWER", col("Categories.name")),
+    ],
+  });
 }

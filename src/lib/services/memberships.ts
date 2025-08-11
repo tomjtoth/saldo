@@ -12,7 +12,7 @@ type MembershipUpdater = Pick<TMembership, "groupId" | "userId"> &
 
 export async function updateMembership(
   revBy: number,
-  { userId, groupId, statusId, isAdmin: admin, defaultCatId }: MembershipUpdater
+  { userId, groupId, statusId, admin, defaultCatId }: MembershipUpdater
 ) {
   return await atomic("Updating membership", async (transaction) => {
     const ms = await Membership.findOne({

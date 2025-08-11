@@ -1,21 +1,23 @@
 import { describe, it, expect, beforeEach } from "vitest";
 
 import { addUser } from "../services/user";
+import { Category, migrator, Revision, User } from ".";
 import { VALID_USER_DATA } from "../testHelpers";
 import { createGroup } from "../services/groups";
-import { migrator } from "../db";
 
 describe("Category", () => {
   beforeEach(async () => {
-    migrator.up();
-    migrator.truncate();
+    await migrator.up();
+    await Revision.truncate({ cascade: true });
+    await User.truncate();
+    await Category.truncate();
 
-    // revId === 1 is created with this function call
+    // revId == 1 is created with this function call
     const user = await addUser(VALID_USER_DATA);
     await createGroup(user.id, { name: "just you" });
   });
 
-  it.only("cannot be created without having 3 consecutive letters", async () => {
+  it("cannot be created without having 3 consecutive letters", async () => {
     await expect(
       async () => await Category.create({ revId: 1, groupId: 1, name: "qq" })
     ).rejects.toThrow();

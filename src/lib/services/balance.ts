@@ -1,22 +1,25 @@
-import { db } from "../db";
+import { QueryTypes } from "sequelize";
+
+import { db, TGroup } from "@/lib/models";
 import { TBalanceChartData } from "@/components/balance/chart";
-import { TGroup } from "../models";
 
 export async function getBalance(userId: number) {
-  const rows = db
-    .prepare(
-      `WITH step1 AS (
+  const rows: // silencing TS, selecting only id and name from group...
+  (Omit<TGroup, "balance"> & {
+    balance: string;
+  })[] = await db.query(
+    `WITH step1 AS (
       SELECT
-        g.id AS gid,
+        groupId AS gid,
         g.name AS gName,
         paidOn AS date,
         MIN(paidBy, paidTo) AS uid1,
         MAX(paidBy, paidTo) AS uid2,
         SUM(share * CASE WHEN paidBy < paidTo THEN 1 ELSE -1 END) as share
       FROM memberships ms
-      INNER JOIN consumption c ON ms.groupId = c.groupId
+      INNER JOIN consumption c ON ms.group_id = c.groupId
       INNER JOIN groups g ON groupId = g.id
-      WHERE ms.userId = @userId AND paidBy != paidTo
+      WHERE ms.user_id = ? AND paidBy != paidTo
       GROUP BY groupId, paidOn, paidBy, paidTo
       ORDER BY groupId, date
     ),
@@ -48,13 +51,8 @@ export async function getBalance(userId: number) {
       GROUP BY gid, date, relation
     )
 
-<<<<<<< HEAD
     SELECT
     	gid AS id,
-=======
-    SELECT 
-    	gid AS groupId,
->>>>>>> better-sqlite3
       gName AS name,
       JSON_OBJECT(
         'relations',
@@ -64,17 +62,12 @@ export async function getBalance(userId: number) {
         JSON_GROUP_ARRAY(JSON_OBJECT('date', date, relation, share))
       ) AS balance
     FROM step3
-    GROUP BY gid`
-    )
-    .all({
-      userId,
-    });
+    GROUP BY gid`,
 
-  return (
-    rows as (Omit<TGroup, "balance"> & { // silencing TS, I'm only selecting id and name from TGroup...
-      balance: string;
-    })[]
-  ).map(({ balance, ...group }) => ({
+    { type: QueryTypes.SELECT, replacements: [userId], nest: true }
+  );
+
+  return rows.map(({ balance, ...group }) => ({
     ...group,
     balance: JSON.parse(balance) as TBalanceChartData,
   })) as TGroup[];

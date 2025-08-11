@@ -2,10 +2,9 @@ import { Draft, WritableDraft } from "immer";
 import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
 import { TCategory } from "../models";
-import { TMix } from "../types";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
-  if (value === 0.5) return [1, 2];
+  if (value == 0.5) return [1, 2];
 
   let bestNumerator = 1;
   let bestDenominator = 1;
@@ -28,13 +27,12 @@ export function approxFloat(value: number, maxDenominator = 1000) {
   return [bestNumerator, bestDenominator];
 }
 
-// TODO: store this in the DB for consistency along with the data
 export const EUROPE_HELSINKI = {
   zone: "Europe/Helsinki",
 } satisfies DateTimeJSOptions;
 
-// TODO: store this in the DB for consistency along with the data
-const DT_ANCHOR = DateTime.fromFormat(
+// TODO: store this in the DB for consistency with the data
+export const DT_ANCHOR = DateTime.fromFormat(
   "2020-01-01",
   "y-M-d",
   EUROPE_HELSINKI
@@ -62,32 +60,25 @@ export function datetimeFromInt(val: number) {
   return date.toISO();
 }
 
-export function datetimeToInt(val?: DateTime | string) {
-  if (typeof val === "string") {
-    let parsed = DateTime.fromFormat(val, "y.M.d. H:m:s", EUROPE_HELSINKI);
-    parsed = parsed.isValid ? parsed : DateTime.fromISO(val, EUROPE_HELSINKI);
-
-    if (!parsed.isValid) err(`failed to parse "${val}"`);
-    val = parsed;
-  }
-
-  if (val === undefined) val = DateTime.local(EUROPE_HELSINKI);
-
-  return Math.round((val.toMillis() - DT_ANCHOR) / 1000);
+export function datetimeToInt(val?: DateTime) {
+  const millis = (val ?? DateTime.local(EUROPE_HELSINKI)).toMillis();
+  return Math.round((millis - DT_ANCHOR) / 1000);
 }
 
 export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));
 }
 
+type SendJsonOptions = {
+  method?: "POST" | "PUT";
+};
+
 export async function sendJSON(
   endpoint: string,
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: any,
-  options?: {
-    method?: "POST" | "PUT";
-  }
+  options?: SendJsonOptions
 ) {
   return await fetch(endpoint, {
     method: options?.method ?? "POST",
@@ -99,29 +90,15 @@ export async function sendJSON(
 }
 
 export function err(msg?: string): never {
-  throw new Error(`\n\n\t${msg}\n`);
+  throw new Error(msg);
 }
-
-export const asArray = <T>(obj: TMix<T>) => (Array.isArray(obj) ? obj : [obj]);
 
 const RE_3_CONSECUTIVE_LETTERS = /\p{Letter}{3,}/u;
 
-export function has3ConsecutiveLetters(val?: unknown) {
-  if (typeof val !== "string" || !val.match(RE_3_CONSECUTIVE_LETTERS))
+export function has3ConsecutiveLetters(val: string) {
+  if (!val.match(RE_3_CONSECUTIVE_LETTERS))
     err("must have at least 3 consecutive letters");
 }
-
-const RE_EMAIL = /[\w.]+@\w+\.\w{2,}/;
-
-export const isEmail = (val?: unknown) => {
-  if (typeof val !== "string" || !val.match(RE_EMAIL))
-    err("not a valid email address");
-};
-
-export const isISODate = (val?: unknown) => {
-  if (typeof val !== "string" || !DateTime.fromISO(val).isValid)
-    err("not an ISO date");
-};
 
 function opsDone<
   T extends Pick<TCategory, "name" | "description" | "statusId">

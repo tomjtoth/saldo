@@ -23,7 +23,7 @@ export default function Title({
   const [name, setName] = useState(group.name);
   const [description, setDescription] = useState(group.description);
 
-  const isAdmin = group.Memberships?.at(0)?.isAdmin;
+  const isAdmin = group.Memberships?.at(0)?.admin;
 
   return isAdmin ? (
     <form
@@ -77,7 +77,7 @@ export default function Title({
       />
 
       <Slider
-        checked={statusId === 1}
+        checked={statusId == 1}
         onClick={() => setStatusId(1 + (statusId % 2))}
       />
 

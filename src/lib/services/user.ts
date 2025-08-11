@@ -1,20 +1,15 @@
 import { Session } from "next-auth";
 
-import { Revisions, TCrUser, Users } from "../models";
+import { Revision, TCrUser, atomic, User } from "../models";
 import { createGroup } from "./groups";
-import { atomic, db } from "../db";
 
-export function addUser(userData: TCrUser) {
-  return atomic({ operation: "Adding new user" }, () => {
-    const [rev] = Revisions.insert({ createdById: -1 });
-    const [user] = Users.insert(userData, { revisionId: rev.id });
+export async function addUser(userData: TCrUser) {
+  return await atomic("Adding new user", async (transaction) => {
+    const user = await User.create(userData, { transaction });
 
-    rev.createdById = user.id;
+    const rev = await Revision.create({ revBy: user.id }, { transaction });
 
-    // this should be the only place in the app where updating via raw SQL
-    db.prepare(
-      "UPDATE revisions SET createdById = :createdById WHERE id = :id"
-    ).run(rev);
+    await user.update({ revId: rev.id }, { transaction });
 
     return user;
   });
@@ -24,12 +19,15 @@ export async function currentUser(session: Session) {
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const email = session?.user?.email!;
-  const name = session?.user?.name ?? `User #${Users.count()}`;
+  const name = session?.user?.name ?? `User #${await User.count()}`;
   const image = session?.user?.image;
 
-  let user = Users.where({ email }).get(0);
+  let user = await User.findOne({ where: { email } });
   if (!user) {
-    user = addUser({ name, email });
+    user = await addUser({
+      name,
+      email,
+    });
 
     await createGroup(user.id, { name: "just you" });
   }
@@ -46,7 +44,7 @@ export async function currentUser(session: Session) {
     user.image = image;
   }
 
-  if (updating) Users.insert(user, { upsert: true });
+  if (updating) await user.save();
 
   return user;
 }

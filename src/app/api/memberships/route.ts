@@ -15,7 +15,7 @@ export async function PUT(req: NextRequest) {
 
   const body = await req.json();
 
-  const { groupId, userId, statusId, isAdmin: admin } = body as TMembership;
+  const { groupId, userId, statusId, admin } = body as TMembership;
   if (!groupId || !userId) return new Response(null, { status: 400 });
 
   if (!(await isAdmin(user.id, groupId)))

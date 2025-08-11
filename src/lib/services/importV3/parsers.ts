@@ -1,27 +1,28 @@
 import fs from "fs";
 import { Readable } from "stream";
+import { DateTime } from "luxon";
 
 import csv from "csv-parser";
 
-import { approxFloat } from "../../utils";
+import { approxFloat, DT_ANCHOR, EUROPE_HELSINKI } from "../../utils";
 import {
-  TCrGroup,
-  TRevision,
+  TCrRevision,
+  TCrUser,
   TCrCategory,
+  TCrReceipt,
   TCrItem,
   TCrItemShare,
-  TCrMembership,
-  TCrReceipt,
-  TCrUser,
+  TGroup,
+  TMembership,
 } from "@/lib/models";
 
 export type TCsvRow = { [key: string]: string };
 
 export type TDBData = {
-  revisions: TRevision[];
+  revisions: TCrRevision[];
   users: TCrUser[];
-  groups: TCrGroup[];
-  memberships: TCrMembership[];
+  groups: TGroup[];
+  memberships: TMembership[];
   categories: TCrCategory[];
   receipts: TCrReceipt[];
   items: TCrItem[];
@@ -57,7 +58,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
   const dd = {
     revisions: [],
     users: [],
-    groups: [{ id: 1, name: "imported from V3", revisionId: 1 }],
+    groups: [{ id: 1, name: "imported from V3", revId: 1, statusId: 1 }],
     memberships: [],
     categories: [],
     receipts: [],
@@ -69,30 +70,39 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const {
       category: strCategory,
       date: strPaidOn,
-      timestamp_of_entry: createdOn,
+      timestamp_of_entry: strAddedOn,
       cost: strCost,
       comment: strNotes,
       ratio: strRatio,
     } = row;
 
-    let lastRev =
-      dd.revisions.find((rev) => rev.createdOn === createdOn) ??
-      dd.revisions.at(-1);
+    const revOn = Math.round(
+      (DateTime.fromFormat(
+        strAddedOn,
+        "y.M.d. H:m:s",
+        EUROPE_HELSINKI
+      ).toMillis() -
+        DT_ANCHOR) /
+        1000
+    );
 
-    if (!lastRev || lastRev.createdOn !== createdOn) {
+    let lastRev =
+      dd.revisions.find((rev) => rev.revOn === revOn) ?? dd.revisions.at(-1);
+
+    if (!lastRev || lastRev.revOn !== revOn) {
       lastRev = {
         id: dd.revisions.length + 1,
-        createdById: 1,
-        createdOn,
+        revBy: 1,
+        revOn,
       };
       dd.revisions.push(lastRev);
     }
-    const revisionId = lastRev.id;
+    const revId = lastRev.id!;
 
     const newUser = (user: string) => {
       const u = {
         id: dd.users.length + 1,
-        revisionId,
+        revId,
         name: user,
         email: user + "@just.imported",
       };
@@ -100,8 +110,9 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       dd.memberships.push({
         groupId: 1,
         userId: u.id,
-        revisionId: 1,
-        isAdmin: false,
+        revId: 1,
+        statusId: 1,
+        admin: false,
       });
 
       return dd.users.push(u);
@@ -112,7 +123,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const paidBy =
       dd.users.find((u) => u.name === strPaidBy)?.id ?? newUser(strPaidBy);
 
-    lastRev.createdById = paidBy;
+    lastRev.revBy = paidBy;
     let userId = -1;
 
     if (strPaidTo) {
@@ -125,13 +136,13 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     let lastRcpt = dd.receipts.at(-1);
     if (
       !lastRcpt ||
-      revisionId !== lastRcpt.revisionId ||
+      revId !== lastRcpt.revId ||
       paidOn !== lastRcpt.paidOn ||
       paidBy !== lastRcpt.paidBy
     ) {
       lastRcpt = {
         id: dd.receipts.length + 1,
-        revisionId,
+        revId,
         groupId: 1,
         paidOn,
         paidBy,
@@ -139,20 +150,20 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       dd.receipts.push(lastRcpt);
     }
 
-    const receiptId = lastRcpt.id!;
+    const rcptId = lastRcpt.id!;
 
     let cat = dd.categories.find((c) => c.name === strCategory);
     if (!cat) {
       cat = {
         id: dd.categories.length + 1,
-        revisionId,
+        revId,
         groupId: 1,
         name: strCategory,
       };
       dd.categories.push(cat);
     }
 
-    const categoryId = cat.id!;
+    const catId = cat.id!;
 
     const cost = parseFloat(
       strCost.replaceAll(/[^\d,.-]/g, "").replace(",", ".")
@@ -160,9 +171,9 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
     const itemId = dd.items.push({
       id: dd.items.length + 1,
-      revisionId,
-      receiptId,
-      categoryId,
+      revId,
+      rcptId,
+      catId,
       cost,
       notes: strNotes === "" ? undefined : strNotes,
     });
@@ -174,7 +185,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
         dd.itemShares.push({
           itemId,
           userId,
-          revisionId,
+          revId,
           share: 1,
         });
       }
@@ -183,7 +194,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
         dd.itemShares.push({
           itemId,
           userId: 1,
-          revisionId,
+          revId,
           share: 1,
         });
       }
@@ -195,13 +206,13 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
           {
             itemId,
             userId: 1,
-            revisionId,
+            revId,
             share: user1_share,
           },
           {
             itemId,
             userId: userId > 1 ? userId : paidBy,
-            revisionId,
+            revId,
             share: total_shares - user1_share,
           }
         );

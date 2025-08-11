@@ -29,7 +29,7 @@ export const rGroups = {
     const user = group.Users!.find((user) => user.id === payload.userId)!;
     const ms = user.Membership!;
 
-    ms.admin = payload.isAdmin;
+    ms.admin = payload.admin;
     ms.statusId = payload.statusId;
   },
 };
