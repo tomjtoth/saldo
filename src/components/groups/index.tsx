@@ -3,7 +3,7 @@
 import { toast } from "react-toastify";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { TGroup } from "@/lib/models";
+import { TGroup } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
@@ -23,10 +23,13 @@ export default function CliGroupsPage() {
         <h2>Groups</h2>
       </Header>
 
+      {/* TODO: refactor to FnComponent({txt: string}) */}
       <p className="p-2 text-center">
         <span className="p-1 rounded border-2 border-red-500">INACTIVE</span>{" "}
+        {/* txt */}
         groups are not visible in categories, nor in receipts.
       </p>
+
       <div className="p-2 flex flex-wrap gap-2 justify-center">
         <NameDescrAdder
           placeholder="Group"
