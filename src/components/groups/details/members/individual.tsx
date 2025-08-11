@@ -3,48 +3,44 @@
 import { useState } from "react";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { User } from "@/lib/models";
+import { TMembership } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
-import { err, sendJSON, appToast } from "@/lib/utils";
+import { err, sendJSON, appToast, status } from "@/lib/utils";
 
 import Slider from "@/components/slider";
 
 export default function Individual({
-  user,
-  isAdmin,
-  groupId,
-}: {
-  user: User;
-  isAdmin?: boolean;
-  groupId: number;
-}) {
+  clientIsAdmin,
+  ...ms
+}: TMembership & { clientIsAdmin: boolean }) {
   const dispatch = useAppDispatch();
-  const [statusId, setStatusId] = useState(user.Membership!.statusId);
+  const [statusId, setStatusId] = useState(ms.statusId!);
 
   return (
     <li
       className={
         "flex gap-1 items-center rounded border-2 " +
-        (statusId == 1 ? "border-green-500" : "border-red-500")
+        (status(ms).active ? "border-green-500" : "border-red-500")
       }
     >
-      {user.Membership?.admin ? (
+      {status(ms).admin ? (
         <span>👮</span>
       ) : (
-        isAdmin && (
+        clientIsAdmin && (
           <Slider
-            checked={statusId == 1}
+            checked={status({ statusId }).active}
             onClick={() => {
               const prevStatusId = statusId;
-              const nextStatusId = 1 + (statusId % 2);
-              setStatusId(nextStatusId);
+              const nextStatusId = status({ statusId }, setStatusId).toggle(
+                "active"
+              );
 
               appToast.promise(
                 sendJSON(
                   `/api/memberships`,
                   {
-                    groupId,
-                    userId: user.id,
+                    groupId: ms.groupId,
+                    userId: ms.user!.id,
                     statusId: nextStatusId,
                   },
                   { method: "PUT" }
@@ -52,22 +48,30 @@ export default function Individual({
                   .then(async (res) => {
                     if (!res.ok) err(res.statusText);
 
-                    const body = await res.json();
-                    dispatch(red.updateMS(body));
+                    const { statusId } = (await res.json()) as TMembership;
+
+                    dispatch(
+                      red.updateMS({
+                        statusId,
+                        groupId: ms.groupId,
+                        userId: ms.user!.id,
+                      })
+                    );
                   })
                   .catch((err) => {
                     setStatusId(prevStatusId);
                     throw err;
                   }),
-                `${nextStatusId == 1 ? "Re-instating" : "Banning"} "${
-                  user.name
+
+                `${nextStatusId === 0 ? "Re-instating" : "Banning"} "${
+                  ms.user!.name
                 }"`
               );
             }}
           />
         )
       )}{" "}
-      {user.name} ({user.email})
+      {ms.user!.name} ({ms.user!.email})
     </li>
   );
 }
