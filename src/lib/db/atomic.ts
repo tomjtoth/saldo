@@ -3,7 +3,7 @@ import { datetimeToInt } from "../utils";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 
-type Transaction = Omit<
+export type PrismaTx = Omit<
   typeof db,
   "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
 >;
@@ -16,9 +16,9 @@ type AtomicWithRevOpts = AtomicOpts & {
   revisedBy: number;
 };
 
-type AtomicFun<T> = (tx: Transaction) => Promise<T>;
+type AtomicFun<T> = (tx: PrismaTx) => Promise<T>;
 type AtomicFunWithRevision<T> = (
-  tx: Transaction,
+  tx: PrismaTx,
   revision: Pick<TRevision, "id">
 ) => Promise<T>;
 
@@ -46,25 +46,28 @@ export async function atomic<T>(
   let revId = -1;
 
   try {
-    const res = await db.$transaction(async (tx) => {
-      let res: T;
+    const res = await db.$transaction(
+      async (tx) => {
+        let res: T;
 
-      if (revisedBy) {
-        const rev = await tx.revision.create({
-          select: { id: true },
-          data: {
-            createdById: revisedBy,
-            createdAtInt: datetimeToInt(),
-          },
-        });
+        if (revisedBy) {
+          const rev = await tx.revision.create({
+            data: {
+              createdById: revisedBy,
+              createdAtInt: datetimeToInt(),
+            },
+            select: { id: true },
+          });
 
-        revId = rev.id;
+          revId = rev.id;
 
-        res = await (operation as AtomicFunWithRevision<T>)(tx, rev);
-      } else res = await (operation as AtomicFun<T>)(tx);
+          res = await (operation as AtomicFunWithRevision<T>)(tx, rev);
+        } else res = await (operation as AtomicFun<T>)(tx);
 
-      return res;
-    });
+        return res;
+      },
+      process.env.NODE_ENV === "development" ? { timeout: 15 * 60 * 1000 } : {}
+    );
 
     if (revId % DB_BACKUP_EVERY_N_REVISIONS == 0) {
       // TODO:
