@@ -8,7 +8,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 # Save sqlite3 version for final install
-RUN npm list sqlite3 | grep sqlite3 | awk '{print $2}' > SQLITE3
+RUN npm list sqlite3 | grep sqlite3 | awk 'END{print $2}' > SQLITE3
 
 # ----------------------------
 FROM base AS builder
