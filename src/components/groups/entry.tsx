@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { TGroup } from "@/lib/models";
-import { appToast, err, sendJSON } from "@/lib/utils";
+import { TGroup } from "@/lib/db";
+import { appToast, err, sendJSON, status } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 
@@ -35,7 +35,7 @@ export default function Entry({
       <div
         className={
           "cursor-pointer select-none p-2 rounded border-2 " +
-          (group.statusId === 1 ? "border-green-500" : "border-red-500")
+          (status(group).active ? "border-green-500" : "border-red-500")
         }
         onClick={() => setShowDetails(true)}
       >
@@ -55,7 +55,7 @@ export default function Entry({
                   { method: "PUT" }
                 ).then((res) => {
                   if (!res.ok) err(res.statusText);
-                  dispatch(red.setDefaultGroupId(group.id));
+                  dispatch(red.setDefaultGroupId(group.id!));
                 }),
                 "Setting default group"
               );
