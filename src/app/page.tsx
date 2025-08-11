@@ -1,12 +1,9 @@
-import { getORM } from "@/lib/db";
-
 import RootDiv from "@/components/rootDiv";
 import Header from "@/components/header";
 import HashParagraph from "@/components/hashParagraph";
+import ImportSection from "@/components/import";
 
-export default async function HomePage() {
-  const orm = await getORM();
-
+export default function HomePage() {
   return (
     <RootDiv>
       <Header>
@@ -23,6 +20,8 @@ export default async function HomePage() {
         </p>
 
         <HashParagraph />
+
+        <ImportSection />
       </div>
     </RootDiv>
   );
