@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { useRootDivCx } from "../rootDiv/clientSide";
-import { TGroup } from "@/lib/models";
+import { TGroup } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
 const INFINITE_SCROLL = `INFINITE_SCROLL-${uuid()}`;
@@ -27,21 +27,32 @@ export default function useInfiniteScroll() {
       (rootDivH < window.innerHeight || debounce === 1)
     ) {
       setFetching(true);
+      const fetchedGroupId = rs.groupId;
+
       fetch(
         `/api/receipts?knownIds=${rs.groups
-          .flatMap((grp) => grp.Receipts?.map((r) => r.id))
+          .flatMap((grp) => grp.receipts?.map((r) => r.id))
           .join(",")}`
       ).then(async (body) => {
-        const groups: TGroup[] = await body.json();
+        let groups: TGroup[];
+
         let updating = false;
         const limits = { ...hasMore };
 
+        try {
+          groups = await body.json();
+        } catch {
+          groups = [];
+          updating = true;
+          limits[fetchedGroupId] = false;
+        }
+
         const storing = groups
           .map((group) => {
-            const len = group.Receipts?.length ?? 0;
+            const len = group.receipts?.length ?? 0;
             if (len < 50) {
               updating = true;
-              limits[group.id] = false;
+              limits[group.id!] = false;
             }
 
             return len > 0 ? true : false;
