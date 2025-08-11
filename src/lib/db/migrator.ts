@@ -65,7 +65,7 @@ export const migrator = {
       })
       .filter(
         (file) =>
-          !file.parentPath.endsWith("0-pre-prisma") &&
+          !file.parentPath.endsWith("20250708_pre-prisma") &&
           file.name.endsWith(".sql") &&
           // without the prisma/migrations path
           !done.includes(migName(file))
