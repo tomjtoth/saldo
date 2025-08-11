@@ -24,7 +24,8 @@ type TModelWithRelations<TTableName extends keyof TSchema> = InferSelectModel<
   [K in keyof TSchema[TTableName]["relations"]]?: TSchema[TTableName]["relations"][K] extends infer TRelation // Infer the Relation/Many type
     ? TRelation extends { referencedTableName: infer TRefDbName extends string }
       ? FindTsNameByDbName<TRefDbName> extends infer TRefTsName extends keyof TSchema
-        ? TRelation extends Many<any>
+        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          TRelation extends Many<any>
           ? TModelWithRelations<TRefTsName>[]
           : TModelWithRelations<TRefTsName> | null
         : never // Could not find a tsName for the given dbName
