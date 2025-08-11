@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { drizzle } from "drizzle-orm/libsql";
+import * as schema from "@/lib/db/schema";
 
 export * from "./types";
 export { migrator } from "./migrator";
@@ -11,3 +13,10 @@ export { getArchivePopulator } from "./archives";
 // https://github.com/prisma/prisma/issues/20627
 
 export const db = new PrismaClient({ log: ["query"] });
+
+export const ddb = drizzle({
+  connection: process.env.DRIZZLE_URL!,
+  schema,
+  casing: "snake_case",
+  logger: true,
+});
