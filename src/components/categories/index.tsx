@@ -3,7 +3,7 @@
 import { toast } from "react-toastify";
 import Link from "next/link";
 
-import { TCategory } from "@/lib/models";
+import { TCategory } from "@/lib/db";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
@@ -80,7 +80,7 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {group?.Categories?.map((cat) => (
+        {group?.categories?.map((cat) => (
           <Entry key={cat.id} cat={cat} preSelected={srv.catId == cat.id} />
         ))}
       </div>
