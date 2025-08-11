@@ -1,6 +1,14 @@
-import { atomic, db, getArchivePopulator, TGroup, TReceipt } from "@/lib/db";
+import {
+  atomic,
+  db,
+  ddb,
+  getArchivePopulator,
+  TGroup,
+  TReceipt,
+} from "@/lib/db";
 import { TCliReceipt } from "../reducers";
 import { dateToInt, sortByName } from "../utils";
+import { memberships } from "../db/schema";
 
 export type TReceiptInput = TCliReceipt & { groupId: number };
 
@@ -99,6 +107,62 @@ export async function getReceipts(userId: number, knownIds: number[] = []) {
     where: {
       memberships: { some: { userId } },
     },
+  });
+
+  // drizzle
+  await ddb.query.groups.findMany({
+    where: (t, { exists, eq, and }) =>
+      exists(
+        ddb
+          .select()
+          .from(memberships)
+          .where(
+            and(eq(memberships.groupId, t.id), eq(memberships.userId, userId))
+          )
+      ),
+    columns: {
+      id: true,
+      name: true,
+    },
+    with: {
+      memberships: {
+        columns: {
+          defaultCategoryId: true,
+        },
+        with: {
+          user: { columns: { id: true, name: true, image: true, email: true } },
+        },
+        where: (t, op) => op.inArray(t.statusId, [0, 2]),
+      },
+      categories: {
+        columns: { id: true, name: true },
+        where: (t, op) => op.eq(t.statusId, 0),
+        orderBy: (t, op) => op.sql`lower(${t.name})`,
+      },
+      receipts: {
+        columns: {
+          id: true,
+          paidOn: true,
+        },
+        limit: 50,
+        with: {
+          revision: {
+            columns: {
+              createdAt: true,
+            },
+            with: {
+              createdBy: { columns: { name: true } },
+            },
+          },
+          items: true,
+          paidBy: { columns: { name: true } },
+        },
+        where: (t, op) =>
+          op.sql`${t.id} not in ${op.sql.raw("(" + knownIds.join(", ") + ")")}`,
+        orderBy: (t, op) => op.desc(t.paidOn),
+      },
+    },
+    orderBy: (t, op) => op.sql`lower(${t.name})`,
   });
 
   const populateArchives = await getArchivePopulator<TReceipt>("Receipt", "id");
