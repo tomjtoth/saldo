@@ -143,8 +143,9 @@ export const appToast = {
       : "light",
   }),
 
-  promise: (promise: Promise<unknown>, operation: string) =>
-    toast.promise(promise, appToast.messages(operation), appToast.theme()),
+  promise(promise: Promise<unknown>, operation: string) {
+    toast.promise(promise, this.messages(operation), this.theme());
+  },
 };
 
 export function insertAlphabetically<T extends { name?: string }>(
