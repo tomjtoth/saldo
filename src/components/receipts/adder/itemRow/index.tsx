@@ -25,7 +25,7 @@ export default function ItemRow({
   const currReceipt = useAppSelector((s) =>
     rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
   );
-  const isMultiUser = (rs.group()?.Users?.length ?? 0) > 1;
+  const isMultiUser = rs.users.length > 1;
 
   const { setModal } = useModal();
 
