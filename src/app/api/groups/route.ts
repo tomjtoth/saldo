@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { v4 as uuid } from "uuid";
 
 import { auth } from "@/auth";
-import { TCrGroup } from "@/lib/models";
+import { db, Group } from "@/lib/db";
 import { createGroup, GroupUpdater, updateGroup } from "@/lib/services/groups";
 import { currentUser } from "@/lib/services/user";
 
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   const sess = await auth();
   if (!sess) return new Response(null, { status: 401 });
 
-  const data = (await req.json()) as TCrGroup;
+  const data = (await req.json()) as Pick<Group, "name" | "description">;
   if (data?.name === undefined) return new Response(null, { status: 400 });
 
   const user = await currentUser(sess);
@@ -44,7 +44,12 @@ export async function PUT(req: NextRequest) {
   };
 
   if (setAsDefault) {
-    await user.update({ defaultGroupId: id });
+    await db.user.update({
+      data: { defaultGroupId: id },
+      where: {
+        id: user.id,
+      },
+    });
     return new Response(null, { status: 200 });
   }
 
