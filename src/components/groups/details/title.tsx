@@ -4,28 +4,34 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
-import { TGroup } from "@/lib/models";
+import {
+  err,
+  has3ConsecutiveLetters,
+  sendJSON,
+  appToast,
+  status,
+} from "@/lib/utils";
+import { TGroup } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
 import Slider from "@/components/slider";
 
 export default function Title({
-  group,
   statusId,
   setStatusId,
+  clientIsAdmin,
+  group,
 }: {
-  group: TGroup;
   statusId: number;
   setStatusId: Dispatch<SetStateAction<number>>;
+  clientIsAdmin: boolean;
+  group: TGroup;
 }) {
   const dispatch = useAppDispatch();
-  const [name, setName] = useState(group.name);
-  const [description, setDescription] = useState(group.description);
+  const [name, setName] = useState(group.name!);
+  const [description, setDescription] = useState(group.description ?? "");
 
-  const isAdmin = group.Memberships?.at(0)?.admin;
-
-  return isAdmin ? (
+  return clientIsAdmin ? (
     <form
       className="grid items-center grid-cols-[min-width_min-width_min-width] gap-2"
       onSubmit={(ev) => {
@@ -60,9 +66,9 @@ export default function Title({
               return `${ops} "${group.name}" succeeded!`;
             })
             .catch((err) => {
-              setName(group.name);
-              setDescription(group.description);
-              setStatusId(group.statusId);
+              setName(group.name!);
+              setDescription(group.description ?? "");
+              setStatusId(group.statusId!);
               throw err;
             }),
           `Updating "${group.name}"`
@@ -77,8 +83,8 @@ export default function Title({
       />
 
       <Slider
-        checked={statusId == 1}
-        onClick={() => setStatusId(1 + (statusId % 2))}
+        checked={status({ statusId }).active}
+        onClick={() => status({ statusId }, setStatusId).toggle("active")}
       />
 
       <button>💾</button>
