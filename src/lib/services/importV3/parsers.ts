@@ -1,32 +1,39 @@
 import fs from "fs";
+
 import { Readable } from "stream";
 import { DateTime } from "luxon";
-
 import csv from "csv-parser";
 
-import { approxFloat, DT_ANCHOR, EUROPE_HELSINKI } from "../../utils";
 import {
-  TCrRevision,
-  TCrUser,
-  TCrCategory,
-  TCrReceipt,
-  TCrItem,
-  TCrItemShare,
-  TGroup,
-  TMembership,
-} from "@/lib/models";
+  approxFloat,
+  dateToInt,
+  DT_ANCHOR,
+  EUROPE_HELSINKI,
+} from "../../utils";
+
+import {
+  db,
+  Revision,
+  User,
+  Category,
+  Receipt,
+  Item,
+  ItemShare,
+  Group,
+  Membership,
+} from "@/lib/db";
 
 export type TCsvRow = { [key: string]: string };
 
 export type TDBData = {
-  revisions: TCrRevision[];
-  users: TCrUser[];
-  groups: TGroup[];
-  memberships: TMembership[];
-  categories: TCrCategory[];
-  receipts: TCrReceipt[];
-  items: TCrItem[];
-  itemShares: TCrItemShare[];
+  revisions: Revision[];
+  users: User[];
+  groups: Group[];
+  memberships: Membership[];
+  categories: Category[];
+  receipts: Receipt[];
+  items: Item[];
+  itemShares: ItemShare[];
 };
 
 export function parseCSV(input: string, testing = false) {
@@ -58,7 +65,16 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
   const dd = {
     revisions: [],
     users: [],
-    groups: [{ id: 1, name: "imported from V3", revId: 1, statusId: 1 }],
+    groups: [
+      {
+        id: 1,
+        name: "imported from V3",
+        revisionId: 1,
+        statusId: 0,
+        description: null,
+        uuid: null,
+      },
+    ],
     memberships: [],
     categories: [],
     receipts: [],
@@ -76,7 +92,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       ratio: strRatio,
     } = row;
 
-    const revOn = Math.round(
+    const createdAtInt = Math.round(
       (DateTime.fromFormat(
         strAddedOn,
         "y.M.d. H:m:s",
@@ -87,43 +103,49 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     );
 
     let lastRev =
-      dd.revisions.find((rev) => rev.revOn === revOn) ?? dd.revisions.at(-1);
+      dd.revisions.find((rev) => rev.createdAtInt === createdAtInt) ??
+      dd.revisions.at(-1);
 
-    if (!lastRev || lastRev.revOn !== revOn) {
+    if (!lastRev || lastRev.createdAtInt !== createdAtInt) {
       lastRev = {
         id: dd.revisions.length + 1,
-        revBy: 1,
-        revOn,
+        createdById: 1,
+        createdAtInt,
       };
       dd.revisions.push(lastRev);
     }
-    const revId = lastRev.id!;
+    const revisionId = lastRev.id!;
 
     const newUser = (user: string) => {
-      const u = {
+      const u: User = {
         id: dd.users.length + 1,
-        revId,
+        revisionId,
         name: user,
+        image: null,
         email: user + "@just.imported",
+        defaultGroupId: null,
+        statusId: 0,
       };
 
       dd.memberships.push({
         groupId: 1,
         userId: u.id,
-        revId: 1,
-        statusId: 1,
-        admin: false,
+        revisionId: 1,
+        statusId: 0,
+        defaultCategoryId: null,
       });
+
+      db.user.createMany({ data: [{ email: "qwe", revisionId: 123 }] });
 
       return dd.users.push(u);
     };
 
     // entries contain sometimes only 1 name
     const [strPaidBy, strPaidTo = null] = row.direction.split("->");
-    const paidBy =
+    const paidById =
       dd.users.find((u) => u.name === strPaidBy)?.id ?? newUser(strPaidBy);
 
-    lastRev.revBy = paidBy;
+    lastRev.createdById = paidById;
     let userId = -1;
 
     if (strPaidTo) {
@@ -131,39 +153,42 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       userId = paidToUser ? paidToUser.id! : newUser(strPaidTo);
     }
 
-    const paidOn = strPaidOn.replaceAll(".", "-").slice(0, 10);
+    const paidOnInt = dateToInt(strPaidOn.replaceAll(".", "-").slice(0, 10));
 
     let lastRcpt = dd.receipts.at(-1);
     if (
       !lastRcpt ||
-      revId !== lastRcpt.revId ||
-      paidOn !== lastRcpt.paidOn ||
-      paidBy !== lastRcpt.paidBy
+      revisionId !== lastRcpt.revisionId ||
+      paidOnInt !== lastRcpt.paidOnInt ||
+      paidById !== lastRcpt.paidById
     ) {
       lastRcpt = {
         id: dd.receipts.length + 1,
-        revId,
+        revisionId,
         groupId: 1,
-        paidOn,
-        paidBy,
+        paidOnInt,
+        paidById,
+        statusId: 0,
       };
       dd.receipts.push(lastRcpt);
     }
 
-    const rcptId = lastRcpt.id!;
+    const receiptId = lastRcpt.id!;
 
     let cat = dd.categories.find((c) => c.name === strCategory);
     if (!cat) {
       cat = {
         id: dd.categories.length + 1,
-        revId,
+        revisionId,
         groupId: 1,
         name: strCategory,
+        statusId: 0,
+        description: null,
       };
       dd.categories.push(cat);
     }
 
-    const catId = cat.id!;
+    const categoryId = cat.id!;
 
     const cost = parseFloat(
       strCost.replaceAll(/[^\d,.-]/g, "").replace(",", ".")
@@ -171,30 +196,33 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
     const itemId = dd.items.push({
       id: dd.items.length + 1,
-      revId,
-      rcptId,
-      catId,
+      statusId: 0,
+      revisionId,
+      receiptId,
+      categoryId,
       cost,
-      notes: strNotes === "" ? undefined : strNotes,
+      notes: strNotes === "" ? null : strNotes,
     });
 
     const ratio = parseFloat(strRatio) / 100;
 
-    if (!((paidBy === 1 && ratio === 1) || (paidBy > 1 && ratio === 0))) {
-      if (paidBy === 1 && ratio === 0) {
+    if (!((paidById === 1 && ratio === 1) || (paidById > 1 && ratio === 0))) {
+      if (paidById === 1 && ratio === 0) {
         dd.itemShares.push({
+          statusId: 0,
           itemId,
           userId,
-          revId,
+          revisionId,
           share: 1,
         });
       }
 
-      if (paidBy >= 2 && ratio === 1) {
+      if (paidById >= 2 && ratio === 1) {
         dd.itemShares.push({
+          statusId: 0,
           itemId,
           userId: 1,
-          revId,
+          revisionId,
           share: 1,
         });
       }
@@ -204,15 +232,17 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
         dd.itemShares.push(
           {
+            statusId: 0,
             itemId,
             userId: 1,
-            revId,
+            revisionId,
             share: user1_share,
           },
           {
+            statusId: 0,
             itemId,
-            userId: userId > 1 ? userId : paidBy,
-            revId,
+            userId: userId > 1 ? userId : paidById,
+            revisionId,
             share: total_shares - user1_share,
           }
         );
