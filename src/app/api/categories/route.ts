@@ -8,13 +8,17 @@ import {
   updateCategory,
   userAccessToCat,
 } from "@/lib/services/categories";
-import { TCategory, TCrCategory } from "@/lib/models";
+import { TCategory, Category } from "@/lib/db";
 import { updateMembership } from "@/lib/services/memberships";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const data = (await req.json()) as TCrCategory;
+  const data = (await req.json()) as Pick<
+    Category,
+    "name" | "groupId" | "description"
+  >;
+
   if (data.name === undefined) return new Response(null, { status: 401 });
 
   const sess = await auth();
@@ -55,7 +59,7 @@ export async function PUT(req: NextRequest) {
       await updateMembership(user.id, {
         userId: user.id,
         groupId: data.groupId,
-        defaultCatId: data.id,
+        defaultCategoryId: data.id,
       });
 
       return new Response(null, { status: 200 });
