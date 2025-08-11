@@ -2,7 +2,7 @@
 
 import { ChangeEventHandler, useEffect, useRef } from "react";
 
-import { User } from "@/lib/models";
+import { TUser } from "@/lib/models";
 import { useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { TCliItem } from "@/lib/reducers";
 import { costToFixed } from ".";
@@ -14,7 +14,7 @@ export default function ItemShareAvatar({
   focused,
   onChange,
 }: {
-  user: User;
+  user: TUser;
   value: string | number;
   itemId?: number;
   focused?: boolean;
@@ -77,7 +77,7 @@ export default function ItemShareAvatar({
             type="number"
             placeholder="N+1"
             min={0}
-            value={value == 0 ? "" : value}
+            value={value === 0 ? "" : value}
             onChange={onChange}
             className="no-spinner absolute -bottom-2 -right-2 w-10 h-10 rounded-full! text-center bg-background border"
           />

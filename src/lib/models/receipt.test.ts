@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 
 import { addUser } from "../services/user";
-import { Group, migrator, Receipt, Revision } from ".";
 import { VALID_USER_DATA } from "../testHelpers";
 
 describe("Receipt", () => {
@@ -9,7 +8,7 @@ describe("Receipt", () => {
     await migrator.up();
     await Revision.truncate();
 
-    // revId == 1 is created with this function call
+    // revId === 1 is created with this function call
     await addUser(VALID_USER_DATA);
     await Group.create({ name: "faf" });
   });

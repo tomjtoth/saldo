@@ -3,7 +3,7 @@
 import { appToast, err, sendJSON } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-export default function CliImportSection(fromDB: {
+export type TCliImportProps = {
   revisions: number;
   users: number;
   groups: number;
@@ -12,7 +12,9 @@ export default function CliImportSection(fromDB: {
   receipts: number;
   items: number;
   itemShares: number;
-}) {
+};
+
+export default function CliImportSection(fromDB: TCliImportProps) {
   const [data, setData] = useState(fromDB);
 
   useEffect(() => {

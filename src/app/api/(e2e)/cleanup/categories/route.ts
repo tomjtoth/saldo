@@ -1,6 +1,4 @@
-import { Op } from "sequelize";
-
-import { Category, CategoryArchive, Revision } from "@/lib/models";
+import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -8,24 +6,15 @@ export async function GET() {
   if (process.env.NODE_ENV !== "development")
     return new Response(null, { status: 403 });
 
-  const cats = await Category.findAll({
-    where: {
-      name: {
-        [Op.like]: "test-cat-%",
-      },
-    },
-    include: [
-      Revision,
-      { model: CategoryArchive, as: "archives", include: [Revision] },
-    ],
-  });
+  db.transaction(() => {
+    const revIds = db
+      .prepare("SELECT revisionId FROM categories WHERE name LIKE 'test-cat%'")
+      .pluck()
+      .all() as number[];
 
-  cats.forEach(async (cat) => {
-    cat.archives!.forEach(async (arch) => {
-      await arch.Revision!.destroy();
-    });
-    await cat.Revision!.destroy();
-  });
+    const stmt = db.prepare("DELETE FROM revisions WHERE id = ?");
+    revIds.forEach((revId) => stmt.run(revId));
+  })();
 
   return new Response(null, { status: 200 });
 }

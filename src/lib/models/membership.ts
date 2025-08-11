@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { DataTypes, Model } from "sequelize";
 
 import { seqCols, seqInitOpts } from "./common";
@@ -11,11 +12,26 @@ export type TMembership = {
   defaultCatId?: number;
 
   admin: boolean;
+=======
+import { COL_SRI, Model, TCrModelSR, TModelSR } from "./model";
+import { TGroup } from "./group";
+import { TUser } from "./user";
+
+type TMembershipBase = {
+  groupId: number;
+  userId: number;
+  defaultCategoryId?: number;
+  isAdmin: boolean;
+>>>>>>> better-sqlite3
 };
 
-type TCrMembership = Pick<TMembership, "groupId" | "userId" | "revId"> &
-  Partial<Pick<TMembership, "admin" | "statusId">>;
+export type TMembership = TModelSR &
+  TMembershipBase & {
+    Group?: TGroup;
+    User?: TUser;
+  };
 
+<<<<<<< HEAD
 export class Membership extends Model<TMembership, TCrMembership> {
   groupId!: number;
   userId!: number;
@@ -62,4 +78,30 @@ Membership.init(
   },
 
   seqInitOpts("Membership")
+=======
+export type TCrMembership = TCrModelSR &
+  Pick<TMembershipBase, "groupId" | "userId"> &
+  Partial<Pick<TMembershipBase, "isAdmin" | "defaultCategoryId">>;
+
+export const Memberships = new Model<TMembership, TCrMembership>(
+  "memberships",
+  {
+    ...COL_SRI,
+
+    groupId: {
+      type: "number",
+      primaryKey: true,
+    },
+    userId: {
+      type: "number",
+      primaryKey: true,
+    },
+    defaultCategoryId: {
+      type: "number",
+    },
+    isAdmin: {
+      type: "boolean",
+    },
+  }
+>>>>>>> better-sqlite3
 );

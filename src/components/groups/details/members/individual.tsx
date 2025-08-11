@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { User } from "@/lib/models";
+import { TUser } from "@/lib/models";
 import { rCombined as red } from "@/lib/reducers";
 import { err, sendJSON, appToast } from "@/lib/utils";
 
@@ -14,7 +14,7 @@ export default function Individual({
   isAdmin,
   groupId,
 }: {
-  user: User;
+  user: TUser;
   isAdmin?: boolean;
   groupId: number;
 }) {
@@ -25,7 +25,7 @@ export default function Individual({
     <li
       className={
         "flex gap-1 items-center rounded border-2 " +
-        (statusId == 1 ? "border-green-500" : "border-red-500")
+        (statusId === 1 ? "border-green-500" : "border-red-500")
       }
     >
       {user.Membership?.admin ? (
@@ -33,7 +33,7 @@ export default function Individual({
       ) : (
         isAdmin && (
           <Slider
-            checked={statusId == 1}
+            checked={statusId === 1}
             onClick={() => {
               const prevStatusId = statusId;
               const nextStatusId = 1 + (statusId % 2);
@@ -59,7 +59,7 @@ export default function Individual({
                     setStatusId(prevStatusId);
                     throw err;
                   }),
-                `${nextStatusId == 1 ? "Re-instating" : "Banning"} "${
+                `${nextStatusId === 1 ? "Re-instating" : "Banning"} "${
                   user.name
                 }"`
               );

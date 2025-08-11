@@ -23,17 +23,27 @@
   ],
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
+    "better-sqlite3": "^12.2.0",
     "csv-parser": "^3.0.0",
     "luxon": "^3.6.1",
     "next": "15.3.2",
     "next-auth": "^5.0.0-beta.28",
+<<<<<<< HEAD
+=======
+    "plotly.js": "^3.0.1",
+    "pluralize": "^8.0.0",
+>>>>>>> better-sqlite3
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
     "react-toastify": "^11.0.5",
     "recharts": "^3.0.2",
+<<<<<<< HEAD
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7",
+=======
+    "umzug": "^3.8.2",
+>>>>>>> better-sqlite3
     "uuid": "^11.1.0",
     "web-push": "^3.6.7"
   },
@@ -42,8 +52,10 @@
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/luxon": "^3.6.2",
     "@types/node": "^24.0.4",
+    "@types/pluralize": "^0.0.33",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/web-push": "^3.6.4",

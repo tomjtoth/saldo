@@ -6,6 +6,7 @@ export async function register() {
     const TAB = "\t";
     const LF = "\n\n";
 
+<<<<<<< HEAD
     const { migrator } = await import("./lib/models/db");
 
     migrator
@@ -22,5 +23,31 @@ export async function register() {
           );
       })
       .catch((err) => console.error(LF, TAB, "Migration failed:", LF, err, LF));
+=======
+    const { migrator } = await import("./lib/db");
+
+    try {
+      const res = migrator.up();
+
+      if (res.length > 0)
+        console.log(
+          LF,
+          TAB,
+          `${
+            res.length > 1 ? `${res.length} migrations` : "Migration"
+          } succeeded.`,
+          LF
+        );
+    } catch (err) {
+      console.error(
+        LF,
+        TAB,
+        "Migration failed:",
+        LF,
+        (err as Error).message,
+        LF
+      );
+    }
+>>>>>>> better-sqlite3
   }
 }

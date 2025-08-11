@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 
-import { migrator, Revision, User } from ".";
 import { VALID_USER_DATA } from "../testHelpers";
+import { migrator } from "../db";
 
 describe("User", () => {
   beforeEach(async () => {

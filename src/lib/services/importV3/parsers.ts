@@ -1,28 +1,27 @@
 import fs from "fs";
 import { Readable } from "stream";
-import { DateTime } from "luxon";
 
 import csv from "csv-parser";
 
-import { approxFloat, DT_ANCHOR, EUROPE_HELSINKI } from "../../utils";
+import { approxFloat } from "../../utils";
 import {
-  TCrRevision,
-  TCrUser,
+  TCrGroup,
+  TRevision,
   TCrCategory,
-  TCrReceipt,
   TCrItem,
   TCrItemShare,
-  TGroup,
-  TMembership,
+  TCrMembership,
+  TCrReceipt,
+  TCrUser,
 } from "@/lib/models";
 
 export type TCsvRow = { [key: string]: string };
 
 export type TDBData = {
-  revisions: TCrRevision[];
+  revisions: TRevision[];
   users: TCrUser[];
-  groups: TGroup[];
-  memberships: TMembership[];
+  groups: TCrGroup[];
+  memberships: TCrMembership[];
   categories: TCrCategory[];
   receipts: TCrReceipt[];
   items: TCrItem[];
@@ -58,7 +57,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
   const dd = {
     revisions: [],
     users: [],
-    groups: [{ id: 1, name: "imported from V3", revId: 1, statusId: 1 }],
+    groups: [{ id: 1, name: "imported from V3", revisionId: 1 }],
     memberships: [],
     categories: [],
     receipts: [],
@@ -70,39 +69,30 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const {
       category: strCategory,
       date: strPaidOn,
-      timestamp_of_entry: strAddedOn,
+      timestamp_of_entry: createdOn,
       cost: strCost,
       comment: strNotes,
       ratio: strRatio,
     } = row;
 
-    const revOn = Math.round(
-      (DateTime.fromFormat(
-        strAddedOn,
-        "y.M.d. H:m:s",
-        EUROPE_HELSINKI
-      ).toMillis() -
-        DT_ANCHOR) /
-        1000
-    );
-
     let lastRev =
-      dd.revisions.find((rev) => rev.revOn === revOn) ?? dd.revisions.at(-1);
+      dd.revisions.find((rev) => rev.createdOn === createdOn) ??
+      dd.revisions.at(-1);
 
-    if (!lastRev || lastRev.revOn !== revOn) {
+    if (!lastRev || lastRev.createdOn !== createdOn) {
       lastRev = {
         id: dd.revisions.length + 1,
-        revBy: 1,
-        revOn,
+        createdById: 1,
+        createdOn,
       };
       dd.revisions.push(lastRev);
     }
-    const revId = lastRev.id!;
+    const revisionId = lastRev.id;
 
     const newUser = (user: string) => {
       const u = {
         id: dd.users.length + 1,
-        revId,
+        revisionId,
         name: user,
         email: user + "@just.imported",
       };
@@ -110,9 +100,8 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       dd.memberships.push({
         groupId: 1,
         userId: u.id,
-        revId: 1,
-        statusId: 1,
-        admin: false,
+        revisionId: 1,
+        isAdmin: false,
       });
 
       return dd.users.push(u);
@@ -123,7 +112,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const paidBy =
       dd.users.find((u) => u.name === strPaidBy)?.id ?? newUser(strPaidBy);
 
-    lastRev.revBy = paidBy;
+    lastRev.createdById = paidBy;
     let userId = -1;
 
     if (strPaidTo) {
@@ -136,13 +125,13 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     let lastRcpt = dd.receipts.at(-1);
     if (
       !lastRcpt ||
-      revId !== lastRcpt.revId ||
+      revisionId !== lastRcpt.revisionId ||
       paidOn !== lastRcpt.paidOn ||
       paidBy !== lastRcpt.paidBy
     ) {
       lastRcpt = {
         id: dd.receipts.length + 1,
-        revId,
+        revisionId,
         groupId: 1,
         paidOn,
         paidBy,
@@ -150,20 +139,20 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       dd.receipts.push(lastRcpt);
     }
 
-    const rcptId = lastRcpt.id!;
+    const receiptId = lastRcpt.id!;
 
     let cat = dd.categories.find((c) => c.name === strCategory);
     if (!cat) {
       cat = {
         id: dd.categories.length + 1,
-        revId,
+        revisionId,
         groupId: 1,
         name: strCategory,
       };
       dd.categories.push(cat);
     }
 
-    const catId = cat.id!;
+    const categoryId = cat.id!;
 
     const cost = parseFloat(
       strCost.replaceAll(/[^\d,.-]/g, "").replace(",", ".")
@@ -171,9 +160,9 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
     const itemId = dd.items.push({
       id: dd.items.length + 1,
-      revId,
-      rcptId,
-      catId,
+      revisionId,
+      receiptId,
+      categoryId,
       cost,
       notes: strNotes === "" ? undefined : strNotes,
     });
@@ -185,7 +174,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
         dd.itemShares.push({
           itemId,
           userId,
-          revId,
+          revisionId,
           share: 1,
         });
       }
@@ -194,7 +183,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
         dd.itemShares.push({
           itemId,
           userId: 1,
-          revId,
+          revisionId,
           share: 1,
         });
       }
@@ -206,13 +195,13 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
           {
             itemId,
             userId: 1,
-            revId,
+            revisionId,
             share: user1_share,
           },
           {
             itemId,
             userId: userId > 1 ? userId : paidBy,
-            revId,
+            revisionId,
             share: total_shares - user1_share,
           }
         );
