@@ -115,9 +115,14 @@ export const rReceipts = {
   },
 
   addReceipt: (rs: CS, { payload }: PayloadAction<TReceipt>) => {
-    rs.groups
-      .find((group) => group.id === payload.groupId)
-      ?.receipts?.splice(0, 0, payload);
+    const receipts = rs.groups.find((group) => group.id === payload.groupId)!
+      .receipts!;
+
+    const insertAt = receipts.findIndex(
+      (r) => r.paidOnInt! < payload.paidOnInt!
+    );
+
+    receipts.splice(insertAt < 0 ? 0 : insertAt, 0, payload);
 
     delete rs.newReceipts[payload.groupId!];
   },
