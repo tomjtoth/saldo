@@ -3,15 +3,15 @@
 import fs from "fs";
 import { execSync } from "child_process";
 
-execSync(`DATABASE_URL="${process.env.DATABASE_URL}" npx prisma generate`, {
+execSync(`npx prisma generate`, {
   stdio: "inherit",
-  shell: "/bin/bash",
+  shell: "/bin/sh",
   cwd: process.cwd(),
 });
 
 const schema = fs.readFileSync("./prisma/schema.prisma", "utf-8");
 
-const omit = ["Revision", "Archive"];
+const withoutArchives = ["Revision", "Archive"];
 
 const res = [
   // trim everything before the marker
@@ -26,11 +26,14 @@ const res = [
   [
     /model (\w+) \{/g,
     (_: string, model: string) => {
+      const inherits = [`Partial<${model}>`];
+
+      if (!withoutArchives.includes(model))
+        inherits.push(`WithArchives<T${model}>`);
+
       const repl =
         // transform model defs into exports
-        `export interface T${model} extends Partial<${model}> {` +
-        // inject archives to any model, but 2
-        (omit.includes(model) ? "" : `\n  archives ${model}[]\n`);
+        `export interface T${model} extends ${inherits.join(", ")} {`;
 
       return repl;
     },
@@ -39,8 +42,7 @@ const res = [
   // transform relation lines into interface props
   [/^\s+((?!export)\S+)\s+((?!export)\S+)\s*?/gm, "$1?: T$2,"],
 ].reduce(
-  (res, [patt, repl = ""], idx) =>
-    res.replaceAll(patt as RegExp, repl as string),
+  (res, [patt, repl = ""]) => res.replaceAll(patt as RegExp, repl as string),
   schema
 );
 
@@ -62,11 +64,7 @@ import { TParetoChartData } from "@/components/pareto/chart";
 
 export type { ${types} };
 
-export interface TRevision { createdOn?: string }
-
-export interface TReceipt { paidOn?: string }
-
-export interface TMembership { admin?: boolean }
+interface WithArchives<T> { archives?: T[] }
 
 export interface TGroup {
   balance?: TBalanceChartData;
