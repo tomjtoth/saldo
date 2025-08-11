@@ -33,15 +33,12 @@ const datetimeInt = customType<{
   // toDriver: (value) => datetimeToInt(value),
 });
 
-const bool = customType<{ data: boolean; driverData: number }>({
-  dataType: () => "INTEGER",
-  fromDriver: (val) => val == 1,
-  toDriver: (val) => (val ? 1 : 0),
-});
-
-const active = bool().generatedAlwaysAs(sql`("statusId" & 1) = 0`, {
-  mode: "virtual",
-});
+const active = integer({ mode: "boolean" }).generatedAlwaysAs(
+  sql`("statusId" & 1) = 0`,
+  {
+    mode: "virtual",
+  }
+);
 
 const id = integer().primaryKey();
 const revisionId = integer()
@@ -60,7 +57,7 @@ const colSRI = { ...colSR, id };
 export const meta = sqliteTable("Meta", {
   id,
   info: text().notNull().unique(),
-  data: text("data", { mode: "json" }),
+  data: text({ mode: "json" }),
 });
 
 export const archives = sqliteTable("Archive", {
@@ -69,7 +66,7 @@ export const archives = sqliteTable("Archive", {
   tableColumnId: integer().notNull(),
   entityPk1: integer().notNull(),
   entityPk2: integer().notNull(),
-  data: text("data", { mode: "json" }),
+  data: text({ mode: "json" }),
 });
 
 export const archivesRel = relations(archives, ({ one }) => ({
@@ -111,8 +108,6 @@ export const users = sqliteTable("User", {
   image: text(),
   defaultGroupId: integer().references(() => groups.id),
 });
-
-export type TCrUser = typeof users.$inferInsert;
 
 export const usersRel = relations(users, ({ one, many }) => ({
   revision: one(revisions, {
@@ -162,9 +157,12 @@ export const memberships = sqliteTable(
       .notNull()
       .references(() => users.id),
 
-    // admin: bool().generatedAlwaysAs(sql`("status_id" & 2) = 2`, {
-    //   mode: "virtual",
-    // }),
+    // admin: integer({ mode: "boolean" }).generatedAlwaysAs(
+    //   sql`("status_id" & 2) = 2`,
+    //   {
+    //     mode: "virtual",
+    //   }
+    // ),
 
     defaultCategoryId: integer().references(() => categories.id),
   },
