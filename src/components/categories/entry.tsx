@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { appToast, err, sendJSON } from "@/lib/utils";
-import { TCategory } from "@/lib/models";
+import { appToast, err, sendJSON, status } from "@/lib/utils";
+import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
 import Canceler from "../canceler";
@@ -22,7 +22,8 @@ export default function Entry({
   const hideDetails = () => setShowDetails(false);
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
-  const isDefault = rs.group()?.Memberships?.at(0)?.defaultCatId === cat.id;
+  const isDefault =
+    rs.group()?.memberships?.at(0)?.defaultCategoryId === cat.id;
 
   return (
     <>
@@ -35,7 +36,7 @@ export default function Entry({
       <div
         className={
           "category cursor-pointer select-none text-center p-2 rounded border-2 " +
-          (cat.statusId === 1 ? "border-green-500" : "border-red-500")
+          (status(cat).active ? "border-green-500" : "border-red-500")
         }
         onClick={() => setShowDetails(true)}
       >
@@ -58,8 +59,8 @@ export default function Entry({
 
                   dispatch(
                     red.updateDefaultCatId({
-                      catId: cat.id,
-                      groupId: cat.groupId,
+                      catId: cat.id!,
+                      groupId: cat.groupId!,
                     })
                   );
                 }),
