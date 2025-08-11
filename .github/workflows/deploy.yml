@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - prisma
+      - drizzle
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -67,5 +67,5 @@ jobs:
           context: .
           platforms: linux/arm64
           push: true
-          tags: tomjtoth/saldo:prisma
+          tags: tomjtoth/saldo:drizzle
           build-args: "GIT_HASH=${{ github.sha }}"
