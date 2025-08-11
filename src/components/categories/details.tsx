@@ -1,9 +1,10 @@
 "use client";
 
-import { TCategory } from "@/lib/models";
+import { TCategory } from "@/lib/db";
 
 import Updater from "./updater";
 import Slider from "../slider";
+import { datetimeFromInt, status } from "@/lib/utils";
 
 export default function Details({
   cat,
@@ -24,12 +25,12 @@ export default function Details({
       }}
     >
       <Updater cat={cat} />
-      {cat.archives!.toReversed().map((cat) => (
+      {cat.archives!.map((cat) => (
         <div
-          key={`${cat.id}-${cat.revId!}`}
+          key={`${cat.id}-${cat.revisionId!}`}
           className={
             "p-2 bg-background rounded border-2 cursor-not-allowed " +
-            (cat.statusId === 1 ? "border-green-500" : "border-red-500") +
+            (status(cat).active ? "border-green-500" : "border-red-500") +
             " grid items-center gap-2 grid-cols-[min-width_min-width]"
           }
         >
@@ -40,7 +41,7 @@ export default function Details({
             disabled
           />
 
-          <Slider checked={cat.statusId === 1} className="" />
+          <Slider checked={status(cat).active} className="" />
 
           {cat.description && (
             <textarea
@@ -53,9 +54,9 @@ export default function Details({
 
           <div className="col-span-2 text-center">
             🗓️
-            <sub> {cat.Revision!.revOn} </sub>
+            <sub> {datetimeFromInt(cat.revision!.createdAtInt!)} </sub>
             🪪
-            <sub> {cat.Revision!.User?.name} </sub>
+            <sub> {cat.revision!.createdBy!.name} </sub>
           </div>
         </div>
       ))}
