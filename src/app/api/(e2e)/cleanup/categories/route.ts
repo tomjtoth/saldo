@@ -1,6 +1,4 @@
-import { Op } from "sequelize";
-
-import { Category, CategoryArchive, Revision } from "@/lib/models";
+import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -8,23 +6,30 @@ export async function GET() {
   if (process.env.NODE_ENV !== "development")
     return new Response(null, { status: 403 });
 
-  const cats = await Category.findAll({
+  const cats = await db.category.findMany({
+    select: { id: true, revisionId: true },
     where: {
       name: {
-        [Op.like]: "test-cat-%",
+        startsWith: "test-cat-",
       },
     },
-    include: [
-      Revision,
-      { model: CategoryArchive, as: "archives", include: [Revision] },
-    ],
   });
 
-  cats.forEach(async (cat) => {
-    cat.archives!.forEach(async (arch) => {
-      await arch.Revision!.destroy();
-    });
-    await cat.Revision!.destroy();
+  const archives = await db.archive.findMany({
+    select: { revisionId: true },
+    where: {
+      entityPk1: { in: cats.map((c) => c.id) },
+    },
+  });
+
+  await db.revision.deleteMany({
+    where: {
+      id: {
+        in: cats
+          .map((c) => c.revisionId)
+          .concat(archives.map((a) => a.revisionId)),
+      },
+    },
   });
 
   return new Response(null, { status: 200 });
