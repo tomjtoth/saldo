@@ -2,18 +2,24 @@
 
 import { useEffect, useState } from "react";
 
-import { TGroup } from "@/lib/models";
+import { TGroup } from "@/lib/db";
+import { status } from "@/lib/utils";
 
 import Invitation from "./invitation";
 import Title from "./title";
 import Members from "./members";
 import SvgLink from "@/components/svgLink";
+import { useGroupSelector } from "@/lib/hooks";
 
 export default function Details({ group }: { group: TGroup }) {
-  const [statusId, setStatusId] = useState(group.statusId);
+  const [statusId, setStatusId] = useState(group.statusId!);
+  const rs = useGroupSelector();
+  const clientIsAdmin = group.memberships!.some(
+    (ms) => ms.user!.id === rs.userId && status(ms).admin
+  );
 
   useEffect(() => {
-    setStatusId(group.statusId);
+    setStatusId(group.statusId!);
   }, [group.statusId]);
 
   return (
@@ -22,17 +28,17 @@ export default function Details({ group }: { group: TGroup }) {
         "absolute left-1/2 top-1/2 -translate-1/2 " +
         "max-w-min sm:max-w-4/5 max-h-4/5 overflow-scroll " +
         "bg-background rounded border-2 " +
-        (statusId === 1 ? "border-green-500" : "border-red-500") +
+        (status({ statusId }).active ? "border-green-500" : "border-red-500") +
         " p-2 flex flex-col items-center gap-2"
       }
     >
-      <Title {...{ group, statusId, setStatusId }} />
+      <Title {...{ group, statusId, setStatusId, clientIsAdmin }} />
 
-      <Members {...{ group }} />
+      <Members {...{ ...group, clientIsAdmin }} />
 
-      <Invitation {...{ group }} />
+      <Invitation {...{ group, clientIsAdmin }} />
 
-      {group.statusId == 1 && (
+      {status(group).active && (
         <>
           <h3>
             Categories <SvgLink href={`/groups/${group.id}/categories`} />
