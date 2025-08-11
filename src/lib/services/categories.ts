@@ -1,172 +1,158 @@
-import { col, fn } from "sequelize";
-
 import {
   atomic,
   Category,
-  CategoryArchive,
-  Group,
-  Membership,
-  Revision,
+  db,
+  getArchivePopulator,
   TCategory,
-  TCrCategory,
-  User,
-} from "../models";
-import { err } from "../utils";
+  updater,
+} from "@/lib/db";
+import { err, sortByName } from "../utils";
+
+export async function createCategory(
+  revisedBy: number,
+  data: Pick<Category, "name" | "description" | "groupId">
+) {
+  return await atomic(
+    { operation: "Creating category", revisedBy },
+    async (tx, rev) => {
+      const cat = await tx.category.create({
+        select: {
+          revision: {
+            select: {
+              createdAtInt: true,
+              createdBy: { select: { name: true } },
+            },
+          },
+        },
+        data: {
+          ...data,
+          revisionId: rev.id!,
+        },
+      });
+
+      return cat;
+    }
+  );
+}
 
 export type TCategoryUpdater = Partial<
-  Pick<TCategory, "name" | "description" | "statusId">
+  Pick<Category, "name" | "description" | "statusId">
 >;
-
-export async function createCategory(revBy: number, data: TCrCategory) {
-  return await atomic("Creating category", async (transaction) => {
-    const rev = await Revision.create({ revBy }, { transaction });
-    const cat = await Category.create(
-      {
-        revId: rev.id,
-        ...data,
-      },
-      { transaction }
-    );
-
-    await cat.reload({
-      transaction,
-      include: [
-        {
-          model: Revision,
-          attributes: ["revOn"],
-          include: [{ model: User, attributes: ["name"] }],
-        },
-        {
-          model: CategoryArchive,
-          as: "archives",
-          include: [
-            {
-              model: Revision,
-              attributes: ["revOn"],
-              include: [{ model: User, attributes: ["name"] }],
-            },
-          ],
-        },
-      ],
-    });
-
-    return cat;
-  });
-}
 
 export async function updateCategory(
   id: number,
-  revBy: number,
-  { name, description, statusId }: TCategoryUpdater
+  revisedBy: number,
+  modifier: TCategoryUpdater
 ) {
-  return await atomic("Updating category", async (transaction) => {
-    const cat = (await Category.findByPk(id, { transaction }))!;
+  return await atomic(
+    { operation: "Updating category", revisedBy },
+    async (tx, rev) => {
+      const cat = (await tx.category.findUnique({ where: { id } }))!;
 
-    const preChanges = cat.get({ plain: true, clone: true });
-    let saving = false;
+      const saving = await updater(cat, modifier, {
+        tx,
+        tableName: "Category",
+        revisionId: rev.id!,
+        entityPk1: id,
+      });
 
-    if (name !== undefined && cat.name !== name) {
-      cat.name = name;
-      saving = true;
-    }
+      if (saving) await tx.category.update({ data: cat, where: { id } });
+      else err("No changes were made");
 
-    if (description !== undefined && cat.description !== description) {
-      cat.description = description;
-      saving = true;
-    }
-
-    if (statusId !== undefined && cat.statusId !== statusId) {
-      cat.statusId = statusId;
-      saving = true;
-    }
-
-    if (saving) {
-      await CategoryArchive.create(preChanges, { transaction });
-      const rev = await Revision.create({ revBy }, { transaction });
-      cat.revId = rev.id;
-      await cat.save({ transaction });
-    } else err("No changes were made");
-
-    return await cat.reload({
-      transaction,
-      include: [
-        {
-          model: Revision,
-          attributes: ["revOn"],
-          include: [{ model: User, attributes: ["name"] }],
-        },
-        {
-          model: CategoryArchive,
-          as: "archives",
-          include: [
-            {
-              model: Revision,
-              attributes: ["revOn"],
-              include: [{ model: User, attributes: ["name"] }],
+      const res = await tx.category.findUnique({
+        where: { id: cat.id },
+        include: {
+          revision: {
+            select: {
+              createdAtInt: true,
+              createdBy: { select: { name: true } },
             },
-          ],
+          },
         },
-      ],
-    })!;
-  });
+      });
+
+      const populateArchives = await getArchivePopulator<TCategory>(
+        "Category",
+        "id",
+        { tx }
+      );
+
+      populateArchives([res as TCategory]);
+
+      return res;
+    }
+  );
 }
 
 export async function userAccessToCat(userId: number, catId: number) {
-  const exists = await Category.findAll({
-    attributes: ["id"],
-    include: [
-      {
-        model: Group,
-        attributes: [],
-        required: true,
-        include: [
-          { model: Membership, attributes: [], where: { userId, statusId: 1 } },
-        ],
+  const exists = await db.category.findFirst({
+    select: { id: true },
+
+    where: {
+      id: catId,
+      group: {
+        is: {
+          memberships: {
+            some: {
+              userId,
+              statusId: { in: [0, 2] },
+            },
+          },
+        },
       },
-    ],
-    where: { id: catId },
+    },
   });
 
   return !!exists;
 }
 
 export async function getCategories(userId: number) {
-  return await Group.findAll({
-    attributes: ["id", "name"],
-    include: [
-      {
-        model: Membership,
-        attributes: ["defaultCatId"],
-        where: { userId, statusId: 1 },
+  const groups = await db.group.findMany({
+    select: {
+      id: true,
+      name: true,
+      memberships: {
+        select: {
+          defaultCategoryId: true,
+          user: { select: { id: true, name: true } },
+        },
+        where: { userId, statusId: { in: [0, 2] } },
       },
-      { model: Revision, attributes: ["revOn"] },
-      { model: User, attributes: ["id", "name"] },
-      {
-        model: Category,
-        include: [
-          {
-            model: Revision,
-            attributes: ["revOn"],
-            include: [{ model: User, attributes: ["name"] }],
-          },
-          {
-            model: CategoryArchive,
-            as: "archives",
-            include: [
-              {
-                model: Revision,
-                attributes: ["revOn"],
-                include: [{ model: User, attributes: ["name"] }],
-              },
-            ],
-          },
-        ],
+      revision: {
+        select: {
+          createdAtInt: true,
+          createdBy: { select: { id: true, name: true } },
+        },
       },
-    ],
-    where: { statusId: 1 },
-    order: [
-      fn("LOWER", col("Group.name")),
-      fn("LOWER", col("Categories.name")),
-    ],
+      categories: {
+        include: {
+          revision: {
+            select: {
+              createdAtInt: true,
+              createdBy: { select: { name: true } },
+            },
+          },
+        },
+      },
+    },
+    where: {
+      statusId: 0,
+      memberships: {
+        some: { userId },
+      },
+    },
   });
+
+  const populateArchives = await getArchivePopulator<TCategory>(
+    "Category",
+    "id"
+  );
+
+  groups.sort(sortByName);
+  groups.forEach((g) => {
+    g.categories.sort(sortByName);
+    populateArchives(g.categories);
+  });
+
+  return groups;
 }
