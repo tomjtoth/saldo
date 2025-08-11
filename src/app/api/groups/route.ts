@@ -54,11 +54,10 @@ export async function PUT(req: NextRequest) {
   }
 
   try {
-    const group = await updateGroup(user.id, {
-      id,
+    const group = await updateGroup(user.id, id, {
       statusId,
       name,
-      description,
+      description: description === "" ? null : description,
       uuid: generateLink ? uuid() : removeLink ? null : undefined,
     });
 
