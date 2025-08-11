@@ -2,7 +2,7 @@
 
 import { ChangeEventHandler, useEffect, useRef } from "react";
 
-import { User } from "@/lib/models";
+import { TUser } from "@/lib/db";
 import { useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { TCliItem } from "@/lib/reducers";
 import { costToFixed } from ".";
@@ -14,7 +14,7 @@ export default function ItemShareAvatar({
   focused,
   onChange,
 }: {
-  user: User;
+  user: TUser;
   value: string | number;
   itemId?: number;
   focused?: boolean;
@@ -44,14 +44,15 @@ export default function ItemShareAvatar({
 
     const costAsNum = Number(item.cost);
     share =
-      ((isNaN(costAsNum) ? 0 : costAsNum) * item.shares[user.id]) / denominator;
+      ((isNaN(costAsNum) ? 0 : costAsNum) * item.shares[user.id!]) /
+      denominator;
 
     calculations = (
       <span>
         💸{" "}
         {denominator > 0 ? (
           <span>
-            {costToFixed(item, costAsNum)} * {item?.shares[user.id] ?? 0} /{" "}
+            {costToFixed(item, costAsNum)} * {item?.shares[user.id!] ?? 0} /{" "}
             {denominator} = {share.toFixed(2)}
           </span>
         ) : user.id === currReceipt?.paidBy ? (
@@ -67,7 +68,7 @@ export default function ItemShareAvatar({
     <div className="flex flex-col gap-2 items-center">
       <div className={"relative " + (onChange ? "w-25 h-25" : "w-8 h-8")}>
         <img
-          src={user.image}
+          src={user.image ?? "TODO: merge this with the svg genration stuff"}
           alt={`avatar of ${user.name}`}
           className="object-cover border-2 rounded-full"
         />
