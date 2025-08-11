@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS "Meta" (
 CREATE UNIQUE INDEX IF NOT EXISTS "Meta_info_key" ON "Meta"("info");
 
 CREATE TABLE "Archive" (
-    "id" INTEGER PRIMARY KEY,
+    "id" INTEGER NOT NULL PRIMARY KEY,
     "tableColumnId" INTEGER NOT NULL,
     "entityPk1" INTEGER NOT NULL,
     "entityPk2" INTEGER,
@@ -132,10 +132,10 @@ INSERT INTO "Meta" ("info", "data")
     UNION
     SELECT 'statuses',  json_array('ACTIVE', 'INACTIVE')
     UNION
-    SELECT 'tableColumnId', json_array(
-       'categories.name', 'categories.description','categories.statusId','categories.groupId',
-       'groups.name','groups.description','groups.statusId','groups.uuid',
-       'memberships.statusId','memberships.defaultCategoryId'
+    SELECT 'tableColumnIds', json_array(
+       'Category.name', 'Category.description','Category.statusId','Category.groupId',
+       'Group.name','Group.description','Group.statusId','Group.uuid',
+       'Membership.statusId','Membership.defaultCategoryId'
     );
 
 INSERT INTO Archive (entityPk1, entityPk2, revisionId, tableColumnId, data)
@@ -164,13 +164,26 @@ INSERT INTO "Revision" (id, createdAt, createdBy)
     SELECT id, rev_on, rev_by FROM revisions;
 
 INSERT INTO "User"
-    (id, revisionId, statusId, email, name, defaultGroupId)
-    SELECT id, rev_id, status_id - 1, email, name, default_group_id
+    (id, revisionId, statusId, email, name, image, defaultGroupId)
+    SELECT 
+        id,
+        rev_id,
+        status_id - 1,
+        email, 
+        CASE WHEN name = '' THEN NULL ELSE name END, 
+        CASE WHEN image = '' THEN NULL ELSE image END,
+        default_group_id
     FROM users;
 
 INSERT INTO "Group"
     (id, revisionId, statusId, name, description, uuid)
-    SELECT id, rev_id, status_id - 1, name, description, uuid
+    SELECT 
+        id, 
+        rev_id, 
+        status_id - 1, 
+        name, 
+        CASE WHEN description = '' THEN NULL ELSE description END, 
+        uuid
     FROM groups;
 
 INSERT INTO "Membership" 
@@ -181,7 +194,13 @@ INSERT INTO "Membership"
 
 INSERT INTO "Category" 
     (id, revisionId, statusId, groupId, name, description)
-    SELECT id, rev_id, status_id - 1, group_id, name, description
+    SELECT 
+        id, 
+        rev_id, 
+        status_id - 1, 
+        group_id, 
+        name, 
+        CASE WHEN description = '' THEN NULL ELSE description END
     FROM categories;
 
 INSERT INTO "Receipt" 
@@ -191,7 +210,14 @@ INSERT INTO "Receipt"
 
 INSERT INTO "Item" 
     (id, revisionId, statusId, receiptId, categoryId, cost, notes)
-    SELECT id, rev_id, status_id - 1, rcpt_id, cat_id, cost, notes
+    SELECT 
+        id, 
+        rev_id, 
+        status_id - 1, 
+        rcpt_id, 
+        cat_id, 
+        cost, 
+        CASE WHEN notes = '' THEN NULL ELSE notes END
     FROM items;
 
 INSERT INTO "ItemShare" 
