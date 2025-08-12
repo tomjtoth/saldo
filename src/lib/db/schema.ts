@@ -64,16 +64,23 @@ const colSRI = { ...colSR, id };
 
 export const meta = sqliteTable("Meta", {
   id,
+
   info: text().notNull().unique(),
+
   data: text({ mode: "json" }),
 });
 
 export const archives = sqliteTable("Archive", {
   id,
+
   revisionId,
+
   tableColumnId: integer().notNull(),
+
   entityPk1: integer().notNull(),
+
   entityPk2: integer().notNull(),
+
   data: text({ mode: "json" }),
 });
 
@@ -86,7 +93,9 @@ export const archivesRel = relations(archives, ({ one }) => ({
 
 export const revisions = sqliteTable("Revision", {
   id,
+
   createdAt: datetimeInt(),
+
   createdById: integer("createdBy")
     .notNull()
     .references(() => users.id),
@@ -98,13 +107,21 @@ export const revisionsRel = relations(revisions, ({ one, many }) => ({
     references: [users.id],
     relationName: "createdByUser",
   }),
+
   users: many(users),
+
   groups: many(groups),
+
   memberships: many(memberships),
+
   categories: many(categories),
+
   receipts: many(receipts),
+
   items: many(items),
+
   itemShares: many(itemShares),
+
   archives: many(archives),
 }));
 
@@ -112,8 +129,11 @@ export const users = sqliteTable("User", {
   ...colSRI,
 
   email: text().notNull().unique(),
+
   name: text(),
+
   image: text(),
+
   defaultGroupId: integer().references(() => groups.id),
 });
 
@@ -122,13 +142,18 @@ export const usersRel = relations(users, ({ one, many }) => ({
     fields: [users.revisionId],
     references: [revisions.id],
   }),
+
   createdRevisions: many(revisions, { relationName: "createdByUser" }),
+
   memberships: many(memberships),
+
   defaultGroup: one(groups, {
     fields: [users.defaultGroupId],
     references: [groups.id],
   }),
+
   itemShares: many(itemShares),
+
   receipts: many(receipts),
 }));
 
@@ -136,7 +161,9 @@ export const groups = sqliteTable("Group", {
   ...colSRI,
 
   name: text().notNull(),
+
   description: text(),
+
   uuid: text(),
 });
 
@@ -145,10 +172,15 @@ export const groupsRel = relations(groups, ({ one, many }) => ({
     fields: [groups.revisionId],
     references: [revisions.id],
   }),
+
   memberships: many(memberships),
+
   categories: many(categories),
+
   itemShares: many(itemShares),
+
   receipts: many(receipts),
+
   defaultingUsers: many(users),
 }));
 
@@ -194,6 +226,7 @@ export const categories = sqliteTable("Category", {
   groupId,
 
   name: text().notNull(),
+
   description: text(),
 });
 
@@ -209,6 +242,7 @@ export const categoriesRel = relations(categories, ({ one, many }) => ({
   }),
 
   defaultingMemberships: many(memberships),
+
   items: many(items),
 }));
 
@@ -218,6 +252,7 @@ export const receipts = sqliteTable("Receipt", {
   groupId,
 
   paidOn: dateInt().notNull(),
+
   paidbyId: integer("paidBy")
     .notNull()
     .references(() => users.id),
@@ -229,9 +264,17 @@ export const receiptsRel = relations(receipts, ({ one, many }) => ({
     references: [revisions.id],
   }),
 
-  group: one(groups, { fields: [receipts.groupId], references: [groups.id] }),
+  group: one(groups, {
+    fields: [receipts.groupId],
+    references: [groups.id],
+  }),
+
   items: many(items),
-  paidBy: one(users, { fields: [receipts.paidbyId], references: [users.id] }),
+
+  paidBy: one(users, {
+    fields: [receipts.paidbyId],
+    references: [users.id],
+  }),
 }));
 
 export const items = sqliteTable("Item", {
@@ -240,10 +283,13 @@ export const items = sqliteTable("Item", {
   receiptId: integer()
     .notNull()
     .references(() => receipts.id),
+
   categoryId: integer()
     .notNull()
     .references(() => categories.id),
+
   cost: floatToInt().notNull(),
+
   notes: text(),
 });
 
@@ -252,14 +298,17 @@ export const itemsRel = relations(items, ({ one, many }) => ({
     fields: [items.revisionId],
     references: [revisions.id],
   }),
+
   receipt: one(receipts, {
     fields: [items.receiptId],
     references: [receipts.id],
   }),
+
   category: one(categories, {
     fields: [items.categoryId],
     references: [categories.id],
   }),
+
   itemShares: many(itemShares),
 }));
 
