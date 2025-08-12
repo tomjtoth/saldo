@@ -18,6 +18,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 RUN npm run prisma-gen
+ENV DRIZZLE_URL=file::memory:
 RUN npm run build
 
 # ----------------------------
