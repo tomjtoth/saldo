@@ -5,8 +5,6 @@ import { currentUser } from "@/lib/services/user";
 import { isAdmin, updateMembership } from "@/lib/services/memberships";
 import { TMembership } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
-
 export async function PUT(req: NextRequest) {
   const sess = await auth();
   if (!sess) return new Response(null, { status: 401 });

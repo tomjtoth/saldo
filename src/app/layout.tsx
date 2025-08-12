@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   description: "A multi-user expense tracker app",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function RootLayout({
   children,
 }: Readonly<{

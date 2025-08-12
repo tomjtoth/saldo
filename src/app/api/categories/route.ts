@@ -11,8 +11,6 @@ import {
 import { TCategory, Category } from "@/lib/db";
 import { updateMembership } from "@/lib/services/memberships";
 
-export const dynamic = "force-dynamic";
-
 export async function POST(req: NextRequest) {
   const data = (await req.json()) as Pick<
     Category,

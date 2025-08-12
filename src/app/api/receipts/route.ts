@@ -8,8 +8,6 @@ import {
   TReceiptInput,
 } from "@/lib/services/receipts";
 
-export const dynamic = "force-dynamic";
-
 export async function GET(req: NextRequest) {
   const sess = await auth();
   if (!sess) return new Response(null, { status: 401 });

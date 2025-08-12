@@ -2,8 +2,6 @@ import { auth } from "@/auth";
 import { getPareto } from "@/lib/services/pareto";
 import { currentUser } from "@/lib/services/user";
 
-export const dynamic = "force-dynamic";
-
 export async function GET(req: Request) {
   const sess = await auth();
   if (!sess) return new Response(null, { status: 401 });
