@@ -46,6 +46,14 @@ const revisionId = integer()
   .references(() => revisions.id, { onDelete: "cascade" });
 const statusId = integer().notNull().default(0);
 
+const userId = integer()
+  .notNull()
+  .references(() => users.id);
+
+const groupId = integer()
+  .notNull()
+  .references(() => groups.id);
+
 const colSR = {
   statusId,
   revisionId,
@@ -149,20 +157,9 @@ export const memberships = sqliteTable(
   {
     ...colSR,
 
-    groupId: integer()
-      .notNull()
-      .references(() => groups.id),
+    groupId,
 
-    userId: integer()
-      .notNull()
-      .references(() => users.id),
-
-    // admin: integer({ mode: "boolean" }).generatedAlwaysAs(
-    //   sql`("status_id" & 2) = 2`,
-    //   {
-    //     mode: "virtual",
-    //   }
-    // ),
+    userId,
 
     defaultCategoryId: integer().references(() => categories.id),
   },
@@ -194,9 +191,8 @@ export const membershipsRel = relations(memberships, ({ one }) => ({
 export const categories = sqliteTable("Category", {
   ...colSRI,
 
-  groupId: integer()
-    .notNull()
-    .references(() => groups.id),
+  groupId,
+
   name: text().notNull(),
   description: text(),
 });
@@ -219,9 +215,7 @@ export const categoriesRel = relations(categories, ({ one, many }) => ({
 export const receipts = sqliteTable("Receipt", {
   ...colSRI,
 
-  groupId: integer()
-    .notNull()
-    .references(() => groups.id),
+  groupId,
 
   paidOn: dateInt().notNull(),
   paidbyId: integer("paidBy")
@@ -277,9 +271,8 @@ export const itemShares = sqliteTable(
     itemId: integer()
       .notNull()
       .references(() => items.id),
-    userId: integer()
-      .notNull()
-      .references(() => users.id),
+
+    userId,
 
     share: integer().notNull(),
   },
