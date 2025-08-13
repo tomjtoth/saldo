@@ -20,6 +20,25 @@ export const ddb = drizzle({
   casing: "snake_case",
   logger: true,
 });
+
+type TblCtx<ColName extends string> = { [K in ColName]: SQLiteColumn };
+type SqlCtx = { sql: typeof sql };
+
+export const orderByLowerName = (table: TblCtx<"name">, { sql }: SqlCtx) =>
+  sql`lower(${table.name})`;
+
+export const colActive = (t: TblCtx<"statusId">, o: SqlCtx) => ({
+  active: isActive(t, o).as("active"),
+});
+
+const bitFlagCheck =
+  (flag: number) =>
+  (table: TblCtx<"statusId">, { sql }: SqlCtx) =>
+    sql<boolean>`${table.statusId} & ${flag} = ${flag}`;
+
+export const isActive = bitFlagCheck(1);
+export const isAdmin = bitFlagCheck(2);
+
 const SQLITE_MAX_VARIABLE_NUMBER = 32766;
 
 export const inChunks = async <T extends object>(
