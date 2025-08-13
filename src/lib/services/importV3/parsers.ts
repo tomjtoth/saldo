@@ -1,39 +1,33 @@
 import fs from "fs";
-
 import { Readable } from "stream";
-import { DateTime } from "luxon";
+
 import csv from "csv-parser";
 
-import {
-  approxFloat,
-  dateToInt,
-  DT_ANCHOR,
-  EUROPE_HELSINKI,
-} from "../../utils";
+import { approxFloat } from "../../utils";
 
 import {
   db,
-  Revision,
-  User,
-  Category,
-  Receipt,
-  Item,
-  ItemShare,
-  Group,
-  Membership,
+  TCrRevision,
+  TCrCategory,
+  TCrGroup,
+  TCrItem,
+  TCrItemShare,
+  TCrMembership,
+  TCrReceipt,
+  TCrUser,
 } from "@/lib/db";
 
 export type TCsvRow = { [key: string]: string };
 
 export type TDBData = {
-  revisions: Revision[];
-  users: User[];
-  groups: Group[];
-  memberships: Membership[];
-  categories: Category[];
-  receipts: Receipt[];
-  items: Item[];
-  itemShares: ItemShare[];
+  revisions: TCrRevision[];
+  users: TCrUser[];
+  groups: TCrGroup[];
+  memberships: TCrMembership[];
+  categories: TCrCategory[];
+  receipts: TCrReceipt[];
+  items: TCrItem[];
+  itemShares: TCrItemShare[];
 };
 
 export function parseCSV(input: string, testing = false) {
@@ -86,38 +80,28 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const {
       category: strCategory,
       date: strPaidOn,
-      timestamp_of_entry: strAddedOn,
+      timestamp_of_entry: createdAt,
       cost: strCost,
       comment: strNotes,
       ratio: strRatio,
     } = row;
 
-    const createdAtInt = Math.round(
-      (DateTime.fromFormat(
-        strAddedOn,
-        "y.M.d. H:m:s",
-        EUROPE_HELSINKI
-      ).toMillis() -
-        DT_ANCHOR) /
-        1000
-    );
-
     let lastRev =
-      dd.revisions.find((rev) => rev.createdAtInt === createdAtInt) ??
+      dd.revisions.find((rev) => rev.createdAt === createdAt) ??
       dd.revisions.at(-1);
 
-    if (!lastRev || lastRev.createdAtInt !== createdAtInt) {
+    if (!lastRev || lastRev.createdAt !== createdAt) {
       lastRev = {
         id: dd.revisions.length + 1,
         createdById: 1,
-        createdAtInt,
+        createdAt,
       };
       dd.revisions.push(lastRev);
     }
     const revisionId = lastRev.id!;
 
     const newUser = (user: string) => {
-      const u: User = {
+      const u: TCrUser = {
         id: dd.users.length + 1,
         revisionId,
         name: user,
@@ -129,7 +113,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
       dd.memberships.push({
         groupId: 1,
-        userId: u.id,
+        userId: u.id!,
         revisionId: 1,
         statusId: 0,
         defaultCategoryId: null,
@@ -153,20 +137,20 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
       userId = paidToUser ? paidToUser.id! : newUser(strPaidTo);
     }
 
-    const paidOnInt = dateToInt(strPaidOn.replaceAll(".", "-").slice(0, 10));
+    const paidOn = strPaidOn.replaceAll(".", "-").slice(0, 10);
 
     let lastRcpt = dd.receipts.at(-1);
     if (
       !lastRcpt ||
       revisionId !== lastRcpt.revisionId ||
-      paidOnInt !== lastRcpt.paidOnInt ||
+      paidOn !== lastRcpt.paidOn ||
       paidById !== lastRcpt.paidById
     ) {
       lastRcpt = {
         id: dd.receipts.length + 1,
         revisionId,
         groupId: 1,
-        paidOnInt,
+        paidOn,
         paidById,
         statusId: 0,
       };
