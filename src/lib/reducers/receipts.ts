@@ -28,9 +28,9 @@ type TItemUpdater = Pick<TCliItem, "id"> & Partial<Omit<TCliItem, "id">>;
 // this provides the key prop to React during `items.map( ... )`
 // TODO: enable drag n drop re-arrangement of items in adder
 let rowId = 0;
-const addItem = (catId: number) => ({
+const addItem = (categoryId: number) => ({
   id: rowId++,
-  catId,
+  categoryId,
   cost: "",
   notes: "",
   shares: {},
@@ -55,7 +55,7 @@ function currentReceipt(rs: CS) {
 export const sortReceipts = (groups: TGroup[]) =>
   groups.forEach((group) =>
     group.receipts?.sort(({ paidOn: a }, { paidOn: b }) =>
-      b < a ? -1 : b > a ? 1 : 0
+      b! < a! ? -1 : b! > a! ? 1 : 0
     )
   );
 
@@ -118,9 +118,7 @@ export const rReceipts = {
     const receipts = rs.groups.find((group) => group.id === payload.groupId)!
       .receipts!;
 
-    const insertAt = receipts.findIndex(
-      (r) => r.paidOnInt! < payload.paidOnInt!
-    );
+    const insertAt = receipts.findIndex((r) => r.paidOn! < payload.paidOn!);
 
     receipts.splice(insertAt < 0 ? 0 : insertAt, 0, payload);
 
