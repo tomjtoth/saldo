@@ -1,8 +1,9 @@
 import { drizzle } from "drizzle-orm/libsql";
-import { sql } from "drizzle-orm";
-import { SQLiteColumn } from "drizzle-orm/sqlite-core";
+import { ExtractTablesWithRelations, sql } from "drizzle-orm";
+import { SQLiteColumn, SQLiteTransaction } from "drizzle-orm/sqlite-core";
 
 import * as schema from "@/lib/db/schema";
+import { ResultSet } from "@libsql/client";
 
 export * from "./types";
 export { migrator } from "./migrator";
@@ -16,6 +17,13 @@ export const db = drizzle({
   casing: "snake_case",
   logger: true,
 });
+
+export type DrizzleTx = SQLiteTransaction<
+  "async",
+  ResultSet,
+  typeof schema,
+  ExtractTablesWithRelations<typeof schema>
+>;
 
 type TblCtx<ColName extends string> = { [K in ColName]: SQLiteColumn };
 type SqlCtx = { sql: typeof sql };

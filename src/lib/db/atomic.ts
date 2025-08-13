@@ -1,18 +1,9 @@
-import { ExtractTablesWithRelations } from "drizzle-orm";
-import { SQLiteTransaction } from "drizzle-orm/sqlite-core";
-import { ResultSet } from "@libsql/client";
+import { db, DrizzleTx } from ".";
+import * as schema from "@/lib/db/schema";
 
-import { db, schema } from ".";
 import { datetimeFromInt } from "../utils";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
-
-export type DrizzleTx = SQLiteTransaction<
-  "async",
-  ResultSet,
-  typeof schema,
-  ExtractTablesWithRelations<typeof schema>
->;
 
 type AtomicOpts = {
   operation?: string;
