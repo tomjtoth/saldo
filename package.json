@@ -23,7 +23,6 @@
   ],
   "dependencies": {
     "@libsql/client": "^0.15.10",
-    "@prisma/client": "^6.12.0",
     "@reduxjs/toolkit": "^2.8.2",
     "csv-parser": "^3.0.0",
     "drizzle-orm": "^0.44.4",
@@ -55,7 +54,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "jsdom": "^26.1.0",
-    "prisma": "^6.12.0",
     "start-server-and-test": "^2.0.12",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
