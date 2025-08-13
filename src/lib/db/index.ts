@@ -1,20 +1,17 @@
-import { PrismaClient } from "@prisma/client";
 import { drizzle } from "drizzle-orm/libsql";
+import { sql } from "drizzle-orm";
+import { SQLiteColumn } from "drizzle-orm/sqlite-core";
+
 import * as schema from "@/lib/db/schema";
 
+export * as schema from "./schema";
 export * from "./types";
 export { migrator } from "./migrator";
 export { atomic } from "./atomic";
 export { updater } from "./updater";
 export { getArchivePopulator } from "./archives";
 
-// client extensions should not be used, as they choke Next.js with unserializable data
-// implemented fn asPlain() => JSON.parse(JSON.stringify(obj)), but seems like a waste of resources
-// https://github.com/prisma/prisma/issues/20627
-
-export const db = new PrismaClient({ log: ["query"] });
-
-export const ddb = drizzle({
+export const db = drizzle({
   connection: process.env.DRIZZLE_URL!,
   schema,
   casing: "snake_case",
