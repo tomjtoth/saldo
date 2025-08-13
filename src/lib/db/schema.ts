@@ -254,7 +254,8 @@ export const receipts = sqliteTable("receipts", {
   groupId,
 
   paidOn: dateInt().notNull(),
-  paidbyId: integer("paid_by")
+
+  paidById: integer("paid_by")
     .notNull()
     .references(() => users.id),
 });
@@ -273,7 +274,7 @@ export const receiptsRel = relations(receipts, ({ one, many }) => ({
   items: many(items),
 
   paidBy: one(users, {
-    fields: [receipts.paidbyId],
+    fields: [receipts.paidById],
     references: [users.id],
   }),
 }));
