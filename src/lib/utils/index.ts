@@ -67,8 +67,22 @@ export function datetimeFromInt(val?: number) {
   return date.toFormat(DT_FORMAT);
 }
 
-export function datetimeToInt(val?: DateTime) {
-  const millis = (val ?? DateTime.local(EUROPE_HELSINKI)).toMillis();
+export function datetimeToInt(val?: DateTime | string) {
+  if (
+    typeof val === "string" &&
+    ![DT_FORMAT, "y.M.d. H:m:s"].some((fmt) => {
+      const parsed = DateTime.fromFormat(val as string, fmt, EUROPE_HELSINKI);
+      if (parsed.isValid) {
+        val = parsed;
+        return true;
+      }
+    })
+  )
+    err("unparsable DateTime string");
+
+  const millis = (
+    (val as DateTime) ?? DateTime.local(EUROPE_HELSINKI)
+  ).toMillis();
   return Math.round((millis - DT_ANCHOR) / 1000);
 }
 
