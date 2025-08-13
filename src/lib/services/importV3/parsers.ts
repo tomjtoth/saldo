@@ -119,8 +119,6 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
         defaultCategoryId: null,
       });
 
-      db.user.createMany({ data: [{ email: "qwe", revisionId: 123 }] });
-
       return dd.users.push(u);
     };
 
