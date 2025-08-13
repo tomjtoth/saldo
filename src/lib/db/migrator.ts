@@ -3,7 +3,7 @@ import fs from "fs";
 import { sql } from "drizzle-orm";
 
 import { err } from "../utils";
-import { ddb as db } from ".";
+import { db } from ".";
 
 export const migrator = {
   up: async () => {
@@ -31,10 +31,11 @@ export const migrator = {
     const migrationsDir = "migrations";
 
     await exec.sql`
-      CREATE TABLE IF NOT EXISTS "meta" (
+      CREATE TABLE IF NOT EXISTS "metadata" (
         "id" INTEGER PRIMARY KEY,
-        "info" TEXT NOT NULL UNIQUE,
-        "data" BLOB
+        "name" TEXT NOT NULL UNIQUE,
+        "description" TEXT,
+        "payload" BLOB
       );
     `;
 
@@ -48,7 +49,7 @@ export const migrator = {
 
     if (separateMigrationsTableExists)
       await exec.sql`
-        INSERT INTO "meta" ("info", "data")
+        INSERT INTO "metadata" ("name", "payload")
         SELECT 'migrations', json_group_array("name")
         FROM "migrations" ORDER BY "name";
 
@@ -57,8 +58,8 @@ export const migrator = {
 
     const done = (
       await query.sql`
-        SELECT value FROM meta, json_each(data)
-        WHERE info = 'migrations';
+        SELECT "value" FROM "metadata", json_each("payload")
+        WHERE "name" = 'migrations';
       `
     ).map((x) => (x as { value: string }).value);
 
@@ -95,8 +96,8 @@ export const migrator = {
           await tx.commit();
 
           await query.sql`
-            INSERT INTO meta (info, data) VALUES ('migrations', json_array(${migName}))
-            ON CONFLICT DO UPDATE SET data = json_insert(data, '$[#]', ${migName});
+            INSERT INTO "metadata" ("name", "payload") VALUES ('migrations', json_array(${migName}))
+            ON CONFLICT DO UPDATE SET "payload" = json_insert("payload", '$[#]', ${migName});
           `;
         } catch (err) {
           await tx.rollback();
