@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "DATABASE_URL=file:../data/dev.db next dev",
-    "prisma-gen": "DATABASE_URL=file:../data/dev.db ts-node ./prisma/generate.ts",
     "lint": "next lint",
     "test": "vitest",
     "coverage": "vitest run --coverage",
