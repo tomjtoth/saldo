@@ -33,12 +33,15 @@ const datetimeInt = customType<{
   // toDriver: (value) => datetimeToInt(value),
 });
 
-// const active = integer({ mode: "boolean" }).generatedAlwaysAs(
-//   sql`("statusId" & 1) = 0`,
-//   {
-//     mode: "virtual",
-//   }
-// );
+const bool = customType<{ data: boolean; driverData: number }>({
+  dataType: () => "INTEGER",
+  fromDriver: (val) => val == 1,
+  toDriver: (val) => (val ? 1 : 0),
+});
+
+const active = bool().generatedAlwaysAs(sql`("status_id" & 1) = 0`, {
+  mode: "virtual",
+});
 
 const id = integer().primaryKey();
 const revisionId = integer()
@@ -62,7 +65,7 @@ const colSR = {
 
 const colSRI = { ...colSR, id };
 
-export const meta = sqliteTable("Meta", {
+export const meta = sqliteTable("meta", {
   id,
 
   info: text().notNull().unique(),
@@ -70,7 +73,7 @@ export const meta = sqliteTable("Meta", {
   data: text({ mode: "json" }),
 });
 
-export const archives = sqliteTable("Archive", {
+export const archives = sqliteTable("archives", {
   id,
 
   revisionId,
@@ -91,12 +94,11 @@ export const archivesRel = relations(archives, ({ one }) => ({
   }),
 }));
 
-export const revisions = sqliteTable("Revision", {
+export const revisions = sqliteTable("revisions", {
   id,
 
   createdAt: datetimeInt(),
-
-  createdById: integer("createdBy")
+  createdById: integer("created_by")
     .notNull()
     .references(() => users.id),
 });
@@ -125,7 +127,7 @@ export const revisionsRel = relations(revisions, ({ one, many }) => ({
   archives: many(archives),
 }));
 
-export const users = sqliteTable("User", {
+export const users = sqliteTable("users", {
   ...colSRI,
 
   email: text().notNull().unique(),
@@ -157,7 +159,7 @@ export const usersRel = relations(users, ({ one, many }) => ({
   receipts: many(receipts),
 }));
 
-export const groups = sqliteTable("Group", {
+export const groups = sqliteTable("groups", {
   ...colSRI,
 
   name: text().notNull(),
@@ -185,7 +187,7 @@ export const groupsRel = relations(groups, ({ one, many }) => ({
 }));
 
 export const memberships = sqliteTable(
-  "Membership",
+  "memberships",
   {
     ...colSR,
 
@@ -220,7 +222,7 @@ export const membershipsRel = relations(memberships, ({ one }) => ({
   }),
 }));
 
-export const categories = sqliteTable("Category", {
+export const categories = sqliteTable("categories", {
   ...colSRI,
 
   groupId,
@@ -246,14 +248,13 @@ export const categoriesRel = relations(categories, ({ one, many }) => ({
   items: many(items),
 }));
 
-export const receipts = sqliteTable("Receipt", {
+export const receipts = sqliteTable("receipts", {
   ...colSRI,
 
   groupId,
 
   paidOn: dateInt().notNull(),
-
-  paidbyId: integer("paidBy")
+  paidbyId: integer("paid_by")
     .notNull()
     .references(() => users.id),
 });
@@ -277,7 +278,7 @@ export const receiptsRel = relations(receipts, ({ one, many }) => ({
   }),
 }));
 
-export const items = sqliteTable("Item", {
+export const items = sqliteTable("items", {
   ...colSRI,
 
   receiptId: integer()
@@ -313,7 +314,7 @@ export const itemsRel = relations(items, ({ one, many }) => ({
 }));
 
 export const itemShares = sqliteTable(
-  "ItemShare",
+  "item_shares",
   {
     ...colSR,
 

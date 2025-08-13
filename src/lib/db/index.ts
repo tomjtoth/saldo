@@ -17,5 +17,6 @@ export const db = new PrismaClient({ log: ["query"] });
 export const ddb = drizzle({
   connection: process.env.DRIZZLE_URL!,
   schema,
+  casing: "snake_case",
   logger: true,
 });
