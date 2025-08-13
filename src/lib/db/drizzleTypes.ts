@@ -39,6 +39,15 @@ type WithArchives<T> = Partial<
   }
 >;
 
+export type TCrRevision = typeof schema.revisions.$inferInsert;
+export type TCrUser = typeof schema.users.$inferInsert;
+export type TCrGroup = typeof schema.groups.$inferInsert;
+export type TCrMembership = typeof schema.memberships.$inferInsert;
+export type TCrCategory = typeof schema.categories.$inferInsert;
+export type TCrReceipt = typeof schema.receipts.$inferInsert;
+export type TCrItem = typeof schema.items.$inferInsert;
+export type TCrItemShare = typeof schema.itemShares.$inferInsert;
+
 export type TRevision = Partial<TModelWithRelations<"revisions">>;
 export type TUser = WithArchives<TModelWithRelations<"users">>;
 export type TGroup = WithArchives<TModelWithRelations<"groups">>;
