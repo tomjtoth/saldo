@@ -7,7 +7,7 @@ import { datetimeFromInt } from "../utils";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 
-type DrizzleTx = SQLiteTransaction<
+export type DrizzleTx = SQLiteTransaction<
   "async",
   ResultSet,
   typeof schema,

@@ -1,6 +1,6 @@
-import { Prisma } from "@prisma/client";
+import { sql } from "drizzle-orm";
 import { db } from ".";
-import { PrismaTx } from "./atomic";
+import { DrizzleTx } from "./atomic";
 
 export async function getArchivePopulator<T extends { archives?: T[] }>(
   tableName: string,
@@ -10,17 +10,28 @@ export async function getArchivePopulator<T extends { archives?: T[] }>(
     tx,
   }: {
     pk2?: keyof T;
-    tx?: PrismaTx;
+    tx?: DrizzleTx;
   } = {}
 ) {
-  const res = await (tx ?? db).$queryRaw<{ data: string }[]>(
-    Prisma.sql`SELECT data FROM archives WHERE tableName = ${tableName}`
-  );
+  const query = {
+    async sql(
+      strings: TemplateStringsArray,
+      ...args: (string | number | null)[]
+    ) {
+      const res = await (tx ?? db).run(sql(strings, ...args));
+
+      return res.rows;
+    },
+  };
+
+  const res = await query.sql`
+    SELECT payload FROM vw_archives WHERE tableName = ${tableName}
+  `;
 
   const archives =
     res.length === 0
       ? {}
-      : (JSON.parse(res[0].data) as {
+      : (JSON.parse(res[0][0]!.valueOf() as string) as {
           [pk1: string]: {
             [pk2: string]: {
               revisionId: number;
