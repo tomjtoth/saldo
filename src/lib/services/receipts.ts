@@ -1,76 +1,89 @@
 import {
   atomic,
   db,
-  ddb,
   getArchivePopulator,
+  isActive,
+  orderByLowerName,
   TGroup,
   TReceipt,
 } from "@/lib/db";
 import { TCliReceipt } from "../reducers";
-import { dateToInt, sortByName } from "../utils";
-import { memberships } from "../db/schema";
+import { sortByName } from "../utils";
+import { items, itemShares, memberships, receipts } from "../db/schema";
 
 export type TReceiptInput = TCliReceipt & { groupId: number };
+
+const RECEIPT_COLS_WITH = {
+  columns: {
+    id: true,
+    paidOn: true,
+  },
+  with: {
+    revision: {
+      columns: {
+        createdAt: true,
+      },
+      with: {
+        createdBy: { columns: { name: true } },
+      },
+    },
+    items: { columns: { id: true, cost: true, notes: true, categoryId: true } },
+    paidBy: { columns: { name: true } },
+  },
+};
 
 export async function addReceipt(addedBy: number, data: TReceiptInput) {
   return await atomic(
     { operation: "Adding receipt", revisedBy: addedBy },
-    async (tx, rev) => {
-      const rcpt = await tx.receipt.create({
-        select: {
-          id: true,
-          groupId: true,
-          revision: {
-            select: {
-              createdAtInt: true,
-              createdBy: { select: { name: true } },
-            },
-          },
-          items: { include: { itemShares: true } },
-          paidOnInt: true,
-          paidBy: { select: { name: true } },
-        },
-        data: {
+    async (tx, revisionId) => {
+      const [{ receiptId }] = await tx
+        .insert(receipts)
+        .values({
           groupId: data.groupId,
-          revisionId: rev.id!,
-          paidOnInt: dateToInt(data.paidOn),
+          revisionId,
+          paidOn: data.paidOn,
           paidById: data.paidBy,
-          items: {
-            createMany: {
-              data: data.items.map((i) => ({
-                revisionId: rev.id!,
-                categoryId: i.catId,
+        })
+        .returning({ receiptId: receipts.id });
 
-                cost: Math.round(parseFloat(i.cost) * 100),
-
-                notes: i.notes == "" ? null : i.notes,
-              })),
-            },
-          },
-        },
+      db.query.receipts.findFirst({
+        columns: { id: true, groupId: true },
       });
 
-      const itemShares = await tx.itemShare.createManyAndReturn({
-        select: { itemId: true, userId: true, share: true },
-        data: data.items.flatMap((i, idx) =>
+      const itemIds = await tx
+        .insert(items)
+        .values(
+          data.items.map(({ cost, categoryId, notes }) => ({
+            receiptId,
+            revisionId,
+            categoryId,
+            cost: parseFloat(cost),
+            notes,
+          }))
+        )
+        .returning({ id: items.id });
+
+      await tx.insert(itemShares).values(
+        data.items.flatMap((i, idx) =>
           Object.entries(i.shares)
             .filter(([, share]) => share !== 0)
             .map(([uidStr, share]) => ({
-              itemId: rcpt.items[idx].id,
+              itemId: itemIds[idx].id,
               userId: Number(uidStr),
-              revisionId: rev.id!,
+              revisionId,
               share,
             }))
-        ),
-      });
-
-      (rcpt as TReceipt).items!.forEach(
-        (i) => (i.itemShares = itemShares.filter((sh) => sh.itemId === i.id))
+        )
       );
 
-      (rcpt as TReceipt).archives = [];
+      const receipt = (await tx.query.receipts.findFirst({
+        ...RECEIPT_COLS_WITH,
+        where: (t, o) => o.eq(t.id, receiptId),
+      })) as TReceipt;
 
-      return rcpt;
+      receipt.archives = [];
+
+      return receipt;
     }
   );
 }
