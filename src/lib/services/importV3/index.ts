@@ -1,12 +1,12 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { db, schema, inChunks } from "@/lib/db";
 import { parseCSV, parseData, TDBData } from "./parsers";
-import { Prisma } from "@prisma/client";
 
 export const alreadyInProd = async () => {
-  const user = await db.user.findFirst({
-    where: { id: 1, email: { not: "user0@just.imported" } },
+  const user = await db.query.users.findFirst({
+    columns: { id: true },
+    where: (t, o) => o.and(o.eq(t.id, 1), o.ne(t.email, "user0@just.imported")),
   });
 
   return !!user;
