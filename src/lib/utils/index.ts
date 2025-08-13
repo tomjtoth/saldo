@@ -189,8 +189,7 @@ export const status = <T extends { statusId?: number }>(
 
   return {
     get active() {
-      // active if 1st bit is 0, inactive if 1
-      return (int & 1) === 0;
+      return (int & 1) === 1;
     },
 
     set active(value: boolean) {
