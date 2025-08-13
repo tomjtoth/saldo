@@ -4,7 +4,6 @@ import { SQLiteColumn } from "drizzle-orm/sqlite-core";
 
 import * as schema from "@/lib/db/schema";
 
-export * as schema from "./schema";
 export * from "./types";
 export { migrator } from "./migrator";
 export { atomic } from "./atomic";
