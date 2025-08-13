@@ -7,7 +7,12 @@ import {
   customType,
 } from "drizzle-orm/sqlite-core";
 
-import { dateFromInt, datetimeFromInt, dateToInt } from "../utils";
+import {
+  dateFromInt,
+  datetimeFromInt,
+  datetimeToInt,
+  dateToInt,
+} from "../utils";
 
 const floatToInt = customType<{ data: number; driverData: number }>({
   dataType: () => "INTEGER",
@@ -30,17 +35,7 @@ const datetimeInt = customType<{
 }>({
   dataType: () => "INTEGER",
   fromDriver: (value) => datetimeFromInt(value)!,
-  // toDriver: (value) => datetimeToInt(value),
-});
-
-const bool = customType<{ data: boolean; driverData: number }>({
-  dataType: () => "INTEGER",
-  fromDriver: (val) => val == 1,
-  toDriver: (val) => (val ? 1 : 0),
-});
-
-const active = bool().generatedAlwaysAs(sql`("status_id" & 1) = 0`, {
-  mode: "virtual",
+  toDriver: (value) => datetimeToInt(value),
 });
 
 const id = integer().primaryKey();
@@ -98,6 +93,7 @@ export const revisions = sqliteTable("revisions", {
   id,
 
   createdAt: datetimeInt(),
+
   createdById: integer("created_by")
     .notNull()
     .references(() => users.id),
