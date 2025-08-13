@@ -1,6 +1,6 @@
 "use server";
 
-import { ddb as db, schema } from "@/lib/db";
+import { db, schema } from "@/lib/db";
 import { alreadyInProd } from "@/lib/services/importV3";
 
 import CliImportSection from "./clientSide";
