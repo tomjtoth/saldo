@@ -15,7 +15,7 @@ export type TCliReceipt = {
 
 export type TCliItem = {
   id: number;
-  catId: number;
+  categoryId: number;
   cost: string;
   notes: string;
   shares: {
@@ -78,7 +78,7 @@ export const rReceipts = {
         idx + 1,
         0,
         // inherit the upper row's categoryId
-        addItem(curr.items[idx].catId)
+        addItem(curr.items[idx].categoryId)
       );
     } else {
       const group = rs.groups.find((group) => group.id === rs.groupId)!;
@@ -106,7 +106,7 @@ export const rReceipts = {
     const curr = currentReceipt(rs);
 
     const item = curr.items.find((i) => i.id === payload.id)!;
-    if (payload.catId !== undefined) item.catId = payload.catId;
+    if (payload.categoryId !== undefined) item.categoryId = payload.categoryId;
     if (payload.cost !== undefined) item.cost = payload.cost;
     if (payload.notes !== undefined) item.notes = payload.notes;
     if (payload.shares !== undefined) item.shares = payload.shares;

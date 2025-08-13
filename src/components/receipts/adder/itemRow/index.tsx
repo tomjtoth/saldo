@@ -49,12 +49,12 @@ export default function ItemRow({
       <select
         ref={catRef}
         className="rounded border p-1 min-w-20"
-        value={item.catId}
+        value={item.categoryId}
         onChange={(ev) =>
           dispatch(
             red.updateItem({
               id: item.id,
-              catId: Number(ev.target.value),
+              categoryId: Number(ev.target.value),
             })
           )
         }
