@@ -1,11 +1,17 @@
-import { db, TRevision } from ".";
-import { datetimeToInt } from "../utils";
+import { ExtractTablesWithRelations } from "drizzle-orm";
+import { SQLiteTransaction } from "drizzle-orm/sqlite-core";
+import { ResultSet } from "@libsql/client";
+
+import { db, schema } from ".";
+import { datetimeFromInt } from "../utils";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 
-export type PrismaTx = Omit<
-  typeof db,
-  "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
+type DrizzleTx = SQLiteTransaction<
+  "async",
+  ResultSet,
+  typeof schema,
+  ExtractTablesWithRelations<typeof schema>
 >;
 
 type AtomicOpts = {
@@ -16,10 +22,10 @@ type AtomicWithRevOpts = AtomicOpts & {
   revisedBy: number;
 };
 
-type AtomicFun<T> = (tx: PrismaTx) => Promise<T>;
+type AtomicFun<T> = (tx: DrizzleTx) => Promise<T>;
 type AtomicFunWithRevision<T> = (
-  tx: PrismaTx,
-  revision: Pick<TRevision, "id">
+  tx: DrizzleTx,
+  revisionId: number
 ) => Promise<T>;
 
 export function atomic<T>(
@@ -46,28 +52,25 @@ export async function atomic<T>(
   let revId = -1;
 
   try {
-    const res = await db.$transaction(
-      async (tx) => {
-        let res: T;
+    const res = await db.transaction(async (tx) => {
+      let res: T;
 
-        if (revisedBy) {
-          const rev = await tx.revision.create({
-            data: {
+      if (revisedBy) {
+        const [{ revisionId }] = await tx
+          .insert(schema.revisions)
+          .values([
+            {
               createdById: revisedBy,
-              createdAtInt: datetimeToInt(),
+              createdAt: datetimeFromInt(),
             },
-            select: { id: true },
-          });
+          ])
+          .returning({ revisionId: schema.revisions.id });
 
-          revId = rev.id;
+        res = await (operation as AtomicFunWithRevision<T>)(tx, revisionId);
+      } else res = await (operation as AtomicFun<T>)(tx);
 
-          res = await (operation as AtomicFunWithRevision<T>)(tx, rev);
-        } else res = await (operation as AtomicFun<T>)(tx);
-
-        return res;
-      },
-      process.env.NODE_ENV === "development" ? { timeout: 15 * 60 * 1000 } : {}
-    );
+      return res;
+    });
 
     if (revId % DB_BACKUP_EVERY_N_REVISIONS == 0) {
       // TODO:
