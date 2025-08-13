@@ -33,6 +33,8 @@ export const EUROPE_HELSINKI = {
   zone: "Europe/Helsinki",
 } satisfies DateTimeJSOptions;
 
+const DT_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
 // TODO: store this in the DB for consistency with the data
 export const DT_ANCHOR = DateTime.fromFormat(
   "2020-01-01",
@@ -57,9 +59,12 @@ export function dateToInt(val?: string) {
   return Math.floor((date.toMillis() - DT_ANCHOR) / DAY);
 }
 
-export function datetimeFromInt(val: number) {
-  const date = DateTime.fromMillis(val * 1000 + DT_ANCHOR, EUROPE_HELSINKI);
-  return date.toISO();
+export function datetimeFromInt(val?: number) {
+  const date = val
+    ? DateTime.fromMillis(val * 1000 + DT_ANCHOR, EUROPE_HELSINKI)
+    : DateTime.local(EUROPE_HELSINKI);
+
+  return date.toFormat(DT_FORMAT);
 }
 
 export function datetimeToInt(val?: DateTime) {
