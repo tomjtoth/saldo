@@ -2,6 +2,7 @@ import { err, sortByName } from "../utils";
 import { updater } from "../db/updater";
 import { atomic, TCrGroup } from "../db";
 import { groups, memberships } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 const GROUP_SELECT = {
   id: true,
@@ -72,11 +73,13 @@ export async function createGroup(
 export async function addMember(groupId: number, userId: number) {
   return await atomic(
     { operation: "adding new member", revisedBy: userId },
-    async (tx, rev) => {
-      await tx.group.update({ data: { uuid: null }, where: { id: groupId } });
+    async (tx, revisionId) => {
+      await tx.update(groups).set({ uuid: null }).where(eq(groups.id, groupId));
 
-      return await tx.membership.create({
-        data: { userId, groupId, revisionId: rev.id! },
+      return await tx.insert(memberships).values({
+        userId,
+        groupId,
+        revisionId,
       });
     }
   );
