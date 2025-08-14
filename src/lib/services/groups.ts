@@ -1,10 +1,9 @@
-import { atomic, db, Group, TGroup } from "@/lib/db";
 import { err, sortByName } from "../utils";
 import { updater } from "../db/updater";
+import { atomic, TCrGroup } from "../db";
+import { groups, memberships } from "../db/schema";
 
-import { Prisma } from "@prisma/client";
-
-const GROUP_SELECT = Prisma.validator<Prisma.GroupSelect>()({
+const GROUP_SELECT = {
   id: true,
   name: true,
   description: true,
@@ -18,24 +17,53 @@ const GROUP_SELECT = Prisma.validator<Prisma.GroupSelect>()({
       },
     },
   },
-});
+};
 
 export async function createGroup(
   ownerId: number,
-  data: Pick<Prisma.GroupCreateInput, "name" | "description">
+  data: Pick<TCrGroup, "name" | "description">
 ) {
   return await atomic(
     { operation: "creating new group", revisedBy: ownerId },
-    async (tx, rev) => {
-      return await tx.group.create({
-        select: GROUP_SELECT,
-        data: {
+    async (tx, revisionId) => {
+      const [{ groupId }] = await tx
+        .insert(groups)
+        .values({
           ...data,
-          memberships: {
-            create: { userId: ownerId, revisionId: rev.id!, statusId: 2 },
-          },
-          revisionId: rev.id!,
+          revisionId,
+        })
+        .returning({
+          groupId: groups.id,
+        });
+
+      await tx.insert(memberships).values({
+        userId: ownerId,
+        groupId,
+        revisionId,
+      });
+
+      return await tx.query.groups.findFirst({
+        columns: {
+          id: true,
+          name: true,
+          description: true,
+          statusId: true,
+          uuid: true,
         },
+
+        with: {
+          memberships: {
+            columns: {
+              statusId: true,
+            },
+            with: {
+              user: {
+                columns: { name: true, id: true, email: true, statusId: true },
+              },
+            },
+          },
+        },
+        where: (t, o) => o.eq(t.id, groupId),
       });
     }
   );
