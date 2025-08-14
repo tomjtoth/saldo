@@ -1,6 +1,6 @@
 import { err, sortByName } from "../utils";
 import { updater } from "../db/updater";
-import { atomic, TCrGroup } from "../db";
+import { atomic, db, TCrGroup } from "../db";
 import { groups, memberships } from "../db/schema";
 import { eq } from "drizzle-orm";
 
@@ -86,11 +86,13 @@ export async function addMember(groupId: number, userId: number) {
 }
 
 export async function joinGroup(uuid: string, userId: number) {
-  const group = await db.group.findFirst({ where: { uuid } });
+  const group = await db.query.groups.findFirst({
+    where: (t, o) => o.eq(t.uuid, uuid),
+  });
   if (!group) err("link expired");
 
-  const ms = await db.membership.findFirst({
-    where: { userId, groupId: group.id },
+  const ms = await db.query.memberships.findFirst({
+    where: (t, o) => o.and(o.eq(t.userId, userId), eq(t.groupId, group.id)),
   });
   if (ms) err("already a member");
 
