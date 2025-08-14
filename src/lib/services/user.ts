@@ -1,10 +1,13 @@
 import { Session } from "next-auth";
+import { eq } from "drizzle-orm";
 
 import { createGroup } from "./groups";
-import { atomic, db, TCrUser } from "../db";
+import { atomic, db, TCrUser, TUser } from "../db";
 import { revisions, users } from "../db/schema";
 
-export async function addUser(userData: TCrUser) {
+export async function addUser(
+  userData: Pick<TCrUser, "email" | "image" | "name">
+) {
   return await atomic(
     { operation: "Adding new user", revisedBy: -1, deferForeignKeys: true },
     async (tx, revisionId) => {
@@ -20,7 +23,7 @@ export async function addUser(userData: TCrUser) {
         createdById: user.id,
       });
 
-      return user;
+      return user as TUser;
     }
   );
 }
@@ -29,22 +32,24 @@ export async function currentUser(session: Session) {
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const email = session?.user?.email!;
-  const name = session?.user?.name ?? `User #${await db.user.count()}`;
+  const name = session?.user?.name ?? `User #${(await db.$count(users)) + 1}`;
   const image = session?.user?.image ?? null;
 
-  let user = await db.user.findFirst({ where: { email } });
+  let user = (await db.query.users.findFirst({
+    where: eq(users.email, email),
+  })) as TUser;
 
   if (!user) {
     user = await addUser({
       name,
       email,
       image,
-    });
+    })!;
 
-    await createGroup(user.id, { name: "just you" });
+    await createGroup(user.id!, { name: "just you" });
   }
 
-  const updater: Partial<User> = {};
+  const updater: TUser = {};
 
   if (name !== user.name) {
     updater.name = user.name = name;
@@ -55,10 +60,7 @@ export async function currentUser(session: Session) {
   }
 
   if (Object.keys(updater).length > 0) {
-    await db.user.update({
-      where: { id: user.id },
-      data: { ...updater },
-    });
+    await db.update(users).set(updater).where(eq(users.id, user.id!));
   }
 
   return user;
