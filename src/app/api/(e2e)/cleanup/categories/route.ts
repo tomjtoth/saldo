@@ -1,34 +1,33 @@
 import { db } from "@/lib/db";
+import { revisions } from "@/lib/db/schema";
+import { inArray } from "drizzle-orm";
 
 export async function GET() {
   if (process.env.NODE_ENV !== "development")
     return new Response(null, { status: 403 });
 
-  const cats = await db.category.findMany({
-    select: { id: true, revisionId: true },
-    where: {
-      name: {
-        startsWith: "test-cat-",
-      },
-    },
+  const cats = await db.query.categories.findMany({
+    columns: { id: true, revisionId: true },
+    where: (t, o) => o.sql`${t.name} like 'test-cat%'`,
   });
 
-  const archives = await db.archive.findMany({
-    select: { revisionId: true },
-    where: {
-      entityPk1: { in: cats.map((c) => c.id) },
-    },
+  const archives = await db.query.archives.findMany({
+    columns: { revisionId: true },
+    where: (t, o) =>
+      o.inArray(
+        t.entityPk1,
+        cats.map((c) => c.id)
+      ),
   });
 
-  await db.revision.deleteMany({
-    where: {
-      id: {
-        in: cats
-          .map((c) => c.revisionId)
-          .concat(archives.map((a) => a.revisionId)),
-      },
-    },
-  });
+  await db
+    .delete(revisions)
+    .where(
+      inArray(
+        revisions.id,
+        cats.map((c) => c.revisionId).concat(archives.map((a) => a.revisionId))
+      )
+    );
 
   return new Response(null, { status: 200 });
 }
