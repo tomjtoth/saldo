@@ -1,6 +1,7 @@
 "use server";
 
-import { db, schema, inChunks } from "@/lib/db";
+import { db, inChunks } from "@/lib/db";
+import * as schema from "@/lib/db/schema";
 import { parseCSV, parseData, TDBData } from "./parsers";
 
 export const alreadyInProd = async () => {
