@@ -17,13 +17,18 @@ export async function addUser(
           ...userData,
           revisionId,
         })
-        .returning({ id: users.id });
+        .returning({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          image: users.image,
+        });
 
       await tx.update(revisions).set({
         createdById: user.id,
       });
 
-      return user as TUser;
+      return user;
     }
   );
 }
@@ -35,9 +40,10 @@ export async function currentUser(session: Session) {
   const name = session?.user?.name ?? `User #${(await db.$count(users)) + 1}`;
   const image = session?.user?.image ?? null;
 
-  let user = (await db.query.users.findFirst({
+  let user = await db.query.users.findFirst({
+    columns: { id: true, name: true, email: true, image: true },
     where: eq(users.email, email),
-  })) as TUser;
+  });
 
   if (!user) {
     user = await addUser({
