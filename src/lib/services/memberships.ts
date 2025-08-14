@@ -1,9 +1,9 @@
-import { atomic, db, Membership, TMembership, updater } from "@/lib/db";
+import { atomic, db, TCrMembership, TMembership, updater } from "@/lib/db";
 import { err } from "../utils";
 import { and, eq, sql } from "drizzle-orm";
 import { memberships } from "../db/schema";
 
-type MembershipUpdater = Pick<Membership, "groupId" | "userId"> &
+type MembershipUpdater = Pick<TCrMembership, "groupId" | "userId"> &
   Pick<TMembership, "statusId" | "defaultCategoryId">;
 
 export async function updateMembership(
