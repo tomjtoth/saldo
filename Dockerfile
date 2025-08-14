@@ -18,7 +18,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 RUN npm run prisma-gen
-ENV DRIZZLE_URL=file::memory:
+ENV DATABASE_URL=file::memory:
 RUN npm run build
 
 # ----------------------------
@@ -47,7 +47,7 @@ ARG GIT_HASH
 ENV GIT_HASH=${GIT_HASH} \
     NODE_ENV=production \
     MIGRATE=true \
-    DATABASE_URL=file:../data/prod.db
+    DATABASE_URL=file:data/prod.db
 
 USER nextjs
 

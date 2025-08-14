@@ -2,7 +2,7 @@
   "name": "saldo",
   "version": "1.0.0",
   "scripts": {
-    "dev": "DATABASE_URL=file:../data/dev.db next dev",
+    "dev": "DATABASE_URL=file:data/dev.db next dev",
     "lint": "next lint",
     "test": "vitest",
     "coverage": "vitest run --coverage",

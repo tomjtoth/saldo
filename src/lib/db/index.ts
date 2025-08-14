@@ -12,7 +12,7 @@ export { updater } from "./updater";
 export { getArchivePopulator } from "./archives";
 
 export const db = drizzle({
-  connection: process.env.DRIZZLE_URL!,
+  connection: process.env.DATABASE_URL!,
   schema,
   casing: "snake_case",
   logger: true,
