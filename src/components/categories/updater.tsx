@@ -109,7 +109,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
       <div className="col-span-3 text-center">
         🗓️
-        <sub> {datetimeFromInt(cat.revision!.createdAtInt!)} </sub>
+        <sub> {cat.revision!.createdAt} </sub>
         🪪
         <sub> {cat.revision!.createdBy!.name} </sub>
       </div>

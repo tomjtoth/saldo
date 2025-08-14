@@ -54,7 +54,7 @@ export default function Details({
 
           <div className="col-span-2 text-center">
             🗓️
-            <sub> {datetimeFromInt(cat.revision!.createdAtInt!)} </sub>
+            <sub> {cat.revision!.createdAt} </sub>
             🪪
             <sub> {cat.revision!.createdBy!.name} </sub>
           </div>
