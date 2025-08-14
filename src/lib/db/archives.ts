@@ -1,6 +1,5 @@
 import { sql } from "drizzle-orm";
-import { db } from ".";
-import { DrizzleTx } from "./atomic";
+import { db, DrizzleTx } from ".";
 
 export async function getArchivePopulator<T extends { archives?: T[] }>(
   tableName: string,
