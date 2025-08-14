@@ -1,20 +1,24 @@
 import { err, sortByName } from "../utils";
 import { updater } from "../db/updater";
-import { atomic, db, TCrGroup } from "../db";
+import { atomic, db, TCrGroup, TGroup } from "../db";
 import { groups, memberships } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 const GROUP_SELECT = {
-  id: true,
-  name: true,
-  description: true,
-  statusId: true,
-  uuid: true,
-  memberships: {
-    select: {
-      statusId: true,
-      user: {
-        select: { name: true, id: true, email: true, statusId: true },
+  columns: {
+    id: true,
+    name: true,
+    description: true,
+    statusId: true,
+    uuid: true,
+  },
+  with: {
+    memberships: {
+      columns: { statusId: true },
+      with: {
+        user: {
+          columns: { name: true, id: true, email: true, statusId: true },
+        },
       },
     },
   },
@@ -121,30 +125,33 @@ export type GroupUpdater = Pick<Group, "id"> &
 export async function updateGroup(
   adminId: number,
   groupId: number,
-  modifier: Partial<Pick<Group, "name" | "description" | "statusId" | "uuid">>
+  modifier: Pick<TGroup, "name" | "description" | "statusId" | "uuid">
 ) {
   return await atomic(
     { operation: "Updating group", revisedBy: adminId },
-    async (tx, rev) => {
-      const group = await tx.group.findUnique({ where: { id: groupId } });
+    async (tx, revisionId) => {
+      const group = await tx.query.groups.findFirst({
+        where: (t, o) => o.eq(t.id, groupId),
+      });
       if (!group) return null;
 
       const saving = await updater(group, modifier, {
         tx,
         tableName: "Group",
         entityPk1: groupId,
-        revisionId: rev.id!,
+        revisionId,
         skipArchivalOf: ["uuid"],
       });
 
       if (saving) {
-        const res = await tx.group.update({
-          select: GROUP_SELECT,
-          where: { id: groupId },
-          data: group,
-        });
+        await tx.update(groups).set(group);
 
-        res.memberships.sort((a, b) => sortByName(a.user, b.user));
+        const res = (await tx.query.groups.findFirst({
+          ...GROUP_SELECT,
+          where: (t, o) => o.eq(t.id, groupId),
+        })) as TGroup;
+
+        res.memberships!.sort((a, b) => sortByName(a.user!, b.user!));
 
         return res;
       } else err("No changes were made");
