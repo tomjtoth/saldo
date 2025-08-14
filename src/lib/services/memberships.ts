@@ -1,6 +1,6 @@
 import { atomic, db, Membership, TMembership, updater } from "@/lib/db";
-import { err, status } from "../utils";
-import { and, eq } from "drizzle-orm";
+import { err } from "../utils";
+import { and, eq, sql } from "drizzle-orm";
 import { memberships } from "../db/schema";
 
 type MembershipUpdater = Pick<Membership, "groupId" | "userId"> &
@@ -47,9 +47,16 @@ export async function updateMembership(
 }
 
 export async function isAdmin(userId: number, groupId: number) {
-  const ms = await db.membership.findUnique({
-    where: { userId_groupId: { userId, groupId } },
-  });
+  const ms = await db
+    .select()
+    .from(memberships)
+    .where(
+      and(
+        eq(memberships.userId, userId),
+        eq(memberships.groupId, groupId),
+        sql`${memberships.statusId} & 2 = 2`
+      )
+    );
 
-  return !!ms && status(ms).admin;
+  return !!ms;
 }
