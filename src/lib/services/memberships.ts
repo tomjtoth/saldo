@@ -1,5 +1,7 @@
 import { atomic, db, Membership, TMembership, updater } from "@/lib/db";
 import { err, status } from "../utils";
+import { and, eq } from "drizzle-orm";
+import { memberships } from "../db/schema";
 
 type MembershipUpdater = Pick<Membership, "groupId" | "userId"> &
   Pick<TMembership, "statusId" | "defaultCategoryId">;
@@ -10,9 +12,12 @@ export async function updateMembership(
 ) {
   return await atomic(
     { operation: "Updating membership", revisedBy },
-    async (tx, rev) => {
-      const ms = await tx.membership.findUnique({
-        where: { userId_groupId: { userId, groupId } },
+    async (tx, revisionId) => {
+      const ms = await tx.query.memberships.findFirst({
+        where: and(
+          eq(memberships.userId, userId),
+          eq(memberships.groupId, groupId)
+        ),
       });
 
       if (!ms) return null;
@@ -22,15 +27,20 @@ export async function updateMembership(
         tableName: "Membership",
         entityPk1: userId,
         entityPk2: groupId,
-        revisionId: rev.id!,
+        revisionId,
       });
 
       if (saving)
-        return await tx.membership.update({
-          select: { statusId: true },
-          data: ms,
-          where: { userId_groupId: { userId, groupId } },
-        });
+        return await tx
+          .update(memberships)
+          .set(ms)
+          .where(
+            and(
+              eq(memberships.userId, userId),
+              eq(memberships.groupId, groupId)
+            )
+          )
+          .returning({ statusId: memberships.statusId });
       else err("No changes were made");
     }
   );
