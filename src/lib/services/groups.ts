@@ -1,8 +1,9 @@
+import { eq, exists, and, sql } from "drizzle-orm";
+
 import { err, sortByName } from "../utils";
 import { updater } from "../db/updater";
 import { atomic, db, TCrGroup, TGroup } from "../db";
 import { groups, memberships } from "../db/schema";
-import { eq } from "drizzle-orm";
 
 const GROUP_SELECT = {
   columns: {
@@ -104,19 +105,28 @@ export async function joinGroup(uuid: string, userId: number) {
 }
 
 export async function getGroups(userId: number) {
-  const groups = await db.group.findMany({
-    select: GROUP_SELECT,
-    where: {
-      memberships: { some: { userId, statusId: { in: [0, 2] } } },
-    },
-  });
+  const res = (await db.query.groups.findMany({
+    ...GROUP_SELECT,
+    where: exists(
+      db
+        .select({ userId: memberships.userId })
+        .from(memberships)
+        .where(
+          and(
+            eq(memberships.groupId, groups.id),
+            eq(memberships.userId, userId),
+            sql`${memberships.statusId} & 1 = 1`
+          )
+        )
+    ),
+  })) as TGroup[];
 
-  groups.sort(sortByName);
-  groups.forEach((grp) =>
-    grp.memberships.sort((a, b) => sortByName(a.user, b.user))
+  res.sort(sortByName);
+  res.forEach((grp) =>
+    grp.memberships!.sort((a, b) => sortByName(a.user!, b.user!))
   );
 
-  return groups;
+  return res;
 }
 
 export type GroupUpdater = Pick<Group, "id"> &
