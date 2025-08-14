@@ -1,30 +1,28 @@
 import { Session } from "next-auth";
 
 import { createGroup } from "./groups";
-import { atomic, db, User } from "../db";
-import { datetimeToInt } from "../utils";
-
-type TCrUser = Pick<User, "email" | "name" | "image">;
+import { atomic, db, TCrUser } from "../db";
+import { revisions, users } from "../db/schema";
 
 export async function addUser(userData: TCrUser) {
-  return await atomic({ operation: "Adding new user" }, async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        ...userData,
-        revisionId: -1,
-      },
-    });
+  return await atomic(
+    { operation: "Adding new user", revisedBy: -1, deferForeignKeys: true },
+    async (tx, revisionId) => {
+      const [user] = await tx
+        .insert(users)
+        .values({
+          ...userData,
+          revisionId,
+        })
+        .returning({ id: users.id });
 
-    const rev = await tx.revision.create({
-      data: { createdById: user.id, createdAtInt: datetimeToInt() },
-    });
+      await tx.update(revisions).set({
+        createdById: user.id,
+      });
 
-    user.revisionId = rev.id;
-
-    await tx.user.update({ where: { id: user.id }, data: user });
-
-    return user;
-  });
+      return user;
+    }
+  );
 }
 
 export async function currentUser(session: Session) {
