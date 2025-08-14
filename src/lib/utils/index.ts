@@ -207,7 +207,7 @@ export const status = <T extends { statusId?: number }>(
     },
 
     set active(value: boolean) {
-      int = !value ? int | 1 : int & ~1;
+      int = value ? int | 1 : int & ~1;
 
       if (setter) setter(int);
       else entity.statusId = int;
