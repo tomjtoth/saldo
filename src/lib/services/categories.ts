@@ -43,8 +43,9 @@ export async function createCategory(
   );
 }
 
-export type TCategoryUpdater = Partial<
-  Pick<Category, "name" | "description" | "statusId">
+export type TCategoryUpdater = Pick<
+  TCategory,
+  "name" | "description" | "statusId"
 >;
 
 export async function updateCategory(
@@ -54,30 +55,33 @@ export async function updateCategory(
 ) {
   return await atomic(
     { operation: "Updating category", revisedBy },
-    async (tx, rev) => {
-      const cat = (await tx.category.findUnique({ where: { id } }))!;
+    async (tx, revisionId) => {
+      const cat = (await tx.query.categories.findFirst({
+        where: eq(categories.id, id),
+      }))!;
 
       const saving = await updater(cat, modifier, {
         tx,
         tableName: "Category",
-        revisionId: rev.id!,
+        revisionId,
         entityPk1: id,
       });
 
-      if (saving) await tx.category.update({ data: cat, where: { id } });
+      if (saving)
+        await tx.update(categories).set(cat).where(eq(categories.id, id));
       else err("No changes were made");
 
-      const res = await tx.category.findUnique({
-        where: { id: cat.id },
-        include: {
+      const res = (await tx.query.categories.findFirst({
+        with: {
           revision: {
-            select: {
-              createdAtInt: true,
-              createdBy: { select: { name: true } },
+            columns: {
+              createdAt: true,
             },
+            with: { createdBy: { columns: { name: true } } },
           },
         },
-      });
+        where: eq(categories.id, cat.id),
+      })) as TCategory;
 
       const populateArchives = await getArchivePopulator<TCategory>(
         "Category",
@@ -85,7 +89,7 @@ export async function updateCategory(
         { tx }
       );
 
-      populateArchives([res as TCategory]);
+      populateArchives([res]);
 
       return res;
     }
