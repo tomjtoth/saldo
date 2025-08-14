@@ -42,7 +42,7 @@ export default function CliReceiptsPage() {
               >
                 <span>
                   🗓️
-                  <sub>{dateFromInt(rcpt.paidOnInt!)}</sub>
+                  <sub>{rcpt.paidOn}</sub>
                 </span>
 
                 <span>
