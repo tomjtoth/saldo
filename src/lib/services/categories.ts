@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, exists, sql } from "drizzle-orm";
 
 import {
   atomic,
@@ -8,7 +8,7 @@ import {
   TCrCategory,
   updater,
 } from "@/lib/db";
-import { categories } from "@/lib/db/schema";
+import { categories, memberships } from "@/lib/db/schema";
 import { err, sortByName } from "../utils";
 
 export async function createCategory(
@@ -97,25 +97,26 @@ export async function updateCategory(
 }
 
 export async function userAccessToCat(userId: number, catId: number) {
-  const exists = await db.category.findFirst({
-    select: { id: true },
-
-    where: {
-      id: catId,
-      group: {
-        is: {
-          memberships: {
-            some: {
-              userId,
-              statusId: { in: [0, 2] },
-            },
-          },
-        },
-      },
-    },
+  const res = await db.query.categories.findFirst({
+    columns: { id: true },
+    where: and(
+      eq(categories.id, catId),
+      exists(
+        db
+          .select({ userId: memberships.userId })
+          .from(memberships)
+          .where(
+            and(
+              eq(memberships.groupId, categories.groupId),
+              eq(memberships.userId, userId),
+              sql`${memberships.statusId} & 1 = 1`
+            )
+          )
+      )
+    ),
   });
 
-  return !!exists;
+  return !!res;
 }
 
 export async function getCategories(userId: number) {
