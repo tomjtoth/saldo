@@ -8,12 +8,12 @@ import {
   updateCategory,
   userAccessToCat,
 } from "@/lib/services/categories";
-import { TCategory, Category } from "@/lib/db";
+import { TCategory } from "@/lib/db";
 import { updateMembership } from "@/lib/services/memberships";
 
 export async function POST(req: NextRequest) {
   const data = (await req.json()) as Pick<
-    Category,
+    TCategory,
     "name" | "groupId" | "description"
   >;
 
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const user = await currentUser(sess);
 
   const cat = await createCategory(user.id, {
-    groupId: data.groupId,
+    groupId: data.groupId!,
     name: data.name,
     description: data.description,
   });
