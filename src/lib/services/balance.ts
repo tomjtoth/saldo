@@ -1,9 +1,9 @@
 import { db, TGroup } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { sql } from "drizzle-orm";
 
 export async function getBalance(userId: number) {
-  const rows: { json: string }[] = await db.$queryRaw(
-    Prisma.sql`
+  const rows = await db.get<{ json: string }>(
+    sql`
     WITH step1 AS (
       SELECT
         ms.groupId AS gid,
@@ -75,5 +75,5 @@ export async function getBalance(userId: number) {
     FROM step4`
   );
 
-  return rows.length > 0 ? (JSON.parse(rows[0].json) as TGroup[]) : [];
+  return rows ? (JSON.parse(rows.json) as TGroup[]) : [];
 }
