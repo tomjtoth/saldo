@@ -1,16 +1,18 @@
 import { NextRequest } from "next/server";
 import { v4 as uuid } from "uuid";
+import { eq } from "drizzle-orm";
 
 import { auth } from "@/auth";
-import { db, Group } from "@/lib/db";
-import { createGroup, GroupUpdater, updateGroup } from "@/lib/services/groups";
+import { db, TGroup, TSelGroup } from "@/lib/db";
+import { createGroup, updateGroup } from "@/lib/services/groups";
 import { currentUser } from "@/lib/services/user";
+import { users } from "@/lib/db/schema";
 
 export async function POST(req: NextRequest) {
   const sess = await auth();
   if (!sess) return new Response(null, { status: 401 });
 
-  const data = (await req.json()) as Pick<Group, "name" | "description">;
+  const data = (await req.json()) as Pick<TGroup, "name" | "description">;
   if (data?.name === undefined) return new Response(null, { status: 400 });
 
   const user = await currentUser(sess);
@@ -21,6 +23,13 @@ export async function POST(req: NextRequest) {
 
   return Response.json(group);
 }
+
+type GroupUpdater = Pick<TSelGroup, "id"> &
+  Pick<TGroup, "name" | "description" | "statusId" | "uuid"> & {
+    generateLink?: true;
+    removeLink?: true;
+    setAsDefault?: true;
+  };
 
 export async function PUT(req: NextRequest) {
   const sess = await auth();
@@ -35,19 +44,16 @@ export async function PUT(req: NextRequest) {
     generateLink,
     removeLink,
     setAsDefault,
-  } = data as GroupUpdater & {
-    generateLink?: true;
-    removeLink?: true;
-    setAsDefault?: true;
-  };
+  } = data as GroupUpdater;
 
   if (setAsDefault) {
-    await db.user.update({
-      data: { defaultGroupId: id },
-      where: {
-        id: user.id,
-      },
-    });
+    await db
+      .update(users)
+      .set({
+        defaultGroupId: id,
+      })
+      .where(eq(users.id, user.id));
+
     return new Response(null, { status: 200 });
   }
 

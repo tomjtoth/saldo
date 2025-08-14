@@ -110,9 +110,6 @@ export async function getGroups(userId: number) {
   return res;
 }
 
-export type GroupUpdater = Pick<Group, "id"> &
-  Partial<Pick<TGroup, "name" | "description" | "statusId" | "uuid">>;
-
 export async function updateGroup(
   adminId: number,
   groupId: number,

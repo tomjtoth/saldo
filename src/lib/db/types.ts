@@ -46,6 +46,7 @@ type TModelWithRelations<TTableName extends keyof TSchema> = Partial<
 export type TCrRevision = typeof schema.revisions.$inferInsert;
 export type TCrUser = typeof schema.users.$inferInsert;
 export type TCrGroup = typeof schema.groups.$inferInsert;
+export type TSelGroup = typeof schema.groups.$inferSelect;
 export type TCrMembership = typeof schema.memberships.$inferInsert;
 export type TCrCategory = typeof schema.categories.$inferInsert;
 export type TCrReceipt = typeof schema.receipts.$inferInsert;
