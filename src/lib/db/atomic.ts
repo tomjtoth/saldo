@@ -1,3 +1,5 @@
+import { sql } from "drizzle-orm";
+
 import { db, DrizzleTx } from ".";
 import * as schema from "@/lib/db/schema";
 
@@ -11,6 +13,7 @@ type AtomicOpts = {
 
 type AtomicWithRevOpts = AtomicOpts & {
   revisedBy: number;
+  deferForeignKeys?: true;
 };
 
 type AtomicFun<T> = (tx: DrizzleTx) => Promise<T>;
@@ -38,7 +41,11 @@ export async function atomic<T>(
   const isFnOnly = typeof optsOrFn === "function";
   const opts = isFnOnly ? {} : optsOrFn;
   const operation = isFnOnly ? optsOrFn : maybeFn!;
-  const { revisedBy, operation: opDescription } = opts as AtomicWithRevOpts;
+  const {
+    revisedBy,
+    deferForeignKeys,
+    operation: opDescription,
+  } = opts as AtomicWithRevOpts;
 
   let revId = -1;
 
@@ -47,6 +54,8 @@ export async function atomic<T>(
       let res: T;
 
       if (revisedBy) {
+        if (deferForeignKeys) await tx.run(sql`PRAGMA defer_foreign_keys = ON`);
+
         const [{ revisionId }] = await tx
           .insert(schema.revisions)
           .values([
