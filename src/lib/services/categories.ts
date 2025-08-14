@@ -6,9 +6,10 @@ import {
   getArchivePopulator,
   TCategory,
   TCrCategory,
+  TGroup,
   updater,
 } from "@/lib/db";
-import { categories, memberships } from "@/lib/db/schema";
+import { categories, groups, memberships } from "@/lib/db/schema";
 import { err, sortByName } from "../utils";
 
 export async function createCategory(
@@ -120,52 +121,59 @@ export async function userAccessToCat(userId: number, catId: number) {
 }
 
 export async function getCategories(userId: number) {
-  const groups = await db.group.findMany({
-    select: {
+  const res = (await db.query.groups.findMany({
+    columns: {
       id: true,
       name: true,
+    },
+
+    with: {
       memberships: {
-        select: {
-          defaultCategoryId: true,
-          user: { select: { id: true, name: true } },
-        },
-        where: { userId, statusId: { in: [0, 2] } },
+        columns: { defaultCategoryId: true },
+        with: { user: { columns: { id: true, name: true } } },
       },
       revision: {
-        select: {
-          createdAtInt: true,
-          createdBy: { select: { id: true, name: true } },
-        },
+        columns: { createdAt: true },
+        with: { createdBy: { columns: { id: true, name: true } } },
       },
       categories: {
-        include: {
+        with: {
           revision: {
-            select: {
-              createdAtInt: true,
-              createdBy: { select: { name: true } },
-            },
+            columns: { createdAt: true },
+            with: { createdBy: { columns: { name: true } } },
           },
         },
       },
     },
-    where: {
-      statusId: 0,
-      memberships: {
-        some: { userId },
-      },
-    },
-  });
+
+    where: and(
+      sql`${groups.statusId} & 1 = 1`,
+      exists(
+        db
+          .select({ id: sql`1` })
+          .from(memberships)
+          .where(
+            and(
+              // eq(groups.id, categories.groupId),
+              eq(groups.id, memberships.groupId),
+              eq(memberships.userId, userId),
+              sql`${memberships.statusId} & 1 = 1`
+            )
+          )
+      )
+    ),
+  })) as TGroup[];
 
   const populateArchives = await getArchivePopulator<TCategory>(
     "Category",
     "id"
   );
 
-  groups.sort(sortByName);
-  groups.forEach((g) => {
-    g.categories.sort(sortByName);
-    populateArchives(g.categories);
+  res.sort(sortByName);
+  res.forEach((g) => {
+    g.categories!.sort(sortByName);
+    populateArchives(g.categories!);
   });
 
-  return groups;
+  return res;
 }
