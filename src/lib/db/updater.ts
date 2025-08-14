@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client";
-import { PrismaTx } from "./atomic";
+import { sql } from "drizzle-orm";
+import { DrizzleTx } from ".";
 
 export async function updater<T extends { revisionId: number }>(
   original: T,
@@ -12,7 +12,7 @@ export async function updater<T extends { revisionId: number }>(
     entityPk2,
     skipArchivalOf = [],
   }: {
-    tx: PrismaTx;
+    tx: DrizzleTx;
     tableName: string;
     revisionId: number;
     entityPk1: number;
@@ -40,9 +40,9 @@ export async function updater<T extends { revisionId: number }>(
   const createArchive = entries.length > 0;
 
   if (createArchive) {
-    const tableColumnIds = (await tx.$queryRaw(
-      Prisma.sql`SELECT id, columnName FROM tableColumnNames WHERE tableName = ${tableName};`
-    )) as { id: bigint; columnName: string }[];
+    const tableColumnIds = await tx.all<{ columnName: string; id: bigint }>(
+      sql`SELECT id, columnName FROM tableColumnNames WHERE tableName = ${tableName};`
+    );
 
     const tciAccessor = Object.fromEntries(
       tableColumnIds.map(({ columnName, id }) => [columnName, id])
@@ -61,38 +61,38 @@ export async function updater<T extends { revisionId: number }>(
         updateArgs.push(`'$[#]', ${prefixed}`);
       }
 
-      const sql = `
-        INSERT INTO "Meta" (info, data) SELECT 'tableColumnIds', json_array(${insertArgs.join(
+      const query = `
+        INSERT INTO "metadata" (name, payload) SELECT 'tableColumnIds', json_array(${insertArgs.join(
           ", "
         )})
-        ON CONFLICT DO UPDATE SET data = json_insert(data, ${updateArgs.join(
+        ON CONFLICT DO UPDATE SET payload = json_insert(payload, ${updateArgs.join(
           ", "
         )}) 
-        WHERE info = "tableColumnIds" RETURNING json_array_length(data) - 1 AS lastId
+        WHERE name = "tableColumnIds" RETURNING json_array_length(payload) - 1 AS lastId
       `;
 
-      const [{ lastId }] = (await tx.$queryRawUnsafe(sql)) as {
+      const [{ lastId }] = await tx.all<{
         lastId: bigint;
-      }[];
+      }>(query);
 
       colNamesToInsert.forEach(([col], idx) => {
         tciAccessor[col] = lastId - BigInt(idx);
       });
     }
 
-    const values = entries.map(
-      ([col, val]) => Prisma.sql`(
+    const values = entries.map(([col, val]) =>
+      sql.raw(`(
         ${tciAccessor[col]},
         ${entityPk1},
         ${entityPk2 ?? null},
         ${original.revisionId},
         ${val}
-      )`
+      )`)
     );
 
-    await tx.$executeRaw(Prisma.sql`
-      INSERT INTO "Archive" ("tableColumnId", "entityPk1", "entityPk2", "revisionId", "data")
-      VALUES ${Prisma.join(values)}
+    await tx.run(sql`
+      INSERT INTO "archives" ("table_column_id", "entity_pk1", "entity_pk2", "revision_id", "payload")
+      VALUES ${sql.join(values)}
     `);
 
     original.revisionId = revisionId!;
