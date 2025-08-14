@@ -6,7 +6,6 @@ import csv from "csv-parser";
 import { approxFloat } from "../../utils";
 
 import {
-  db,
   TCrRevision,
   TCrCategory,
   TCrGroup,

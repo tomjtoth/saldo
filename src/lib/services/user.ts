@@ -22,6 +22,7 @@ export async function addUser(
           name: users.name,
           email: users.email,
           image: users.image,
+          defaultGroupId: users.defaultGroupId,
         });
 
       await tx.update(revisions).set({
@@ -41,7 +42,13 @@ export async function currentUser(session: Session) {
   const image = session?.user?.image ?? null;
 
   let user = await db.query.users.findFirst({
-    columns: { id: true, name: true, email: true, image: true },
+    columns: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      defaultGroupId: true,
+    },
     where: eq(users.email, email),
   });
 

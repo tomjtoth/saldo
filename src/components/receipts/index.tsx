@@ -9,7 +9,6 @@ import Header from "../header";
 import Adder from "./adder";
 import GroupSelector from "../groups/selector";
 import Scrollers from "./scrollers";
-import { dateFromInt } from "@/lib/utils";
 
 export default function CliReceiptsPage() {
   const rs = useGroupSelector();

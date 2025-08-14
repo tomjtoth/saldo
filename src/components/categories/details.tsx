@@ -4,7 +4,7 @@ import { TCategory } from "@/lib/db";
 
 import Updater from "./updater";
 import Slider from "../slider";
-import { datetimeFromInt, status } from "@/lib/utils";
+import { status } from "@/lib/utils";
 
 export default function Details({
   cat,

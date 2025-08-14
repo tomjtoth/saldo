@@ -47,7 +47,7 @@ export async function atomic<T>(
     operation: opDescription,
   } = opts as AtomicWithRevOpts;
 
-  let revId = -1;
+  let revisionId = -1;
 
   try {
     const res = await db.transaction(async (tx) => {
@@ -56,7 +56,7 @@ export async function atomic<T>(
       if (revisedBy) {
         if (deferForeignKeys) await tx.run(sql`PRAGMA defer_foreign_keys = ON`);
 
-        const [{ revisionId }] = await tx
+        [{ revisionId }] = await tx
           .insert(schema.revisions)
           .values([
             {
@@ -72,7 +72,7 @@ export async function atomic<T>(
       return res;
     });
 
-    if (revId % DB_BACKUP_EVERY_N_REVISIONS == 0) {
+    if (revisionId % DB_BACKUP_EVERY_N_REVISIONS == 0) {
       // TODO:
       // db.backup(`${DB_PATH}.backup.${rev.id}`);
     }
