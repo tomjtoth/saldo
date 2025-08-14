@@ -5,7 +5,7 @@ import { updater } from "../db/updater";
 import { atomic, db, TCrGroup, TGroup } from "../db";
 import { groups, memberships } from "../db/schema";
 
-const GROUP_SELECT = {
+const COLS_WITH = {
   columns: {
     id: true,
     name: true,
@@ -49,26 +49,7 @@ export async function createGroup(
       });
 
       return await tx.query.groups.findFirst({
-        columns: {
-          id: true,
-          name: true,
-          description: true,
-          statusId: true,
-          uuid: true,
-        },
-
-        with: {
-          memberships: {
-            columns: {
-              statusId: true,
-            },
-            with: {
-              user: {
-                columns: { name: true, id: true, email: true, statusId: true },
-              },
-            },
-          },
-        },
+        ...COLS_WITH,
         where: (t, o) => o.eq(t.id, groupId),
       });
     }
@@ -106,7 +87,7 @@ export async function joinGroup(uuid: string, userId: number) {
 
 export async function getGroups(userId: number) {
   const res = (await db.query.groups.findMany({
-    ...GROUP_SELECT,
+    ...COLS_WITH,
     where: exists(
       db
         .select({ userId: memberships.userId })
@@ -157,7 +138,7 @@ export async function updateGroup(
         await tx.update(groups).set(group);
 
         const res = (await tx.query.groups.findFirst({
-          ...GROUP_SELECT,
+          ...COLS_WITH,
           where: (t, o) => o.eq(t.id, groupId),
         })) as TGroup;
 
