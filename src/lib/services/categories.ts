@@ -1,36 +1,44 @@
+import { eq } from "drizzle-orm";
+
 import {
   atomic,
-  Category,
   db,
   getArchivePopulator,
   TCategory,
+  TCrCategory,
   updater,
 } from "@/lib/db";
+import { categories } from "@/lib/db/schema";
 import { err, sortByName } from "../utils";
 
 export async function createCategory(
   revisedBy: number,
-  data: Pick<Category, "name" | "description" | "groupId">
+  data: Pick<TCrCategory, "name" | "description" | "groupId">
 ) {
   return await atomic(
     { operation: "Creating category", revisedBy },
-    async (tx, rev) => {
-      const cat = await tx.category.create({
-        select: {
+    async (tx, revisionId) => {
+      const [{ id }] = await tx
+        .insert(categories)
+        .values({
+          ...data,
+          revisionId,
+        })
+        .returning({ id: categories.id });
+
+      return await tx.query.categories.findFirst({
+        with: {
           revision: {
-            select: {
-              createdAtInt: true,
-              createdBy: { select: { name: true } },
+            columns: {
+              createdAt: true,
+            },
+            with: {
+              createdBy: { columns: { name: true } },
             },
           },
         },
-        data: {
-          ...data,
-          revisionId: rev.id!,
-        },
+        where: eq(categories.id, id),
       });
-
-      return cat;
     }
   );
 }
