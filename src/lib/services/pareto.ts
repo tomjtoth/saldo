@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { sql } from "drizzle-orm";
 
 import { db, TGroup } from "@/lib/db";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
@@ -24,8 +25,8 @@ export async function getPareto(
       ? `AND paidOn < ${dateToInt(opts.to)}`
       : "";
 
-  const rows: { json: string }[] = await db.$queryRawUnsafe(
-    `WITH sums_per_row AS (
+  const data = await db.get<{ json: string } | null>(
+    sql`WITH sums_per_row AS (
       SELECT
         g.id AS gid,
         g.name AS gName,
@@ -96,5 +97,5 @@ export async function getPareto(
     FROM one_group_per_row;`
   );
 
-  return rows.length > 0 ? (JSON.parse(rows[0].json) as TGroup[]) : [];
+  return data ? (JSON.parse(data.json) as TGroup[]) : [];
 }

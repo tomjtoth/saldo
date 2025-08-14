@@ -1,8 +1,9 @@
-import { db, TGroup } from "@/lib/db";
 import { sql } from "drizzle-orm";
 
+import { db, TGroup } from "@/lib/db";
+
 export async function getBalance(userId: number) {
-  const rows = await db.get<{ json: string }>(
+  const data = await db.get<{ json: string } | null>(
     sql`
     WITH step1 AS (
       SELECT
@@ -75,5 +76,5 @@ export async function getBalance(userId: number) {
     FROM step4`
   );
 
-  return rows ? (JSON.parse(rows.json) as TGroup[]) : [];
+  return data ? (JSON.parse(data.json) as TGroup[]) : [];
 }
