@@ -52,7 +52,7 @@ export default function CliReceiptsPage() {
                   €{" "}
                   <sub>
                     {rcpt.items
-                      ?.reduce((sub, { cost }) => sub + cost! / 100, 0)
+                      ?.reduce((sub, { cost }) => sub + cost!, 0)
                       .toFixed(2)}
                   </sub>
                 </span>
