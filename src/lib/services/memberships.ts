@@ -50,7 +50,7 @@ export async function updateMembership(
 
 export async function isAdmin(userId: number, groupId: number) {
   const ms = await db
-    .select()
+    .select({ x: sql`1` })
     .from(memberships)
     .where(
       and(
