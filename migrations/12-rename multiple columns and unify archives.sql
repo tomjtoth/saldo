@@ -139,7 +139,7 @@ INSERT INTO "metadata" ("name", "description", "payload")
         );
 
 INSERT INTO "archives" ("entity_pk1", "entity_pk2", "revision_id", "table_column_id", "payload")
-    SELECT "id", NULL, "rev_id", 2, "status_id"  FROM "categories_archive"
+    SELECT "id", NULL, "rev_id", 2, iif("status_id" = 2, 0, 1) FROM "categories_archive"
     UNION
     SELECT "id", NULL, "rev_id", 3, "group_id" FROM "categories_archive"
     UNION
@@ -147,7 +147,7 @@ INSERT INTO "archives" ("entity_pk1", "entity_pk2", "revision_id", "table_column
     UNION
     SELECT "id", NULL, "rev_id", 1, "description" FROM "categories_archive"
     UNION
-    SELECT "id", NULL, "rev_id", 6, "status_id" FROM "groups_archive"
+    SELECT "id", NULL, "rev_id", 6, iif("status_id" = 2, 0, 1) FROM "groups_archive"
     UNION
     SELECT "id", NULL, "rev_id", 4, "name" FROM "groups_archive"
     UNION
@@ -155,7 +155,7 @@ INSERT INTO "archives" ("entity_pk1", "entity_pk2", "revision_id", "table_column
     UNION
     SELECT "id", NULL, "rev_id", 7, "uuid" FROM "groups_archive"
     UNION
-    SELECT "group_id", "user_id", "rev_id", 8, "status_id" + 2 * "admin" FROM "memberships_archive"
+    SELECT "group_id", "user_id", "rev_id", 8, iif("status_id" = 2, 0, 1) + 2 * "admin" FROM "memberships_archive"
     UNION
     SELECT "group_id", "user_id", "rev_id", 9, "default_cat_id" FROM "memberships_archive";
 
@@ -166,7 +166,7 @@ INSERT INTO "users" ("id", "revision_id", "status_id", "email", "name", "image",
     SELECT
         "id",
         "rev_id",
-        "status_id",
+        iif("status_id" = 2, 0, 1),
         "email",
         iif("name" = '', NULL, "name"),
         iif("image" = '', NULL, "image"),
@@ -177,35 +177,35 @@ INSERT INTO "groups" ("id", "revision_id", "status_id", "name", "description", "
     SELECT
         "id",
         "rev_id",
-        "status_id",
+        iif("status_id" = 2, 0, 1),
         "name",
         iif("description" = '', NULL, "description"),
         "uuid"
     FROM "OLD_GROUPS";
 
 INSERT INTO "memberships" ("group_id", "user_id", "revision_id", "status_id", "default_category_id")
-    SELECT "group_id", "user_id", "rev_id", "status_id" -1 + 2 * "admin", "default_cat_id"
+    SELECT "group_id", "user_id", "rev_id",  iif("status_id" = 2, 0, 1) + 2 * "admin", "default_cat_id"
     FROM "OLD_MEMBERSHIPS";
 
 INSERT INTO "categories" ("id", "revision_id", "status_id", "group_id", "name", "description")
     SELECT
         "id",
         "rev_id",
-        "status_id",
+        iif("status_id" = 2, 0, 1),
         "group_id",
         "name",
         iif("description" = '', NULL, "description")
     FROM "OLD_CATEGORIES";
 
 INSERT INTO "receipts" ("id", "revision_id", "status_id", "group_id", "paid_on", "paid_by")
-    SELECT "id", "rev_id", "status_id", "group_id", "paid_on", "paid_by"
+    SELECT "id", "rev_id", iif("status_id" = 2, 0, 1), "group_id", "paid_on", "paid_by"
     FROM "OLD_RECEIPTS";
 
 INSERT INTO "items" ("id", "revision_id", "status_id", "receipt_id", "category_id", "cost", "notes")
     SELECT
         "id",
         "rev_id",
-        "status_id",
+        iif("status_id" = 2, 0, 1),
         "rcpt_id",
         "cat_id",
         "cost",
@@ -213,7 +213,7 @@ INSERT INTO "items" ("id", "revision_id", "status_id", "receipt_id", "category_i
     FROM "OLD_ITEMS";
 
 INSERT INTO "item_shares" ("item_id", "user_id", "revision_id", "status_id", "share")
-    SELECT "item_id", "user_id", "rev_id", "status_id", "share"
+    SELECT "item_id", "user_id", "rev_id", iif("status_id" = 2, 0, 1), "share"
     FROM "OLD_ITEM_SHARES";
 
 
