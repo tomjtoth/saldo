@@ -2,7 +2,7 @@ import { eq, exists, and, sql } from "drizzle-orm";
 
 import { err, sortByName } from "../utils";
 import { updater } from "../db/updater";
-import { atomic, db, TCrGroup, TGroup } from "../db";
+import { atomic, db, isActive, TCrGroup, TGroup } from "../db";
 import { groups, memberships } from "../db/schema";
 
 const COLS_WITH = {
@@ -96,7 +96,7 @@ export async function getGroups(userId: number) {
           and(
             eq(memberships.groupId, groups.id),
             eq(memberships.userId, userId),
-            sql`${memberships.statusId} & 1 = 1`
+            isActive(memberships)
           )
         )
     ),

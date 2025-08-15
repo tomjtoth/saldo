@@ -4,6 +4,7 @@ import {
   atomic,
   db,
   getArchivePopulator,
+  isActive,
   TCategory,
   TCrCategory,
   TGroup,
@@ -110,7 +111,7 @@ export async function userAccessToCat(userId: number, catId: number) {
             and(
               eq(memberships.groupId, categories.groupId),
               eq(memberships.userId, userId),
-              sql`${memberships.statusId} & 1 = 1`
+              isActive(memberships)
             )
           )
       )
@@ -147,7 +148,7 @@ export async function getCategories(userId: number) {
     },
 
     where: and(
-      sql`${groups.statusId} & 1 = 1`,
+      isActive(groups),
       exists(
         db
           .select({ x: sql`1` })
@@ -156,7 +157,7 @@ export async function getCategories(userId: number) {
             and(
               eq(memberships.groupId, groups.id),
               eq(memberships.userId, userId),
-              sql`${memberships.statusId} & 1 = 1`
+              isActive(memberships)
             )
           )
       )
