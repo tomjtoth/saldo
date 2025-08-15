@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 import { eq } from "drizzle-orm";
 
 import { auth } from "@/auth";
-import { db, TGroup, TSelGroup } from "@/lib/db";
+import { db, TGroup } from "@/lib/db";
 import { createGroup, updateGroup } from "@/lib/services/groups";
 import { currentUser } from "@/lib/services/user";
 import { users } from "@/lib/db/schema";
@@ -24,8 +24,10 @@ export async function POST(req: NextRequest) {
   return Response.json(group);
 }
 
-type GroupUpdater = Pick<TSelGroup, "id"> &
-  Pick<TGroup, "name" | "description" | "statusId" | "uuid"> & {
+type GroupUpdater = { id: number } & Pick<
+  TGroup,
+  "name" | "description" | "statusId" | "uuid"
+> & {
     generateLink?: true;
     removeLink?: true;
     setAsDefault?: true;
