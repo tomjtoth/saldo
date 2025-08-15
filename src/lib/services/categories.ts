@@ -154,8 +154,7 @@ export async function getCategories(userId: number) {
           .from(memberships)
           .where(
             and(
-              // eq(groups.id, categories.groupId),
-              eq(groups.id, memberships.groupId),
+              eq(memberships.groupId, groups.id),
               eq(memberships.userId, userId),
               sql`${memberships.statusId} & 1 = 1`
             )
