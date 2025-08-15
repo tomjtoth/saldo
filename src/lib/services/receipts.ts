@@ -1,3 +1,5 @@
+import { and, desc, eq, exists, sql } from "drizzle-orm";
+
 import {
   atomic,
   db,
@@ -7,9 +9,9 @@ import {
   TGroup,
   TReceipt,
 } from "@/lib/db";
+import { groups, items, itemShares, memberships, receipts } from "../db/schema";
 import { TCliReceipt } from "../reducers";
 import { sortByName } from "../utils";
-import { items, itemShares, memberships, receipts } from "../db/schema";
 
 export type TReceiptInput = TCliReceipt & { groupId: number };
 
@@ -46,10 +48,6 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
         })
         .returning({ receiptId: receipts.id });
 
-      db.query.receipts.findFirst({
-        columns: { id: true, groupId: true },
-      });
-
       const itemIds = await tx
         .insert(items)
         .values(
@@ -78,7 +76,7 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
 
       const receipt = (await tx.query.receipts.findFirst({
         ...RECEIPT_COLS_WITH,
-        where: (t, o) => o.eq(t.id, receiptId),
+        where: eq(receipts.id, receiptId),
       })) as TReceipt;
 
       receipt.archives = [];
@@ -89,7 +87,7 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
 }
 
 export async function getReceipts(userId: number, knownIds: number[] = []) {
-  const groups = (await db.query.groups.findMany({
+  const res = (await db.query.groups.findMany({
     columns: {
       id: true,
       name: true,
@@ -112,21 +110,24 @@ export async function getReceipts(userId: number, knownIds: number[] = []) {
       receipts: {
         ...RECEIPT_COLS_WITH,
         limit: 50,
-        where: (t, op) =>
-          op.sql`${t.id} not in ${op.sql.raw("(" + knownIds.join(", ") + ")")}`,
-        orderBy: (t, op) => op.desc(t.paidOn),
+        where: sql`${receipts.id} not in ${sql.raw(
+          "(" + knownIds.join(", ") + ")"
+        )}`,
+        orderBy: desc(receipts.paidOn),
       },
     },
-    where: (t, { exists, eq, and, sql }) =>
-      exists(
-        db
-          .select({ x: sql`1` })
-          .from(memberships)
-          .where(
-            and(eq(memberships.groupId, t.id), eq(memberships.userId, userId))
+    where: exists(
+      db
+        .select({ x: sql`1` })
+        .from(memberships)
+        .where(
+          and(
+            eq(memberships.groupId, groups.id),
+            eq(memberships.userId, userId)
           )
-      ),
-    orderBy: (t, op) => op.sql`lower(${t.name})`,
+        )
+    ),
+    orderBy: orderByLowerName,
   })) as TGroup[];
 
   const populateArchives = await getArchivePopulator<TReceipt>(
@@ -134,11 +135,11 @@ export async function getReceipts(userId: number, knownIds: number[] = []) {
     "id"
   );
 
-  groups.sort(sortByName);
-  groups.forEach((g) => {
+  res.sort(sortByName);
+  res.forEach((g) => {
     g.categories!.sort(sortByName);
     populateArchives(g.receipts!);
   });
 
-  return groups;
+  return res;
 }
