@@ -42,7 +42,7 @@ const id = integer().primaryKey();
 const revisionId = integer()
   .notNull()
   .references(() => revisions.id, { onDelete: "cascade" });
-const statusId = integer().notNull().default(0);
+const statusId = integer().notNull().default(1);
 
 const userId = integer()
   .notNull()
