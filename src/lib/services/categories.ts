@@ -63,7 +63,7 @@ export async function updateCategory(
 
       const saving = await updater(cat, modifier, {
         tx,
-        tableName: "Category",
+        tableName: "categories",
         revisionId,
         entityPk1: id,
       });

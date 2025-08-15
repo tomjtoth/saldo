@@ -125,7 +125,7 @@ export async function updateGroup(
 
       const saving = await updater(group, modifier, {
         tx,
-        tableName: "Group",
+        tableName: "groups",
         entityPk1: groupId,
         revisionId,
         skipArchivalOf: ["uuid"],

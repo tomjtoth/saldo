@@ -24,7 +24,7 @@ export async function updateMembership(
 
       const saving = await updater(ms, modifier, {
         tx,
-        tableName: "Membership",
+        tableName: "memberships",
         entityPk1: userId,
         entityPk2: groupId,
         revisionId,
