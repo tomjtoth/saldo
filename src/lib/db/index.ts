@@ -26,19 +26,18 @@ export type DrizzleTx = SQLiteTransaction<
 >;
 
 type TblCtx<ColName extends string> = { [K in ColName]: SQLiteColumn };
-type SqlCtx = { sql: typeof sql };
 
-export const orderByLowerName = (table: TblCtx<"name">, { sql }: SqlCtx) =>
+export const orderByLowerName = (table: TblCtx<"name">) =>
   sql`lower(${table.name})`;
 
-export const colActive = (t: TblCtx<"statusId">, o: SqlCtx) => ({
-  active: isActive(t, o).as("active"),
+export const colActive = (t: TblCtx<"statusId">) => ({
+  active: isActive(t).as("active"),
 });
 
-const bitFlagCheck =
-  (flag: number) =>
-  (table: TblCtx<"statusId">, { sql }: SqlCtx) =>
-    sql<boolean>`${table.statusId} & ${flag} = ${flag}`;
+const bitFlagCheck = (flag: number) => (table: TblCtx<"statusId">) =>
+  sql<boolean>`${table.statusId} & ${sql.raw(flag.toString())} = ${sql.raw(
+    flag.toString()
+  )}`;
 
 export const isActive = bitFlagCheck(1);
 export const isAdmin = bitFlagCheck(2);
