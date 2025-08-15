@@ -50,7 +50,7 @@ export async function createGroup(
 
       return await tx.query.groups.findFirst({
         ...COLS_WITH,
-        where: (t, o) => o.eq(t.id, groupId),
+        where: eq(groups.id, groupId),
       });
     }
   );
@@ -132,11 +132,11 @@ export async function updateGroup(
       });
 
       if (saving) {
-        await tx.update(groups).set(group);
+        await tx.update(groups).set(group).where(eq(groups.id, group.id));
 
         const res = (await tx.query.groups.findFirst({
           ...COLS_WITH,
-          where: (t, o) => o.eq(t.id, groupId),
+          where: eq(groups.id, groupId),
         })) as TGroup;
 
         res.memberships!.sort((a, b) => sortByName(a.user!, b.user!));
