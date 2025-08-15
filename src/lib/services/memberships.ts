@@ -30,8 +30,8 @@ export async function updateMembership(
         revisionId,
       });
 
-      if (saving)
-        return await tx
+      if (saving) {
+        const [res] = await tx
           .update(memberships)
           .set(ms)
           .where(
@@ -41,7 +41,9 @@ export async function updateMembership(
             )
           )
           .returning({ statusId: memberships.statusId });
-      else err("No changes were made");
+
+        return res;
+      } else err("No changes were made");
     }
   );
 }
