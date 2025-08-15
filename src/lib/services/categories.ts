@@ -85,7 +85,7 @@ export async function updateCategory(
       })) as TCategory;
 
       const populateArchives = await getArchivePopulator<TCategory>(
-        "Category",
+        "categories",
         "id",
         { tx }
       );
@@ -165,7 +165,7 @@ export async function getCategories(userId: number) {
   })) as TGroup[];
 
   const populateArchives = await getArchivePopulator<TCategory>(
-    "Category",
+    "categories",
     "id"
   );
 

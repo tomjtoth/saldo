@@ -129,7 +129,10 @@ export async function getReceipts(userId: number, knownIds: number[] = []) {
     orderBy: (t, op) => op.sql`lower(${t.name})`,
   })) as TGroup[];
 
-  const populateArchives = await getArchivePopulator<TReceipt>("Receipt", "id");
+  const populateArchives = await getArchivePopulator<TReceipt>(
+    "receipts",
+    "id"
+  );
 
   groups.sort(sortByName);
   groups.forEach((g) => {
