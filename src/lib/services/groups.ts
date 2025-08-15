@@ -90,7 +90,7 @@ export async function getGroups(userId: number) {
     ...COLS_WITH,
     where: exists(
       db
-        .select({ userId: memberships.userId })
+        .select({ x: sql`1` })
         .from(memberships)
         .where(
           and(

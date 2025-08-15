@@ -117,10 +117,10 @@ export async function getReceipts(userId: number, knownIds: number[] = []) {
         orderBy: (t, op) => op.desc(t.paidOn),
       },
     },
-    where: (t, { exists, eq, and }) =>
+    where: (t, { exists, eq, and, sql }) =>
       exists(
         db
-          .select()
+          .select({ x: sql`1` })
           .from(memberships)
           .where(
             and(eq(memberships.groupId, t.id), eq(memberships.userId, userId))

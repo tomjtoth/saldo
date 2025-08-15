@@ -104,7 +104,7 @@ export async function userAccessToCat(userId: number, catId: number) {
       eq(categories.id, catId),
       exists(
         db
-          .select({ userId: memberships.userId })
+          .select({ x: sql`1` })
           .from(memberships)
           .where(
             and(
@@ -150,7 +150,7 @@ export async function getCategories(userId: number) {
       sql`${groups.statusId} & 1 = 1`,
       exists(
         db
-          .select({ id: sql`1` })
+          .select({ x: sql`1` })
           .from(memberships)
           .where(
             and(
