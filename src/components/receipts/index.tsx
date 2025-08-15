@@ -32,7 +32,7 @@ export default function CliReceiptsPage() {
       )}
 
       <div className="p-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 justify-evenly items-center gap-2">
-        {rs.groups.length == 0 ? null : (
+        {rs.groups.length === 0 ? null : (
           <>
             {rs.group()?.receipts?.map((rcpt) => (
               <div

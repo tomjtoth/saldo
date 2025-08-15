@@ -78,7 +78,7 @@ export default function ItemShareAvatar({
             type="number"
             placeholder="N+1"
             min={0}
-            value={value == 0 ? "" : value}
+            value={value === 0 ? "" : value}
             onChange={onChange}
             className="no-spinner absolute -bottom-2 -right-2 w-10 h-10 rounded-full! text-center bg-background border"
           />

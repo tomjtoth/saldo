@@ -72,7 +72,7 @@ export async function atomic<T>(
       return res;
     });
 
-    if (revisionId % DB_BACKUP_EVERY_N_REVISIONS == 0) {
+    if (revisionId % DB_BACKUP_EVERY_N_REVISIONS === 0) {
       // TODO:
       // db.backup(`${DB_PATH}.backup.${rev.id}`);
     }

@@ -6,7 +6,7 @@ import { TCategory } from "@/lib/db";
 import { Dispatch, SetStateAction } from "react";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
-  if (value == 0.5) return [1, 2];
+  if (value === 0.5) return [1, 2];
 
   let bestNumerator = 1;
   let bestDenominator = 1;

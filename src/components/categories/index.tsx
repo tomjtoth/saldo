@@ -81,7 +81,7 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
         {group?.categories?.map((cat) => (
-          <Entry key={cat.id} cat={cat} preSelected={srv.catId == cat.id} />
+          <Entry key={cat.id} cat={cat} preSelected={srv.catId === cat.id} />
         ))}
       </div>
     </>
