@@ -31,7 +31,7 @@ WITH by_changes AS (
         json_insert(
             json_group_object("names".column_name, "payload"),
             '$.revision', json_object(
-                'createdAtInt', r.created_at,
+                'createdAt', r.created_at,
                 'createdBy', json_object('name', u.name )
             ),
             '$.revisionId', a.revision_id

@@ -1,5 +1,9 @@
 import { sql } from "drizzle-orm";
+
 import { db, DrizzleTx } from ".";
+import { datetimeFromInt } from "../utils";
+
+type DateTimeConverter = { revision?: { createdAt: number | string } };
 
 export async function getArchivePopulator<T extends { archives?: T[] }>(
   tableName: string,
@@ -60,6 +64,12 @@ export async function getArchivePopulator<T extends { archives?: T[] }>(
       if (archives[strPk1]) {
         archives[strPk1][strPk2].reduce((prev, rev) => {
           const curr = { ...prev, ...rev } as T;
+
+          if ((curr as DateTimeConverter).revision?.createdAt) {
+            (curr as DateTimeConverter).revision!.createdAt = datetimeFromInt(
+              (curr as DateTimeConverter).revision!.createdAt as number
+            );
+          }
 
           restoredArchiveRows.push(curr);
 
