@@ -40,8 +40,8 @@ export async function updater<T extends { revisionId: number }>(
   const createArchive = entries.length > 0;
 
   if (createArchive) {
-    const tableColumnIds = await tx.all<{ columnName: string; id: bigint }>(
-      sql`SELECT id, columnName FROM tableColumnNames WHERE tableName = ${tableName};`
+    const tableColumnIds = await tx.all<{ columnName: string; id: number }>(
+      sql`SELECT id, column_name AS columnName FROM table_column_names WHERE table_name = ${tableName};`
     );
 
     const tciAccessor = Object.fromEntries(
@@ -62,37 +62,38 @@ export async function updater<T extends { revisionId: number }>(
       }
 
       const query = `
-        INSERT INTO "metadata" (name, payload) SELECT 'tableColumnIds', json_array(${insertArgs.join(
+        INSERT INTO "metadata" (name, payload) SELECT 'table_column_ids', json_array(${insertArgs.join(
           ", "
         )})
         ON CONFLICT DO UPDATE SET payload = json_insert(payload, ${updateArgs.join(
           ", "
         )}) 
-        WHERE name = "tableColumnIds" RETURNING json_array_length(payload) - 1 AS lastId
+        WHERE name = 'table_column_ids' RETURNING json_array_length(payload) - 1 AS lastId
       `;
 
       const [{ lastId }] = await tx.all<{
-        lastId: bigint;
+        lastId: number;
       }>(query);
 
       colNamesToInsert.forEach(([col], idx) => {
-        tciAccessor[col] = lastId - BigInt(idx);
+        tciAccessor[col] = lastId - idx;
       });
     }
 
-    const values = entries.map(([col, val]) =>
-      sql.raw(`(
-        ${tciAccessor[col]},
-        ${entityPk1},
-        ${entityPk2 ?? null},
-        ${original.revisionId},
-        ${val}
-      )`)
+    const values = entries.map(
+      ([col, val]) =>
+        sql`(
+          ${tciAccessor[col]},
+          ${entityPk1},
+          ${entityPk2 ?? null},
+          ${original.revisionId},
+          ${val}
+        )`
     );
 
     await tx.run(sql`
       INSERT INTO "archives" ("table_column_id", "entity_pk1", "entity_pk2", "revision_id", "payload")
-      VALUES ${sql.join(values)}
+      VALUES ${sql.join(values, sql`,`)}
     `);
 
     original.revisionId = revisionId!;
