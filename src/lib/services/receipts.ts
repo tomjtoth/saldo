@@ -58,7 +58,7 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
             revisionId,
             categoryId,
             cost: parseFloat(cost),
-            notes,
+            notes: notes === "" ? null : notes,
           }))
         )
         .returning({ id: items.id });
