@@ -49,15 +49,17 @@ export default function Adder() {
       return toast.error("Invalid item cost", appToast.theme());
     }
 
+    const groupId = rs.groupId;
+
     appToast.promise(
       sendJSON("/api/receipts", {
         ...currReceipt,
-        groupId: rs.groupId,
+        groupId,
       }).then(async (res) => {
         if (!res.ok) err(res.statusText);
 
         const body = await res.json();
-        dispatch(red.addReceipt(body));
+        dispatch(red.addReceipt({ ...body, groupId }));
       }),
       "Submitting new receipt"
     );
