@@ -22,7 +22,7 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@libsql/client": "^0.15.10",
+    "@libsql/client": "^0.15.11",
     "@reduxjs/toolkit": "^2.8.2",
     "csv-parser": "^3.0.0",
     "drizzle-orm": "^0.44.4",
