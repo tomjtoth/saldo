@@ -58,16 +58,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
   const dd = {
     revisions: [],
     users: [],
-    groups: [
-      {
-        id: 1,
-        name: "imported from V3",
-        revisionId: 1,
-        statusId: 0,
-        description: null,
-        uuid: null,
-      },
-    ],
+    groups: [{ id: 1, name: "imported from V3", revisionId: 1 }],
     memberships: [],
     categories: [],
     receipts: [],
@@ -104,18 +95,13 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
         id: dd.users.length + 1,
         revisionId,
         name: user,
-        image: null,
         email: user + "@just.imported",
-        defaultGroupId: null,
-        statusId: 0,
       };
 
       dd.memberships.push({
         groupId: 1,
         userId: u.id!,
         revisionId: 1,
-        statusId: 0,
-        defaultCategoryId: null,
       });
 
       return dd.users.push(u);
@@ -149,7 +135,6 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
         groupId: 1,
         paidOn,
         paidById,
-        statusId: 0,
       };
       dd.receipts.push(lastRcpt);
     }
@@ -163,8 +148,6 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
         revisionId,
         groupId: 1,
         name: strCategory,
-        statusId: 0,
-        description: null,
       };
       dd.categories.push(cat);
     }
@@ -177,7 +160,6 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
     const itemId = dd.items.push({
       id: dd.items.length + 1,
-      statusId: 0,
       revisionId,
       receiptId,
       categoryId,
@@ -190,7 +172,6 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     if (!((paidById === 1 && ratio === 1) || (paidById > 1 && ratio === 0))) {
       if (paidById === 1 && ratio === 0) {
         dd.itemShares.push({
-          statusId: 0,
           itemId,
           userId,
           revisionId,
@@ -200,7 +181,6 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
       if (paidById >= 2 && ratio === 1) {
         dd.itemShares.push({
-          statusId: 0,
           itemId,
           userId: 1,
           revisionId,
@@ -213,14 +193,12 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
         dd.itemShares.push(
           {
-            statusId: 0,
             itemId,
             userId: 1,
             revisionId,
             share: user1_share,
           },
           {
-            statusId: 0,
             itemId,
             userId: userId > 1 ? userId : paidById,
             revisionId,
