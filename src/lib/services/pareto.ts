@@ -34,12 +34,12 @@ export async function getPareto(
         u.name AS user,
         sum(share) AS total
       FROM "memberships" ms
-      INNER JOIN consumption con ON ms.group_id = con.groupId
-      INNER JOIN "categories" cats ON con.categoryId = cats.id
-      INNER JOIN "users" u ON u.id = con.paidTo
-      INNER JOIN "groups" g ON g.id = con.groupId
+      INNER JOIN consumption con ON ms.group_id = con.group_id
+      INNER JOIN "categories" cats ON con.category_id = cats.id
+      INNER JOIN "users" u ON u.id = con.paid_to
+      INNER JOIN "groups" g ON g.id = con.group_id
       WHERE ms.user_id = ${userId} ${sql.raw(`${from} ${to}`)}
-      GROUP BY g.id, paidTo, categoryId
+      GROUP BY g.id, paid_to, category_id
     ),
 
     one_category_per_row AS (

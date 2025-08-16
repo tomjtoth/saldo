@@ -3,10 +3,10 @@ SELECT
   r.group_id,
   r.paid_on,
   r.paid_by,
-  COALESCE (sh.user_id, r.paid_by) AS paid_to,
+  coalesce(sh.user_id, r.paid_by) AS paid_to,
   i.id AS item_id,
   i.category_id,
-  cost / 100.0 * COALESCE (share * 1.0 / SUM (share) OVER (PARTITION BY i.id), 1) AS share
+  cost / 100.0 * coalesce(share * 1.0 / sum(share) OVER (PARTITION BY i.id), 1) AS share
 FROM receipts r
 INNER JOIN items i ON r.id = i.receipt_id
 LEFT JOIN item_shares sh ON (sh.item_id = i.id AND sh.status_id = 1)
