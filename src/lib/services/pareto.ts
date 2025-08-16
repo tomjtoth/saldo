@@ -86,6 +86,7 @@ export async function getPareto(
       FROM categories_in_array_per_row s3
       LEFT JOIN sums_per_row s1 ON s1.gid = s3.gid
       GROUP BY s3.gid
+      ORDER BY s3.gName
     )
 
     -- all groups in 1 array
