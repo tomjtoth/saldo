@@ -30,6 +30,6 @@ describe("datetimeFunctions", () => {
   it("convert 31*24*60*60 properly to '2020-02-01'", () => {
     const dt = datetimeFromInt(31 * 24 * 60 * 60);
 
-    expect(dt).toEqual("2020-02-01T00:00:00.000+02:00");
+    expect(dt).toEqual("2020-02-01 00:00:00");
   });
 });
