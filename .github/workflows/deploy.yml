@@ -25,7 +25,6 @@ jobs:
       - name: Install node_modules, lint and build
         run: |
           npm install
-          npm run prisma-gen
           npm run lint
           npm run build
 

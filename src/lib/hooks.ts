@@ -35,7 +35,7 @@ export const useGroupSelector = () => {
     groups,
     groupId,
 
-    // TODO: change this to a getter too, once migration to Prisma is done
+    // TODO: change this to a getter too, once ORM swap is concluded
     group,
 
     get users() {
