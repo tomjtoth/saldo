@@ -52,6 +52,7 @@
     "cypress": "^14.4.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
+    "eslint-plugin-chai-friendly": "^1.1.0",
     "jsdom": "^26.1.0",
     "start-server-and-test": "^2.0.12",
     "tailwindcss": "^4",
