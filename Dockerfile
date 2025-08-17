@@ -37,12 +37,10 @@ COPY --from=builder /app/migrations ./migrations
 ARG GIT_HASH
 ENV GIT_HASH=${GIT_HASH} \
     NODE_ENV=production \
-    MIGRATE=true \
     DATABASE_URL=file:data/prod.db
 
 USER nextjs
 
 EXPOSE 3000
 
-# Run migrations and then start the app
 CMD ["node", "server.js"]

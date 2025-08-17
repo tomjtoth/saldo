@@ -2,7 +2,10 @@
 // must be compatible with the edge runtime
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs" && process.env.MIGRATE === "true") {
+  if (
+    process.env.NEXT_RUNTIME === "nodejs" &&
+    (process.env.NODE_ENV === "production" || process.env.MIGRATE === "true")
+  ) {
     const TAB = "\t";
     const LF = "\n\n";
 
