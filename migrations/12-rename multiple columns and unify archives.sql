@@ -1,11 +1,11 @@
-ALTER TABLE "revisions" RENAME TO "old_revisions";
-ALTER TABLE "users" RENAME TO "old_users";
-ALTER TABLE "groups" RENAME TO "old_groups";
-ALTER TABLE "memberships" RENAME TO "old_memberships";
-ALTER TABLE "categories" RENAME TO "old_categories";
-ALTER TABLE "receipts" RENAME TO "old_receipts";
-ALTER TABLE "items" RENAME TO "old_items";
-ALTER TABLE "item_shares" RENAME TO "old_item_shares";
+ALTER TABLE revisions RENAME TO old_revisions;
+ALTER TABLE users RENAME TO old_users;
+ALTER TABLE groups RENAME TO old_groups;
+ALTER TABLE memberships RENAME TO old_memberships;
+ALTER TABLE categories RENAME TO old_categories;
+ALTER TABLE receipts RENAME TO old_receipts;
+ALTER TABLE items RENAME TO old_items;
+ALTER TABLE item_shares RENAME TO old_item_shares;
 
 
 
@@ -15,101 +15,101 @@ ALTER TABLE "item_shares" RENAME TO "old_item_shares";
 
 
 
-CREATE TABLE "archives" (
-    "id" INTEGER PRIMARY KEY,
+CREATE TABLE archives (
+    id INTEGER PRIMARY KEY,
 
     -- REFERENCES the column of a table stored in metadata.payload
-    "table_column_id" INTEGER NOT NULL,
+    table_column_id INTEGER NOT NULL,
 
     -- REFERENCES 1st/only PK of a table
-    "entity_pk1" INTEGER NOT NULL,
+    entity_pk1 INTEGER NOT NULL,
 
     -- REFERENCES the 2nd PK of a table
-    "entity_pk2" INTEGER,
-    "revision_id" INTEGER NOT NULL REFERENCES "revisions" ("id") ON DELETE CASCADE,
-    "payload" BLOB -- TEXT | INTEGER
+    entity_pk2 INTEGER,
+    revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
+    payload BLOB -- TEXT | INTEGER
 );
 
-CREATE INDEX "idx_archives_entity" ON "archives" ("table_column_id", "entity_pk1", "entity_pk2");
+CREATE INDEX idx_archives_entity ON archives (table_column_id, entity_pk1, entity_pk2);
 
-CREATE TABLE "revisions" (
-    "id" INTEGER PRIMARY KEY,
-    "created_at" INTEGER NOT NULL,
-    "created_by" INTEGER NOT NULL REFERENCES "users" ("id") DEFERRABLE INITIALLY DEFERRED
+CREATE TABLE revisions (
+    id INTEGER PRIMARY KEY,
+    created_at INTEGER NOT NULL,
+    created_by INTEGER NOT NULL REFERENCES users (id) DEFERRABLE INITIALLY DEFERRED
 );
 
-CREATE TABLE "users" (
-    "id" INTEGER PRIMARY KEY,
-    "revision_id" INTEGER NOT NULL REFERENCES "revisions" ("id") ON DELETE CASCADE,
-    "status_id" INTEGER NOT NULL DEFAULT (1),
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
+    status_id INTEGER NOT NULL DEFAULT (1),
 
-    "email" TEXT NOT NULL UNIQUE,
+    email TEXT NOT NULL UNIQUE,
     "name" TEXT,
     "image" TEXT,
-    "default_group_id" INTEGER REFERENCES "groups" ("id")
+    default_group_id INTEGER REFERENCES groups (id)
 );
 
-CREATE TABLE "groups" (
-    "id" INTEGER PRIMARY KEY,
-    "revision_id" INTEGER NOT NULL REFERENCES "revisions" ("id") ON DELETE CASCADE,
-    "status_id" INTEGER NOT NULL DEFAULT (1),
+CREATE TABLE groups (
+    id INTEGER PRIMARY KEY,
+    revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
+    status_id INTEGER NOT NULL DEFAULT (1),
 
     "name" TEXT NOT NULL,
     "description" TEXT,
-    "uuid" TEXT
+    uuid TEXT
 );
 
-CREATE TABLE "memberships" (
-    "user_id" INTEGER REFERENCES "users" ("id"),
-    "group_id" INTEGER REFERENCES "groups" ("id"),
-    "revision_id" INTEGER NOT NULL REFERENCES "revisions" ("id") ON DELETE CASCADE,
-    "status_id" INTEGER NOT NULL DEFAULT (1),
-    "default_category_id" INTEGER REFERENCES "categories" ("id"),
+CREATE TABLE memberships (
+    user_id INTEGER REFERENCES users (id),
+    group_id INTEGER REFERENCES groups (id),
+    revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
+    status_id INTEGER NOT NULL DEFAULT (1),
+    default_category_id INTEGER REFERENCES categories (id),
 
-    PRIMARY KEY ("user_id", "group_id")
+    PRIMARY KEY (user_id, group_id)
 ) WITHOUT ROWID;
 
-CREATE TABLE "categories" (
-    "id" INTEGER PRIMARY KEY,
-    "revision_id" INTEGER NOT NULL REFERENCES "revisions" ("id") ON DELETE CASCADE,
-    "status_id" INTEGER NOT NULL DEFAULT (1),
+CREATE TABLE categories (
+    id INTEGER PRIMARY KEY,
+    revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
+    status_id INTEGER NOT NULL DEFAULT (1),
 
-    "group_id" INTEGER REFERENCES "groups" ("id"),
+    group_id INTEGER REFERENCES groups (id),
     "name" TEXT,
     "description" TEXT
 );
 
-CREATE TABLE "receipts" (
-    "id" INTEGER PRIMARY KEY,
-    "revision_id" INTEGER NOT NULL REFERENCES "revisions" ("id") ON DELETE CASCADE,
-    "status_id" INTEGER NOT NULL DEFAULT (1),
+CREATE TABLE receipts (
+    id INTEGER PRIMARY KEY,
+    revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
+    status_id INTEGER NOT NULL DEFAULT (1),
 
-    "group_id" INTEGER REFERENCES "groups" ("id"),
-    "paid_by" INTEGER REFERENCES "users" ("id"),
-    "paid_on" INTEGER
+    group_id INTEGER REFERENCES groups (id),
+    paid_by INTEGER REFERENCES users (id),
+    paid_on INTEGER
 );
 
-CREATE TABLE "items" (
-    "id" INTEGER PRIMARY KEY,
-    "revision_id" INTEGER NOT NULL REFERENCES "revisions" ("id") ON DELETE CASCADE,
-    "status_id" INTEGER NOT NULL DEFAULT (1),
+CREATE TABLE items (
+    id INTEGER PRIMARY KEY,
+    revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
+    status_id INTEGER NOT NULL DEFAULT (1),
 
-    "receipt_id" INTEGER REFERENCES "receipts" ("id"),
-    "category_id" INTEGER REFERENCES "categories" ("id"),
+    receipt_id INTEGER REFERENCES receipts (id),
+    category_id INTEGER REFERENCES categories (id),
 
-    "cost" INTEGER NOT NULL,
-    "notes" TEXT
+    cost INTEGER NOT NULL,
+    notes TEXT
 );
 
-CREATE TABLE "item_shares" (
-    "item_id" INTEGER REFERENCES "items" ("id"),
-    "user_id" INTEGER REFERENCES "users" ("id"),
-    "revision_id" INTEGER NOT NULL REFERENCES "revisions" ("id") ON DELETE CASCADE,
-    "status_id" INTEGER NOT NULL DEFAULT (1),
+CREATE TABLE item_shares (
+    item_id INTEGER REFERENCES items (id),
+    user_id INTEGER REFERENCES users (id),
+    revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
+    status_id INTEGER NOT NULL DEFAULT (1),
 
-    "share" INTEGER NOT NULL,
+    share INTEGER NOT NULL,
 
-    PRIMARY KEY ("item_id", "user_id")
+    PRIMARY KEY (item_id, user_id)
 ) WITHOUT ROWID;
 
 
@@ -138,83 +138,83 @@ INSERT INTO "metadata" ("name", "description", "payload")
             'memberships.statusId', 'memberships.defaultCategoryId'
         );
 
-INSERT INTO "archives" ("entity_pk1", "entity_pk2", "revision_id", "table_column_id", "payload")
-    SELECT "id", NULL, "rev_id", 2, iif("status_id" = 2, 0, 1) FROM "categories_archive"
+INSERT INTO archives (entity_pk1, entity_pk2, revision_id, table_column_id, payload)
+    SELECT id, NULL, rev_id, 2, iif(status_id = 2, 0, 1) FROM categories_archive
     UNION
-    SELECT "id", NULL, "rev_id", 3, "group_id" FROM "categories_archive"
+    SELECT id, NULL, rev_id, 3, group_id FROM categories_archive
     UNION
-    SELECT "id", NULL, "rev_id", 0, "name" FROM "categories_archive"
+    SELECT id, NULL, rev_id, 0, "name" FROM categories_archive
     UNION
-    SELECT "id", NULL, "rev_id", 1, "description" FROM "categories_archive"
+    SELECT id, NULL, rev_id, 1, "description" FROM categories_archive
     UNION
-    SELECT "id", NULL, "rev_id", 6, iif("status_id" = 2, 0, 1) FROM "groups_archive"
+    SELECT id, NULL, rev_id, 6, iif(status_id = 2, 0, 1) FROM groups_archive
     UNION
-    SELECT "id", NULL, "rev_id", 4, "name" FROM "groups_archive"
+    SELECT id, NULL, rev_id, 4, "name" FROM groups_archive
     UNION
-    SELECT "id", NULL, "rev_id", 5, "description" FROM "groups_archive"
+    SELECT id, NULL, rev_id, 5, "description" FROM groups_archive
     UNION
-    SELECT "id", NULL, "rev_id", 7, "uuid" FROM "groups_archive"
+    SELECT id, NULL, rev_id, 7, uuid FROM groups_archive
     UNION
-    SELECT "group_id", "user_id", "rev_id", 8, iif("status_id" = 2, 0, 1) + 2 * "admin" FROM "memberships_archive"
+    SELECT group_id, user_id, rev_id, 8, iif(status_id = 2, 0, 1) + 2 * "admin" FROM memberships_archive
     UNION
-    SELECT "group_id", "user_id", "rev_id", 9, "default_cat_id" FROM "memberships_archive";
+    SELECT group_id, user_id, rev_id, 9, default_cat_id FROM memberships_archive;
 
-INSERT INTO "revisions" ("id", "created_at", "created_by")
-    SELECT "id", "rev_on", "rev_by" FROM "OLD_REVISIONS";
+INSERT INTO revisions (id, created_at, created_by)
+    SELECT id, rev_on, rev_by FROM OLD_REVISIONS;
 
-INSERT INTO "users" ("id", "revision_id", "status_id", "email", "name", "image", "default_group_id")
+INSERT INTO users (id, revision_id, status_id, email, "name", "image", default_group_id)
     SELECT
-        "id",
-        "rev_id",
-        iif("status_id" = 2, 0, 1),
-        "email",
+        id,
+        rev_id,
+        iif(status_id = 2, 0, 1),
+        email,
         iif("name" = '', NULL, "name"),
         iif("image" = '', NULL, "image"),
-        "default_group_id"
-    FROM "OLD_USERS";
+        default_group_id
+    FROM OLD_USERS;
 
-INSERT INTO "groups" ("id", "revision_id", "status_id", "name", "description", "uuid")
+INSERT INTO groups (id, revision_id, status_id, "name", "description", uuid)
     SELECT
-        "id",
-        "rev_id",
-        iif("status_id" = 2, 0, 1),
+        id,
+        rev_id,
+        iif(status_id = 2, 0, 1),
         "name",
         iif("description" = '', NULL, "description"),
-        "uuid"
-    FROM "OLD_GROUPS";
+        uuid
+    FROM OLD_GROUPS;
 
-INSERT INTO "memberships" ("group_id", "user_id", "revision_id", "status_id", "default_category_id")
-    SELECT "group_id", "user_id", "rev_id",  iif("status_id" = 2, 0, 1) + 2 * "admin", "default_cat_id"
-    FROM "OLD_MEMBERSHIPS";
+INSERT INTO memberships (group_id, user_id, revision_id, status_id, default_category_id)
+    SELECT group_id, user_id, rev_id,  iif(status_id = 2, 0, 1) + 2 * "admin", default_cat_id
+    FROM OLD_MEMBERSHIPS;
 
-INSERT INTO "categories" ("id", "revision_id", "status_id", "group_id", "name", "description")
+INSERT INTO categories (id, revision_id, status_id, group_id, "name", "description")
     SELECT
-        "id",
-        "rev_id",
-        iif("status_id" = 2, 0, 1),
-        "group_id",
+        id,
+        rev_id,
+        iif(status_id = 2, 0, 1),
+        group_id,
         "name",
         iif("description" = '', NULL, "description")
-    FROM "OLD_CATEGORIES";
+    FROM OLD_CATEGORIES;
 
-INSERT INTO "receipts" ("id", "revision_id", "status_id", "group_id", "paid_on", "paid_by")
-    SELECT "id", "rev_id", iif("status_id" = 2, 0, 1), "group_id", "paid_on", "paid_by"
-    FROM "OLD_RECEIPTS";
+INSERT INTO receipts (id, revision_id, status_id, group_id, paid_on, paid_by)
+    SELECT id, rev_id, iif(status_id = 2, 0, 1), group_id, paid_on, paid_by
+    FROM OLD_RECEIPTS;
 
-INSERT INTO "items" ("id", "revision_id", "status_id", "receipt_id", "category_id", "cost", "notes")
+INSERT INTO items (id, revision_id, status_id, receipt_id, category_id, cost, notes)
     SELECT
-        "id",
-        "rev_id",
-        iif("status_id" = 2, 0, 1),
-        "rcpt_id",
-        "cat_id",
-        "cost",
-        iif("notes" = '', NULL, "notes")
-    FROM "OLD_ITEMS";
+        id,
+        rev_id,
+        iif(status_id = 2, 0, 1),
+        rcpt_id,
+        cat_id,
+        cost,
+        iif(notes = '', NULL, notes)
+    FROM OLD_ITEMS;
 
-INSERT INTO "item_shares" ("item_id", "user_id", "revision_id", "status_id", "share")
-    SELECT "item_id", "user_id", "rev_id", iif("status_id" = 2, 0, 1), "share"
-    FROM "OLD_ITEM_SHARES";
+INSERT INTO item_shares (item_id, user_id, revision_id, status_id, share)
+    SELECT item_id, user_id, rev_id, iif(status_id = 2, 0, 1), share
+    FROM OLD_ITEM_SHARES;
 
 
 
@@ -222,22 +222,22 @@ INSERT INTO "item_shares" ("item_id", "user_id", "revision_id", "status_id", "sh
 
 
 
-DROP TABLE "OLD_REVISIONS";
-DROP TABLE "OLD_USERS";
-DROP TABLE "OLD_GROUPS";
-DROP TABLE "OLD_MEMBERSHIPS";
-DROP TABLE "OLD_CATEGORIES";
-DROP TABLE "OLD_RECEIPTS";
-DROP TABLE "OLD_ITEMS";
-DROP TABLE "OLD_ITEM_SHARES";
+DROP TABLE OLD_REVISIONS;
+DROP TABLE OLD_USERS;
+DROP TABLE OLD_GROUPS;
+DROP TABLE OLD_MEMBERSHIPS;
+DROP TABLE OLD_CATEGORIES;
+DROP TABLE OLD_RECEIPTS;
+DROP TABLE OLD_ITEMS;
+DROP TABLE OLD_ITEM_SHARES;
 
-DROP TABLE "users_archive";
-DROP TABLE "groups_archive";
-DROP TABLE "memberships_archive";
-DROP TABLE "categories_archive";
-DROP TABLE "receipts_archive";
-DROP TABLE "items_archive";
-DROP TABLE "item_shares_archive";
+DROP TABLE users_archive;
+DROP TABLE groups_archive;
+DROP TABLE memberships_archive;
+DROP TABLE categories_archive;
+DROP TABLE receipts_archive;
+DROP TABLE items_archive;
+DROP TABLE item_shares_archive;
 
-DROP VIEW "consumption";
+DROP VIEW consumption;
 
