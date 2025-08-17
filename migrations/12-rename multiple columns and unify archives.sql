@@ -245,3 +245,10 @@ DROP TABLE item_shares_archive;
 
 DROP VIEW consumption;
 
+
+----------
+-- DOWN --
+----------
+
+
+SELECT 'this was a one-way trip, sry'

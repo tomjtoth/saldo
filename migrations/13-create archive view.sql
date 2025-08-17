@@ -66,3 +66,15 @@ SELECT
     table_name AS tableName, 
     concat('{', group_concat(payload), '}') AS payload
 FROM by_pk1 GROUP BY table_name
+
+
+
+----------
+-- DOWN --
+----------
+
+
+
+DROP VIEW consumption;
+DROP VIEW table_column_names;
+DROP VIEW vw_archives;
