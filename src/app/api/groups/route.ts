@@ -3,18 +3,23 @@ import { v4 as uuid } from "uuid";
 import { eq } from "drizzle-orm";
 
 import { db, TGroup } from "@/lib/db";
-import { createGroup, updateGroup } from "@/lib/services/groups";
 import { users } from "@/lib/db/schema";
 import { err, nullEmptyStrings } from "@/lib/utils";
+import { createGroup, updateGroup } from "@/lib/services/groups";
 
 export const POST = protectedRoute(async (req: ReqWithUser) => {
-  const data: Pick<TGroup, "name" | "description"> = await req.json();
-  if (data?.name === undefined) return new Response(null, { status: 400 });
+  const { name, description }: Pick<TGroup, "name" | "description"> =
+    await req.json();
+  if (
+    typeof name !== "string" ||
+    (description !== null &&
+      !["string", "undefined"].includes(typeof description))
+  )
+    err();
 
-  const group = await createGroup(req.__user.id, {
-    name: data.name,
-    description: data.description,
-  });
+  const data = { name, description };
+
+  const group = await createGroup(req.__user.id, data);
 
   return Response.json(group);
 });
