@@ -1,3 +1,4 @@
+import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
 import { NextRequest } from "next/server";
 import { v4 as uuid } from "uuid";
 import { eq } from "drizzle-orm";
@@ -9,21 +10,17 @@ import { currentUser } from "@/lib/services/user";
 import { users } from "@/lib/db/schema";
 import { nullEmptyStrings } from "@/lib/utils";
 
-export async function POST(req: NextRequest) {
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
-
-  const data = (await req.json()) as Pick<TGroup, "name" | "description">;
+export const POST = protectedRoute(async (req: ReqWithUser) => {
+  const data: Pick<TGroup, "name" | "description"> = await req.json();
   if (data?.name === undefined) return new Response(null, { status: 400 });
 
-  const user = await currentUser(sess);
-  const group = await createGroup(user.id, {
+  const group = await createGroup(req.__user.id, {
     name: data.name,
     description: data.description,
   });
 
   return Response.json(group);
-}
+});
 
 type GroupUpdater = { id: number } & Pick<
   TGroup,
