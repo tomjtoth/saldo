@@ -6,6 +6,7 @@ import {
   datetimeToInt,
   dateToInt,
   EUROPE_HELSINKI,
+  nullEmptyStrings,
 } from ".";
 import { DateTime } from "luxon";
 
@@ -31,5 +32,21 @@ describe("datetimeFunctions", () => {
     const dt = datetimeFromInt(31 * 24 * 60 * 60);
 
     expect(dt).toEqual("2020-02-01 00:00:00");
+  });
+});
+
+describe("nullEmptyStrings", () => {
+  it("changes only empty strings", () => {
+    const before = { a: 1, b: "2", c: "", d: null, e: undefined };
+    const after = { ...before };
+    nullEmptyStrings(after);
+
+    expect(after).to.deep.equal({
+      a: 1,
+      b: "2",
+      c: null,
+      d: null,
+      e: undefined,
+    });
   });
 });
