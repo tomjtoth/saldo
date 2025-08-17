@@ -51,6 +51,39 @@ describe("status", () => {
     expect(status({ statusId: 2 }).admin).to.be.true;
     expect(status({ statusId: 3 }).admin).to.be.true;
   });
+
+  it("sets state correctly via setters", () => {
+    const obj = { statusId: 0 };
+
+    status(obj).active = true;
+    expect(obj.statusId).to.equal(1);
+
+    status(obj).admin = true;
+    expect(obj.statusId).to.equal(3);
+
+    status(obj).active = false;
+    expect(obj.statusId).to.equal(2);
+
+    status(obj).admin = false;
+    expect(obj.statusId).to.equal(0);
+  });
+
+  it("sets state via toggle + returns statusId correctly", () => {
+    const obj = { statusId: 0 };
+    let res: number;
+
+    res = status(obj).toggle("active");
+    expect(res).to.equal(obj.statusId).to.equal(1);
+
+    res = status(obj).toggle("admin");
+    expect(res).to.equal(obj.statusId).to.equal(3);
+
+    res = status(obj).toggle("active");
+    expect(res).to.equal(obj.statusId).to.equal(2);
+
+    res = status(obj).toggle("admin");
+    expect(res).to.equal(obj.statusId).to.equal(0);
+  });
 });
 
 describe("nullEmptyStrings", () => {
