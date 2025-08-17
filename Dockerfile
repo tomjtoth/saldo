@@ -7,9 +7,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Save sqlite3 version for final install
-RUN npm list sqlite3 | grep sqlite3 | awk 'END{print $2}' > SQLITE3
-
 # ----------------------------
 FROM base AS builder
 WORKDIR /app
@@ -23,11 +20,6 @@ RUN npm run build
 # ----------------------------
 FROM base AS runner
 WORKDIR /app
-
-# Restore sqlite3 manually
-COPY --from=deps /app/SQLITE3 ./
-RUN npm install $(cat SQLITE3)
-RUN rm SQLITE3
 
 # Create app user
 RUN addgroup --system --gid 1001 nodejs
