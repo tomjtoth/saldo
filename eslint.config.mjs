@@ -12,7 +12,6 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
-    plugins: ["chai-friendly"],
     rules: {
       "react-hooks/exhaustive-deps": "off",
     },
