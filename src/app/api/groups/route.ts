@@ -34,29 +34,44 @@ type GroupUpdater = { id: number } & Pick<
   };
 
 export const PUT = protectedRoute(async (req: ReqWithUser) => {
-  const { generateLink, removeLink, setAsDefault, ...data }: GroupUpdater =
-    await req.json();
+  const {
+    generateLink,
+    removeLink,
+    setAsDefault,
+    id,
+    statusId,
+    name,
+    description,
+  }: GroupUpdater = await req.json();
 
-  if (data.id === undefined || typeof data.id !== "number")
-    err("missing / NaN id");
+  if (
+    typeof id !== "number" ||
+    !["number", "undefined"].includes(typeof statusId) ||
+    !["string", "undefined"].includes(typeof name) ||
+    (description !== null &&
+      !["string", "undefined"].includes(typeof description))
+  )
+    err();
 
   if (setAsDefault) {
     await db
       .update(users)
-      .set({ defaultGroupId: data.id })
+      .set({ defaultGroupId: id })
       .where(eq(users.id, req.__user.id));
 
     return new Response(null, { status: 200 });
   }
 
+  const data = {
+    statusId,
+    name,
+    description,
+    uuid: generateLink ? uuid() : removeLink ? null : undefined,
+  };
+
   nullEmptyStrings(data);
 
-  const group = await updateGroup(req.__user.id, data.id, {
-    statusId: data.statusId,
-    name: data.name,
-    description: data.description,
-    uuid: generateLink ? uuid() : removeLink ? null : undefined,
-  });
+  const group = await updateGroup(req.__user.id, id, data);
 
   if (!group) return new Response(null, { status: 404 });
 
