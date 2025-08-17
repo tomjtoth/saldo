@@ -1,18 +1,16 @@
-import { NextRequest } from "next/server";
+import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
+import { has3ConsecutiveLetters, nullEmptyStrings } from "@/lib/utils";
 
-import { auth } from "@/auth";
-import { currentUser } from "@/lib/services/user";
+import { TCategory } from "@/lib/db";
 import {
   createCategory,
   TCategoryUpdater,
   updateCategory,
   userAccessToCat,
 } from "@/lib/services/categories";
-import { TCategory } from "@/lib/db";
 import { updateMembership } from "@/lib/services/memberships";
-import { nullEmptyStrings } from "@/lib/utils";
 
-export async function POST(req: NextRequest) {
+export const POST = protectedRoute(async (req: ReqWithUser) => {
   const data = (await req.json()) as Pick<
     TCategory,
     "name" | "groupId" | "description"
@@ -20,19 +18,17 @@ export async function POST(req: NextRequest) {
 
   if (data.name === undefined) return new Response(null, { status: 401 });
 
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
-  const user = await currentUser(sess);
-
+  has3ConsecutiveLetters(data.name);
   nullEmptyStrings(data);
 
-  const cat = await createCategory(user.id, {
+  const cat = await createCategory(req.__user.id, {
     groupId: data.groupId!,
     name: data.name,
     description: data.description,
   });
+
   return Response.json(cat);
-}
+});
 
 export async function PUT(req: NextRequest) {
   const sess = await auth();
