@@ -11,12 +11,15 @@ export { atomic } from "./atomic";
 export { updater } from "./updater";
 export { getArchivePopulator } from "./archives";
 
-export const db = drizzle({
-  connection: process.env.DATABASE_URL!,
-  schema,
-  casing: "snake_case",
-  logger: true,
-});
+export const db =
+  process.env.NODE_ENV === "test"
+    ? drizzle.mock({ schema })
+    : drizzle({
+        connection: process.env.DATABASE_URL!,
+        schema,
+        casing: "snake_case",
+        logger: true,
+      });
 
 export type DrizzleTx = SQLiteTransaction<
   "async",
