@@ -1,17 +1,12 @@
-import { auth } from "@/auth";
+import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
 import { getPareto } from "@/lib/services/pareto";
-import { currentUser } from "@/lib/services/user";
 
-export async function GET(req: Request) {
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
-
+export const GET = protectedRoute(async (req: ReqWithUser) => {
   const { searchParams } = new URL(req.url);
   const from = searchParams.get("from") ?? undefined;
   const to = searchParams.get("to") ?? undefined;
 
-  const user = await currentUser(sess);
-  const data = await getPareto(user.id, { from, to });
+  const data = await getPareto(req.__user.id, { from, to });
 
   return Response.json(data);
-}
+});
