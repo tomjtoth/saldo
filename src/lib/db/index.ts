@@ -21,6 +21,8 @@ export const db =
         logger: true,
       });
 
+export const truncateDb = () => db.delete(schema.revisions);
+
 export type DrizzleTx = SQLiteTransaction<
   "async",
   ResultSet,
