@@ -5,6 +5,10 @@
 
 A _Work in Progress_ multi-user expense tracker supporting `one-to-many` sharing of items. The current version of the app is deployed [here](https://saldo.ttj.hu).
 
+## Authentication
+
+Currently relying 100% on OAuth by `next-auth`, storing the returned profile's name, image and email, keeping the former 2 in sync.
+
 ## Database
 
 Custom `*.sql` migration files were handled originally by `Umzug` and now via a custom solution transactionally and with `PRAGMA foreign_keys = OFF`, but rolling back in case of violations (`PRAGMA foreign_key_check`).
