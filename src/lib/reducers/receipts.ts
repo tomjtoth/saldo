@@ -79,7 +79,7 @@ export const rReceipts = {
       curr.items.splice(
         idx + 1,
         0,
-        // inherit the upper row's categoryId
+        // inherit categoryId from the row above
         addItem(curr.items[idx].categoryId)
       );
     } else {
