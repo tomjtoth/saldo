@@ -73,7 +73,7 @@ export const PUT = protectedRoute(async (req: ReqWithUser) => {
 
   const group = await updateGroup(req.__user.id, id, data);
 
-  if (!group) return new Response(null, { status: 404 });
+  if (!group) err(404);
 
   return Response.json(group);
 });
