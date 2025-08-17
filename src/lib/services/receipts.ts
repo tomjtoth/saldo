@@ -11,7 +11,7 @@ import {
 } from "@/lib/db";
 import { groups, items, itemShares, memberships, receipts } from "../db/schema";
 import { TCliReceipt } from "../reducers";
-import { nulledEmptyStrings, sortByName } from "../utils";
+import { err, nulledEmptyStrings, sortByName } from "../utils";
 
 export type TReceiptInput = TCliReceipt & { groupId: number };
 
@@ -34,45 +34,59 @@ const RECEIPT_COLS_WITH = {
   },
 };
 
-export async function addReceipt(addedBy: number, data: TReceiptInput) {
+export async function addReceipt(
+  addedBy: number,
+  { groupId, paidOn, items: itemsCli, paidBy: paidById }: TReceiptInput
+) {
   return await atomic(
     { operation: "Adding receipt", revisedBy: addedBy },
     async (tx, revisionId) => {
       const [{ receiptId }] = await tx
         .insert(receipts)
-        .values({
-          groupId: data.groupId,
-          revisionId,
-          paidOn: data.paidOn,
-          paidById: data.paidBy,
-        })
+        .values({ groupId, revisionId, paidOn, paidById })
         .returning({ receiptId: receipts.id });
 
       const itemIds = await tx
         .insert(items)
         .values(
-          data.items.map(({ cost, categoryId, notes }) =>
-            nulledEmptyStrings({
+          itemsCli.map(({ cost: strCost, categoryId, notes }) => {
+            if (typeof categoryId !== "number")
+              err(`categoryId ${categoryId} is NaN`);
+
+            const cost = parseFloat(strCost);
+            if (isNaN(cost)) err(`cost ${strCost} is NaN`);
+
+            if (notes !== null && typeof notes !== "string")
+              err(`note "${notes}" is not a string`);
+
+            return nulledEmptyStrings({
               receiptId,
               revisionId,
               categoryId,
-              cost: parseFloat(cost),
+              cost,
               notes,
-            })
-          )
+            });
+          })
         )
         .returning({ id: items.id });
 
       await tx.insert(itemShares).values(
-        data.items.flatMap((i, idx) =>
+        itemsCli.flatMap((i, idx) =>
           Object.entries(i.shares)
             .filter(([, share]) => share !== 0)
-            .map(([uidStr, share]) => ({
-              itemId: itemIds[idx].id,
-              userId: Number(uidStr),
-              revisionId,
-              share,
-            }))
+            .map(([uidStr, share]) => {
+              if (typeof share !== "number") err(`share ${share} is NaN`);
+
+              const userId = Number(uidStr);
+              if (isNaN(userId)) err(`userId ${uidStr} is NaN`);
+
+              return {
+                itemId: itemIds[idx].id,
+                userId,
+                revisionId,
+                share,
+              };
+            })
         )
       );
 
