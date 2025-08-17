@@ -8,6 +8,7 @@ import {
   EUROPE_HELSINKI,
   nulledEmptyStrings,
   nullEmptyStrings,
+  status,
 } from ".";
 import { DateTime } from "luxon";
 
@@ -33,6 +34,22 @@ describe("datetimeFunctions", () => {
     const dt = datetimeFromInt(31 * 24 * 60 * 60);
 
     expect(dt).toEqual("2020-02-01 00:00:00");
+  });
+});
+
+describe("status", () => {
+  it("resolves ACTIVE state correctly", () => {
+    expect(status({ statusId: 0 }).active).to.be.false;
+    expect(status({ statusId: 1 }).active).to.be.true;
+    expect(status({ statusId: 2 }).active).to.be.false;
+    expect(status({ statusId: 3 }).active).to.be.true;
+  });
+
+  it("resolves ADMIN state correctly", () => {
+    expect(status({ statusId: 0 }).admin).to.be.false;
+    expect(status({ statusId: 1 }).admin).to.be.false;
+    expect(status({ statusId: 2 }).admin).to.be.true;
+    expect(status({ statusId: 3 }).admin).to.be.true;
   });
 });
 
