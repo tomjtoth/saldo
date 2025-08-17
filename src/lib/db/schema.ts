@@ -60,7 +60,7 @@ const colSR = {
 
 const colSRI = { ...colSR, id };
 
-export const meta = sqliteTable("metadata", {
+export const metadata = sqliteTable("metadata", {
   id,
 
   info: text().notNull().unique(),
