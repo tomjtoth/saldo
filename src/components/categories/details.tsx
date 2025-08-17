@@ -25,7 +25,7 @@ export default function Details({
       }}
     >
       <Updater cat={cat} />
-      {cat.archives!.map((cat) => (
+      {cat.archives?.map((cat) => (
         <div
           key={`${cat.id}-${cat.revisionId!}`}
           className={
