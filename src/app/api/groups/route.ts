@@ -1,14 +1,11 @@
 import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
-import { NextRequest } from "next/server";
 import { v4 as uuid } from "uuid";
 import { eq } from "drizzle-orm";
 
-import { auth } from "@/auth";
 import { db, TGroup } from "@/lib/db";
 import { createGroup, updateGroup } from "@/lib/services/groups";
-import { currentUser } from "@/lib/services/user";
 import { users } from "@/lib/db/schema";
-import { nullEmptyStrings } from "@/lib/utils";
+import { err, nullEmptyStrings } from "@/lib/utils";
 
 export const POST = protectedRoute(async (req: ReqWithUser) => {
   const data: Pick<TGroup, "name" | "description"> = await req.json();
@@ -31,49 +28,32 @@ type GroupUpdater = { id: number } & Pick<
     setAsDefault?: true;
   };
 
-export async function PUT(req: NextRequest) {
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
+export const PUT = protectedRoute(async (req: ReqWithUser) => {
+  const { generateLink, removeLink, setAsDefault, ...data }: GroupUpdater =
+    await req.json();
 
-  const [data, user] = await Promise.all([req.json(), currentUser(sess)]);
-  const {
-    id,
-    statusId,
-    name,
-    description,
-    generateLink,
-    removeLink,
-    setAsDefault,
-  } = data as GroupUpdater;
+  if (data.id === undefined || typeof data.id !== "number")
+    err("missing / NaN id");
 
   if (setAsDefault) {
     await db
       .update(users)
-      .set({
-        defaultGroupId: id,
-      })
-      .where(eq(users.id, user.id));
+      .set({ defaultGroupId: data.id })
+      .where(eq(users.id, req.__user.id));
 
     return new Response(null, { status: 200 });
   }
 
   nullEmptyStrings(data);
 
-  try {
-    const group = await updateGroup(user.id, id, {
-      statusId,
-      name,
-      description,
-      uuid: generateLink ? uuid() : removeLink ? null : undefined,
-    });
+  const group = await updateGroup(req.__user.id, data.id, {
+    statusId: data.statusId,
+    name: data.name,
+    description: data.description,
+    uuid: generateLink ? uuid() : removeLink ? null : undefined,
+  });
 
-    if (!group) return new Response(null, { status: 404 });
+  if (!group) return new Response(null, { status: 404 });
 
-    return Response.json(group);
-  } catch (err) {
-    return new Response(null, {
-      status: 400,
-      statusText: (err as Error).message,
-    });
-  }
-}
+  return Response.json(group);
+});
