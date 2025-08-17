@@ -67,8 +67,7 @@ export const PUT = protectedRoute(async (req: ReqWithUser) => {
   )
     err();
 
-  if (!(await userAccessToCat(req.__user.id, id)))
-    return new Response(null, { status: 403 });
+  if (!(await userAccessToCat(req.__user.id, id))) err(403);
 
   if (setAsDefault) {
     await updateMembership(req.__user.id, {
