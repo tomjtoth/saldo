@@ -1,38 +1,28 @@
-import { NextRequest } from "next/server";
+import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
 
-import { auth } from "@/auth";
-import { currentUser } from "@/lib/services/user";
-import { isAdmin, updateMembership } from "@/lib/services/memberships";
 import { TMembership } from "@/lib/db";
+import { isAdmin, updateMembership } from "@/lib/services/memberships";
+import { err } from "@/lib/utils";
 
-export async function PUT(req: NextRequest) {
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
+export const PUT = protectedRoute(async (req: ReqWithUser) => {
+  const { groupId, userId, statusId }: TMembership = await req.json();
 
-  const user = await currentUser(sess);
+  if (
+    typeof groupId !== "number" ||
+    typeof userId !== "number" ||
+    typeof statusId !== "number"
+  )
+    err();
 
-  const body = await req.json();
+  if (!(await isAdmin(req.__user.id, groupId))) err(403);
 
-  const { groupId, userId, statusId } = body as TMembership;
-  if (!groupId || !userId) return new Response(null, { status: 400 });
+  const ms = await updateMembership(req.__user.id, {
+    groupId,
+    userId,
+    statusId,
+  });
 
-  if (!(await isAdmin(user.id, groupId)))
-    return new Response(null, { status: 403 });
+  if (!ms) err(404);
 
-  try {
-    const ms = await updateMembership(user.id, {
-      groupId,
-      userId,
-      statusId,
-    });
-
-    if (!ms) return new Response(null, { status: 404 });
-
-    return Response.json(ms);
-  } catch (err) {
-    return new Response(null, {
-      status: 400,
-      statusText: (err as Error).message,
-    });
-  }
-}
+  return Response.json(ms);
+});
