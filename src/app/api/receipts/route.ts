@@ -7,21 +7,19 @@ import {
   getReceipts,
   TReceiptInput,
 } from "@/lib/services/receipts";
+import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
+import { err } from "@/lib/utils";
 
-export async function GET(req: NextRequest) {
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
-
+export const GET = protectedRoute(async (req: ReqWithUser) => {
   const { searchParams } = new URL(req.url);
   const knownIds = (searchParams.get("knownIds") ?? "").split(",").map(Number);
 
-  if (knownIds.some(isNaN)) return new Response(null, { status: 400 });
+  if (knownIds.some(isNaN)) err("known ids contain NaN");
 
-  const user = await currentUser(sess);
-  const groups = await getReceipts(user.id, knownIds);
+  const groups = await getReceipts(req.__user.id, knownIds);
 
   return Response.json(groups);
-}
+});
 
 export async function POST(req: NextRequest) {
   const data: TReceiptInput = await req.json();
