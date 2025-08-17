@@ -5,6 +5,10 @@
 
 A _Work in Progress_ multi-user expense tracker supporting `one-to-many` sharing of items. The current version of the app is deployed [here](https://saldo.ttj.hu).
 
+## Next.js
+
+Using the App router and instrumentation to handle migrations.
+
 ## Authentication
 
 Currently relying 100% on OAuth by `next-auth`, storing the returned profile's name, image and email, keeping the former 2 in sync.
