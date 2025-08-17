@@ -5,6 +5,8 @@ import {
   datetimeFromInt,
   datetimeToInt,
   dateToInt,
+  err,
+  ErrorWithStatus,
   EUROPE_HELSINKI,
   has3ConsecutiveLetters,
   nulledEmptyStrings,
@@ -120,5 +122,37 @@ describe("has3ConsecutiveLetters", () => {
     expect(() => has3ConsecutiveLetters(" as as as ")).to.throw();
 
     expect(() => has3ConsecutiveLetters("asd")).not.to.throw();
+  });
+});
+
+describe("fn err()", () => {
+  it("throws ErrorWithStatus with correct status and message", () => {
+    try {
+      err(404, "Not Found");
+    } catch (e) {
+      expect(e).to.be.instanceOf(ErrorWithStatus);
+      const ew = e as ErrorWithStatus;
+      expect(ew.status).to.equal(404);
+      expect(ew.message).to.equal("Not Found");
+    }
+  });
+
+  it("throws plain Error when called with string", () => {
+    try {
+      err("Oops");
+    } catch (e) {
+      expect(e).to.be.instanceOf(Error);
+      expect(e).not.to.be.instanceOf(ErrorWithStatus);
+      expect((e as Error).message).to.equal("Oops");
+    }
+  });
+
+  it("throws plain Error when called without args", () => {
+    try {
+      err();
+    } catch (e) {
+      expect(e).to.be.instanceOf(Error);
+      expect((e as Error).message).to.equal("");
+    }
   });
 });
