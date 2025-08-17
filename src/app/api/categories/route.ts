@@ -24,6 +24,8 @@ export async function POST(req: NextRequest) {
   if (!sess) return new Response(null, { status: 401 });
   const user = await currentUser(sess);
 
+  nullEmptyStrings(data);
+
   const cat = await createCategory(user.id, {
     groupId: data.groupId!,
     name: data.name,
