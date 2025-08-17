@@ -6,6 +6,7 @@ import {
   datetimeToInt,
   dateToInt,
   EUROPE_HELSINKI,
+  nulledEmptyStrings,
   nullEmptyStrings,
 } from ".";
 import { DateTime } from "luxon";
@@ -48,5 +49,15 @@ describe("nullEmptyStrings", () => {
       d: null,
       e: undefined,
     });
+  });
+});
+
+describe("nulledEmptyStrings", () => {
+  it("does not mutate the original", () => {
+    const before = { a: 1, b: "2", c: "", d: null, e: undefined };
+    const after = nulledEmptyStrings(before);
+
+    expect(before.c).to.equal("");
+    expect(after.c).to.toBeNull();
   });
 });
