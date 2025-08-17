@@ -112,12 +112,10 @@ export async function sendJSON(
 
 export class ErrorWithStatus extends Error {
   status: number;
-  statusText?: string;
 
   constructor(status: number, message?: string) {
-    super();
+    super(message);
     this.status = status;
-    this.statusText = message;
   }
 }
 
