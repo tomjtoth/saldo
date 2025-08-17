@@ -231,3 +231,11 @@ export const status = <T extends { statusId?: number }>(
     },
   };
 };
+
+export function nullEmptyStrings<T extends { [key: string]: unknown }>(obj: T) {
+  for (const key in obj) {
+    const val = obj[key];
+
+    if (val === "") (obj[key] as unknown | null) = null;
+  }
+}
