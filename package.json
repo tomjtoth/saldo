@@ -7,8 +7,8 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "cypress:open": "cypress open",
-    "e2e": "start-server-and-test dev http://localhost:3000 \"cypress open --e2e\"",
-    "e2e:headless": "start-server-and-test dev http://localhost:3000 \"cypress run --e2e\"",
+    "e2e": "MIGRATE=true start-server-and-test dev http://localhost:3000 \"cypress open --e2e\"",
+    "e2e:headless": "MIGRATE=true start-server-and-test dev http://localhost:3000 \"cypress run --e2e\"",
     "build": "next build",
     "start": "next start"
   },
