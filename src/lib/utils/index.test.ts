@@ -6,6 +6,7 @@ import {
   datetimeToInt,
   dateToInt,
   EUROPE_HELSINKI,
+  has3ConsecutiveLetters,
   nulledEmptyStrings,
   nullEmptyStrings,
   status,
@@ -109,5 +110,15 @@ describe("nulledEmptyStrings", () => {
 
     expect(before.c).to.equal("");
     expect(after.c).to.toBeNull();
+  });
+});
+
+describe("has3ConsecutiveLetters", () => {
+  it("does not mutate the original", () => {
+    expect(() => has3ConsecutiveLetters("as")).to.throw();
+    expect(() => has3ConsecutiveLetters(" as ")).to.throw();
+    expect(() => has3ConsecutiveLetters(" as as as ")).to.throw();
+
+    expect(() => has3ConsecutiveLetters("asd")).not.to.throw();
   });
 });
