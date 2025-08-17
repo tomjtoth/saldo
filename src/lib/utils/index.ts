@@ -110,8 +110,27 @@ export async function sendJSON(
   });
 }
 
-export function err(msg?: string): never {
-  throw new Error(msg);
+export class ErrorWithStatus extends Error {
+  status: number;
+  statusText?: string;
+
+  constructor(status: number, message?: string) {
+    super();
+    this.status = status;
+    this.statusText = message;
+  }
+}
+
+export function err(status: number, message?: string): never;
+export function err(status: number): never;
+export function err(message: string): never;
+export function err(): never;
+export function err(intOrStr?: string | number, message?: string): never {
+  if (typeof intOrStr === "string") throw new Error(intOrStr);
+  if (typeof intOrStr === "number")
+    throw new ErrorWithStatus(intOrStr, message);
+
+  throw new Error();
 }
 
 const RE_3_CONSECUTIVE_LETTERS = /\p{Letter}{3,}/u;
