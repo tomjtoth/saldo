@@ -29,7 +29,8 @@ Seems to work, filtering junction tables is kind of tough.
   - extras fields can be included
   - but it doesn't solve the problem of manipulating statusInt
 - [x] should catch typos in column names of nested queries
-- [x] placeholders can be skipped with "sql`raw sql`"
+- [x] placeholders can be skipped with `sql\`raw sql\``
+  - in retrospect the same could have been applied to Prisma
 
 ### Previous ORMs tried/tested
 
