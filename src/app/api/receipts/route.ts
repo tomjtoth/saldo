@@ -1,14 +1,10 @@
-import { NextRequest } from "next/server";
-
-import { auth } from "@/auth";
-import { currentUser } from "@/lib/services/user";
+import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
+import { err } from "@/lib/utils";
 import {
   addReceipt,
   getReceipts,
   TReceiptInput,
 } from "@/lib/services/receipts";
-import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
-import { err } from "@/lib/utils";
 
 export const GET = protectedRoute(async (req: ReqWithUser) => {
   const { searchParams } = new URL(req.url);
@@ -21,28 +17,24 @@ export const GET = protectedRoute(async (req: ReqWithUser) => {
   return Response.json(groups);
 });
 
-export async function POST(req: NextRequest) {
-  const data: TReceiptInput = await req.json();
-  // TODO: preliminary validation of sent data here
-  if (data.items.length === 0) return new Response(null, { status: 400 });
+export const POST = protectedRoute(async (req: ReqWithUser) => {
+  const { groupId, paidOn, paidBy, items }: TReceiptInput = await req.json();
 
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
+  if (
+    typeof groupId !== "number" ||
+    typeof paidOn !== "string" ||
+    typeof paidBy !== "number" ||
+    !Array.isArray(items) ||
+    items.length === 0
+  )
+    err();
 
-  const user = await currentUser(sess);
+  const rcpt = await addReceipt(req.__user.id, {
+    groupId,
+    paidOn,
+    paidBy,
+    items,
+  });
 
-  try {
-    const rcpt = await addReceipt(user.id, {
-      groupId: data.groupId,
-      paidOn: data.paidOn,
-      paidBy: data.paidBy,
-      items: data.items,
-    });
-    return Response.json(rcpt);
-  } catch (err) {
-    return new Response(null, {
-      status: 400,
-      statusText: (err as Error).message,
-    });
-  }
-}
+  return Response.json(rcpt);
+});
