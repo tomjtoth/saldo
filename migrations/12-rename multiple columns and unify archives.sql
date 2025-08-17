@@ -120,8 +120,12 @@ CREATE TABLE item_shares (
 
 
 
-INSERT INTO "metadata" ("name", "description", "payload")
-    SELECT 'datetime', NULL, json_object('anchor', '2020-01-01', 'timezone', 'Europe/Helsinki')
+INSERT INTO metadata ("name", "description", payload)
+    SELECT 'datetime', NULL, json_object(
+        'anchor', '2020-01-01', 
+        'format', 'yyyy-MM-dd HH:mm:ss',
+        'timezone', 'Europe/Helsinki'
+    )
     UNION
     SELECT
         'statuses',
