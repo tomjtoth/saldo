@@ -7,6 +7,7 @@ import { db, TGroup } from "@/lib/db";
 import { createGroup, updateGroup } from "@/lib/services/groups";
 import { currentUser } from "@/lib/services/user";
 import { users } from "@/lib/db/schema";
+import { nullEmptyStrings } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   const sess = await auth();
@@ -59,11 +60,13 @@ export async function PUT(req: NextRequest) {
     return new Response(null, { status: 200 });
   }
 
+  nullEmptyStrings(data);
+
   try {
     const group = await updateGroup(user.id, id, {
       statusId,
       name,
-      description: description === "" ? null : description,
+      description,
       uuid: generateLink ? uuid() : removeLink ? null : undefined,
     });
 

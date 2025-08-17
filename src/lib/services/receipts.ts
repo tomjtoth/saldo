@@ -11,7 +11,7 @@ import {
 } from "@/lib/db";
 import { groups, items, itemShares, memberships, receipts } from "../db/schema";
 import { TCliReceipt } from "../reducers";
-import { sortByName } from "../utils";
+import { nulledEmptyStrings, sortByName } from "../utils";
 
 export type TReceiptInput = TCliReceipt & { groupId: number };
 
@@ -51,13 +51,15 @@ export async function addReceipt(addedBy: number, data: TReceiptInput) {
       const itemIds = await tx
         .insert(items)
         .values(
-          data.items.map(({ cost, categoryId, notes }) => ({
-            receiptId,
-            revisionId,
-            categoryId,
-            cost: parseFloat(cost),
-            notes: notes === "" ? null : notes,
-          }))
+          data.items.map(({ cost, categoryId, notes }) =>
+            nulledEmptyStrings({
+              receiptId,
+              revisionId,
+              categoryId,
+              cost: parseFloat(cost),
+              notes,
+            })
+          )
         )
         .returning({ id: items.id });
 

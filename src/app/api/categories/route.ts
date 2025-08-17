@@ -10,6 +10,7 @@ import {
 } from "@/lib/services/categories";
 import { TCategory } from "@/lib/db";
 import { updateMembership } from "@/lib/services/memberships";
+import { nullEmptyStrings } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   const data = (await req.json()) as Pick<
@@ -62,6 +63,8 @@ export async function PUT(req: NextRequest) {
 
       return new Response(null, { status: 200 });
     }
+
+    nullEmptyStrings(data);
 
     const updated = await updateCategory(data.id, user.id, {
       name: data.name,

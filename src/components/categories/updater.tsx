@@ -9,6 +9,7 @@ import {
   sendJSON,
   appToast,
   status,
+  nulledEmptyStrings,
 } from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
 import { TCategory } from "@/lib/db";
@@ -46,13 +47,13 @@ export default function Updater({ cat }: { cat: TCategory }) {
         appToast.promise(
           sendJSON(
             "/api/categories",
-            {
+            nulledEmptyStrings({
               id: cat.id,
               groupId: cat.groupId,
               name,
-              description: description === "" ? null : description,
+              description,
               statusId,
-            },
+            }),
             { method: "PUT" }
           )
             .then(async (res) => {
