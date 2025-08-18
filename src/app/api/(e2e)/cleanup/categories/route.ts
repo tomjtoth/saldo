@@ -1,23 +1,24 @@
-import { db } from "@/lib/db";
-import { revisions } from "@/lib/db/schema";
 import { inArray } from "drizzle-orm";
 
-export async function GET() {
-  if (process.env.NODE_ENV !== "development")
-    return new Response(null, { status: 403 });
+import { db } from "@/lib/db";
+import { archives, revisions } from "@/lib/db/schema";
+import { err } from "@/lib/utils";
+import protectedRoute from "@/lib/protectedRoute";
+
+export const GET = protectedRoute({ withoutUser: true }, async () => {
+  if (process.env.NODE_ENV !== "development") err(403);
 
   const cats = await db.query.categories.findMany({
     columns: { id: true, revisionId: true },
     where: (t, o) => o.sql`${t.name} like 'test-cat%'`,
   });
 
-  const archives = await db.query.archives.findMany({
+  const catArchives = await db.query.archives.findMany({
     columns: { revisionId: true },
-    where: (t, o) =>
-      o.inArray(
-        t.entityPk1,
-        cats.map((c) => c.id)
-      ),
+    where: inArray(
+      archives.entityPk1,
+      cats.map((c) => c.id)
+    ),
   });
 
   await db
@@ -25,9 +26,9 @@ export async function GET() {
     .where(
       inArray(
         revisions.id,
-        cats.map((c) => c.revisionId).concat(archives.map((a) => a.revisionId))
+        cats
+          .map((c) => c.revisionId)
+          .concat(catArchives.map((a) => a.revisionId))
       )
     );
-
-  return new Response(null, { status: 200 });
-}
+});
