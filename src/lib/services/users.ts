@@ -2,8 +2,9 @@ import { Session } from "next-auth";
 import { eq } from "drizzle-orm";
 
 import { createGroup } from "./groups";
-import { atomic, db, TCrUser, TUser } from "../db";
+import { atomic, db, TCrUser, TUser, updater } from "../db";
 import { revisions, users } from "../db/schema";
+import { err } from "../utils";
 
 export async function addUser(
   userData: Pick<TCrUser, "email" | "image" | "name">
@@ -82,4 +83,30 @@ export async function currentUser(session: Session) {
   }
 
   return user;
+}
+
+export async function updateUser(id: number, modifier: { statusId: number }) {
+  return await atomic(
+    { operation: "Updating user", revisedBy: id },
+    async (tx, revisionId) => {
+      const user = (await tx.query.users.findFirst({
+        where: eq(users.id, id),
+      }))!;
+
+      const saving = await updater(user, modifier, {
+        tx,
+        tableName: "users",
+        entityPk1: id,
+        revisionId,
+      });
+
+      if (saving)
+        return await tx
+          .update(users)
+          .set(user)
+          .where(eq(users.id, id))
+          .returning({ statusId: users.statusId });
+      else err("No changes were made");
+    }
+  );
 }
