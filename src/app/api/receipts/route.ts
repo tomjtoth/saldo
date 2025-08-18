@@ -12,9 +12,7 @@ export const GET = protectedRoute(async (req) => {
 
   if (knownIds.some(isNaN)) err("known ids contain NaN");
 
-  const groups = await getReceipts(req.__user.id, knownIds);
-
-  return Response.json(groups);
+  return await getReceipts(req.__user.id, knownIds);
 });
 
 export const POST = protectedRoute(async (req) => {
