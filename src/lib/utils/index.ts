@@ -208,6 +208,8 @@ export type NumericKeys<T> = {
   [P in keyof T]: T[P] extends number ? P : never;
 }[keyof T];
 
+export type LineType = "solid" | "dashed";
+
 export const status = <T extends { statusId?: number }>(
   entity: T,
   setter?: Dispatch<SetStateAction<number>>
@@ -304,6 +306,14 @@ export const status = <T extends { statusId?: number }>(
     },
 
     color,
+
+    get lineType() {
+      return getFlag(9) ? "solid" : "dashed";
+    },
+
+    set lineType(value: LineType) {
+      setFlag(9, value === "solid");
+    },
   };
 };
 
