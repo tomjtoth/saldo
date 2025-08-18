@@ -218,27 +218,32 @@ export const status = <T extends { statusId?: number }>(
       ? err("calling status without statusId")
       : 0);
 
+  const getFlag = (bit: number) => (int & (1 << bit)) !== 0;
+  const setFlag = (bit: number, value: boolean) => {
+    int = value ? int | (1 << bit) : int & ~(1 << bit);
+    finalizeInt();
+  };
+
+  const finalizeInt = () => {
+    if (setter) setter(int);
+    else entity.statusId = int;
+  };
+
   return {
     get active() {
-      return (int & 1) === 1;
+      return getFlag(0);
     },
 
     set active(value: boolean) {
-      int = value ? int | 1 : int & ~1;
-
-      if (setter) setter(int);
-      else entity.statusId = int;
+      setFlag(0, value);
     },
 
     get admin() {
-      return (int & 2) === 2;
+      return getFlag(1);
     },
 
     set admin(value: boolean) {
-      int = value ? int | (1 << 1) : int & ~(1 << 1);
-
-      if (setter) setter(int);
-      else entity.statusId = int;
+      setFlag(1, value);
     },
 
     toggle(key: "active" | "admin") {
