@@ -58,7 +58,7 @@ export const PUT = protectedRoute(async (req) => {
       .set({ defaultGroupId: id })
       .where(eq(users.id, req.__user.id));
 
-    return new Response(null, { status: 200 });
+    return;
   }
 
   const data = {
@@ -74,5 +74,5 @@ export const PUT = protectedRoute(async (req) => {
 
   if (!group) err(404);
 
-  return Response.json(group);
+  return group;
 });
