@@ -27,12 +27,10 @@ export const POST = protectedRoute(async (req) => {
   )
     err();
 
-  const rcpt = await addReceipt(req.__user.id, {
+  return await addReceipt(req.__user.id, {
     groupId,
     paidOn,
     paidBy,
     items,
   });
-
-  return Response.json(rcpt);
 });
