@@ -55,22 +55,23 @@ export default function ChartLineConfig() {
         />
 
         <div
-          className="p-2"
+          className="px-6 rounded-full"
           style={
             checked
               ? {
-                  boxShadow: `0 0 20px 5px ${color}, inset 0 0 20px 5px ${color}`,
+                  boxShadow: `0 0 20px 5px ${color},
+                        inset 0 0 20px 5px ${color}`,
                 }
               : undefined
           }
         >
           <div
-            className="w-24 h-5"
+            className="w-12 h-5"
             style={{
               borderBottom: `4px ${type} ${color}`,
             }}
           />
-          <div className="w-24 h-4" />
+          <div className="w-12 h-4" />
         </div>
       </label>
     );
@@ -95,11 +96,18 @@ export default function ChartLineConfig() {
     <>
       <div
         onClick={() => setShowConfig(!showConfig)}
-        className="cursor-pointer select-none p-2"
+        className="cursor-pointer select-none p-2 text-center"
       >
         Show chart config{" "}
         <div className="inline-block">
-          <div className={showConfig ? "rotate-90" : "-rotate-90"}>&lt;</div>
+          <div
+            className={
+              (showConfig ? "rotate-90" : "-rotate-90") +
+              " transition duration-150"
+            }
+          >
+            &lt;
+          </div>
         </div>
       </div>
       {showConfig ? <Config /> : null}
