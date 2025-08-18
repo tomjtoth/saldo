@@ -18,10 +18,9 @@ export const POST = protectedRoute(async (req) => {
     err();
 
   const data = { name, description };
+  nullEmptyStrings(data);
 
-  const group = await createGroup(req.__user.id, data);
-
-  return Response.json(group);
+  return await createGroup(req.__user.id, data);
 });
 
 type GroupUpdater = { id: number } & Pick<
