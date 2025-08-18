@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 
 import { auth } from "@/auth";
-import { currentUser } from "@/lib/services/user";
+import { currentUser } from "@/lib/services/users";
 import { err, ErrorWithStatus } from "./utils";
 
 interface ReqWithUser extends NextRequest {

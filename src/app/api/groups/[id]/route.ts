@@ -4,7 +4,7 @@ import { validate } from "uuid";
 
 import { auth, signIn } from "@/auth";
 import { joinGroup } from "@/lib/services/groups";
-import { currentUser } from "@/lib/services/user";
+import { currentUser } from "@/lib/services/users";
 
 export async function GET(
   _req: NextRequest,
