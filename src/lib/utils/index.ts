@@ -229,6 +229,57 @@ export const status = <T extends { statusId?: number }>(
     else entity.statusId = int;
   };
 
+  const scaleTo255 = (value: number) => {
+    return Math.round((value / 3) * 255);
+
+    // const linear = value / 3; // 0.0–1.0
+    // const gamma = 2.2; // typical sRGB gamma
+    // const corrected = Math.pow(linear, 1 / gamma);
+    // return Math.round(corrected * 255);
+  };
+  const getColor = (offset: number) => (int >> offset) & 0b11;
+  const setColor = (value: number, offset: number) => {
+    int = (int & ~(0b11 << offset)) | ((value & 0b11) << offset);
+    finalizeInt();
+  };
+
+  const color = {
+    get r() {
+      return getColor(6);
+    },
+
+    set r(value) {
+      setColor(value, 6);
+    },
+
+    get g() {
+      return getColor(4);
+    },
+
+    set g(value) {
+      setColor(value, 4);
+    },
+
+    get b() {
+      return getColor(2);
+    },
+
+    set b(value) {
+      setColor(value, 2);
+    },
+
+    rgba(alpha: number) {
+      const args = [
+        scaleTo255(this.r),
+        scaleTo255(this.g),
+        scaleTo255(this.b),
+        alpha.toFixed(1),
+      ];
+
+      return `rgba(${args.join(",")})`;
+    },
+  };
+
   return {
     get active() {
       return getFlag(0);
@@ -251,6 +302,8 @@ export const status = <T extends { statusId?: number }>(
 
       return int;
     },
+
+    color,
   };
 };
 
