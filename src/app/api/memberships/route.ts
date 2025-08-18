@@ -24,5 +24,5 @@ export const PUT = protectedRoute(async (req) => {
 
   if (!ms) err(404);
 
-  return Response.json(ms);
+  return ms;
 });
