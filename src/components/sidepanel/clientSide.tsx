@@ -5,6 +5,7 @@ import { ReactNode, useState } from "react";
 
 import { LINKS } from "./config";
 import Canceler from "../canceler";
+import ChartLineConfig from "../chartLineConfig";
 
 const hrefToLabel = (href: string) => href.replaceAll(/[^\w]+/g, "");
 
@@ -28,6 +29,7 @@ export default function CliSidepanel(srv: {
           {srv.greeter}
           {srv.signOutButton}
         </div>
+        <ChartLineConfig />
         <hr />
         <ul className="ml-2">
           {LINKS.map((a) => (
