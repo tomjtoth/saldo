@@ -22,7 +22,7 @@ export const useGroupSelector = () => {
   const groupId = useAppSelector(
     (s) => s.combined.groupId ?? fallback.groupId ?? groups.at(0)?.id
   );
-  const userId = useAppSelector((s) => s.combined.userId ?? fallback.userId);
+  const userId = useAppSelector((s) => s.combined.userId ?? fallback.user?.id);
 
   const group = () => groups.find((group) => group.id === groupId);
 

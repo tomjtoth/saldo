@@ -19,7 +19,7 @@ export type TRootDiv = {
   children: ReactNode;
 
   rewritePath?: string;
-  userId: number;
+  user?: { id: number; statusId: number };
 
   groupId?: number;
   defaultGroupId?: number;
@@ -36,6 +36,7 @@ export default function CliRootDiv({
   sidepanel,
   rewritePath,
 
+  user,
   groupId,
   ...srv
 }: TRootDiv & {
@@ -78,7 +79,7 @@ export default function CliRootDiv({
         rootDivRef,
         groups: srv.groups ?? [],
         groupId,
-        userId: srv.userId,
+        user,
       }}
     >
       <div
@@ -100,14 +101,13 @@ const RootDivCx = createContext<{
   sidepanel: ReactNode;
   groups: TGroup[];
   groupId?: number;
-  userId: number;
+  user?: { id: number; statusId: number };
   rootDivRef?: RefObject<HTMLDivElement | null>;
 }>({
   addOnScroll: () => {},
   rmOnScroll: () => {},
   sidepanel: null,
   groups: [],
-  userId: -1,
 });
 
 export function useRootDivCx() {

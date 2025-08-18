@@ -45,14 +45,14 @@ export default async function protectedPage<T = object>({
   const session = await auth();
   if (!session) return signIn("", { redirectTo });
 
-  const user = await currentUser(session);
-  const groups = await getData(user.id);
+  const { id, statusId, defaultGroupId } = await currentUser(session);
+  const groups = await getData(id);
 
   return (
     <RootDiv
       {...{
-        userId: user.id,
-        defaultGroupId: user.defaultGroupId ?? undefined,
+        user: { id, statusId },
+        defaultGroupId: defaultGroupId ?? undefined,
         groupId,
         groups,
         rewritePath,

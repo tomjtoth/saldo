@@ -19,6 +19,7 @@ export async function addUser(
         })
         .returning({
           id: users.id,
+          statusId: users.statusId,
           name: users.name,
           email: users.email,
           image: users.image,
@@ -44,6 +45,7 @@ export async function currentUser(session: Session) {
   let user = await db.query.users.findFirst({
     columns: {
       id: true,
+      statusId: true,
       name: true,
       email: true,
       image: true,
