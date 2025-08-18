@@ -6,7 +6,5 @@ export const GET = protectedRoute(async (req) => {
   const from = searchParams.get("from") ?? undefined;
   const to = searchParams.get("to") ?? undefined;
 
-  const data = await getPareto(req.__user.id, { from, to });
-
-  return Response.json(data);
+  return await getPareto(req.__user.id, { from, to });
 });
