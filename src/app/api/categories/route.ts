@@ -39,9 +39,7 @@ export const POST = protectedRoute(async (req) => {
 
   nullEmptyStrings(data);
 
-  const cat = await createCategory(req.__user.id, data);
-
-  return Response.json(cat);
+  return await createCategory(req.__user.id, data);
 });
 
 export const PUT = protectedRoute(async (req) => {
@@ -76,14 +74,12 @@ export const PUT = protectedRoute(async (req) => {
       defaultCategoryId: id,
     });
 
-    return new Response(null, { status: 200 });
+    return;
   }
 
-  const updated = await updateCategory(
+  return await updateCategory(
     id,
     req.__user.id,
     nulledEmptyStrings({ name, description, statusId })
   );
-
-  return Response.json(updated);
 });
