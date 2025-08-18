@@ -32,7 +32,7 @@ jobs:
         run: |
           export AUTH_SECRET=$(uuidgen)
           npm run coverage
-          npm run e2e:headless
+          DATABASE_URL=file:e2e.db npm run e2e:headless
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
