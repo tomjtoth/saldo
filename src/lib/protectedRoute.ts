@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { currentUser } from "@/lib/services/user";
 import { err, ErrorWithStatus } from "./utils";
 
-export interface ReqWithUser extends NextRequest {
+interface ReqWithUser extends NextRequest {
   __user: Awaited<ReturnType<typeof currentUser>>;
 }
 

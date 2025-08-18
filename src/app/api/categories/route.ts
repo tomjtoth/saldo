@@ -1,4 +1,4 @@
-import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
+import protectedRoute from "@/lib/protectedRoute";
 import {
   err,
   has3ConsecutiveLetters,
@@ -15,7 +15,7 @@ import {
 } from "@/lib/services/categories";
 import { updateMembership } from "@/lib/services/memberships";
 
-export const POST = protectedRoute(async (req: ReqWithUser) => {
+export const POST = protectedRoute(async (req) => {
   const {
     name,
     groupId,
@@ -44,7 +44,7 @@ export const POST = protectedRoute(async (req: ReqWithUser) => {
   return Response.json(cat);
 });
 
-export const PUT = protectedRoute(async (req: ReqWithUser) => {
+export const PUT = protectedRoute(async (req) => {
   const {
     id,
     groupId,

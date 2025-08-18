@@ -1,13 +1,13 @@
-import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
 import { v4 as uuid } from "uuid";
 import { eq } from "drizzle-orm";
 
+import protectedRoute from "@/lib/protectedRoute";
 import { db, TGroup } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { err, nullEmptyStrings } from "@/lib/utils";
 import { createGroup, updateGroup } from "@/lib/services/groups";
 
-export const POST = protectedRoute(async (req: ReqWithUser) => {
+export const POST = protectedRoute(async (req) => {
   const { name, description }: Pick<TGroup, "name" | "description"> =
     await req.json();
   if (
@@ -33,7 +33,7 @@ type GroupUpdater = { id: number } & Pick<
     setAsDefault?: true;
   };
 
-export const PUT = protectedRoute(async (req: ReqWithUser) => {
+export const PUT = protectedRoute(async (req) => {
   const {
     generateLink,
     removeLink,

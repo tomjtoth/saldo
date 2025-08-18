@@ -1,4 +1,4 @@
-import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
+import protectedRoute from "@/lib/protectedRoute";
 import { err } from "@/lib/utils";
 import {
   addReceipt,
@@ -6,7 +6,7 @@ import {
   TReceiptInput,
 } from "@/lib/services/receipts";
 
-export const GET = protectedRoute(async (req: ReqWithUser) => {
+export const GET = protectedRoute(async (req) => {
   const { searchParams } = new URL(req.url);
   const knownIds = (searchParams.get("knownIds") ?? "").split(",").map(Number);
 
@@ -17,7 +17,7 @@ export const GET = protectedRoute(async (req: ReqWithUser) => {
   return Response.json(groups);
 });
 
-export const POST = protectedRoute(async (req: ReqWithUser) => {
+export const POST = protectedRoute(async (req) => {
   const { groupId, paidOn, paidBy, items }: TReceiptInput = await req.json();
 
   if (

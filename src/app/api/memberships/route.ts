@@ -1,10 +1,10 @@
-import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
+import protectedRoute from "@/lib/protectedRoute";
 
 import { TMembership } from "@/lib/db";
 import { isAdmin, updateMembership } from "@/lib/services/memberships";
 import { err } from "@/lib/utils";
 
-export const PUT = protectedRoute(async (req: ReqWithUser) => {
+export const PUT = protectedRoute(async (req) => {
   const { groupId, userId, statusId }: TMembership = await req.json();
 
   if (
