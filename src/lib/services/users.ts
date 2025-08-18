@@ -26,9 +26,12 @@ export async function addUser(
           defaultGroupId: users.defaultGroupId,
         });
 
-      await tx.update(revisions).set({
-        createdById: user.id,
-      });
+      await tx
+        .update(revisions)
+        .set({
+          createdById: user.id,
+        })
+        .where(eq(revisions.id, revisionId));
 
       return user;
     }
