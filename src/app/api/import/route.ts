@@ -5,7 +5,5 @@ import { err } from "@/lib/utils";
 export const POST = protectedRoute(async () => {
   if (await alreadyInProd()) err(403, "already in production");
 
-  const imported = await importV3();
-
-  return Response.json(imported);
+  return await importV3();
 });
