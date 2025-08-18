@@ -1,120 +1,161 @@
-import { col, fn, IncludeOptions, Op } from "sequelize";
+import { and, desc, eq, exists, sql } from "drizzle-orm";
 
 import {
   atomic,
-  Category,
-  Group,
-  Item,
-  ItemShare,
-  Membership,
-  Receipt,
-  ReceiptArchive,
-  Revision,
-  TCrItemShare,
-  User,
-} from "../models";
+  db,
+  getArchivePopulator,
+  isActive,
+  orderByLowerName,
+  TGroup,
+  TReceipt,
+} from "@/lib/db";
+import { groups, items, itemShares, memberships, receipts } from "../db/schema";
 import { TCliReceipt } from "../reducers";
+import { err, nulledEmptyStrings, sortByName } from "../utils";
 
 export type TReceiptInput = TCliReceipt & { groupId: number };
 
-const RCPT_INCLUDE = {
-  include: [
-    {
-      model: Revision,
-      attributes: ["revOn"],
-      include: [{ model: User, attributes: ["name"] }],
+const RECEIPT_COLS_WITH = {
+  columns: {
+    id: true,
+    paidOn: true,
+  },
+  with: {
+    revision: {
+      columns: {
+        createdAt: true,
+      },
+      with: {
+        createdBy: { columns: { name: true } },
+      },
     },
-    {
-      model: ReceiptArchive,
-      as: "archives",
-      include: [
-        {
-          model: Revision,
-          attributes: ["revOn"],
-          include: [{ model: User, attributes: ["name"] }],
-        },
-      ],
-    },
-    Item,
-    { model: User, attributes: ["name"] },
-  ],
+    items: { columns: { id: true, cost: true, notes: true, categoryId: true } },
+    paidBy: { columns: { name: true } },
+  },
 };
 
-export async function addReceipt(addedBy: number, data: TReceiptInput) {
-  return await atomic("Adding receipt", async (transaction) => {
-    const rev = await Revision.create({ revBy: addedBy }, { transaction });
+export async function addReceipt(
+  addedBy: number,
+  { groupId, paidOn, items: itemsCli, paidBy: paidById }: TReceiptInput
+) {
+  return await atomic(
+    { operation: "Adding receipt", revisedBy: addedBy },
+    async (tx, revisionId) => {
+      const [{ receiptId }] = await tx
+        .insert(receipts)
+        .values({ groupId, revisionId, paidOn, paidById })
+        .returning({ receiptId: receipts.id });
 
-    const rcpt = await Receipt.create(
-      {
-        groupId: data.groupId,
-        revId: rev.id,
-        paidOn: data.paidOn,
-        paidBy: data.paidBy,
-      },
-      { transaction }
-    );
+      const itemIds = await tx
+        .insert(items)
+        .values(
+          itemsCli.map(({ cost: strCost, categoryId, notes }) => {
+            if (typeof categoryId !== "number")
+              err(`categoryId ${categoryId} is NaN`);
 
-    const items = await Item.bulkCreate(
-      data.items.map((i) => ({
-        revId: rev.id,
-        rcptId: rcpt.id,
-        catId: i.catId,
-        cost: parseFloat(i.cost),
-        notes: i.notes == "" ? undefined : i.notes,
-      })),
-      { transaction }
-    );
+            const cost = parseFloat(strCost);
+            if (isNaN(cost)) err(`cost ${strCost} is NaN`);
 
-    // this relies on Sequelize returning the items in exactly the same order as inserted
-    const itemSharesToSave = data.items.reduce((shares, item, idx) => {
-      Object.entries(item.shares).forEach(([strUserId, strShare]) => {
-        const userId = Number(strUserId);
-        const share = Number(strShare);
+            if (notes !== null && typeof notes !== "string")
+              err(`note "${notes}" is not a string`);
 
-        if (!isNaN(userId) && !isNaN(share) && share > 0) {
-          shares.push({
-            revId: rev.id,
-            userId,
-            itemId: items[idx].id,
-            share,
-          });
-        }
-      });
-      return shares;
-    }, [] as TCrItemShare[]);
+            return nulledEmptyStrings({
+              receiptId,
+              revisionId,
+              categoryId,
+              cost,
+              notes,
+            });
+          })
+        )
+        .returning({ id: items.id });
 
-    await ItemShare.bulkCreate(itemSharesToSave, { transaction });
+      await tx.insert(itemShares).values(
+        itemsCli.flatMap((i, idx) =>
+          Object.entries(i.shares)
+            .filter(([, share]) => share !== 0)
+            .map(([uidStr, share]) => {
+              if (typeof share !== "number") err(`share ${share} is NaN`);
 
-    return await rcpt.reload({ ...RCPT_INCLUDE, transaction });
-  });
+              const userId = Number(uidStr);
+              if (isNaN(userId)) err(`userId ${uidStr} is NaN`);
+
+              return {
+                itemId: itemIds[idx].id,
+                userId,
+                revisionId,
+                share,
+              };
+            })
+        )
+      );
+
+      const receipt = (await tx.query.receipts.findFirst({
+        ...RECEIPT_COLS_WITH,
+        where: eq(receipts.id, receiptId),
+      })) as TReceipt;
+
+      receipt.archives = [];
+
+      return receipt;
+    }
+  );
 }
 
 export async function getReceipts(userId: number, knownIds: number[] = []) {
-  return await Group.findAll({
-    include: [
-      {
-        model: Membership,
-        attributes: ["defaultCatId"],
-        where: { userId, statusId: 1 },
+  const res = (await db.query.groups.findMany({
+    columns: {
+      id: true,
+      name: true,
+    },
+    with: {
+      memberships: {
+        columns: {
+          defaultCategoryId: true,
+        },
+        with: {
+          user: { columns: { id: true, name: true, image: true, email: true } },
+        },
+        where: isActive,
       },
-      {
-        model: User,
-        attributes: ["id", "name", "email", "image"],
-        through: { where: { statusId: 1 }, attributes: [] },
+      categories: {
+        columns: { id: true, name: true },
+        where: isActive,
+        orderBy: orderByLowerName,
       },
-      { model: Category, attributes: ["id", "name"], where: { statusId: 1 } },
-      {
-        model: Receipt,
-        separate: true,
+      receipts: {
+        ...RECEIPT_COLS_WITH,
         limit: 50,
-        where: { id: { [Op.not]: knownIds } },
-        ...RCPT_INCLUDE,
-        order: [["paidOn", "DESC"]],
-      } as IncludeOptions,
-    ],
-    order: [
-      fn("LOWER", col("Group.name")),
-      fn("LOWER", col("Categories.name")),
-    ],
+        where: sql`${receipts.id} not in ${sql.raw(
+          "(" + knownIds.join(", ") + ")"
+        )}`,
+        orderBy: desc(receipts.paidOn),
+      },
+    },
+    where: exists(
+      db
+        .select({ x: sql`1` })
+        .from(memberships)
+        .where(
+          and(
+            eq(memberships.groupId, groups.id),
+            eq(memberships.userId, userId)
+          )
+        )
+    ),
+    orderBy: orderByLowerName,
+  })) as TGroup[];
+
+  const populateArchives = await getArchivePopulator<TReceipt>(
+    "receipts",
+    "id"
+  );
+
+  res.sort(sortByName);
+  res.forEach((g) => {
+    g.categories!.sort(sortByName);
+    populateArchives(g.receipts!);
   });
+
+  return res;
 }

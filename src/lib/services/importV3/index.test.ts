@@ -1,318 +1,289 @@
 import { describe, it, expect } from "vitest";
 
 import { parseCSV, parseData } from "./parsers";
-import { insertData } from ".";
-import {
-  Category,
-  Item,
-  ItemShare,
-  migrator,
-  Receipt,
-  User,
-} from "@/lib/models";
 
 describe("import-v3", async () => {
   const csv = await parseCSV(CSV_SAMPLE, true);
   const data = parseData(csv);
 
-  await migrator.up();
-  await insertData(data);
-
-  describe("parsed and iserted", () => {
+  describe("parsed", () => {
     it("users correctly", async () => {
       expect(data.users).to.deep.equal([
         {
           id: 1,
-          revId: 1,
+          revisionId: 1,
           name: "user #0",
           email: "user0@just.imported",
         },
         {
           id: 2,
-          revId: 1,
+          revisionId: 1,
           name: "user #1",
           email: "user1@just.imported",
         },
       ]);
-
-      const users = await User.findAll();
-      expect(users[0].email).toEqual("user0@just.imported");
-      expect(users[1].email).toEqual("user1@just.imported");
     });
 
     it("categories correctly", async () => {
       expect(data.categories).to.deep.equal([
         {
           id: 1,
-          revId: 1,
+          revisionId: 1,
           groupId: 1,
           name: "food",
         },
         {
           id: 2,
-          revId: 1,
+          revisionId: 1,
           groupId: 1,
           name: "candies",
         },
         {
           id: 3,
-          revId: 2,
+          revisionId: 2,
           groupId: 1,
           name: "gifts",
         },
         {
           id: 4,
-          revId: 4,
+          revisionId: 4,
           groupId: 1,
           name: "stuff",
         },
         {
           id: 5,
-          revId: 4,
+          revisionId: 4,
           groupId: 1,
           name: "supplies",
         },
         {
           id: 6,
-          revId: 7,
+          revisionId: 7,
           groupId: 1,
           name: "medicines",
         },
         {
           id: 7,
-          revId: 12,
+          revisionId: 12,
           groupId: 1,
           name: "drinks",
         },
         {
           id: 8,
-          revId: 19,
+          revisionId: 19,
           groupId: 1,
           name: "refund",
         },
         {
           id: 9,
-          revId: 23,
+          revisionId: 23,
           groupId: 1,
           name: "rent",
         },
         {
           id: 10,
-          revId: 26,
+          revisionId: 26,
           groupId: 1,
           name: "utilities",
         },
       ]);
-
-      const cats = await Category.findAll();
-      expect(cats).to.have.length(10);
-      expect(cats[0].name).toEqual("food");
-      expect(cats[6].name).toEqual("drinks");
     });
 
     it("receipts correctly", async () => {
-      const receipts = await Receipt.findAll();
-      expect(receipts).to.have.length(27);
-      expect(receipts[4].paidOn).toEqual("2020-12-19");
-      expect(receipts[12].paidBy).toEqual(2);
-
       expect(data.receipts).to.deep.equal([
         {
           groupId: 1,
           id: 1,
-          revId: 1,
+          revisionId: 1,
           paidOn: "2020-12-13",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 2,
-          revId: 2,
+          revisionId: 2,
           paidOn: "2020-12-18",
-          paidBy: 2,
+          paidById: 2,
         },
         {
           groupId: 1,
           id: 3,
-          revId: 3,
+          revisionId: 3,
           paidOn: "2020-12-18",
-          paidBy: 2,
+          paidById: 2,
         },
         {
           groupId: 1,
           id: 4,
-          revId: 4,
+          revisionId: 4,
           paidOn: "2020-12-19",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 5,
-          revId: 5,
+          revisionId: 5,
           paidOn: "2020-12-19",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 6,
-          revId: 6,
+          revisionId: 6,
           paidOn: "2020-12-19",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 7,
-          revId: 7,
+          revisionId: 7,
           paidOn: "2020-12-21",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 8,
-          revId: 8,
+          revisionId: 8,
           paidOn: "2020-12-21",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 9,
-          revId: 9,
+          revisionId: 9,
           paidOn: "2020-12-22",
-          paidBy: 2,
+          paidById: 2,
         },
         {
           groupId: 1,
           id: 10,
-          revId: 10,
+          revisionId: 10,
           paidOn: "2020-12-22",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 11,
-          revId: 11,
+          revisionId: 11,
           paidOn: "2020-12-22",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 12,
-          revId: 12,
+          revisionId: 12,
           paidOn: "2020-12-22",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 13,
-          revId: 13,
+          revisionId: 13,
           paidOn: "2020-12-22",
-          paidBy: 2,
+          paidById: 2,
         },
         {
           groupId: 1,
           id: 14,
-          revId: 14,
+          revisionId: 14,
           paidOn: "2020-12-24",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 15,
-          revId: 15,
+          revisionId: 15,
           paidOn: "2020-12-27",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 16,
-          revId: 16,
+          revisionId: 16,
           paidOn: "2020-12-29",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 17,
-          revId: 17,
+          revisionId: 17,
           paidOn: "2020-12-29",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 18,
-          revId: 18,
+          revisionId: 18,
           paidOn: "2020-12-31",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 19,
-          revId: 19,
+          revisionId: 19,
           paidOn: "2021-01-03",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 20,
-          revId: 20,
+          revisionId: 20,
           paidOn: "2021-01-03",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 21,
-          revId: 21,
+          revisionId: 21,
           paidOn: "2021-01-03",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 22,
-          revId: 22,
+          revisionId: 22,
           paidOn: "2021-01-03",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 23,
-          revId: 23,
+          revisionId: 23,
           paidOn: "2021-01-06",
-          paidBy: 2,
+          paidById: 2,
         },
         {
           groupId: 1,
           id: 24,
-          revId: 24,
+          revisionId: 24,
           paidOn: "2021-01-07",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 25,
-          revId: 25,
+          revisionId: 25,
           paidOn: "2021-01-08",
-          paidBy: 2,
+          paidById: 2,
         },
         {
           groupId: 1,
           id: 26,
-          revId: 26,
+          revisionId: 26,
           paidOn: "2021-01-09",
-          paidBy: 1,
+          paidById: 1,
         },
         {
           groupId: 1,
           id: 27,
-          revId: 27,
+          revisionId: 27,
           paidOn: "2021-01-10",
-          paidBy: 1,
+          paidById: 1,
         },
       ]);
     });
 
     it("items length correctly", async () => {
-      expect(await Item.findAll()).to.have.length(196);
-      expect(await ItemShare.findAll()).to.have.length(243);
-
       expect(data.items.length).toEqual(196);
       expect(data.itemShares.length).toEqual(243);
     });

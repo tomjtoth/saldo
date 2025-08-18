@@ -1,50 +1,80 @@
 import { Session } from "next-auth";
+import { eq } from "drizzle-orm";
 
-import { Revision, TCrUser, atomic, User } from "../models";
 import { createGroup } from "./groups";
+import { atomic, db, TCrUser, TUser } from "../db";
+import { revisions, users } from "../db/schema";
 
-export async function addUser(userData: TCrUser) {
-  return await atomic("Adding new user", async (transaction) => {
-    const user = await User.create(userData, { transaction });
+export async function addUser(
+  userData: Pick<TCrUser, "email" | "image" | "name">
+) {
+  return await atomic(
+    { operation: "Adding new user", revisedBy: -1, deferForeignKeys: true },
+    async (tx, revisionId) => {
+      const [user] = await tx
+        .insert(users)
+        .values({
+          ...userData,
+          revisionId,
+        })
+        .returning({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          image: users.image,
+          defaultGroupId: users.defaultGroupId,
+        });
 
-    const rev = await Revision.create({ revBy: user.id }, { transaction });
+      await tx.update(revisions).set({
+        createdById: user.id,
+      });
 
-    await user.update({ revId: rev.id }, { transaction });
-
-    return user;
-  });
+      return user;
+    }
+  );
 }
 
 export async function currentUser(session: Session) {
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const email = session?.user?.email!;
-  const name = session?.user?.name ?? `User #${await User.count()}`;
-  const image = session?.user?.image;
+  const name = session?.user?.name ?? `User #${(await db.$count(users)) + 1}`;
+  const image = session?.user?.image ?? null;
 
-  let user = await User.findOne({ where: { email } });
+  let user = await db.query.users.findFirst({
+    columns: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      defaultGroupId: true,
+    },
+    where: eq(users.email, email),
+  });
+
   if (!user) {
     user = await addUser({
       name,
       email,
-    });
+      image,
+    })!;
 
-    await createGroup(user.id, { name: "just you" });
+    await createGroup(user.id!, { name: "just you" });
   }
 
-  let updating = false;
+  const updater: TUser = {};
 
   if (name !== user.name) {
-    updating = true;
-    user.name = name;
+    updater.name = user.name = name;
   }
 
   if (image && image !== user.image) {
-    updating = true;
-    user.image = image;
+    updater.image = user.image = image;
   }
 
-  if (updating) await user.save();
+  if (Object.keys(updater).length > 0) {
+    await db.update(users).set(updater).where(eq(users.id, user.id!));
+  }
 
   return user;
 }

@@ -12,18 +12,18 @@ import {
 } from "react";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { TGroup } from "@/lib/models";
+import { TGroup } from "@/lib/db";
 import { Initializer, rCombined } from "@/lib/reducers";
 
 export type TRootDiv = {
   children: ReactNode;
 
   rewritePath?: string;
-  userId?: number;
+  userId: number;
 
   groupId?: number;
   defaultGroupId?: number;
-  groups?: TGroup[];
+  groups: TGroup[];
 };
 
 type TNamedScrollHandler = {
@@ -78,6 +78,7 @@ export default function CliRootDiv({
         rootDivRef,
         groups: srv.groups ?? [],
         groupId,
+        userId: srv.userId,
       }}
     >
       <div
@@ -99,12 +100,14 @@ const RootDivCx = createContext<{
   sidepanel: ReactNode;
   groups: TGroup[];
   groupId?: number;
+  userId: number;
   rootDivRef?: RefObject<HTMLDivElement | null>;
 }>({
   addOnScroll: () => {},
   rmOnScroll: () => {},
   sidepanel: null,
   groups: [],
+  userId: -1,
 });
 
 export function useRootDivCx() {

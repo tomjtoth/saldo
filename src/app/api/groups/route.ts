@@ -1,69 +1,79 @@
-import { NextRequest } from "next/server";
+import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
 import { v4 as uuid } from "uuid";
+import { eq } from "drizzle-orm";
 
-import { auth } from "@/auth";
-import { TCrGroup } from "@/lib/models";
-import { createGroup, GroupUpdater, updateGroup } from "@/lib/services/groups";
-import { currentUser } from "@/lib/services/user";
+import { db, TGroup } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { err, nullEmptyStrings } from "@/lib/utils";
+import { createGroup, updateGroup } from "@/lib/services/groups";
 
-export const dynamic = "force-dynamic";
+export const POST = protectedRoute(async (req: ReqWithUser) => {
+  const { name, description }: Pick<TGroup, "name" | "description"> =
+    await req.json();
+  if (
+    typeof name !== "string" ||
+    (description !== null &&
+      !["string", "undefined"].includes(typeof description))
+  )
+    err();
 
-export async function POST(req: NextRequest) {
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
+  const data = { name, description };
 
-  const data = (await req.json()) as TCrGroup;
-  if (data?.name === undefined) return new Response(null, { status: 400 });
-
-  const user = await currentUser(sess);
-  const group = await createGroup(user.id, {
-    name: data.name,
-    description: data.description,
-  });
+  const group = await createGroup(req.__user.id, data);
 
   return Response.json(group);
-}
+});
 
-export async function PUT(req: NextRequest) {
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
-
-  const [data, user] = await Promise.all([req.json(), currentUser(sess)]);
-  const {
-    id,
-    statusId,
-    name,
-    description,
-    generateLink,
-    removeLink,
-    setAsDefault,
-  } = data as GroupUpdater & {
+type GroupUpdater = { id: number } & Pick<
+  TGroup,
+  "name" | "description" | "statusId" | "uuid"
+> & {
     generateLink?: true;
     removeLink?: true;
     setAsDefault?: true;
   };
 
+export const PUT = protectedRoute(async (req: ReqWithUser) => {
+  const {
+    generateLink,
+    removeLink,
+    setAsDefault,
+    id,
+    statusId,
+    name,
+    description,
+  }: GroupUpdater = await req.json();
+
+  if (
+    typeof id !== "number" ||
+    !["number", "undefined"].includes(typeof statusId) ||
+    !["string", "undefined"].includes(typeof name) ||
+    (description !== null &&
+      !["string", "undefined"].includes(typeof description))
+  )
+    err();
+
   if (setAsDefault) {
-    await user.update({ defaultGroupId: id });
+    await db
+      .update(users)
+      .set({ defaultGroupId: id })
+      .where(eq(users.id, req.__user.id));
+
     return new Response(null, { status: 200 });
   }
 
-  try {
-    const group = await updateGroup(user.id, {
-      id,
-      statusId,
-      name,
-      description,
-      uuid: generateLink ? uuid() : removeLink ? null : undefined,
-    });
+  const data = {
+    statusId,
+    name,
+    description,
+    uuid: generateLink ? uuid() : removeLink ? null : undefined,
+  };
 
-    if (!group) return new Response(null, { status: 404 });
+  nullEmptyStrings(data);
 
-    return Response.json(group);
-  } catch (err) {
-    return new Response(null, {
-      status: 400,
-      statusText: (err as Error).message,
-    });
-  }
-}
+  const group = await updateGroup(req.__user.id, id, data);
+
+  if (!group) err(404);
+
+  return Response.json(group);
+});

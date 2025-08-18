@@ -1,62 +1,64 @@
-import {
-  atomic,
-  Membership,
-  MembershipArchive,
-  Revision,
-  TMembership,
-} from "../models";
+import { atomic, db, TCrMembership, TMembership, updater } from "@/lib/db";
 import { err } from "../utils";
+import { and, eq, sql } from "drizzle-orm";
+import { memberships } from "../db/schema";
 
-type MembershipUpdater = Pick<TMembership, "groupId" | "userId"> &
-  Partial<Pick<TMembership, "admin" | "statusId" | "defaultCatId">>;
+type MembershipUpdater = Pick<TCrMembership, "groupId" | "userId"> &
+  Pick<TMembership, "statusId" | "defaultCategoryId">;
 
 export async function updateMembership(
-  revBy: number,
-  { userId, groupId, statusId, admin, defaultCatId }: MembershipUpdater
+  revisedBy: number,
+  { userId, groupId, ...modifier }: MembershipUpdater
 ) {
-  return await atomic("Updating membership", async (transaction) => {
-    const ms = await Membership.findOne({
-      where: { userId, groupId },
-      transaction,
-    });
-    if (!ms) return null;
+  return await atomic(
+    { operation: "Updating membership", revisedBy },
+    async (tx, revisionId) => {
+      const ms = await tx.query.memberships.findFirst({
+        where: and(
+          eq(memberships.userId, userId),
+          eq(memberships.groupId, groupId)
+        ),
+      });
 
-    const preChanges = ms.get({ plain: true, clone: true });
-    let saving = false;
+      if (!ms) return null;
 
-    if (statusId !== undefined && statusId !== ms.statusId) {
-      saving = true;
-      ms.statusId = statusId;
+      const saving = await updater(ms, modifier, {
+        tx,
+        tableName: "memberships",
+        entityPk1: userId,
+        entityPk2: groupId,
+        revisionId,
+      });
+
+      if (saving) {
+        const [res] = await tx
+          .update(memberships)
+          .set(ms)
+          .where(
+            and(
+              eq(memberships.userId, userId),
+              eq(memberships.groupId, groupId)
+            )
+          )
+          .returning({ statusId: memberships.statusId });
+
+        return res;
+      } else err("No changes were made");
     }
-
-    if (admin !== undefined && admin !== ms.admin) {
-      saving = true;
-      ms.admin = admin;
-    }
-
-    if (defaultCatId !== undefined && defaultCatId !== ms.defaultCatId) {
-      saving = true;
-      ms.defaultCatId = defaultCatId;
-    }
-
-    if (saving) {
-      await MembershipArchive.create(preChanges, { transaction });
-      const rev = await Revision.create({ revBy }, { transaction });
-      ms.revId = rev.id;
-      await ms.save({ transaction });
-    } else err("No changes were made");
-
-    return await ms.reload({
-      attributes: ["admin", "statusId"],
-      transaction,
-    });
-  });
+  );
 }
 
 export async function isAdmin(userId: number, groupId: number) {
-  const ms = await Membership.findOne({
-    where: { userId, groupId, admin: true },
-  });
+  const ms = await db
+    .select({ x: sql`1` })
+    .from(memberships)
+    .where(
+      and(
+        eq(memberships.userId, userId),
+        eq(memberships.groupId, groupId),
+        sql`${memberships.statusId} & 2 = 2`
+      )
+    );
 
   return !!ms;
 }

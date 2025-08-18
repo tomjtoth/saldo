@@ -18,8 +18,8 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
   )!;
 
   const item = currReceipt.items.find((item) => item.id === itemId)!;
-  const users = rs.group()?.Users;
-  const notPayer = users?.find((user) => user.id !== currReceipt.paidBy);
+  const users = rs.users;
+  const notPayer = users.find((user) => user.id !== currReceipt.paidBy);
 
   return (
     <div
@@ -34,19 +34,19 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
       </div>
 
       <div className="flex flex-wrap gap-6 items-center justify-evenly">
-        {users?.map((user) => (
+        {users.map((user) => (
           <ItemShareAvatar
             key={user.id}
             user={user}
             focused={user.id === notPayer?.id}
-            value={item.shares[user.id] ?? ""}
+            value={item.shares[user.id!] ?? ""}
             onChange={(ev) => {
               dispatch(
                 red.updateItem({
                   id: itemId,
                   shares: {
                     ...item.shares,
-                    [user.id]: Number(ev.target.value),
+                    [user.id!]: Number(ev.target.value),
                   },
                 })
               );

@@ -1,74 +1,84 @@
-import { col, fn } from "sequelize";
+import { eq, exists, and, sql } from "drizzle-orm";
 
-import {
-  atomic,
-  Group,
-  GroupArchive,
-  Membership,
-  Revision,
-  TCrGroup,
-  TGroup,
-  User,
-} from "../models";
-import { err } from "../utils";
+import { err, sortByName } from "../utils";
+import { updater } from "../db/updater";
+import { atomic, db, isActive, TCrGroup, TGroup } from "../db";
+import { groups, memberships } from "../db/schema";
 
-export async function createGroup(ownerId: number, data: TCrGroup) {
-  return await atomic("creating new group", async (transaction) => {
-    const rev = await Revision.create({ revBy: ownerId }, { transaction });
-    const group = await Group.create(
-      { ...data, revId: rev.id },
-      { transaction }
-    );
-
-    await Membership.create(
-      {
-        groupId: group.id,
-        userId: ownerId,
-        revId: rev.id,
-        admin: true,
+const COLS_WITH = {
+  columns: {
+    id: true,
+    name: true,
+    description: true,
+    statusId: true,
+    uuid: true,
+  },
+  with: {
+    memberships: {
+      columns: { statusId: true },
+      with: {
+        user: {
+          columns: { name: true, id: true, email: true, statusId: true },
+        },
       },
-      { transaction }
-    );
+    },
+  },
+};
 
-    return await group.reload({
-      transaction,
-      include: [
-        {
-          model: Membership,
-          attributes: ["admin", "statusId"],
-        },
-        {
-          model: User,
-          through: { attributes: ["admin", "statusId"] },
-        },
-      ],
-    });
-  });
+export async function createGroup(
+  ownerId: number,
+  data: Pick<TCrGroup, "name" | "description">
+) {
+  return await atomic(
+    { operation: "creating new group", revisedBy: ownerId },
+    async (tx, revisionId) => {
+      const [{ groupId }] = await tx
+        .insert(groups)
+        .values({
+          ...data,
+          revisionId,
+        })
+        .returning({
+          groupId: groups.id,
+        });
+
+      await tx.insert(memberships).values({
+        userId: ownerId,
+        groupId,
+        revisionId,
+      });
+
+      return await tx.query.groups.findFirst({
+        ...COLS_WITH,
+        where: eq(groups.id, groupId),
+      });
+    }
+  );
 }
 
 export async function addMember(groupId: number, userId: number) {
-  return await atomic("adding new member", async (transaction) => {
-    const rev = await Revision.create({ revBy: userId }, { transaction });
+  return await atomic(
+    { operation: "adding new member", revisedBy: userId },
+    async (tx, revisionId) => {
+      await tx.update(groups).set({ uuid: null }).where(eq(groups.id, groupId));
 
-    const group = await Group.findByPk(groupId, { transaction });
-    await group!.update(
-      { uuid: null },
-      { transaction, where: { id: groupId } }
-    );
-
-    return await Membership.create(
-      { userId, groupId, revId: rev.id },
-      { transaction }
-    );
-  });
+      return await tx.insert(memberships).values({
+        userId,
+        groupId,
+        revisionId,
+      });
+    }
+  );
 }
 
 export async function joinGroup(uuid: string, userId: number) {
-  const group = await Group.findOne({ where: { uuid } });
+  const group = await db.query.groups.findFirst({
+    where: (t, o) => o.eq(t.uuid, uuid),
+  });
   if (!group) err("link expired");
 
-  const ms = await Membership.findOne({
-    where: { userId, groupId: group.id },
+  const ms = await db.query.memberships.findFirst({
+    where: (t, o) => o.and(o.eq(t.userId, userId), eq(t.groupId, group.id)),
   });
   if (ms) err("already a member");
 
@@ -76,79 +86,63 @@ export async function joinGroup(uuid: string, userId: number) {
 }
 
 export async function getGroups(userId: number) {
-  return await Group.findAll({
-    include: [
-      {
-        model: Membership,
-        where: { userId, statusId: 1 },
-        attributes: ["admin"],
-      },
-      {
-        model: User,
-        through: { attributes: ["admin", "statusId"] },
-      },
-    ],
-    order: [fn("LOWER", col("Group.name"))],
-  });
-}
+  const res = (await db.query.groups.findMany({
+    ...COLS_WITH,
+    where: exists(
+      db
+        .select({ x: sql`1` })
+        .from(memberships)
+        .where(
+          and(
+            eq(memberships.groupId, groups.id),
+            eq(memberships.userId, userId),
+            isActive(memberships)
+          )
+        )
+    ),
+  })) as TGroup[];
 
-export type GroupUpdater = Pick<TGroup, "id"> &
-  Partial<Pick<TGroup, "name" | "description" | "statusId" | "uuid">>;
+  res.sort(sortByName);
+  res.forEach((grp) =>
+    grp.memberships!.sort((a, b) => sortByName(a.user!, b.user!))
+  );
+
+  return res;
+}
 
 export async function updateGroup(
   adminId: number,
-  { id, statusId, name, description, uuid }: GroupUpdater
+  groupId: number,
+  modifier: Pick<TGroup, "name" | "description" | "statusId" | "uuid">
 ) {
-  return await atomic("Updating group", async (transaction) => {
-    const group = await Group.findByPk(id);
-    if (!group) return null;
+  return await atomic(
+    { operation: "Updating group", revisedBy: adminId },
+    async (tx, revisionId) => {
+      const group = await tx.query.groups.findFirst({
+        where: (t, o) => o.eq(t.id, groupId),
+      });
+      if (!group) return null;
 
-    const preChanges = group.get({ plain: true, clone: true });
-    let archiving = false;
-    let linkChanged = false;
+      const saving = await updater(group, modifier, {
+        tx,
+        tableName: "groups",
+        entityPk1: groupId,
+        revisionId,
+        skipArchivalOf: ["uuid"],
+      });
 
-    if (statusId !== undefined && statusId !== group.statusId) {
-      archiving = true;
-      group.statusId = statusId;
+      if (saving) {
+        await tx.update(groups).set(group).where(eq(groups.id, group.id));
+
+        const res = (await tx.query.groups.findFirst({
+          ...COLS_WITH,
+          where: eq(groups.id, groupId),
+        })) as TGroup;
+
+        res.memberships!.sort((a, b) => sortByName(a.user!, b.user!));
+
+        return res;
+      } else err("No changes were made");
     }
-
-    if (name !== undefined && name !== group.name) {
-      archiving = true;
-      group.name = name;
-    }
-
-    if (description !== undefined && description !== group.description) {
-      archiving = true;
-      group.description = description;
-    }
-
-    if (uuid !== undefined && uuid !== group.uuid) {
-      linkChanged = true;
-      group.uuid = uuid;
-    }
-
-    if (archiving || linkChanged) {
-      if (archiving) {
-        await GroupArchive.create(preChanges, { transaction });
-        const rev = await Revision.create({ revBy: adminId }, { transaction });
-        group.revId = rev.id;
-      }
-      await group.save({ transaction });
-    } else err("No changes were made");
-
-    return await group.reload({
-      transaction,
-      include: [
-        {
-          model: Membership,
-          where: { userId: adminId, statusId: 1 },
-        },
-        {
-          model: User,
-          through: { attributes: ["admin", "statusId"] },
-        },
-      ],
-      order: [fn("LOWER", col("Users.name"))],
-    });
-  });
+  );
 }

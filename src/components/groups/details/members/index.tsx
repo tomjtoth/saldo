@@ -1,11 +1,12 @@
 "use client";
 
-import { TGroup } from "@/lib/models";
+import { TGroup } from "@/lib/db";
 import Individual from "./individual";
 
-export default function Members({ group }: { group: TGroup }) {
-  const isAdmin = group.Memberships?.at(0)?.admin;
-
+export default function Members({
+  clientIsAdmin,
+  ...group
+}: TGroup & { clientIsAdmin: boolean }) {
   return (
     <>
       <h3>Current members</h3>
@@ -15,8 +16,11 @@ export default function Members({ group }: { group: TGroup }) {
         re-instated by an admin.
       </p>
       <ul className="flex flex-wrap gap-2 justify-center *:p-1">
-        {group.Users?.map((user) => (
-          <Individual key={user.id} {...{ user, isAdmin, groupId: group.id }} />
+        {group.memberships!.map((ms) => (
+          <Individual
+            key={ms.user!.id!}
+            {...{ ...ms, groupId: group.id, clientIsAdmin }}
+          />
         ))}
       </ul>
     </>

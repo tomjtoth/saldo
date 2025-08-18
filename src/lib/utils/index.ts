@@ -1,10 +1,12 @@
 import { Draft, WritableDraft } from "immer";
 import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
-import { TCategory } from "../models";
+
+import { TCategory } from "@/lib/db";
+import { Dispatch, SetStateAction } from "react";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
-  if (value == 0.5) return [1, 2];
+  if (value === 0.5) return [1, 2];
 
   let bestNumerator = 1;
   let bestDenominator = 1;
@@ -31,6 +33,8 @@ export const EUROPE_HELSINKI = {
   zone: "Europe/Helsinki",
 } satisfies DateTimeJSOptions;
 
+const DT_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
 // TODO: store this in the DB for consistency with the data
 export const DT_ANCHOR = DateTime.fromFormat(
   "2020-01-01",
@@ -55,13 +59,30 @@ export function dateToInt(val?: string) {
   return Math.floor((date.toMillis() - DT_ANCHOR) / DAY);
 }
 
-export function datetimeFromInt(val: number) {
-  const date = DateTime.fromMillis(val * 1000 + DT_ANCHOR, EUROPE_HELSINKI);
-  return date.toISO();
+export function datetimeFromInt(val?: number) {
+  const date = val
+    ? DateTime.fromMillis(val * 1000 + DT_ANCHOR, EUROPE_HELSINKI)
+    : DateTime.local(EUROPE_HELSINKI);
+
+  return date.toFormat(DT_FORMAT);
 }
 
-export function datetimeToInt(val?: DateTime) {
-  const millis = (val ?? DateTime.local(EUROPE_HELSINKI)).toMillis();
+export function datetimeToInt(val?: DateTime | string) {
+  if (
+    typeof val === "string" &&
+    ![DT_FORMAT, "y.M.d. H:m:s"].some((fmt) => {
+      const parsed = DateTime.fromFormat(val as string, fmt, EUROPE_HELSINKI);
+      if (parsed.isValid) {
+        val = parsed;
+        return true;
+      }
+    })
+  )
+    err("unparsable DateTime string");
+
+  const millis = (
+    (val as DateTime) ?? DateTime.local(EUROPE_HELSINKI)
+  ).toMillis();
   return Math.round((millis - DT_ANCHOR) / 1000);
 }
 
@@ -89,8 +110,25 @@ export async function sendJSON(
   });
 }
 
-export function err(msg?: string): never {
-  throw new Error(msg);
+export class ErrorWithStatus extends Error {
+  status: number;
+
+  constructor(status: number, message?: string) {
+    super(message);
+    this.status = status;
+  }
+}
+
+export function err(status: number, message?: string): never;
+export function err(status: number): never;
+export function err(message: string): never;
+export function err(): never;
+export function err(intOrStr?: string | number, message?: string): never {
+  if (typeof intOrStr === "string") throw new Error(intOrStr);
+  if (typeof intOrStr === "number")
+    throw new ErrorWithStatus(intOrStr, message);
+
+  throw new Error();
 }
 
 const RE_3_CONSECUTIVE_LETTERS = /\p{Letter}{3,}/u;
@@ -141,17 +179,95 @@ export const appToast = {
       : "light",
   }),
 
-  promise: (promise: Promise<unknown>, operation: string) =>
-    toast.promise(promise, appToast.messages(operation), appToast.theme()),
+  promise(promise: Promise<unknown>, operation: string) {
+    toast.promise(promise, this.messages(operation), this.theme());
+  },
 };
 
-export function insertAlphabetically<T extends { name: string }>(
+export function insertAlphabetically<T extends { name?: string }>(
   payload: Draft<T>,
   arr: WritableDraft<T[]>
 ) {
   const insertAt = arr.findIndex(
-    (obj) => obj.name.toLowerCase() > payload.name.toLowerCase()
+    (obj) => obj.name!.toLowerCase() > payload.name!.toLowerCase()
   );
 
   arr.splice(insertAt > -1 ? insertAt : arr.length, 0, payload);
+}
+
+export function sortByName<T extends { name?: string | null }>(a: T, b: T) {
+  const lowerA = a.name?.toLowerCase() ?? "";
+  const lowerB = b.name?.toLowerCase() ?? "";
+
+  if (lowerA < lowerB) return -1;
+  if (lowerA > lowerB) return 1;
+  return 0;
+}
+
+export type NumericKeys<T> = {
+  [P in keyof T]: T[P] extends number ? P : never;
+}[keyof T];
+
+export const status = <T extends { statusId?: number }>(
+  entity: T,
+  setter?: Dispatch<SetStateAction<number>>
+) => {
+  let int =
+    entity.statusId ??
+    (process.env.NODE_ENV === "development"
+      ? err("calling status without statusId")
+      : 0);
+
+  return {
+    get active() {
+      return (int & 1) === 1;
+    },
+
+    set active(value: boolean) {
+      int = value ? int | 1 : int & ~1;
+
+      if (setter) setter(int);
+      else entity.statusId = int;
+    },
+
+    get admin() {
+      return (int & 2) === 2;
+    },
+
+    set admin(value: boolean) {
+      int = value ? int | (1 << 1) : int & ~(1 << 1);
+
+      if (setter) setter(int);
+      else entity.statusId = int;
+    },
+
+    toggle(key: "active" | "admin") {
+      this[key] = !this[key];
+
+      return int;
+    },
+  };
+};
+
+type ObjectWithUnknownValues = { [key: string]: unknown };
+type ObjectWithNulledStrings<T> = {
+  [P in keyof T]: T[P] extends string ? string | null : T[P];
+};
+
+export function nullEmptyStrings(obj: ObjectWithUnknownValues): void {
+  for (const key in obj) {
+    const val = obj[key];
+
+    if (val === "") (obj[key] as unknown | null) = null;
+  }
+}
+
+export function nulledEmptyStrings<T extends ObjectWithUnknownValues>(
+  obj: T
+): ObjectWithNulledStrings<T> {
+  const res = { ...obj };
+
+  nullEmptyStrings(res);
+
+  return res as ObjectWithNulledStrings<T>;
 }

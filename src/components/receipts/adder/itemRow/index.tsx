@@ -25,7 +25,7 @@ export default function ItemRow({
   const currReceipt = useAppSelector((s) =>
     rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
   );
-  const isMultiUser = (rs.group()?.Users?.length ?? 0) > 1;
+  const isMultiUser = rs.users.length > 1;
 
   const { setModal } = useModal();
 
@@ -49,12 +49,12 @@ export default function ItemRow({
       <select
         ref={catRef}
         className="rounded border p-1 min-w-20"
-        value={item.catId}
+        value={item.categoryId}
         onChange={(ev) =>
           dispatch(
             red.updateItem({
               id: item.id,
-              catId: Number(ev.target.value),
+              categoryId: Number(ev.target.value),
             })
           )
         }
@@ -65,7 +65,7 @@ export default function ItemRow({
           }
         }}
       >
-        {rs.group()?.Categories?.map((cat) => (
+        {rs.group()?.categories?.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name}
           </option>

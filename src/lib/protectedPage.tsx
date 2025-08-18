@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import { Group, TGroup } from "./models";
+import { TGroup } from "./db";
 import { auth, signIn } from "@/auth";
 import { currentUser } from "@/lib/services/user";
 
@@ -16,7 +16,7 @@ type ProtectedPageOptions<T> = {
     redirectTo: string;
     groupId?: number;
   };
-  getData: (userId: number) => Promise<(Group | TGroup)[]>;
+  getData: (userId: number) => Promise<TGroup[]>;
   children: ReactNode;
   rewritePath: string;
 };
@@ -52,11 +52,9 @@ export default async function protectedPage<T = object>({
     <RootDiv
       {...{
         userId: user.id,
-        defaultGroupId: user.defaultGroupId,
+        defaultGroupId: user.defaultGroupId ?? undefined,
         groupId,
-        groups: (groups as (Group | TGroup)[]).map((group) =>
-          "get" in group ? group.get({ plain: true }) : group
-        ),
+        groups,
         rewritePath,
       }}
     >

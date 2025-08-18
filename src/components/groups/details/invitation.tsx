@@ -3,13 +3,18 @@
 import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { TGroup } from "@/lib/models";
+import { TGroup } from "@/lib/db";
 import { err, sendJSON, appToast } from "@/lib/utils";
 import { rCombined as red } from "@/lib/reducers";
 
-export default function Invitation({ group }: { group: TGroup }) {
+export default function Invitation({
+  group,
+  clientIsAdmin,
+}: {
+  group: TGroup;
+  clientIsAdmin: boolean;
+}) {
   const dispatch = useAppDispatch();
-  const isAdmin = group.Memberships?.at(0)?.admin;
   const invitationLink = group.uuid
     ? `${location.origin}/api/groups/${group.uuid}`
     : null;
@@ -24,7 +29,7 @@ export default function Invitation({ group }: { group: TGroup }) {
       appToast.theme()
     );
 
-  return isAdmin ? (
+  return clientIsAdmin ? (
     <>
       <h3>Invite more people</h3>
 

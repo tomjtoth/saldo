@@ -1,77 +1,89 @@
-import { NextRequest } from "next/server";
+import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
+import {
+  err,
+  has3ConsecutiveLetters,
+  nullEmptyStrings,
+  nulledEmptyStrings,
+} from "@/lib/utils";
 
-import { auth } from "@/auth";
-import { currentUser } from "@/lib/services/user";
+import { TCategory } from "@/lib/db";
 import {
   createCategory,
   TCategoryUpdater,
   updateCategory,
   userAccessToCat,
 } from "@/lib/services/categories";
-import { TCategory, TCrCategory } from "@/lib/models";
 import { updateMembership } from "@/lib/services/memberships";
 
-export const dynamic = "force-dynamic";
+export const POST = protectedRoute(async (req: ReqWithUser) => {
+  const {
+    name,
+    groupId,
+    description,
+  }: Pick<TCategory, "name" | "groupId" | "description"> = await req.json();
 
-export async function POST(req: NextRequest) {
-  const data = (await req.json()) as TCrCategory;
-  if (data.name === undefined) return new Response(null, { status: 401 });
+  if (
+    typeof name !== "string" ||
+    typeof groupId !== "number" ||
+    !["string", "undefined"].includes(typeof description)
+  )
+    err();
 
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
-  const user = await currentUser(sess);
+  has3ConsecutiveLetters(name);
 
-  const cat = await createCategory(user.id, {
-    groupId: data.groupId,
-    name: data.name,
-    description: data.description,
-  });
+  const data = {
+    groupId,
+    name,
+    description,
+  };
+
+  nullEmptyStrings(data);
+
+  const cat = await createCategory(req.__user.id, data);
+
   return Response.json(cat);
-}
+});
 
-export async function PUT(req: NextRequest) {
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
-
-  const data: TCategoryUpdater &
+export const PUT = protectedRoute(async (req: ReqWithUser) => {
+  const {
+    id,
+    groupId,
+    statusId,
+    name,
+    description,
+    setAsDefault,
+  }: TCategoryUpdater &
     Pick<TCategory, "id" | "groupId"> & {
       setAsDefault?: true;
     } = await req.json();
+
   if (
-    !data.id ||
-    !data.groupId ||
-    (!data.name && !data.description && !data.statusId && !data.setAsDefault)
-  ) {
-    return new Response(null, { status: 400 });
-  }
+    typeof id !== "number" ||
+    typeof groupId !== "number" ||
+    (typeof name !== "string" &&
+      typeof description !== "string" &&
+      typeof statusId !== "number" &&
+      typeof setAsDefault !== "boolean")
+  )
+    err();
 
-  const user = await currentUser(sess);
+  if (!(await userAccessToCat(req.__user.id, id))) err(403);
 
-  if (!(await userAccessToCat(user.id, data.id)))
-    return new Response(null, { status: 403 });
-
-  try {
-    if (data.setAsDefault) {
-      await updateMembership(user.id, {
-        userId: user.id,
-        groupId: data.groupId,
-        defaultCatId: data.id,
-      });
-
-      return new Response(null, { status: 200 });
-    }
-
-    const updated = await updateCategory(data.id, user.id, {
-      name: data.name,
-      description: data.description,
-      statusId: data.statusId,
+  if (setAsDefault) {
+    await updateMembership(req.__user.id, {
+      userId: req.__user.id,
+      groupId,
+      defaultCategoryId: id,
     });
 
-    return Response.json(updated);
-  } catch (err) {
-    return new Response(null, {
-      status: 400,
-      statusText: (err as Error).message,
-    });
+    return new Response(null, { status: 200 });
   }
-}
+
+  const updated = await updateCategory(
+    id,
+    req.__user.id,
+    nulledEmptyStrings({ name, description, statusId })
+  );
+
+  return Response.json(updated);
+});

@@ -1,28 +1,28 @@
 import fs from "fs";
 import { Readable } from "stream";
-import { DateTime } from "luxon";
 
 import csv from "csv-parser";
 
-import { approxFloat, DT_ANCHOR, EUROPE_HELSINKI } from "../../utils";
+import { approxFloat } from "../../utils";
+
 import {
   TCrRevision,
-  TCrUser,
   TCrCategory,
-  TCrReceipt,
+  TCrGroup,
   TCrItem,
   TCrItemShare,
-  TGroup,
-  TMembership,
-} from "@/lib/models";
+  TCrMembership,
+  TCrReceipt,
+  TCrUser,
+} from "@/lib/db";
 
 export type TCsvRow = { [key: string]: string };
 
 export type TDBData = {
   revisions: TCrRevision[];
   users: TCrUser[];
-  groups: TGroup[];
-  memberships: TMembership[];
+  groups: TCrGroup[];
+  memberships: TCrMembership[];
   categories: TCrCategory[];
   receipts: TCrReceipt[];
   items: TCrItem[];
@@ -58,7 +58,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
   const dd = {
     revisions: [],
     users: [],
-    groups: [{ id: 1, name: "imported from V3", revId: 1, statusId: 1 }],
+    groups: [{ id: 1, name: "imported from V3", revisionId: 1 }],
     memberships: [],
     categories: [],
     receipts: [],
@@ -70,49 +70,38 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const {
       category: strCategory,
       date: strPaidOn,
-      timestamp_of_entry: strAddedOn,
+      timestamp_of_entry: createdAt,
       cost: strCost,
       comment: strNotes,
       ratio: strRatio,
     } = row;
 
-    const revOn = Math.round(
-      (DateTime.fromFormat(
-        strAddedOn,
-        "y.M.d. H:m:s",
-        EUROPE_HELSINKI
-      ).toMillis() -
-        DT_ANCHOR) /
-        1000
-    );
-
     let lastRev =
-      dd.revisions.find((rev) => rev.revOn === revOn) ?? dd.revisions.at(-1);
+      dd.revisions.find((rev) => rev.createdAt === createdAt) ??
+      dd.revisions.at(-1);
 
-    if (!lastRev || lastRev.revOn !== revOn) {
+    if (!lastRev || lastRev.createdAt !== createdAt) {
       lastRev = {
         id: dd.revisions.length + 1,
-        revBy: 1,
-        revOn,
+        createdById: 1,
+        createdAt,
       };
       dd.revisions.push(lastRev);
     }
-    const revId = lastRev.id!;
+    const revisionId = lastRev.id!;
 
     const newUser = (user: string) => {
-      const u = {
+      const u: TCrUser = {
         id: dd.users.length + 1,
-        revId,
+        revisionId,
         name: user,
         email: user + "@just.imported",
       };
 
       dd.memberships.push({
         groupId: 1,
-        userId: u.id,
-        revId: 1,
-        statusId: 1,
-        admin: false,
+        userId: u.id!,
+        revisionId: 1,
       });
 
       return dd.users.push(u);
@@ -120,10 +109,10 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
     // entries contain sometimes only 1 name
     const [strPaidBy, strPaidTo = null] = row.direction.split("->");
-    const paidBy =
+    const paidById =
       dd.users.find((u) => u.name === strPaidBy)?.id ?? newUser(strPaidBy);
 
-    lastRev.revBy = paidBy;
+    lastRev.createdById = paidById;
     let userId = -1;
 
     if (strPaidTo) {
@@ -136,34 +125,34 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     let lastRcpt = dd.receipts.at(-1);
     if (
       !lastRcpt ||
-      revId !== lastRcpt.revId ||
+      revisionId !== lastRcpt.revisionId ||
       paidOn !== lastRcpt.paidOn ||
-      paidBy !== lastRcpt.paidBy
+      paidById !== lastRcpt.paidById
     ) {
       lastRcpt = {
         id: dd.receipts.length + 1,
-        revId,
+        revisionId,
         groupId: 1,
         paidOn,
-        paidBy,
+        paidById,
       };
       dd.receipts.push(lastRcpt);
     }
 
-    const rcptId = lastRcpt.id!;
+    const receiptId = lastRcpt.id!;
 
     let cat = dd.categories.find((c) => c.name === strCategory);
     if (!cat) {
       cat = {
         id: dd.categories.length + 1,
-        revId,
+        revisionId,
         groupId: 1,
         name: strCategory,
       };
       dd.categories.push(cat);
     }
 
-    const catId = cat.id!;
+    const categoryId = cat.id!;
 
     const cost = parseFloat(
       strCost.replaceAll(/[^\d,.-]/g, "").replace(",", ".")
@@ -171,30 +160,30 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
     const itemId = dd.items.push({
       id: dd.items.length + 1,
-      revId,
-      rcptId,
-      catId,
+      revisionId,
+      receiptId,
+      categoryId,
       cost,
-      notes: strNotes === "" ? undefined : strNotes,
+      notes: strNotes === "" ? null : strNotes,
     });
 
     const ratio = parseFloat(strRatio) / 100;
 
-    if (!((paidBy === 1 && ratio === 1) || (paidBy > 1 && ratio === 0))) {
-      if (paidBy === 1 && ratio === 0) {
+    if (!((paidById === 1 && ratio === 1) || (paidById > 1 && ratio === 0))) {
+      if (paidById === 1 && ratio === 0) {
         dd.itemShares.push({
           itemId,
           userId,
-          revId,
+          revisionId,
           share: 1,
         });
       }
 
-      if (paidBy >= 2 && ratio === 1) {
+      if (paidById >= 2 && ratio === 1) {
         dd.itemShares.push({
           itemId,
           userId: 1,
-          revId,
+          revisionId,
           share: 1,
         });
       }
@@ -206,13 +195,13 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
           {
             itemId,
             userId: 1,
-            revId,
+            revisionId,
             share: user1_share,
           },
           {
             itemId,
-            userId: userId > 1 ? userId : paidBy,
-            revId,
+            userId: userId > 1 ? userId : paidById,
+            revisionId,
             share: total_shares - user1_share,
           }
         );

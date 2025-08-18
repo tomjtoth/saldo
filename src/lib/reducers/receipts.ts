@@ -3,7 +3,7 @@ import { DateTime } from "luxon";
 
 import { AppDispatch } from "../store";
 import { combinedSA as csa, CombinedState as CS } from ".";
-import { Receipt, TGroup } from "../models";
+import { TReceipt, TGroup } from "@/lib/db";
 import { EUROPE_HELSINKI } from "../utils";
 
 export type TCliReceipt = {
@@ -15,7 +15,7 @@ export type TCliReceipt = {
 
 export type TCliItem = {
   id: number;
-  catId: number;
+  categoryId: number;
   cost: string;
   notes: string;
   shares: {
@@ -28,9 +28,9 @@ type TItemUpdater = Pick<TCliItem, "id"> & Partial<Omit<TCliItem, "id">>;
 // this provides the key prop to React during `items.map( ... )`
 // TODO: enable drag n drop re-arrangement of items in adder
 let rowId = 0;
-const addItem = (catId: number) => ({
+const addItem = (categoryId: number) => ({
   id: rowId++,
-  catId,
+  categoryId,
   cost: "",
   notes: "",
   shares: {},
@@ -54,8 +54,8 @@ function currentReceipt(rs: CS) {
 
 export const sortReceipts = (groups: TGroup[]) =>
   groups.forEach((group) =>
-    group.Receipts?.sort((a, b) =>
-      a.paidOn < b.paidOn ? 1 : a.paidOn > b.paidOn ? -1 : 0
+    group.receipts?.sort(({ paidOn: a }, { paidOn: b }) =>
+      b! < a! ? -1 : b! > a! ? 1 : 0
     )
   );
 
@@ -79,13 +79,14 @@ export const rReceipts = {
       curr.items.splice(
         idx + 1,
         0,
-        // inherit the upper row's categoryId
-        addItem(curr.items[idx].catId)
+        // inherit categoryId from the row above
+        addItem(curr.items[idx].categoryId)
       );
     } else {
       const group = rs.groups.find((group) => group.id === rs.groupId)!;
       const defCat =
-        group.Memberships?.at(0)?.defaultCatId ?? group.Categories!.at(0)!.id!;
+        group.memberships?.at(0)?.defaultCategoryId ??
+        group.categories!.at(0)!.id!;
 
       curr.items.push(addItem(defCat));
     }
@@ -107,25 +108,28 @@ export const rReceipts = {
     const curr = currentReceipt(rs);
 
     const item = curr.items.find((i) => i.id === payload.id)!;
-    if (payload.catId !== undefined) item.catId = payload.catId;
+    if (payload.categoryId !== undefined) item.categoryId = payload.categoryId;
     if (payload.cost !== undefined) item.cost = payload.cost;
     if (payload.notes !== undefined) item.notes = payload.notes;
     if (payload.shares !== undefined) item.shares = payload.shares;
   },
 
-  addReceipt: (rs: CS, { payload }: PayloadAction<Receipt>) => {
-    rs.groups
-      .find((group) => group.id === payload.groupId)
-      ?.Receipts?.splice(0, 0, payload);
+  addReceipt: (rs: CS, { payload }: PayloadAction<TReceipt>) => {
+    const receipts = rs.groups.find((group) => group.id === payload.groupId)!
+      .receipts!;
 
-    delete rs.newReceipts[payload.groupId];
+    const insertAt = receipts.findIndex((r) => r.paidOn! < payload.paidOn!);
+
+    receipts.splice(insertAt < 0 ? 0 : insertAt, 0, payload);
+
+    delete rs.newReceipts[payload.groupId!];
   },
 
   addFetchedReceipts: (rs: CS, { payload }: PayloadAction<TGroup[]>) => {
     payload.forEach((grp) => {
       rs.groups
         .find((group) => group.id === grp.id)
-        ?.Receipts?.push(...grp.Receipts!);
+        ?.receipts?.push(...grp.receipts!);
     });
 
     sortReceipts(rs.groups);
@@ -157,7 +161,7 @@ export const tReceipts = {
     return (dispatch: AppDispatch) => dispatch(csa.updateItem(updater));
   },
 
-  addReceipt: (rcpt: Receipt) => {
+  addReceipt: (rcpt: TReceipt) => {
     return (dispatch: AppDispatch) => dispatch(csa.addReceipt(rcpt));
   },
 

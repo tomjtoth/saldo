@@ -1,41 +1,28 @@
-import { NextRequest } from "next/server";
+import protectedRoute, { ReqWithUser } from "@/lib/protectedRoute";
 
-import { auth } from "@/auth";
-import { currentUser } from "@/lib/services/user";
+import { TMembership } from "@/lib/db";
 import { isAdmin, updateMembership } from "@/lib/services/memberships";
-import { TMembership } from "@/lib/models";
+import { err } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
+export const PUT = protectedRoute(async (req: ReqWithUser) => {
+  const { groupId, userId, statusId }: TMembership = await req.json();
 
-export async function PUT(req: NextRequest) {
-  const sess = await auth();
-  if (!sess) return new Response(null, { status: 401 });
+  if (
+    typeof groupId !== "number" ||
+    typeof userId !== "number" ||
+    typeof statusId !== "number"
+  )
+    err();
 
-  const user = await currentUser(sess);
+  if (!(await isAdmin(req.__user.id, groupId))) err(403);
 
-  const body = await req.json();
+  const ms = await updateMembership(req.__user.id, {
+    groupId,
+    userId,
+    statusId,
+  });
 
-  const { groupId, userId, statusId, admin } = body as TMembership;
-  if (!groupId || !userId) return new Response(null, { status: 400 });
+  if (!ms) err(404);
 
-  if (!(await isAdmin(user.id, groupId)))
-    return new Response(null, { status: 403 });
-
-  try {
-    const ms = await updateMembership(user.id, {
-      groupId,
-      userId,
-      statusId,
-      admin,
-    });
-
-    if (!ms) return new Response(null, { status: 404 });
-
-    return Response.json(ms);
-  } catch (err) {
-    return new Response(null, {
-      status: 400,
-      statusText: (err as Error).message,
-    });
-  }
-}
+  return Response.json(ms);
+});

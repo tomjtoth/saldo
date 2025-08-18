@@ -1,7 +1,3 @@
--- rename old tables
-
-
-
 ALTER TABLE revisions RENAME TO old_revisions;
 ALTER TABLE users RENAME TO old_users;
 ALTER TABLE groups RENAME TO old_groups;
@@ -13,16 +9,16 @@ ALTER TABLE item_shares RENAME TO old_item_shares;
 
 
 
--- create the new schema
+-------------------
+-- create schema --
+-------------------
 
 
 
 CREATE TABLE archives (
     id INTEGER PRIMARY KEY,
-    /*
-     *   REFERENCES the column of a table
-     *   TODO: example query
-     */
+
+    -- REFERENCES the column of a table stored in metadata.payload
     table_column_id INTEGER NOT NULL,
 
     -- REFERENCES 1st/only PK of a table
@@ -45,21 +41,21 @@ CREATE TABLE revisions (
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,
     revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    status_id INTEGER NOT NULL DEFAULT (0),
+    status_id INTEGER NOT NULL DEFAULT (1),
 
     email TEXT NOT NULL UNIQUE,
-    name TEXT,
-    image TEXT,
+    "name" TEXT,
+    "image" TEXT,
     default_group_id INTEGER REFERENCES groups (id)
 );
 
 CREATE TABLE groups (
     id INTEGER PRIMARY KEY,
     revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    status_id INTEGER NOT NULL DEFAULT (0),
+    status_id INTEGER NOT NULL DEFAULT (1),
 
-    name TEXT NOT NULL,
-    description TEXT,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
     uuid TEXT
 );
 
@@ -67,9 +63,7 @@ CREATE TABLE memberships (
     user_id INTEGER REFERENCES users (id),
     group_id INTEGER REFERENCES groups (id),
     revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    status_id INTEGER NOT NULL DEFAULT (0),
-
-    admin INTEGER,
+    status_id INTEGER NOT NULL DEFAULT (1),
     default_category_id INTEGER REFERENCES categories (id),
 
     PRIMARY KEY (user_id, group_id)
@@ -78,17 +72,17 @@ CREATE TABLE memberships (
 CREATE TABLE categories (
     id INTEGER PRIMARY KEY,
     revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    status_id INTEGER NOT NULL DEFAULT (0),
+    status_id INTEGER NOT NULL DEFAULT (1),
 
     group_id INTEGER REFERENCES groups (id),
-    name TEXT,
-    description TEXT
+    "name" TEXT,
+    "description" TEXT
 );
 
 CREATE TABLE receipts (
     id INTEGER PRIMARY KEY,
     revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    status_id INTEGER NOT NULL DEFAULT (0),
+    status_id INTEGER NOT NULL DEFAULT (1),
 
     group_id INTEGER REFERENCES groups (id),
     paid_by INTEGER REFERENCES users (id),
@@ -98,7 +92,7 @@ CREATE TABLE receipts (
 CREATE TABLE items (
     id INTEGER PRIMARY KEY,
     revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    status_id INTEGER NOT NULL DEFAULT (0),
+    status_id INTEGER NOT NULL DEFAULT (1),
 
     receipt_id INTEGER REFERENCES receipts (id),
     category_id INTEGER REFERENCES categories (id),
@@ -111,7 +105,7 @@ CREATE TABLE item_shares (
     item_id INTEGER REFERENCES items (id),
     user_id INTEGER REFERENCES users (id),
     revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
-    status_id INTEGER NOT NULL DEFAULT (0),
+    status_id INTEGER NOT NULL DEFAULT (1),
 
     share INTEGER NOT NULL,
 
@@ -120,71 +114,110 @@ CREATE TABLE item_shares (
 
 
 
--- transfer data from old tables to new ones
+-------------------
+-- transfer data --
+-------------------
 
 
 
-INSERT INTO meta (info, payload)
-    SELECT 'datetime', json_object('anchor', '2020-01-01', 'timezone', 'Europe/Helsinki')
+INSERT INTO metadata ("name", "description", payload)
+    SELECT 'datetime', NULL, json_object(
+        'anchor', '2020-01-01', 
+        'format', 'yyyy-MM-dd HH:mm:ss',
+        'timezone', 'Europe/Helsinki'
+    )
     UNION
-    SELECT 'statuses',  json_array('ACTIVE', 'INACTIVE')
+    SELECT
+        'statuses',
+        '0th bit of statusId represents the ACTIVE state universally accross all tables; ' ||
+        '1st bit is only used in the memberships table, and represents the ADMIN state',
+        json_array('ACTIVE', json_object('memberships', 'ADMIN'))
     UNION
-    SELECT 'table_column_id', json_array(
-        'categories.name', 'categories.description', 'categories.status_id', 'categories.group_id',
-        'groups.name', 'groups.description', 'groups.status_id', 'groups.uuid',
-        'memberships.status_id', 'memberships.default_category_id'
-    );
+    SELECT
+        'table_column_ids',
+        'storing camelCase to skip recursive snake_case=>camelCase transformations',
+        json_array(
+            'categories.name', 'categories.description', 'categories.statusId', 'categories.groupId',
+            'groups.name', 'groups.description', 'groups.statusId', 'groups.uuid',
+            'memberships.statusId', 'memberships.defaultCategoryId'
+        );
 
 INSERT INTO archives (entity_pk1, entity_pk2, revision_id, table_column_id, payload)
-    SELECT id, NULL, rev_id, 2, status_id - 1 FROM categories_archive
+    SELECT id, NULL, rev_id, 2, iif(status_id = 2, 0, 1) FROM categories_archive
     UNION
     SELECT id, NULL, rev_id, 3, group_id FROM categories_archive
     UNION
-    SELECT id, NULL, rev_id, 0, name FROM categories_archive
+    SELECT id, NULL, rev_id, 0, "name" FROM categories_archive
     UNION
-    SELECT id, NULL, rev_id, 1, description FROM categories_archive
+    SELECT id, NULL, rev_id, 1, "description" FROM categories_archive
     UNION
-    SELECT id, NULL, rev_id, 6, status_id - 1 FROM groups_archive
+    SELECT id, NULL, rev_id, 6, iif(status_id = 2, 0, 1) FROM groups_archive
     UNION
-    SELECT id, NULL, rev_id, 4, name FROM groups_archive
+    SELECT id, NULL, rev_id, 4, "name" FROM groups_archive
     UNION
-    SELECT id, NULL, rev_id, 5, description FROM groups_archive
+    SELECT id, NULL, rev_id, 5, "description" FROM groups_archive
     UNION
     SELECT id, NULL, rev_id, 7, uuid FROM groups_archive
     UNION
-    SELECT group_id, user_id, rev_id, 8, status_id - 1 + 2 * admin FROM memberships_archive
+    SELECT group_id, user_id, rev_id, 8, iif(status_id = 2, 0, 1) + 2 * "admin" FROM memberships_archive
     UNION
     SELECT group_id, user_id, rev_id, 9, default_cat_id FROM memberships_archive;
 
 INSERT INTO revisions (id, created_at, created_by)
     SELECT id, rev_on, rev_by FROM OLD_REVISIONS;
 
-INSERT INTO users (id, revision_id, status_id, email, name, default_group_id)
-    SELECT id, rev_id, status_id - 1, email, name, default_group_id
+INSERT INTO users (id, revision_id, status_id, email, "name", "image", default_group_id)
+    SELECT
+        id,
+        rev_id,
+        iif(status_id = 2, 0, 1),
+        email,
+        iif("name" = '', NULL, "name"),
+        iif("image" = '', NULL, "image"),
+        default_group_id
     FROM OLD_USERS;
 
-INSERT INTO groups (id, revision_id, status_id, name, description, uuid)
-    SELECT id, rev_id, status_id - 1, name, description, uuid
+INSERT INTO groups (id, revision_id, status_id, "name", "description", uuid)
+    SELECT
+        id,
+        rev_id,
+        iif(status_id = 2, 0, 1),
+        "name",
+        iif("description" = '', NULL, "description"),
+        uuid
     FROM OLD_GROUPS;
 
 INSERT INTO memberships (group_id, user_id, revision_id, status_id, default_category_id)
-    SELECT group_id, user_id, rev_id, status_id -1 + 2 * admin, default_cat_id
+    SELECT group_id, user_id, rev_id,  iif(status_id = 2, 0, 1) + 2 * "admin", default_cat_id
     FROM OLD_MEMBERSHIPS;
 
-INSERT INTO categories (id, revision_id, status_id, group_id, name, description)
-    SELECT id, rev_id, status_id - 1, group_id, name, description
+INSERT INTO categories (id, revision_id, status_id, group_id, "name", "description")
+    SELECT
+        id,
+        rev_id,
+        iif(status_id = 2, 0, 1),
+        group_id,
+        "name",
+        iif("description" = '', NULL, "description")
     FROM OLD_CATEGORIES;
 
 INSERT INTO receipts (id, revision_id, status_id, group_id, paid_on, paid_by)
-    SELECT id, rev_id, status_id - 1, group_id, paid_on, paid_by
+    SELECT id, rev_id, iif(status_id = 2, 0, 1), group_id, paid_on, paid_by
     FROM OLD_RECEIPTS;
 
 INSERT INTO items (id, revision_id, status_id, receipt_id, category_id, cost, notes)
-    SELECT id, rev_id, status_id - 1, rcpt_id, cat_id, cost, notes
+    SELECT
+        id,
+        rev_id,
+        iif(status_id = 2, 0, 1),
+        rcpt_id,
+        cat_id,
+        cost,
+        iif(notes = '', NULL, notes)
     FROM OLD_ITEMS;
 
 INSERT INTO item_shares (item_id, user_id, revision_id, status_id, share)
-    SELECT item_id, user_id, rev_id, status_id - 1, share
+    SELECT item_id, user_id, rev_id, iif(status_id = 2, 0, 1), share
     FROM OLD_ITEM_SHARES;
 
 
@@ -213,32 +246,9 @@ DROP TABLE item_shares_archive;
 DROP VIEW consumption;
 
 
-
--- recreate view
-
-
-
-CREATE VIEW consumption AS
-SELECT
-  r.groupId,
-  r.paidOn,
-  r.paidBy,
-  COALESCE (sh.userId, r.paidBy) AS paidTo,
-  i.id AS itemId,
-  i.categoryId,
-  cost / 100.0 * COALESCE (share * 1.0 / SUM (share) OVER (PARTITION BY i.id), 1) AS share
-FROM receipts r
-INNER JOIN items i ON r.id = i.receiptId
-LEFT JOIN itemShares sh ON (sh.itemId = i.id AND sh.statusId = 1)
-WHERE r.statusId = 1 AND i.statusId = 1
-ORDER BY paidOn;
-
-
-
 ----------
 -- DOWN --
 ----------
 
 
-
-SELECT 42,'sorry folks, this was a one-way ticket';
+SELECT 'this was a one-way trip, sry'

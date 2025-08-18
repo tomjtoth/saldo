@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - drizzle
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -31,7 +32,7 @@ jobs:
         run: |
           export AUTH_SECRET=$(uuidgen)
           npm run coverage
-          npm run e2e:headless
+          DATABASE_URL=file:e2e.db npm run e2e:headless
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
@@ -65,5 +66,5 @@ jobs:
           context: .
           platforms: linux/arm64
           push: true
-          tags: tomjtoth/saldo
+          tags: tomjtoth/saldo:drizzle
           build-args: "GIT_HASH=${{ github.sha }}"

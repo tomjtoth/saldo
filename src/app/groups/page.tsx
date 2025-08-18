@@ -3,8 +3,6 @@ import { getGroups } from "@/lib/services/groups";
 import protectedPage, { TPage } from "@/lib/protectedPage";
 import CliGroupsPage from "@/components/groups";
 
-export const dynamic = "force-dynamic";
-
 export default ({ params }: TPage) =>
   protectedPage({
     params,

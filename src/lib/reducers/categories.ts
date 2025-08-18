@@ -1,7 +1,7 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TCategory } from "../models";
+import { TCategory } from "@/lib/db";
 import { insertAlphabetically } from "../utils";
 import { CombinedState as CS, combinedSA as csa } from ".";
 
@@ -9,7 +9,7 @@ type DefaultCatIdUpdater = { groupId: number; catId: number };
 
 export const rCategories = {
   updateCat: (rs: CS, { payload }: PayloadAction<TCategory>) => {
-    const cats = rs.groups.find((g) => g.id === payload.groupId)!.Categories!;
+    const cats = rs.groups.find((g) => g.id === payload.groupId)!.categories!;
 
     const popFrom = cats.findIndex(({ id }) => id === payload.id)!;
     cats.splice(popFrom, 1);
@@ -18,7 +18,7 @@ export const rCategories = {
 
   addCat: (rs: CS, { payload }: PayloadAction<TCategory>) => {
     const group = rs.groups.find((g) => g.id === payload.groupId)!;
-    const cats = group.Categories!;
+    const cats = group.categories!;
 
     insertAlphabetically(payload, cats);
   },
@@ -28,9 +28,9 @@ export const rCategories = {
     { payload }: PayloadAction<DefaultCatIdUpdater>
   ) => {
     const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
-    const ms = group.Memberships?.at(0);
+    const ms = group.memberships?.at(0);
 
-    ms!.defaultCatId = payload.catId;
+    ms!.defaultCategoryId = payload.catId;
   },
 };
 

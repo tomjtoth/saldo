@@ -1,172 +1,179 @@
-import { col, fn } from "sequelize";
+import { and, eq, exists, sql } from "drizzle-orm";
 
 import {
   atomic,
-  Category,
-  CategoryArchive,
-  Group,
-  Membership,
-  Revision,
+  db,
+  getArchivePopulator,
+  isActive,
   TCategory,
   TCrCategory,
-  User,
-} from "../models";
-import { err } from "../utils";
+  TGroup,
+  updater,
+} from "@/lib/db";
+import { categories, groups, memberships } from "@/lib/db/schema";
+import { err, sortByName } from "../utils";
 
-export type TCategoryUpdater = Partial<
-  Pick<TCategory, "name" | "description" | "statusId">
->;
+export async function createCategory(
+  revisedBy: number,
+  data: Pick<TCrCategory, "name" | "description" | "groupId">
+) {
+  return await atomic(
+    { operation: "Creating category", revisedBy },
+    async (tx, revisionId) => {
+      const [{ id }] = await tx
+        .insert(categories)
+        .values({
+          ...data,
+          revisionId,
+        })
+        .returning({ id: categories.id });
 
-export async function createCategory(revBy: number, data: TCrCategory) {
-  return await atomic("Creating category", async (transaction) => {
-    const rev = await Revision.create({ revBy }, { transaction });
-    const cat = await Category.create(
-      {
-        revId: rev.id,
-        ...data,
-      },
-      { transaction }
-    );
-
-    await cat.reload({
-      transaction,
-      include: [
-        {
-          model: Revision,
-          attributes: ["revOn"],
-          include: [{ model: User, attributes: ["name"] }],
-        },
-        {
-          model: CategoryArchive,
-          as: "archives",
-          include: [
-            {
-              model: Revision,
-              attributes: ["revOn"],
-              include: [{ model: User, attributes: ["name"] }],
+      return await tx.query.categories.findFirst({
+        with: {
+          revision: {
+            columns: {
+              createdAt: true,
             },
-          ],
+            with: {
+              createdBy: { columns: { name: true } },
+            },
+          },
         },
-      ],
-    });
-
-    return cat;
-  });
+        where: eq(categories.id, id),
+      });
+    }
+  );
 }
+
+export type TCategoryUpdater = Pick<
+  TCategory,
+  "name" | "description" | "statusId"
+>;
 
 export async function updateCategory(
   id: number,
-  revBy: number,
-  { name, description, statusId }: TCategoryUpdater
+  revisedBy: number,
+  modifier: TCategoryUpdater
 ) {
-  return await atomic("Updating category", async (transaction) => {
-    const cat = (await Category.findByPk(id, { transaction }))!;
+  return await atomic(
+    { operation: "Updating category", revisedBy },
+    async (tx, revisionId) => {
+      const cat = (await tx.query.categories.findFirst({
+        where: eq(categories.id, id),
+      }))!;
 
-    const preChanges = cat.get({ plain: true, clone: true });
-    let saving = false;
+      const saving = await updater(cat, modifier, {
+        tx,
+        tableName: "categories",
+        revisionId,
+        entityPk1: id,
+      });
 
-    if (name !== undefined && cat.name !== name) {
-      cat.name = name;
-      saving = true;
-    }
+      if (saving)
+        await tx.update(categories).set(cat).where(eq(categories.id, id));
+      else err("No changes were made");
 
-    if (description !== undefined && cat.description !== description) {
-      cat.description = description;
-      saving = true;
-    }
-
-    if (statusId !== undefined && cat.statusId !== statusId) {
-      cat.statusId = statusId;
-      saving = true;
-    }
-
-    if (saving) {
-      await CategoryArchive.create(preChanges, { transaction });
-      const rev = await Revision.create({ revBy }, { transaction });
-      cat.revId = rev.id;
-      await cat.save({ transaction });
-    } else err("No changes were made");
-
-    return await cat.reload({
-      transaction,
-      include: [
-        {
-          model: Revision,
-          attributes: ["revOn"],
-          include: [{ model: User, attributes: ["name"] }],
-        },
-        {
-          model: CategoryArchive,
-          as: "archives",
-          include: [
-            {
-              model: Revision,
-              attributes: ["revOn"],
-              include: [{ model: User, attributes: ["name"] }],
+      const res = (await tx.query.categories.findFirst({
+        with: {
+          revision: {
+            columns: {
+              createdAt: true,
             },
-          ],
+            with: { createdBy: { columns: { name: true } } },
+          },
         },
-      ],
-    })!;
-  });
+        where: eq(categories.id, cat.id),
+      })) as TCategory;
+
+      const populateArchives = await getArchivePopulator<TCategory>(
+        "categories",
+        "id",
+        { tx }
+      );
+
+      populateArchives([res]);
+
+      return res;
+    }
+  );
 }
 
 export async function userAccessToCat(userId: number, catId: number) {
-  const exists = await Category.findAll({
-    attributes: ["id"],
-    include: [
-      {
-        model: Group,
-        attributes: [],
-        required: true,
-        include: [
-          { model: Membership, attributes: [], where: { userId, statusId: 1 } },
-        ],
-      },
-    ],
-    where: { id: catId },
+  const res = await db.query.categories.findFirst({
+    columns: { id: true },
+    where: and(
+      eq(categories.id, catId),
+      exists(
+        db
+          .select({ x: sql`1` })
+          .from(memberships)
+          .where(
+            and(
+              eq(memberships.groupId, categories.groupId),
+              eq(memberships.userId, userId),
+              isActive(memberships)
+            )
+          )
+      )
+    ),
   });
 
-  return !!exists;
+  return !!res;
 }
 
 export async function getCategories(userId: number) {
-  return await Group.findAll({
-    attributes: ["id", "name"],
-    include: [
-      {
-        model: Membership,
-        attributes: ["defaultCatId"],
-        where: { userId, statusId: 1 },
+  const res = (await db.query.groups.findMany({
+    columns: {
+      id: true,
+      name: true,
+    },
+
+    with: {
+      memberships: {
+        columns: { defaultCategoryId: true },
+        with: { user: { columns: { id: true, name: true } } },
       },
-      { model: Revision, attributes: ["revOn"] },
-      { model: User, attributes: ["id", "name"] },
-      {
-        model: Category,
-        include: [
-          {
-            model: Revision,
-            attributes: ["revOn"],
-            include: [{ model: User, attributes: ["name"] }],
-          },
-          {
-            model: CategoryArchive,
-            as: "archives",
-            include: [
-              {
-                model: Revision,
-                attributes: ["revOn"],
-                include: [{ model: User, attributes: ["name"] }],
-              },
-            ],
-          },
-        ],
+      revision: {
+        columns: { createdAt: true },
+        with: { createdBy: { columns: { id: true, name: true } } },
       },
-    ],
-    where: { statusId: 1 },
-    order: [
-      fn("LOWER", col("Group.name")),
-      fn("LOWER", col("Categories.name")),
-    ],
+      categories: {
+        with: {
+          revision: {
+            columns: { createdAt: true },
+            with: { createdBy: { columns: { name: true } } },
+          },
+        },
+      },
+    },
+
+    where: and(
+      isActive(groups),
+      exists(
+        db
+          .select({ x: sql`1` })
+          .from(memberships)
+          .where(
+            and(
+              eq(memberships.groupId, groups.id),
+              eq(memberships.userId, userId),
+              isActive(memberships)
+            )
+          )
+      )
+    ),
+  })) as TGroup[];
+
+  const populateArchives = await getArchivePopulator<TCategory>(
+    "categories",
+    "id"
+  );
+
+  res.sort(sortByName);
+  res.forEach((g) => {
+    g.categories!.sort(sortByName);
+    populateArchives(g.categories!);
   });
+
+  return res;
 }

@@ -1,9 +1,8 @@
 import { DateTime } from "luxon";
-import { QueryTypes } from "sequelize";
+import { sql } from "drizzle-orm";
 
-import { db, TGroup } from "../models";
+import { db, TGroup } from "@/lib/db";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
-import { TParetoChartData } from "@/components/pareto/chart";
 
 export async function getPareto(
   userId: number,
@@ -12,82 +11,92 @@ export async function getPareto(
     to?: string;
   } = {}
 ) {
-  const dateCrit: string[] = [];
-  const replacements = [userId];
+  const from =
+    opts.from &&
+    // SQL injection prevented here
+    DateTime.fromISO(opts.from, EUROPE_HELSINKI).isValid
+      ? `AND paidOn > ${dateToInt(opts.from)}`
+      : "";
 
-  if (opts.from && DateTime.fromISO(opts.from, EUROPE_HELSINKI).isValid) {
-    replacements.push(dateToInt(opts.from));
-    dateCrit.push("AND paidOn > ?");
-  }
+  const to =
+    opts.to &&
+    // SQL injection prevented here
+    DateTime.fromISO(opts.to, EUROPE_HELSINKI).isValid
+      ? `AND paidOn < ${dateToInt(opts.to)}`
+      : "";
 
-  if (opts.to && DateTime.fromISO(opts.to, EUROPE_HELSINKI).isValid) {
-    replacements.push(dateToInt(opts.to));
-    dateCrit.push("AND paidOn < ?");
-  }
-
-  const rows: (Omit<TGroup, "pareto"> & {
-    users: string;
-    categories: string;
-  })[] = await db.query(
-    `WITH step1 AS (
+  const data = await db.get<{ json: string } | null>(
+    sql`WITH sums_per_row AS (
       SELECT
-        groupId AS gid,
+        g.id AS gid,
         g.name AS gName,
         cats.name AS cat,
         u.name AS user,
-        SUM(share) AS total
-      FROM memberships ms
-      INNER JOIN consumption con ON ms.group_id = con.groupId
-      INNER JOIN categories cats ON con.catId = cats.id
-      INNER JOIN users u ON u.id = con.paidTo
-      INNER JOIN groups g ON g.id = con.groupId
-      WHERE ms.user_id = ? ${dateCrit.join(" ")}
-      GROUP BY groupId, paidTo, catId
+        sum(share) AS total
+      FROM "memberships" ms
+      INNER JOIN consumption con ON ms.group_id = con.group_id
+      INNER JOIN "categories" cats ON con.category_id = cats.id
+      INNER JOIN "users" u ON u.id = con.paid_to
+      INNER JOIN "groups" g ON g.id = con.group_id
+      WHERE ms.user_id = ${userId} ${sql.raw(`${from} ${to}`)}
+      GROUP BY g.id, paid_to, category_id
     ),
 
-    step2 AS (
+    one_category_per_row AS (
       SELECT
         gid,
         gName,
-        SUM(total) AS orderer,
-        JSON_INSERT(
-          JSON_GROUP_OBJECT(user, total),
+        sum(total) AS orderer,
+        json_insert(
+          json_group_object(user, total),
           '$.category', cat
         ) AS cats
-      FROM step1
+      FROM sums_per_row
       GROUP BY gid, cat
       ORDER BY orderer DESC
     ),
 
-    step3 AS (
+    categories_in_array_per_row AS (
       SELECT
         gid,
         gName,
-        JSON_GROUP_ARRAY(cats) AS categories
-      FROM step2
+        concat(
+          '[',
+          group_concat(cats),
+          ']'
+        ) AS categories
+      FROM one_category_per_row
+      GROUP BY gid
+    ),
+
+    one_group_per_row AS (
+      SELECT
+        concat('{ ',
+          '"id": ',
+          s3.gid,
+          ', "name": ',
+          json_quote(s3.gName),
+          ', "pareto": { ',
+            ' "users": ',
+            json_group_array(DISTINCT s1.user),
+            ', "categories": ',
+            categories,
+          ' }}'
+        ) AS json
+      FROM categories_in_array_per_row s3
+      LEFT JOIN sums_per_row s1 ON s1.gid = s3.gid
+      GROUP BY s3.gid
+      ORDER BY s3.gName
     )
 
-    SELECT
-      s3.gid AS id,
-      s3.gName AS name,
-      JSON_GROUP_ARRAY(DISTINCT s1.user) AS users,
-      categories
-    FROM step3 s3
-    LEFT JOIN step1 s1 ON s1.gid = s3.gid
-    GROUP BY s3.gid`,
-
-    { type: QueryTypes.SELECT, replacements }
+    -- all groups in 1 array
+    SELECT concat(
+      '[', 
+      group_concat(json),
+      ']'
+    ) AS json
+    FROM one_group_per_row;`
   );
 
-  return rows.map(({ users, categories, ...group }) => {
-    return {
-      ...group,
-      pareto: {
-        users: JSON.parse(users) as string[],
-        categories: (JSON.parse(categories) as string[]).map((strObj) =>
-          JSON.parse(strObj)
-        ),
-      } as unknown as TParetoChartData,
-    };
-  }) as TGroup[];
+  return data ? (JSON.parse(data.json) as TGroup[]) : [];
 }
