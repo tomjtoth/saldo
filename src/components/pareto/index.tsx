@@ -10,12 +10,12 @@ import ParetoChart from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
 
-export default function CliParetoPage() {
+export default function CliParetoPage(srv: { from?: string; to?: string }) {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
 
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
+  const [from, setFrom] = useState(srv.from ?? "");
+  const [to, setTo] = useState(srv.to ?? "");
 
   const group = rs.group();
 
