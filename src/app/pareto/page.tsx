@@ -1,12 +1,12 @@
 import { getPareto } from "@/lib/services/pareto";
 
-import protectedPage, { TPage } from "@/lib/protectedPage";
+import protectedPage from "@/lib/protectedPage";
 import CliParetoPage from "@/components/pareto";
 
-export default ({ params }: TPage) =>
-  protectedPage({
-    params,
-    getData: getPareto,
-    children: <CliParetoPage />,
-    rewritePath: "/pareto",
-  });
+export default protectedPage<{ from?: string; to?: string }>({
+  getData: getPareto,
+  genChildren: ({ groupId: _discard, ...interval }) => (
+    <CliParetoPage {...interval} />
+  ),
+  rewritePath: "/pareto",
+});
