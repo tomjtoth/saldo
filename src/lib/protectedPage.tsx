@@ -38,7 +38,7 @@ function protectedPage<T = object>({
   rewritePath,
   ...rest
 }: WithExplicitChildren<T> | WithGeneratedChildren<T>) {
-  return async (cx: RequestContext<T>) => {
+  const protectedPageHandler = async (cx: RequestContext<T>) => {
     const resolveCoreParams = ({ groupId }: WithGId) => ({
       redirectTo: `${groupId ? `/groups/${groupId}` : ""}${rewritePath}`,
       groupId,
@@ -75,6 +75,8 @@ function protectedPage<T = object>({
       </RootDiv>
     );
   };
+
+  return protectedPageHandler;
 }
 
 export default protectedPage;
