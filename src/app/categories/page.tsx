@@ -1,26 +1,20 @@
 import { getCategories } from "@/lib/services/categories";
 
-import protectedPage, { TPage } from "@/lib/protectedPage";
+import protectedPage from "@/lib/protectedPage";
 import CliCategoriesPage from "@/components/categories";
 
-export default async ({ params }: TPage<{ catId?: string }>) => {
-  const catId = Number((await params).catId);
+export default protectedPage<{ catId?: string }>({
+  resolveParams: ({ groupId, catId }) => ({
+    redirectTo: `${groupId ? `/groups/${groupId}` : ""}/categories${
+      catId ? `/${catId}` : ""
+    }`,
+    groupId,
+  }),
 
-  return protectedPage<{ catId?: string }>({
-    params,
-    resolveParams: ({ groupId, catId }) => {
-      const gidAsNum = Number(groupId);
-
-      return {
-        redirectTo: `${groupId ? `/groups/${groupId}` : ""}/categories${
-          catId ? `/${catId}` : ""
-        }`,
-        groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
-      };
-    },
-
-    getData: getCategories,
-    children: <CliCategoriesPage catId={isNaN(catId) ? undefined : catId} />,
-    rewritePath: "/categories",
-  });
-};
+  getData: getCategories,
+  genChildren({ catId }) {
+    const cidAsNum = Number(catId);
+    return <CliCategoriesPage catId={isNaN(cidAsNum) ? undefined : cidAsNum} />;
+  },
+  rewritePath: "/categories",
+});
