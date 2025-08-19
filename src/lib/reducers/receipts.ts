@@ -42,7 +42,7 @@ function currentReceipt(rs: CS) {
   if (!current) {
     current = {
       paidOn: DateTime.local(EUROPE_HELSINKI).toISODate(),
-      paidBy: rs.userId!,
+      paidBy: rs.user!.id!,
       items: [],
     };
 

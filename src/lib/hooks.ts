@@ -19,10 +19,14 @@ export const useGroupSelector = () => {
     const local = s.combined.groups;
     return local.length > 0 ? local : fallback.groups;
   });
+
   const groupId = useAppSelector(
     (s) => s.combined.groupId ?? fallback.groupId ?? groups.at(0)?.id
   );
-  const userId = useAppSelector((s) => s.combined.userId ?? fallback.user?.id);
+
+  const userId = useAppSelector(
+    (s) => s.combined.user?.id ?? fallback.user?.id
+  );
 
   const group = () => groups.find((group) => group.id === groupId);
 

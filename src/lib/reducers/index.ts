@@ -9,7 +9,10 @@ import { TCliReceipt, rReceipts, tReceipts } from "./receipts";
 export * from "./receipts";
 
 export type CombinedState = {
-  userId?: number;
+  user?: {
+    id: number;
+    statusId: number;
+  };
   groupId?: number;
   groups: TGroup[];
   defaultGroupId?: number;
@@ -19,7 +22,7 @@ export type CombinedState = {
 };
 
 export type Initializer = Pick<CombinedState, "groups" | "defaultGroupId"> & {
-  userId?: number;
+  user?: { id: number; statusId: number };
 };
 
 const slice = createSlice({
@@ -37,7 +40,7 @@ const slice = createSlice({
 
       rs.groups = payload.groups;
 
-      if (payload.userId !== undefined) rs.userId = payload.userId;
+      if (payload.user !== undefined) rs.user = payload.user;
     },
 
     ...rGroups,

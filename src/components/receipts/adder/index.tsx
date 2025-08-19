@@ -32,7 +32,7 @@ export const useModal = () => useContext(Ctx);
 export default function Adder() {
   const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const userId = useAppSelector((s) => s.combined.userId);
+  const userId = useAppSelector((s) => s.combined.user?.id);
   const rs = useGroupSelector();
   const currReceipt = useAppSelector((s) =>
     rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined

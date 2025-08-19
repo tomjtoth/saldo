@@ -36,7 +36,6 @@ export default function CliRootDiv({
   sidepanel,
   rewritePath,
 
-  user,
   groupId,
   ...srv
 }: TRootDiv & {
@@ -79,7 +78,7 @@ export default function CliRootDiv({
         rootDivRef,
         groups: srv.groups ?? [],
         groupId,
-        user,
+        user: srv.user,
       }}
     >
       <div
