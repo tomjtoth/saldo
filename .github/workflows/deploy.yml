@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - drizzle
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -66,5 +65,5 @@ jobs:
           context: .
           platforms: linux/arm64
           push: true
-          tags: tomjtoth/saldo:drizzle
+          tags: tomjtoth/saldo
           build-args: "GIT_HASH=${{ github.sha }}"
