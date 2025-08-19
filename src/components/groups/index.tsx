@@ -50,8 +50,6 @@ export default function CliGroupsPage() {
                   description,
                 })
                   .then(async (res) => {
-                    if (!res.ok) err(res.statusText);
-
                     const body = await res.json();
                     dispatch(red.addGroup(body as TGroup));
                     done(true);

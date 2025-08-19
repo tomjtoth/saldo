@@ -33,11 +33,9 @@ export default function CliImportSection(fromDB: {
         id="import-btn"
         onClick={() => {
           appToast.promise(
-            sendJSON("/api/import", null, {}).then(async (res) => {
-              if (!res.ok) err(res.statusText);
-
-              setData(await res.json());
-            }),
+            sendJSON("/api/import").then(async (res) =>
+              setData(await res.json())
+            ),
             "Dropping and re-populating all data in DB"
           );
         }}

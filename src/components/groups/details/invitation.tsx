@@ -61,8 +61,6 @@ export default function Invitation({
                 { id: group.id, generateLink: true },
                 { method: "PUT" }
               ).then(async (res) => {
-                if (!res.ok) err(res.statusText);
-
                 const body = await res.json();
                 dispatch(red.updateGroup(body));
               }),
@@ -82,8 +80,6 @@ export default function Invitation({
                   { id: group.id, removeLink: true },
                   { method: "PUT" }
                 ).then(async (res) => {
-                  if (!res.ok) err(res.statusText);
-
                   const body = await res.json();
                   dispatch(red.updateGroup(body));
                 }),

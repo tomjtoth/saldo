@@ -46,9 +46,7 @@ export default function Individual({
                   { method: "PUT" }
                 )
                   .then(async (res) => {
-                    if (!res.ok) err(res.statusText);
-
-                    const { statusId } = (await res.json()) as TMembership;
+                    const { statusId }: TMembership = await res.json();
 
                     dispatch(
                       red.updateMS({

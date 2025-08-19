@@ -57,8 +57,6 @@ export default function Updater({ cat }: { cat: TCategory }) {
             { method: "PUT" }
           )
             .then(async (res) => {
-              if (!res.ok) err(res.statusText);
-
               const body = (await res.json()) as TCategory;
 
               const operations = [

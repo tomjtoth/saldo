@@ -57,8 +57,6 @@ export default function Title({
             { method: "PUT" }
           )
             .then(async (res) => {
-              if (!res.ok) err(res.statusText);
-
               const body = await res.json();
               const ops = appToast.opsDone(group, body);
               dispatch(red.updateGroup(body));

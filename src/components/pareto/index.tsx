@@ -33,8 +33,6 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
             appToast.promise(
               fetch(`/api/pareto?from=${from}&to=${to}`)
                 .then(async (res) => {
-                  if (!res.ok) err(res.statusText);
-
                   const groups = await res.json();
                   dispatch(red.init({ groups }));
                 })

@@ -56,8 +56,6 @@ export default function Adder() {
         ...currReceipt,
         groupId,
       }).then(async (res) => {
-        if (!res.ok) err(res.statusText);
-
         const body = await res.json();
         dispatch(red.addReceipt({ ...body, groupId }));
       }),

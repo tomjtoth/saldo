@@ -49,8 +49,6 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
                       description,
                     })
                       .then(async (res) => {
-                        if (!res.ok) err(res.statusText);
-
                         const body = await res.json();
                         dispatch(red.addCat(body as TCategory));
                         done(true);
