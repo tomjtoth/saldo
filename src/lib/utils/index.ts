@@ -90,23 +90,25 @@ export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));
 }
 
-type SendJsonOptions = {
-  method?: "POST" | "PUT";
-};
-
 export async function sendJSON(
   endpoint: string,
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  payload: any,
-  options?: SendJsonOptions
+  payload?: unknown,
+  options?: { method?: "POST" | "PUT" }
 ) {
-  return await fetch(endpoint, {
+  return fetch(endpoint, {
     method: options?.method ?? "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
+
+    ...(payload !== undefined
+      ? {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      : {}),
+  }).then((res) => {
+    if (!res.ok) err(res.statusText);
+    return res;
   });
 }
 
