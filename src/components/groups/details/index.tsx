@@ -15,7 +15,7 @@ export default function Details({ group }: { group: TGroup }) {
   const [statusId, setStatusId] = useState(group.statusId!);
   const rs = useGroupSelector();
   const clientIsAdmin = group.memberships!.some(
-    (ms) => ms.user!.id === rs.userId && status(ms).admin
+    (ms) => ms.user!.id === rs.user?.id && status(ms).admin
   );
 
   useEffect(() => {

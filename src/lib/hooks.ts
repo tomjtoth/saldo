@@ -24,9 +24,7 @@ export const useGroupSelector = () => {
     (s) => s.combined.groupId ?? fallback.groupId ?? groups.at(0)?.id
   );
 
-  const userId = useAppSelector(
-    (s) => s.combined.user?.id ?? fallback.user?.id
-  );
+  const user = useAppSelector((s) => s.combined.user ?? fallback.user);
 
   const group = () => groups.find((group) => group.id === groupId);
 
@@ -46,6 +44,6 @@ export const useGroupSelector = () => {
       return group()?.memberships!.map(({ user }) => user!) ?? [];
     },
 
-    userId,
+    user,
   };
 };
