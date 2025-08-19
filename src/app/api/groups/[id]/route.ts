@@ -1,34 +1,13 @@
 import { redirect } from "next/navigation";
-import { NextRequest } from "next/server";
-import { validate } from "uuid";
 
-import { auth, signIn } from "@/auth";
 import { joinGroup } from "@/lib/services/groups";
-import { currentUser } from "@/lib/services/users";
+import protectedRoute from "@/lib/protectedRoute";
 
-export async function GET(
-  _req: NextRequest,
-  {
-    params,
-  }: {
-    params: Promise<{ id: string }>;
+export const GET = protectedRoute<{ id: string }>(
+  { redirectAs: (req) => `/api/groups/${req.__params?.id}` },
+
+  async (req) => {
+    await joinGroup(req.__params!.id, req.__user.id);
+    redirect("/groups");
   }
-) {
-  const [{ id: uuid }, sess] = await Promise.all([params, auth()]);
-  if (!sess) return signIn("", { redirectTo: `/api/groups/${uuid}` });
-
-  const user = await currentUser(sess);
-
-  if (validate(uuid)) {
-    try {
-      await joinGroup(uuid, user.id);
-    } catch (err) {
-      return new Response(null, {
-        status: 400,
-        statusText: (err as Error).message,
-      });
-    }
-  }
-
-  redirect("/groups");
-}
+);
