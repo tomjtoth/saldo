@@ -120,9 +120,7 @@ export class ErrorWithStatus extends Error {
 }
 
 export function err(status: number, message?: string): never;
-export function err(status: number): never;
-export function err(message: string): never;
-export function err(): never;
+export function err(message?: string): never;
 export function err(intOrStr?: string | number, message?: string): never {
   if (typeof intOrStr === "string") throw new Error(intOrStr);
   if (typeof intOrStr === "number")
