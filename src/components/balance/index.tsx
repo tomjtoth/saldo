@@ -16,14 +16,14 @@ export default function CliBalancePage() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [filtered, setFiltered] = useState<TBalanceChartData | undefined>(
-    rs.group()?.balance
+    rs.group?.balance
   );
 
   const dateFrom = DateTime.fromISO(from, EUROPE_HELSINKI);
   const dateTo = DateTime.fromISO(to, EUROPE_HELSINKI);
 
   const filter = () => {
-    const set = rs.group()?.balance;
+    const set = rs.group?.balance;
     if (!set) return;
 
     const { relations, data } = set;

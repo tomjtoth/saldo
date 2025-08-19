@@ -17,7 +17,7 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
   const [from, setFrom] = useState(srv.from ?? "");
   const [to, setTo] = useState(srv.to ?? "");
 
-  const group = rs.group();
+  const group = rs.group;
 
   return (
     <>

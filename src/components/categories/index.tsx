@@ -17,8 +17,6 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
 
-  const group = rs.group();
-
   return (
     <>
       <Header>
@@ -78,7 +76,7 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {group?.categories?.map((cat) => (
+        {rs.group?.categories?.map((cat) => (
           <Entry key={cat.id} cat={cat} preSelected={srv.catId === cat.id} />
         ))}
       </div>

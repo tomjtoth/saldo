@@ -22,8 +22,7 @@ export default function Entry({
   const hideDetails = () => setShowDetails(false);
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
-  const isDefault =
-    rs.group()?.memberships?.at(0)?.defaultCategoryId === cat.id;
+  const isDefault = rs.group?.memberships?.at(0)?.defaultCategoryId === cat.id;
 
   return (
     <>

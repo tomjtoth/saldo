@@ -65,7 +65,7 @@ export default function ItemRow({
           }
         }}
       >
-        {rs.group()?.categories?.map((cat) => (
+        {rs.group?.categories?.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name}
           </option>

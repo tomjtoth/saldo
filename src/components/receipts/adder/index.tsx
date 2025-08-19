@@ -64,7 +64,7 @@ export default function Adder() {
   };
 
   useEffect(() => {
-    if (!!userId && !currReceipt && (rs.group()?.categories?.length ?? 0) > 0)
+    if (!!userId && !currReceipt && (rs.group?.categories?.length ?? 0) > 0)
       dispatch(red.addRow());
   }, [currReceipt, rs.groups, rs.groupId, userId]);
 

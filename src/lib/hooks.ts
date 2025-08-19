@@ -26,10 +26,10 @@ export const useGroupSelector = () => {
 
   const user = useAppSelector((s) => s.combined.user ?? fallback.user);
 
-  const group = () => groups.find((group) => group.id === groupId);
+  const getGroup = () => groups.find((group) => group.id === groupId);
 
   useEffect(() => {
-    if (groups.length > 0 && !group())
+    if (groups.length > 0 && !getGroup())
       dispatch(rCombined.setGroupId(groups[0].id!));
   }, [groups]);
 
@@ -37,11 +37,12 @@ export const useGroupSelector = () => {
     groups,
     groupId,
 
-    // TODO: change this to a getter too, once ORM swap is concluded
-    group,
+    get group() {
+      return getGroup();
+    },
 
     get users() {
-      return group()?.memberships!.map(({ user }) => user!) ?? [];
+      return getGroup()?.memberships!.map(({ user }) => user!) ?? [];
     },
 
     user,
