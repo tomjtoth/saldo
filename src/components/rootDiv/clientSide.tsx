@@ -23,7 +23,7 @@ export type TRootDiv = {
 
   groupId?: number;
   defaultGroupId?: number;
-  groups: TGroup[];
+  groups?: TGroup[];
 };
 
 type TNamedScrollHandler = {

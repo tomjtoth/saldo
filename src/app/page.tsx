@@ -5,7 +5,7 @@ import ImportSection from "@/components/import";
 
 export default function HomePage() {
   return (
-    <RootDiv {...{ groups: [] }}>
+    <RootDiv>
       <Header>
         <h2>Saldo</h2>
       </Header>
