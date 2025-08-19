@@ -5,8 +5,6 @@ import CliParetoPage from "@/components/pareto";
 
 export default protectedPage<{ from?: string; to?: string }>({
   getData: getPareto,
-  genChildren: ({ groupId: _discard, ...interval }) => (
-    <CliParetoPage {...interval} />
-  ),
+  genChildren: ({ from, to }) => <CliParetoPage {...{ from, to }} />,
   rewritePath: "/pareto",
 });
