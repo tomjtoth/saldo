@@ -6,59 +6,75 @@ import { currentUser } from "@/lib/services/users";
 
 import RootDiv from "@/components/rootDiv";
 
-type TCoreParams = { groupId?: string };
-type TPageParams<T> = TCoreParams & T;
-export type TPage<T = object> = { params: Promise<TPageParams<T>> };
+type WithGId<T = object> = T & { groupId?: string };
 
-type ProtectedPageOptions<T> = {
-  params: TPage<T>["params"];
-  resolveParams?: (params: TPageParams<T>) => {
-    redirectTo: string;
-    groupId?: number;
-  };
+interface BaseOptions<T, R = WithGId<T>> {
+  resolveParams?: (params: R) => R & { redirectTo: string };
   getData: (userId: number) => Promise<TGroup[]>;
-  children: ReactNode;
   rewritePath: string;
-};
+}
 
-export default async function protectedPage<T = object>({
-  params,
+interface WithExplicitChildren<T> extends BaseOptions<T> {
+  children: ReactNode;
+}
+
+interface WithGeneratedChildren<T> extends BaseOptions<T> {
+  genChildren: (cx: WithGId<T>) => ReactNode;
+}
+
+type RequestContext<T> = { params: Promise<WithGId<T>> };
+
+type Signature<T> = (cx: RequestContext<T>) => Promise<ReactNode>;
+
+function protectedPage<T = object>(args: WithExplicitChildren<T>): Signature<T>;
+
+function protectedPage<T = object>(
+  args: WithGeneratedChildren<T>
+): Signature<T>;
+
+function protectedPage<T = object>({
   resolveParams,
   getData,
-  children,
   rewritePath,
-}: ProtectedPageOptions<T>) {
-  const resolveCoreParams = ({ groupId }: TCoreParams) => {
+  ...rest
+}: WithExplicitChildren<T> | WithGeneratedChildren<T>) {
+  return async (cx: RequestContext<T>) => {
+    const resolveCoreParams = ({ groupId }: WithGId) => ({
+      redirectTo: `${groupId ? `/groups/${groupId}` : ""}${rewritePath}`,
+      groupId,
+    });
+
+    const params = await cx.params;
+
+    const { redirectTo, groupId } = (resolveParams ?? resolveCoreParams)(
+      params
+    );
+
+    const session = await auth();
+    if (!session) return signIn("", { redirectTo });
+
+    const { id, statusId, defaultGroupId } = await currentUser(session);
+    const groups = await getData(id);
+
+    const children =
+      "children" in rest ? rest.children : rest.genChildren(params);
+
     const gidAsNum = Number(groupId);
-    const prefix = groupId ? `/groups/${groupId}` : "";
 
-    return {
-      redirectTo: prefix + rewritePath,
-      groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
-    };
+    return (
+      <RootDiv
+        {...{
+          user: { id, statusId },
+          defaultGroupId: defaultGroupId ?? undefined,
+          groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
+          groups,
+          rewritePath,
+        }}
+      >
+        {children}
+      </RootDiv>
+    );
   };
-
-  const { redirectTo, groupId } = (resolveParams ?? resolveCoreParams)(
-    await params
-  );
-
-  const session = await auth();
-  if (!session) return signIn("", { redirectTo });
-
-  const { id, statusId, defaultGroupId } = await currentUser(session);
-  const groups = await getData(id);
-
-  return (
-    <RootDiv
-      {...{
-        user: { id, statusId },
-        defaultGroupId: defaultGroupId ?? undefined,
-        groupId,
-        groups,
-        rewritePath,
-      }}
-    >
-      {children}
-    </RootDiv>
-  );
 }
+
+export default protectedPage;
