@@ -1,16 +1,16 @@
-import { inArray } from "drizzle-orm";
+import { inArray, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { archives, revisions } from "@/lib/db/schema";
+import { archives, categories, revisions } from "@/lib/db/schema";
 import { err } from "@/lib/utils";
 import protectedRoute from "@/lib/protectedRoute";
 
-export const GET = protectedRoute({ withoutUser: true }, async () => {
-  if (process.env.NODE_ENV !== "development") err(403);
+export const GET = protectedRoute({ requireSession: false }, async () => {
+  if (process.env.NODE_ENV !== "development") err(404);
 
   const cats = await db.query.categories.findMany({
     columns: { id: true, revisionId: true },
-    where: (t, o) => o.sql`${t.name} like 'test-cat%'`,
+    where: sql`${categories.name} like 'test-cat%'`,
   });
 
   const catArchives = await db.query.archives.findMany({
