@@ -1,43 +1,83 @@
 import { NextRequest } from "next/server";
 
-import { auth } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { currentUser } from "@/lib/services/users";
 import { err, ErrorWithStatus } from "./utils";
 
-interface ReqWithUser extends NextRequest {
+interface RequestWithParams<P> extends NextRequest {
+  __params?: P;
+}
+
+interface RequestWithUser<P> extends RequestWithParams<P> {
   __user: Awaited<ReturnType<typeof currentUser>>;
 }
 
-type RouteOptions = { withoutUser?: true };
-type RouteLogic<T = unknown> = (req: NextRequest) => Promise<T>;
-type ProtectedRouteLogic<T = unknown> = (req: ReqWithUser) => Promise<T>;
+type RequestContext<P> = { params: Promise<P> };
 
-type Fn = {
-  (opts: RouteOptions, routeLogic: RouteLogic): RouteLogic<Response>;
-  (routeLogic: ProtectedRouteLogic): ProtectedRouteLogic<Response>;
-};
+interface OptionsWithUser<P> {
+  redirectAs?: (req: RequestWithParams<P>) => string;
+}
 
-const protectedRoute: Fn =
-  (optsOrLogic: RouteOptions | ProtectedRouteLogic, maybeLogic?: RouteLogic) =>
-  async (req: NextRequest) => {
-    const first = typeof optsOrLogic === "function";
+interface OptionsWithParams<P> extends OptionsWithUser<P> {
+  requireSession: false;
+}
 
-    const opts = first ? {} : optsOrLogic;
-    const routeLogic = first ? maybeLogic : optsOrLogic;
-    const { withoutUser } = opts;
+type Handler<P, R = unknown> = (req: RequestWithParams<P>) => Promise<R>;
+
+type HandlerWithUser<P, R = unknown> = (req: RequestWithUser<P>) => Promise<R>;
+
+function protectedRoute<P>(
+  options: OptionsWithParams<P>,
+  handler: Handler<P>
+): Handler<P, Response>;
+
+function protectedRoute<P>(
+  options: OptionsWithUser<P>,
+  handler: HandlerWithUser<P>
+): HandlerWithUser<P, Response>;
+
+function protectedRoute<P>(
+  handler: HandlerWithUser<P>
+): HandlerWithUser<P, Response>;
+
+function protectedRoute<P>(
+  optsOrHandler:
+    | (OptionsWithParams<P> | OptionsWithUser<P>)
+    | HandlerWithUser<P>,
+  maybeHandler?: Handler<P> | HandlerWithUser<P>
+) {
+  return async (req: NextRequest, cx?: RequestContext<P>) => {
+    const hasOptions = typeof optsOrHandler !== "function";
+
+    const { redirectAs } = hasOptions ? optsOrHandler : {};
+    const { requireSession = true } =
+      hasOptions &&
+      "requireSession" in optsOrHandler &&
+      typeof optsOrHandler.requireSession === "boolean"
+        ? optsOrHandler
+        : {};
+
+    const handler = hasOptions ? maybeHandler : optsOrHandler;
 
     try {
       let res: unknown;
+      const reqWithParams = req as RequestWithParams<P>;
+      reqWithParams.__params = await cx?.params;
 
-      if (withoutUser) res = await (routeLogic as RouteLogic)(req);
-      else {
-        const sess = await auth();
-        if (!sess) err(401);
-        const reqWithUser = req as ReqWithUser;
-        reqWithUser.__user = await currentUser(sess);
+      if (requireSession) {
+        const session = await auth();
+        if (!session) {
+          if (!redirectAs) err(401);
+          else {
+            return await signIn("", { redirectTo: redirectAs(reqWithParams) });
+          }
+        }
 
-        res = await (routeLogic as ProtectedRouteLogic)(reqWithUser);
-      }
+        const reqWithUser = reqWithParams as RequestWithUser<P>;
+        reqWithUser.__user = await currentUser(session);
+
+        res = await (handler as HandlerWithUser<P>)(reqWithUser);
+      } else res = await (handler as Handler<P>)(reqWithParams);
 
       if (res instanceof Response) return res;
       if (res !== null && res !== undefined) return Response.json(res);
@@ -50,5 +90,6 @@ const protectedRoute: Fn =
       });
     }
   };
+}
 
 export default protectedRoute;
