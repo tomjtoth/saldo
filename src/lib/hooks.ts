@@ -26,7 +26,13 @@ export const useGroupSelector = () => {
 
   const user = useAppSelector((s) => s.combined.user ?? fallback.user);
 
+  // leave it as a function as it get's called from useEffect, too
   const getGroup = () => groups.find((group) => group.id === groupId);
+  const group = getGroup();
+  const users = group?.memberships?.map(({ user }) => user!) ?? [];
+
+  // TODO: performance improvement
+  // console.debug("useGroupSelector being called");
 
   useEffect(() => {
     if (groups.length > 0 && !getGroup())
@@ -35,16 +41,10 @@ export const useGroupSelector = () => {
 
   return {
     groups,
+    group,
     groupId,
 
-    get group() {
-      return getGroup();
-    },
-
-    get users() {
-      return getGroup()?.memberships!.map(({ user }) => user!) ?? [];
-    },
-
+    users,
     user,
   };
 };
