@@ -53,7 +53,9 @@ export default function Entry({
                     setAsDefault: true,
                   },
                   { method: "PUT" }
-                ).then(() => dispatch(red.setDefaultGroupId(group.id!))),
+                ).then(() => {
+                  dispatch(red.setDefaultGroupId(group.id!));
+                }),
                 "Setting default group"
               );
           }}

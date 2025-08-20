@@ -29,9 +29,7 @@ export async function addUser(
 
       await tx
         .update(revisions)
-        .set({
-          createdById: user.id,
-        })
+        .set({ createdById: user.id })
         .where(eq(revisions.id, revisionId));
 
       return user;

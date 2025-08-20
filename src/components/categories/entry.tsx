@@ -53,14 +53,14 @@ export default function Entry({
                     setAsDefault: true,
                   },
                   { method: "PUT" }
-                ).then(() =>
+                ).then(() => {
                   dispatch(
                     red.updateDefaultCatId({
                       catId: cat.id!,
                       groupId: cat.groupId!,
                     })
-                  )
-                ),
+                  );
+                }),
                 "Setting default category"
               );
           }}
