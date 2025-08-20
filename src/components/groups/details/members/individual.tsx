@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useAppDispatch } from "@/lib/hooks";
 import { TMembership } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
-import { err, sendJSON, appToast, status } from "@/lib/utils";
+import { sendJSON, appToast, status } from "@/lib/utils";
 
 import Slider from "@/components/slider";
 

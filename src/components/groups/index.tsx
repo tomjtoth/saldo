@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { TGroup } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
-import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
+import { has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
 import Entry from "./entry";
 import NameDescrAdder from "../nameDescrAdder";

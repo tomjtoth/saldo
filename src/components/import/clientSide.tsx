@@ -1,6 +1,6 @@
 "use client";
 
-import { appToast, err, sendJSON } from "@/lib/utils";
+import { appToast, sendJSON } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 export default function CliImportSection(fromDB: {

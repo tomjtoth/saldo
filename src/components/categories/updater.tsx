@@ -4,7 +4,6 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 import {
-  err,
   has3ConsecutiveLetters,
   sendJSON,
   appToast,

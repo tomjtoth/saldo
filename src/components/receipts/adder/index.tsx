@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 
 import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { appToast, err, sendJSON } from "@/lib/utils";
+import { appToast, sendJSON } from "@/lib/utils";
 
 import Canceler from "../../canceler";
 import ItemRow from "./itemRow";

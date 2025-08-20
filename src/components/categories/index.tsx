@@ -6,7 +6,7 @@ import Link from "next/link";
 import { TCategory } from "@/lib/db";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { err, has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
+import { has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
 
 import NameDescrAdder from "../nameDescrAdder";
 import Entry from "./entry";

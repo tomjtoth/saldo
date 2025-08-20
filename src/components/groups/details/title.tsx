@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
 import {
-  err,
   has3ConsecutiveLetters,
   sendJSON,
   appToast,

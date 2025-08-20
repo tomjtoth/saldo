@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
 import { TGroup } from "@/lib/db";
-import { err, sendJSON, appToast } from "@/lib/utils";
+import { sendJSON, appToast } from "@/lib/utils";
 import { rCombined as red } from "@/lib/reducers";
 
 export default function Invitation({

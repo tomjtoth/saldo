@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { appToast, err } from "@/lib/utils";
+import { appToast } from "@/lib/utils";
 import { rCombined as red } from "@/lib/reducers";
 
 import ParetoChart from "./chart";

@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { appToast, err, sendJSON, status } from "@/lib/utils";
+import { appToast, sendJSON, status } from "@/lib/utils";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
