@@ -37,6 +37,9 @@
     "uuid": "^11.1.0",
     "web-push": "^3.6.7"
   },
+  "optionalDependencies": {
+    "@libsql/linux-arm64-musl": "^0.5.0"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
