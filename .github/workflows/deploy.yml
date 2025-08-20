@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - staging
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -72,5 +73,5 @@ jobs:
           context: .
           platforms: linux/arm64
           push: true
-          tags: tomjtoth/saldo
+          tags: tomjtoth/saldo:staging
           build-args: "GIT_HASH=${{ github.sha }}"
