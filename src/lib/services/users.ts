@@ -98,13 +98,15 @@ export async function updateUser(id: number, modifier: { statusId: number }) {
         revisionId,
       });
 
-      if (saving)
-        return await tx
+      if (saving) {
+        const [res] = await tx
           .update(users)
           .set(user)
           .where(eq(users.id, id))
           .returning({ statusId: users.statusId });
-      else err("No changes were made");
+
+        return res;
+      } else err("No changes were made");
     }
   );
 }
