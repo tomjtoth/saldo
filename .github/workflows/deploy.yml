@@ -43,7 +43,7 @@ jobs:
     if: contains(github.event.head_commit.message, '#skip-ci')
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Skipping lint/build/test due to #skip-ci"
+      - run: echo "Skipping lint/build/test due to \#skip-ci"
 
   deploy:
     if: contains(github.event.head_commit.message, '#deploy')
