@@ -33,6 +33,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/migrations ./migrations
 
+RUN if [ "$(uname -m)" = "aarch64" ] && \
+      ldd --version 2>&1 | grep -qi musl; then \
+        npm i @libsql/linux-arm64-musl; \
+    fi
+
 ARG GIT_HASH
 ENV GIT_HASH=${GIT_HASH} \
     NODE_ENV=production \
