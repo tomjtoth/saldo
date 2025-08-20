@@ -43,8 +43,8 @@ const slice = createSlice({
       if (payload.user !== undefined) rs.user = payload.user;
     },
 
-    setUserStatusId: (rs, { payload }: PayloadAction<{ statusId: number }>) => {
-      rs.user!.statusId = payload.statusId;
+    setUserStatusId: (rs, { payload }: PayloadAction<number>) => {
+      rs.user!.statusId = payload;
     },
 
     ...rGroups,
@@ -60,8 +60,8 @@ export const rCombined = {
     return dispatch(combinedSA.init(data));
   },
 
-  setUserStatusId: (user: { statusId: number }) => (dispatch: AppDispatch) => {
-    return dispatch(combinedSA.setUserStatusId(user));
+  setUserStatusId: (statusId: number) => (dispatch: AppDispatch) => {
+    return dispatch(combinedSA.setUserStatusId(statusId));
   },
 
   ...tGroups,
