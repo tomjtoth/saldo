@@ -7,6 +7,13 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+RUN if [ "$(uname -m)" = "aarch64" ] && \
+      ldd --version 2>&1 | grep -qi musl; then \
+        npm i @libsql/linux-arm64-musl; \
+    else \
+        mkdir -p ./node_modules/@libsql/linux-arm64-musl; \
+    fi
+
 # ----------------------------
 FROM base AS builder
 WORKDIR /app
@@ -33,10 +40,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/migrations ./migrations
 
-RUN if [ "$(uname -m)" = "aarch64" ] && \
-      ldd --version 2>&1 | grep -qi musl; then \
-        npm i @libsql/linux-arm64-musl; \
-    fi
+COPY --from=deps \ 
+    /app/node_modules/@libsql/linux-arm64-musl \
+    ./node_modules/@libsql/linux-arm64-musl
 
 ARG GIT_HASH
 ENV GIT_HASH=${GIT_HASH} \
