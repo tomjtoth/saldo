@@ -1,12 +1,14 @@
 import { useState } from "react";
 
-import { LineType, status } from "@/lib/utils";
-import { useRootDivCx } from "./rootDiv/clientSide";
+import { appToast, LineType, sendJSON, status } from "@/lib/utils";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
+import { rCombined } from "@/lib/reducers";
 
 export default function ChartLineConfig() {
-  const cx = useRootDivCx();
-  const [statusId, setStatusId] = useState(cx.user?.statusId ?? 0);
+  const rs = useGroupSelector();
+  const [statusId, setStatusId] = useState(rs.user?.statusId ?? 0);
   const [showConfig, setShowConfig] = useState(false);
+  const dispatch = useAppDispatch();
 
   const si = { statusId };
 
@@ -92,13 +94,28 @@ export default function ChartLineConfig() {
     </div>
   );
 
-  return (
+  return !rs.user ? null : (
     <>
       <div
-        onClick={() => setShowConfig(!showConfig)}
+        onClick={() => {
+          if (showConfig && statusId !== rs.user?.statusId) {
+            appToast.promise(
+              sendJSON(
+                "/api/users",
+                { id: rs.user!.id, statusId },
+                { method: "PUT" }
+              ).then(async (res) => {
+                const { statusId } = await res.json();
+                dispatch(rCombined.setUserStatusId(statusId));
+              }),
+              "updating Chart config"
+            );
+          }
+          setShowConfig(!showConfig);
+        }}
         className="cursor-pointer select-none p-2 text-center"
       >
-        Show chart config{" "}
+        {showConfig ? "Close to save config" : "Show chart config"}{" "}
         <div className="inline-block">
           <div
             className={
