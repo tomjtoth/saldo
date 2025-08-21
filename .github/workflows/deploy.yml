@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: tomjtoth/saldo:${{ github.ref_name == 'main' && 'latest' || github.ref_name }}
-      MAX_ALLOWED_IMAGE_SIZE: 300
+      MAX_ALLOWED_IMAGE_SIZE: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
