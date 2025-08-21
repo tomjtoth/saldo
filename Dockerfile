@@ -7,8 +7,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-RUN [ ! -d ./node_modules/@libsql/linux-arm64-musl ] && \
-    mkdir -p ./node_modules/@libsql/linux-arm64-musl
+RUN if [ ! -d ./node_modules/@libsql/linux-arm64-musl ]; then \
+        mkdir -p ./node_modules/@libsql/linux-arm64-musl; \
+    fi 
 
 # ----------------------------
 FROM base AS builder
