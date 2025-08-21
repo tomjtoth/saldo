@@ -85,8 +85,8 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}
           build-args: |
             GIT_HASH=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=shared
+          cache-to: type=gha,mode=max,scope=shared
 
       - name: Check image size
         run: |
@@ -110,5 +110,5 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}
           build-args: |
             GIT_HASH=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=shared
+          cache-to: type=gha,mode=max,scope=shared
