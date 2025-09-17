@@ -252,6 +252,7 @@ export const status = <T extends { statusId?: number }>(
 
     set r(value) {
       setColor(value, 2);
+      setFlag(10, true);
     },
 
     get g() {
@@ -260,6 +261,7 @@ export const status = <T extends { statusId?: number }>(
 
     set g(value) {
       setColor(value, 4);
+      setFlag(10, true);
     },
 
     get b() {
@@ -268,6 +270,7 @@ export const status = <T extends { statusId?: number }>(
 
     set b(value) {
       setColor(value, 6);
+      setFlag(10, true);
     },
 
     rgba(alpha: number) {
@@ -305,14 +308,29 @@ export const status = <T extends { statusId?: number }>(
       return int;
     },
 
-    color,
+    chart: {
+      get configured() {
+        return getFlag(10);
+      },
 
-    get lineType() {
-      return getFlag(9) ? "solid" : "dashed";
-    },
+      restoreConfig() {
+        setFlag(10, true);
+      },
 
-    set lineType(value: LineType) {
-      setFlag(9, value === "solid");
+      resetConfig() {
+        setFlag(10, false);
+      },
+
+      color,
+
+      get lineType() {
+        return getFlag(9) ? "solid" : "dashed";
+      },
+
+      set lineType(value: LineType) {
+        setFlag(9, value === "solid");
+        setFlag(10, true);
+      },
     },
   };
 };

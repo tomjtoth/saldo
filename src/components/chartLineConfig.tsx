@@ -23,9 +23,11 @@ export default function ChartLineConfig() {
             min={0}
             max={3}
             step={1}
-            value={status(si).color[key]}
+            value={status(si).chart.color[key]}
             onChange={(e) =>
-              (status(si, setStatusId).color[key] = Number(e.target.value))
+              (status(si, setStatusId).chart.color[key] = Number(
+                e.target.value
+              ))
             }
             className={"w-40 accent-current " + color}
             style={{ color }}
@@ -43,8 +45,8 @@ export default function ChartLineConfig() {
   };
 
   const TypeSelector = ({ type }: { type: LineType }) => {
-    const checked = status(si).lineType === type;
-    const color = status(si).color.rgba(checked ? 1 : 0.4);
+    const checked = status(si).chart.lineType === type;
+    const color = status(si).chart.color.rgba(checked ? 1 : 0.4);
 
     return (
       <label className="flex flex-col items-center cursor-pointer">
@@ -52,7 +54,7 @@ export default function ChartLineConfig() {
           type="radio"
           value={type}
           checked={checked}
-          onChange={() => (status(si, setStatusId).lineType = type)}
+          onChange={() => (status(si, setStatusId).chart.lineType = type)}
           className="hidden"
         />
 
