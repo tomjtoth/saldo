@@ -324,11 +324,11 @@ export const status = <T extends { statusId?: number }>(
       color,
 
       get lineType() {
-        return getFlag(9) ? "solid" : "dashed";
+        return getFlag(9) ? "dashed" : "solid";
       },
 
       set lineType(value: LineType) {
-        setFlag(9, value === "solid");
+        setFlag(9, value === "dashed");
         setFlag(10, true);
       },
     },
