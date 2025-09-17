@@ -247,11 +247,11 @@ export const status = <T extends { statusId?: number }>(
 
   const color = {
     get r() {
-      return getColor(6);
+      return getColor(2);
     },
 
     set r(value) {
-      setColor(value, 6);
+      setColor(value, 2);
     },
 
     get g() {
@@ -263,11 +263,11 @@ export const status = <T extends { statusId?: number }>(
     },
 
     get b() {
-      return getColor(2);
+      return getColor(6);
     },
 
     set b(value) {
-      setColor(value, 2);
+      setColor(value, 6);
     },
 
     rgba(alpha: number) {
