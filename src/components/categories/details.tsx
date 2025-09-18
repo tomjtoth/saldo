@@ -4,7 +4,7 @@ import { TCategory } from "@/lib/db";
 
 import Updater from "./updater";
 import Slider from "../slider";
-import { status } from "@/lib/utils";
+import { virt } from "@/lib/utils";
 
 export default function Details({
   cat,
@@ -30,7 +30,7 @@ export default function Details({
           key={`${cat.id}-${cat.revisionId!}`}
           className={
             "p-2 bg-background rounded border-2 cursor-not-allowed " +
-            (status(cat).active ? "border-green-500" : "border-red-500") +
+            (virt(cat).active ? "border-green-500" : "border-red-500") +
             " grid items-center gap-2 grid-cols-[min-width_min-width]"
           }
         >
@@ -41,7 +41,7 @@ export default function Details({
             disabled
           />
 
-          <Slider checked={status(cat).active} className="" />
+          <Slider checked={virt(cat).active} className="" />
 
           {cat.description && (
             <textarea

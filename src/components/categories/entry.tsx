@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { appToast, sendJSON, status } from "@/lib/utils";
+import { appToast, sendJSON, virt } from "@/lib/utils";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
@@ -35,7 +35,7 @@ export default function Entry({
       <div
         className={
           "category cursor-pointer select-none text-center p-2 rounded border-2 " +
-          (status(cat).active ? "border-green-500" : "border-red-500")
+          (virt(cat).active ? "border-green-500" : "border-red-500")
         }
         onClick={() => setShowDetails(true)}
       >

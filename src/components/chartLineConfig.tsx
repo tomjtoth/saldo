@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { appToast, LineType, sendJSON, status } from "@/lib/utils";
+import { appToast, LineType, sendJSON, virt } from "@/lib/utils";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined } from "@/lib/reducers";
 
@@ -21,9 +21,9 @@ export default function ChartLineConfig(pp: { statusId: number }) {
             min={0}
             max={3}
             step={1}
-            value={status(si).chart.color[key]}
+            value={virt(si).chart.color[key]}
             onChange={(e) =>
-              (status(si, setFlags).chart.color[key] = Number(e.target.value))
+              (virt(si, setFlags).chart.color[key] = Number(e.target.value))
             }
             className={"w-40 accent-current " + color}
             style={{ color }}
@@ -41,8 +41,8 @@ export default function ChartLineConfig(pp: { statusId: number }) {
   };
 
   const TypeSelector = ({ type }: { type: LineType }) => {
-    const checked = status(si).chart.lineType === type;
-    const color = status(si).chart.color.rgba(checked ? 1 : 0.4);
+    const checked = virt(si).chart.lineType === type;
+    const color = virt(si).chart.color.rgba(checked ? 1 : 0.4);
 
     return (
       <label className="flex flex-col items-center cursor-pointer">
@@ -50,7 +50,7 @@ export default function ChartLineConfig(pp: { statusId: number }) {
           type="radio"
           value={type}
           checked={checked}
-          onChange={() => (status(si, setFlags).chart.lineType = type)}
+          onChange={() => (virt(si, setFlags).chart.lineType = type)}
           className="hidden"
         />
 
@@ -92,40 +92,6 @@ export default function ChartLineConfig(pp: { statusId: number }) {
     </div>
   );
 
-  return !rs.user ? null : (
-    <>
-      <div
-        onClick={() => {
-          if (showConfig && statusId !== rs.user?.statusId) {
-            appToast.promise(
-              sendJSON(
-                "/api/users",
-                { id: rs.user!.id, statusId },
-                { method: "PUT" }
-              ).then(async (res) => {
-                const { statusId } = await res.json();
-                dispatch(rCombined.setUserStatusId(statusId));
-              }),
-              "updating Chart config"
-            );
-          }
-          setShowConfig(!showConfig);
-        }}
-        className="cursor-pointer select-none p-2 text-center"
-      >
-        {showConfig ? "Close to save config" : "Show chart config"}{" "}
-        <div className="inline-block">
-          <div
-            className={
-              (showConfig ? "rotate-90" : "-rotate-90") +
-              " transition duration-150"
-            }
-          >
-            &lt;
-          </div>
-        </div>
-      </div>
-      {showConfig ? <Config /> : null}
-    </>
+              dispatch(rCombined.setUserFlags(statusId));
   );
 }

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useAppDispatch } from "@/lib/hooks";
 import { TMembership } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
-import { sendJSON, appToast, status } from "@/lib/utils";
+import { sendJSON, appToast, virt } from "@/lib/utils";
 
 import Slider from "@/components/slider";
 
@@ -20,18 +20,18 @@ export default function Individual({
     <li
       className={
         "flex gap-1 items-center rounded border-2 " +
-        (status(ms).active ? "border-green-500" : "border-red-500")
+        (virt(ms).active ? "border-green-500" : "border-red-500")
       }
     >
-      {status(ms).admin ? (
+      {virt(ms).admin ? (
         <span>👮</span>
       ) : (
         clientIsAdmin && (
           <Slider
-            checked={status({ flags }).active}
+            checked={virt({ flags }).active}
             onClick={() => {
               const prevState = flags;
-              const nextState = status({ flags }, setFlags).toggle("active");
+              const nextState = virt({ flags }, setFlags).toggle("active");
 
               appToast.promise(
                 sendJSON(

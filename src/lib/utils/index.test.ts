@@ -12,7 +12,7 @@ import {
   has3ConsecutiveLetters,
   nulledEmptyStrings,
   nullEmptyStrings,
-  status,
+  virt,
 } from ".";
 import { DateTime } from "luxon";
 
@@ -43,32 +43,32 @@ describe("datetimeFunctions", () => {
 
 describe("status", () => {
   it("resolves ACTIVE state correctly", () => {
-    expect(status({ flags: 0 }).active).to.be.false;
-    expect(status({ flags: 1 }).active).to.be.true;
-    expect(status({ flags: 2 }).active).to.be.false;
-    expect(status({ flags: 3 }).active).to.be.true;
+    expect(virt({ flags: 0 }).active).to.be.false;
+    expect(virt({ flags: 1 }).active).to.be.true;
+    expect(virt({ flags: 2 }).active).to.be.false;
+    expect(virt({ flags: 3 }).active).to.be.true;
   });
 
   it("resolves ADMIN state correctly", () => {
-    expect(status({ flags: 0 }).admin).to.be.false;
-    expect(status({ flags: 1 }).admin).to.be.false;
-    expect(status({ flags: 2 }).admin).to.be.true;
-    expect(status({ flags: 3 }).admin).to.be.true;
+    expect(virt({ flags: 0 }).admin).to.be.false;
+    expect(virt({ flags: 1 }).admin).to.be.false;
+    expect(virt({ flags: 2 }).admin).to.be.true;
+    expect(virt({ flags: 3 }).admin).to.be.true;
   });
 
   it("sets state correctly via setters", () => {
     const obj = { flags: 0 };
 
-    status(obj).active = true;
+    virt(obj).active = true;
     expect(obj.flags).to.equal(1);
 
-    status(obj).admin = true;
+    virt(obj).admin = true;
     expect(obj.flags).to.equal(3);
 
-    status(obj).active = false;
+    virt(obj).active = false;
     expect(obj.flags).to.equal(2);
 
-    status(obj).admin = false;
+    virt(obj).admin = false;
     expect(obj.flags).to.equal(0);
   });
 
@@ -76,16 +76,16 @@ describe("status", () => {
     const obj = { flags: 0 };
     let res: number;
 
-    res = status(obj).toggle("active");
+    res = virt(obj).toggle("active");
     expect(res).to.equal(obj.flags).to.equal(1);
 
-    res = status(obj).toggle("admin");
+    res = virt(obj).toggle("admin");
     expect(res).to.equal(obj.flags).to.equal(3);
 
-    res = status(obj).toggle("active");
+    res = virt(obj).toggle("active");
     expect(res).to.equal(obj.flags).to.equal(2);
 
-    res = status(obj).toggle("admin");
+    res = virt(obj).toggle("admin");
     expect(res).to.equal(obj.flags).to.equal(0);
   });
 });

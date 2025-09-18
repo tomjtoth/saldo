@@ -211,7 +211,7 @@ export type NumericKeys<T> = {
 
 export type LineType = "solid" | "dashed";
 
-export const status = <T extends { flags?: number }>(
+export const virt = <T extends { flags?: number }>(
   entity: T,
   setter?: Dispatch<SetStateAction<number>>
 ) => {

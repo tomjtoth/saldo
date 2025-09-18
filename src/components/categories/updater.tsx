@@ -7,7 +7,7 @@ import {
   has3ConsecutiveLetters,
   sendJSON,
   appToast,
-  status,
+  virt,
   nulledEmptyStrings,
 } from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
@@ -28,7 +28,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
       key={`${cat.id}-${cat.revisionId!}`}
       className={
         "p-2 bg-background rounded border-2 " +
-        (status({ flags }).active ? "border-green-500" : "border-red-500") +
+        (virt({ flags }).active ? "border-green-500" : "border-red-500") +
         " grid items-center gap-2 grid-cols-[min-width_min-width_min-width]"
       }
       onSubmit={(ev) => {
@@ -90,8 +90,8 @@ export default function Updater({ cat }: { cat: TCategory }) {
       />
 
       <Slider
-        checked={status({ flags }).active}
-        onClick={() => status({ flags }, setFlags).toggle("active")}
+        checked={virt({ flags }).active}
+        onClick={() => virt({ flags }, setFlags).toggle("active")}
       />
 
       <button>💾</button>

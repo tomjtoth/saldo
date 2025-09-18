@@ -4,12 +4,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
-import {
-  has3ConsecutiveLetters,
-  sendJSON,
-  appToast,
-  status,
-} from "@/lib/utils";
+import { has3ConsecutiveLetters, sendJSON, appToast, virt } from "@/lib/utils";
 import { TGroup } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
@@ -80,8 +75,8 @@ export default function Title({
       />
 
       <Slider
-        checked={status({ flags }).active}
-        onClick={() => status({ flags }, setFlags).toggle("active")}
+        checked={virt({ flags }).active}
+        onClick={() => virt({ flags }, setFlags).toggle("active")}
       />
 
       <button>💾</button>
