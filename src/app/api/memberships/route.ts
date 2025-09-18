@@ -5,12 +5,12 @@ import { isAdmin, updateMembership } from "@/lib/services/memberships";
 import { err } from "@/lib/utils";
 
 export const PUT = protectedRoute(async (req) => {
-  const { groupId, userId, statusId }: TMembership = await req.json();
+  const { groupId, userId, flags }: TMembership = await req.json();
 
   if (
     typeof groupId !== "number" ||
     typeof userId !== "number" ||
-    typeof statusId !== "number"
+    typeof flags !== "number"
   )
     err();
 
@@ -19,7 +19,7 @@ export const PUT = protectedRoute(async (req) => {
   const ms = await updateMembership(req.__user.id, {
     groupId,
     userId,
-    statusId,
+    flags,
   });
 
   if (!ms) err(404);

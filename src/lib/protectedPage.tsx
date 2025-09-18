@@ -53,7 +53,7 @@ function protectedPage<T = object>({
     const session = await auth();
     if (!session) return signIn("", { redirectTo });
 
-    const { id, statusId, defaultGroupId } = await currentUser(session);
+    const { id, flags, defaultGroupId } = await currentUser(session);
     const groups = await getData(id);
 
     const children =
@@ -64,7 +64,7 @@ function protectedPage<T = object>({
     return (
       <RootDiv
         {...{
-          user: { id, statusId },
+          user: { id, flags },
           defaultGroupId: defaultGroupId ?? undefined,
           groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
           groups,

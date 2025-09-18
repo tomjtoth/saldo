@@ -20,7 +20,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
   const dispatch = useAppDispatch();
   const [name, setName] = useState(cat.name!);
   const [description, setDescr] = useState(cat.description ?? "");
-  const [statusId, setStatusId] = useState(cat.statusId!);
+  const [flags, setFlags] = useState(cat.flags!);
 
   return (
     <form
@@ -28,7 +28,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
       key={`${cat.id}-${cat.revisionId!}`}
       className={
         "p-2 bg-background rounded border-2 " +
-        (status({ statusId }).active ? "border-green-500" : "border-red-500") +
+        (status({ flags }).active ? "border-green-500" : "border-red-500") +
         " grid items-center gap-2 grid-cols-[min-width_min-width_min-width]"
       }
       onSubmit={(ev) => {
@@ -51,7 +51,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
               groupId: cat.groupId,
               name,
               description,
-              statusId,
+              flags,
             }),
             { method: "PUT" }
           )
@@ -60,7 +60,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
               const operations = [
                 ...(body.name !== cat.name ? ["renaming"] : []),
-                ...(body.statusId !== cat.statusId ? ["toggling"] : []),
+                ...(body.flags !== cat.flags ? ["toggling"] : []),
                 ...(body.description !== cat.description
                   ? ["altering the description of"]
                   : []),
@@ -75,7 +75,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
             .catch((err) => {
               setName(cat.name!);
               setDescr(cat.description ?? "");
-              setStatusId(cat.statusId!);
+              setFlags(cat.flags!);
               throw err;
             }),
           `Updating "${cat.name}"`
@@ -90,8 +90,8 @@ export default function Updater({ cat }: { cat: TCategory }) {
       />
 
       <Slider
-        checked={status({ statusId }).active}
-        onClick={() => status({ statusId }, setStatusId).toggle("active")}
+        checked={status({ flags }).active}
+        onClick={() => status({ flags }, setFlags).toggle("active")}
       />
 
       <button>💾</button>

@@ -47,7 +47,7 @@ export async function createCategory(
 
 export type TCategoryUpdater = Pick<
   TCategory,
-  "name" | "description" | "statusId"
+  "name" | "description" | "flags"
 >;
 
 export async function updateCategory(

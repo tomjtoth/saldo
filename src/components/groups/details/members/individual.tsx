@@ -14,7 +14,7 @@ export default function Individual({
   ...ms
 }: TMembership & { clientIsAdmin: boolean }) {
   const dispatch = useAppDispatch();
-  const [statusId, setStatusId] = useState(ms.statusId!);
+  const [flags, setFlags] = useState(ms.flags!);
 
   return (
     <li
@@ -28,12 +28,10 @@ export default function Individual({
       ) : (
         clientIsAdmin && (
           <Slider
-            checked={status({ statusId }).active}
+            checked={status({ flags }).active}
             onClick={() => {
-              const prevStatusId = statusId;
-              const nextStatusId = status({ statusId }, setStatusId).toggle(
-                "active"
-              );
+              const prevState = flags;
+              const nextState = status({ flags }, setFlags).toggle("active");
 
               appToast.promise(
                 sendJSON(
@@ -41,27 +39,27 @@ export default function Individual({
                   {
                     groupId: ms.groupId,
                     userId: ms.user!.id,
-                    statusId: nextStatusId,
+                    flags: nextState,
                   },
                   { method: "PUT" }
                 )
                   .then(async (res) => {
-                    const { statusId }: TMembership = await res.json();
+                    const { flags }: TMembership = await res.json();
 
                     dispatch(
                       red.updateMS({
-                        statusId,
+                        flags,
                         groupId: ms.groupId,
                         userId: ms.user!.id,
                       })
                     );
                   })
                   .catch((err) => {
-                    setStatusId(prevStatusId);
+                    setFlags(prevState);
                     throw err;
                   }),
 
-                `${nextStatusId === 0 ? "Re-instating" : "Banning"} "${
+                `${nextState === 0 ? "Re-instating" : "Banning"} "${
                   ms.user!.name
                 }"`
               );

@@ -20,7 +20,7 @@ export async function addUser(
         })
         .returning({
           id: users.id,
-          statusId: users.statusId,
+          flags: users.flags,
           name: users.name,
           email: users.email,
           image: users.image,
@@ -47,7 +47,7 @@ export async function currentUser(session: Session) {
   let user = await db.query.users.findFirst({
     columns: {
       id: true,
-      statusId: true,
+      flags: true,
       name: true,
       email: true,
       image: true,
@@ -83,7 +83,7 @@ export async function currentUser(session: Session) {
   return user;
 }
 
-export async function updateUser(id: number, modifier: { statusId: number }) {
+export async function updateUser(id: number, modifier: { flags: number }) {
   return await atomic(
     { operation: "Updating user", revisedBy: id },
     async (tx, revisionId) => {
@@ -103,7 +103,7 @@ export async function updateUser(id: number, modifier: { statusId: number }) {
           .update(users)
           .set(user)
           .where(eq(users.id, id))
-          .returning({ statusId: users.statusId });
+          .returning({ flags: users.flags });
 
         return res;
       } else err("No changes were made");

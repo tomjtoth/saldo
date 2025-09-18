@@ -28,7 +28,7 @@ export const rGroups = {
     const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
     const ms = group.memberships!.find((x) => x.user!.id === payload.userId!)!;
 
-    ms.statusId = payload.statusId;
+    ms.flags = payload.flags;
   },
 };
 

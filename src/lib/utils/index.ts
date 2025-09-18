@@ -138,12 +138,13 @@ export function has3ConsecutiveLetters(val: string) {
     err("must have at least 3 consecutive letters");
 }
 
-function opsDone<
-  T extends Pick<TCategory, "name" | "description" | "statusId">
->(before: T, after: T) {
+function opsDone<T extends Pick<TCategory, "name" | "description" | "flags">>(
+  before: T,
+  after: T
+) {
   const ops = [
     ...(after.name !== before.name ? ["renaming"] : []),
-    ...(after.statusId !== before.statusId ? ["toggling"] : []),
+    ...(after.flags !== before.flags ? ["toggling"] : []),
     ...(after.description !== before.description
       ? ["altering the description of"]
       : []),
@@ -210,14 +211,14 @@ export type NumericKeys<T> = {
 
 export type LineType = "solid" | "dashed";
 
-export const status = <T extends { statusId?: number }>(
+export const status = <T extends { flags?: number }>(
   entity: T,
   setter?: Dispatch<SetStateAction<number>>
 ) => {
   let int =
-    entity.statusId ??
+    entity.flags ??
     (process.env.NODE_ENV === "development"
-      ? err("calling status without statusId")
+      ? err("calling status without passing flags")
       : 0);
 
   const getFlag = (bit: number) => (int & (1 << bit)) !== 0;
@@ -228,7 +229,7 @@ export const status = <T extends { statusId?: number }>(
 
   const finalizeInt = () => {
     if (setter) setter(int);
-    else entity.statusId = int;
+    else entity.flags = int;
   };
 
   const scaleTo255 = (value: number) => {

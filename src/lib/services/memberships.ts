@@ -4,7 +4,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { memberships } from "../db/schema";
 
 type MembershipUpdater = Pick<TCrMembership, "groupId" | "userId"> &
-  Pick<TMembership, "statusId" | "defaultCategoryId">;
+  Pick<TMembership, "flags" | "defaultCategoryId">;
 
 export async function updateMembership(
   revisedBy: number,
@@ -40,7 +40,7 @@ export async function updateMembership(
               eq(memberships.groupId, groupId)
             )
           )
-          .returning({ statusId: memberships.statusId });
+          .returning({ flags: memberships.flags });
 
         return res;
       } else err("No changes were made");
@@ -56,7 +56,7 @@ export async function isAdmin(userId: number, groupId: number) {
       and(
         eq(memberships.userId, userId),
         eq(memberships.groupId, groupId),
-        sql`${memberships.statusId} & 2 = 2`
+        sql`${memberships.flags} & 2 = 2`
       )
     );
 

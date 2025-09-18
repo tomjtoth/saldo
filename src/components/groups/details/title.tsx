@@ -16,13 +16,13 @@ import { rCombined as red } from "@/lib/reducers";
 import Slider from "@/components/slider";
 
 export default function Title({
-  statusId,
-  setStatusId,
+  flags,
+  setFlags,
   clientIsAdmin,
   group,
 }: {
-  statusId: number;
-  setStatusId: Dispatch<SetStateAction<number>>;
+  flags: number;
+  setFlags: Dispatch<SetStateAction<number>>;
   clientIsAdmin: boolean;
   group: TGroup;
 }) {
@@ -51,7 +51,7 @@ export default function Title({
               id: group.id,
               name,
               description,
-              statusId,
+              flags,
             },
             { method: "PUT" }
           )
@@ -65,7 +65,7 @@ export default function Title({
             .catch((err) => {
               setName(group.name!);
               setDescription(group.description ?? "");
-              setStatusId(group.statusId!);
+              setFlags(group.flags!);
               throw err;
             }),
           `Updating "${group.name}"`
@@ -80,8 +80,8 @@ export default function Title({
       />
 
       <Slider
-        checked={status({ statusId }).active}
-        onClick={() => status({ statusId }, setStatusId).toggle("active")}
+        checked={status({ flags }).active}
+        onClick={() => status({ flags }, setFlags).toggle("active")}
       />
 
       <button>💾</button>

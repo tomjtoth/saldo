@@ -25,7 +25,7 @@ export const POST = protectedRoute(async (req) => {
 
 type GroupUpdater = { id: number } & Pick<
   TGroup,
-  "name" | "description" | "statusId" | "uuid"
+  "name" | "description" | "flags" | "uuid"
 > & {
     generateLink?: true;
     removeLink?: true;
@@ -38,14 +38,14 @@ export const PUT = protectedRoute(async (req) => {
     removeLink,
     setAsDefault,
     id,
-    statusId,
+    flags,
     name,
     description,
   }: GroupUpdater = await req.json();
 
   if (
     typeof id !== "number" ||
-    !["number", "undefined"].includes(typeof statusId) ||
+    !["number", "undefined"].includes(typeof flags) ||
     !["string", "undefined"].includes(typeof name) ||
     (description !== null &&
       !["string", "undefined"].includes(typeof description))
@@ -62,7 +62,7 @@ export const PUT = protectedRoute(async (req) => {
   }
 
   const data = {
-    statusId,
+    flags,
     name,
     description,
     uuid: generateLink ? uuid() : removeLink ? null : undefined,

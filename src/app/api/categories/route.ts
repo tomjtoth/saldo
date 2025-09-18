@@ -46,7 +46,7 @@ export const PUT = protectedRoute(async (req) => {
   const {
     id,
     groupId,
-    statusId,
+    flags,
     name,
     description,
     setAsDefault,
@@ -60,7 +60,7 @@ export const PUT = protectedRoute(async (req) => {
     typeof groupId !== "number" ||
     (typeof name !== "string" &&
       typeof description !== "string" &&
-      typeof statusId !== "number" &&
+      typeof flags !== "number" &&
       typeof setAsDefault !== "boolean")
   )
     err();
@@ -80,6 +80,6 @@ export const PUT = protectedRoute(async (req) => {
   return await updateCategory(
     id,
     req.__user.id,
-    nulledEmptyStrings({ name, description, statusId })
+    nulledEmptyStrings({ name, description, flags })
   );
 });

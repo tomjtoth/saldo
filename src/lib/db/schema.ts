@@ -42,7 +42,7 @@ const id = integer().primaryKey();
 const revisionId = integer()
   .notNull()
   .references(() => revisions.id, { onDelete: "cascade" });
-const statusId = integer().notNull().default(1);
+const flags = integer().notNull().default(1);
 
 const userId = integer()
   .notNull()
@@ -53,7 +53,7 @@ const groupId = integer()
   .references(() => groups.id);
 
 const colSR = {
-  statusId,
+  flags,
   revisionId,
   // active,
 };

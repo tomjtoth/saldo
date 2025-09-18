@@ -4,13 +4,11 @@ import { appToast, LineType, sendJSON, status } from "@/lib/utils";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined } from "@/lib/reducers";
 
-export default function ChartLineConfig() {
-  const rs = useGroupSelector();
-  const [statusId, setStatusId] = useState(rs.user?.statusId ?? 0);
-  const [showConfig, setShowConfig] = useState(false);
+export default function ChartLineConfig(pp: { statusId: number }) {
+  const [flags, setFlags] = useState(pp.statusId);
   const dispatch = useAppDispatch();
 
-  const si = { statusId };
+  const si = { flags };
 
   const Slider = ({ color }: { color: "red" | "green" | "blue" }) => {
     const key = ({ red: "r", green: "g", blue: "b" } as const)[color];
@@ -25,9 +23,7 @@ export default function ChartLineConfig() {
             step={1}
             value={status(si).chart.color[key]}
             onChange={(e) =>
-              (status(si, setStatusId).chart.color[key] = Number(
-                e.target.value
-              ))
+              (status(si, setFlags).chart.color[key] = Number(e.target.value))
             }
             className={"w-40 accent-current " + color}
             style={{ color }}
@@ -54,7 +50,7 @@ export default function ChartLineConfig() {
           type="radio"
           value={type}
           checked={checked}
-          onChange={() => (status(si, setStatusId).chart.lineType = type)}
+          onChange={() => (status(si, setFlags).chart.lineType = type)}
           className="hidden"
         />
 

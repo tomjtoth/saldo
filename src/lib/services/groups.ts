@@ -10,15 +10,15 @@ const COLS_WITH = {
     id: true,
     name: true,
     description: true,
-    statusId: true,
+    flags: true,
     uuid: true,
   },
   with: {
     memberships: {
-      columns: { statusId: true },
+      columns: { flags: true },
       with: {
         user: {
-          columns: { name: true, id: true, email: true, statusId: true },
+          columns: { name: true, id: true, email: true, flags: true },
         },
       },
     },
@@ -113,7 +113,7 @@ export async function getGroups(userId: number) {
 export async function updateGroup(
   adminId: number,
   groupId: number,
-  modifier: Pick<TGroup, "name" | "description" | "statusId" | "uuid">
+  modifier: Pick<TGroup, "name" | "description" | "flags" | "uuid">
 ) {
   return await atomic(
     { operation: "Updating group", revisedBy: adminId },

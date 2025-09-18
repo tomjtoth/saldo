@@ -11,7 +11,7 @@ export * from "./receipts";
 export type CombinedState = {
   user?: {
     id: number;
-    statusId: number;
+    flags: number;
   };
   groupId?: number;
   groups: TGroup[];
@@ -22,7 +22,7 @@ export type CombinedState = {
 };
 
 export type Initializer = Pick<CombinedState, "groups" | "defaultGroupId"> & {
-  user?: { id: number; statusId: number };
+  user?: { id: number; flags: number };
 };
 
 const slice = createSlice({
@@ -43,8 +43,8 @@ const slice = createSlice({
       if (payload.user !== undefined) rs.user = payload.user;
     },
 
-    setUserStatusId: (rs, { payload }: PayloadAction<number>) => {
-      rs.user!.statusId = payload;
+    setUserFlags: (rs, { payload }: PayloadAction<number>) => {
+      rs.user!.flags = payload;
     },
 
     ...rGroups,
@@ -60,8 +60,8 @@ export const rCombined = {
     return dispatch(combinedSA.init(data));
   },
 
-  setUserStatusId: (statusId: number) => (dispatch: AppDispatch) => {
-    return dispatch(combinedSA.setUserStatusId(statusId));
+  setUserFlags: (flags: number) => (dispatch: AppDispatch) => {
+    return dispatch(combinedSA.setUserFlags(flags));
   },
 
   ...tGroups,
