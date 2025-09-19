@@ -1,6 +1,8 @@
 import { Session } from "next-auth";
 import { eq } from "drizzle-orm";
 
+import { auth } from "@/auth";
+
 import { createGroup } from "./groups";
 import { atomic, db, TCrUser, TUser, updater } from "../db";
 import { revisions, users } from "../db/schema";
@@ -109,4 +111,11 @@ export async function updateUser(id: number, modifier: { flags: number }) {
       } else err("No changes were made");
     }
   );
+}
+
+export async function withUser(errorCode: number) {
+  const session = await auth();
+  if (!session) err(errorCode);
+
+  return currentUser(session);
 }
