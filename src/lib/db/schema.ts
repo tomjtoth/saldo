@@ -133,6 +133,8 @@ export const users = sqliteTable("users", {
   image: text(),
 
   defaultGroupId: integer().references(() => groups.id),
+
+  chartStyle: text(),
 });
 
 export const usersRel = relations(users, ({ one, many }) => ({
@@ -192,6 +194,8 @@ export const memberships = sqliteTable(
     userId,
 
     defaultCategoryId: integer().references(() => categories.id),
+
+    chartStyle: text(),
   },
   (table) => [primaryKey({ columns: [table.groupId, table.userId] })]
 );
