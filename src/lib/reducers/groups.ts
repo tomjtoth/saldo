@@ -69,8 +69,8 @@ export const tGroups = {
     async (dispatch: AppDispatch, getState: () => RootState) => {
       const rs = getState().combined;
       const prevState = rs.groups
-        .find((g) => g.id === rs.groupId)
-        ?.pareto?.users.find((u) => u.id === uid)!.chartStyle!;
+        .find((g) => g.id === rs.groupId)!
+        .pareto!.users.find((u) => u.id === uid)!.chartStyle;
 
       if (uid) {
         appToast.promise(
