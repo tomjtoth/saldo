@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 
 import "./globals.css";
 import StoreProvider from "../components/storeProvider";
+import { ModalProvider } from "@/components/modal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +35,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
         <ToastContainer autoClose={2000} closeOnClick />
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>
+          <ModalProvider>{children}</ModalProvider>
+        </StoreProvider>
       </body>
     </html>
   );
