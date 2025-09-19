@@ -211,6 +211,15 @@ export type NumericKeys<T> = {
 
 export type LineType = "solid" | "dashed";
 
+export const chart = (style: string | null) => {
+  const code = style ?? "";
+
+  return {
+    color: `#${code.slice(1)}`,
+    lineType: code.slice(0, 1) === "0" ? "solid" : "dashed",
+  };
+};
+
 export const virt = <T extends { flags?: number }>(
   entity: T,
   setter?: Dispatch<SetStateAction<number>>
