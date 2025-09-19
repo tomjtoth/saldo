@@ -1,7 +1,10 @@
+"use server";
+
 import { atomic, db, TCrMembership, TMembership, updater } from "@/lib/db";
 import { err } from "../utils";
 import { and, eq, sql } from "drizzle-orm";
 import { memberships } from "../db/schema";
+import { withUser } from "./users";
 
 type MembershipUpdater = Pick<TCrMembership, "groupId" | "userId"> &
   Pick<TMembership, "flags" | "defaultCategoryId">;
@@ -61,4 +64,22 @@ export async function isAdmin(userId: number, groupId: number) {
     );
 
   return !!ms;
+}
+
+export async function svcSetChartStyle(
+  groupId: number,
+  userId: number,
+  style: string | null
+) {
+  const { id } = await withUser(401);
+
+  await db
+    .update(memberships)
+    .set({
+      chartStyle: sql`coalesce(
+        json_set(${memberships.chartStyle}, ${`$.${userId}`}, ${style}),
+        json_object(${userId.toString()}, ${style})
+      )`,
+    })
+    .where(and(eq(memberships.groupId, groupId), eq(memberships.userId, id)));
 }
