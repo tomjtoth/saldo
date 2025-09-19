@@ -113,7 +113,7 @@ export async function updateUser(id: number, modifier: { flags: number }) {
   );
 }
 
-export async function withUser(errorCode: number) {
+export async function withUser(errorCode: number = 401) {
   const session = await auth();
   if (!session) err(errorCode);
 
