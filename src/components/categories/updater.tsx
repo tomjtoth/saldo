@@ -39,25 +39,21 @@ export default function Updater({ cat }: { cat: TCategory }) {
         }
 
         appToast.promise(
-          svcUpdateCategory({
-            id: cat.id,
-            groupId: cat.groupId,
+          svcUpdateCategory(cat.id!, {
             name,
             description,
             flags,
           })
             .then((res) => {
-              const body = res!;
-
               const operations = [
-                ...(body.name !== cat.name ? ["renaming"] : []),
-                ...(body.flags !== cat.flags ? ["toggling"] : []),
-                ...(body.description !== cat.description
+                ...(res.name !== cat.name ? ["renaming"] : []),
+                ...(res.flags !== cat.flags ? ["toggling"] : []),
+                ...(res.description !== cat.description
                   ? ["altering the description of"]
                   : []),
               ].join(", ");
 
-              dispatch(red.updateCat(body));
+              dispatch(red.updateCat(res));
 
               return `${operations[0].toUpperCase() + operations.slice(1)} "${
                 cat.name

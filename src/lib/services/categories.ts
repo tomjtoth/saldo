@@ -79,40 +79,21 @@ export type TCategoryUpdater = Pick<
   "name" | "description" | "flags"
 >;
 
-export async function svcUpdateCategory({
-  id,
-  groupId,
-  flags,
-  name,
-  description,
-  setAsDefault,
-}: TCategoryUpdater &
-  Pick<TCategory, "id" | "groupId"> & {
-    setAsDefault?: true;
-  }) {
+export async function svcUpdateCategory(
+  id: number,
+  { flags, name, description }: TCategoryUpdater
+) {
   const { id: userId } = await withUser();
 
   if (
     typeof id !== "number" ||
-    typeof groupId !== "number" ||
     (typeof name !== "string" &&
       typeof description !== "string" &&
-      typeof flags !== "number" &&
-      typeof setAsDefault !== "boolean")
+      typeof flags !== "number")
   )
     err();
 
   if (!(await userAccessToCat(userId, id))) err(403);
-
-  if (setAsDefault) {
-    await updateMembership(userId, {
-      userId,
-      groupId,
-      defaultCategoryId: id,
-    });
-
-    return;
-  }
 
   const modifier = nulledEmptyStrings({
     name,
@@ -161,6 +142,24 @@ export async function svcUpdateCategory({
       return res;
     }
   );
+}
+
+export async function svcSetDefaultCategory(id: number) {
+  const { id: userId } = await withUser();
+
+  if (typeof id !== "number") err();
+
+  if (!(await userAccessToCat(userId, id))) err(403);
+
+  const { groupId } = (await db.query.categories.findFirst({
+    columns: { groupId: true },
+  }))!;
+
+  await updateMembership(userId, {
+    userId,
+    groupId,
+    defaultCategoryId: id,
+  });
 }
 
 export async function userAccessToCat(userId: number, catId: number) {

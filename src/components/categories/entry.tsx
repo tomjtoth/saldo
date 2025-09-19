@@ -6,7 +6,7 @@ import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { appToast, virt } from "@/lib/utils";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
-import { svcUpdateCategory } from "@/lib/services/categories";
+import { svcSetDefaultCategory } from "@/lib/services/categories";
 
 import Canceler from "../canceler";
 import Details from "./details";
@@ -46,11 +46,7 @@ export default function Entry({
             ev.stopPropagation();
             if (!isDefault)
               appToast.promise(
-                svcUpdateCategory({
-                  id: cat.id,
-                  groupId: cat.groupId,
-                  setAsDefault: true,
-                }).then(() => {
+                svcSetDefaultCategory(cat.id!).then(() => {
                   dispatch(
                     red.updateDefaultCatId({
                       catId: cat.id!,
