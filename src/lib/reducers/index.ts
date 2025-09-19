@@ -43,10 +43,6 @@ const slice = createSlice({
       if (payload.user !== undefined) rs.user = payload.user;
     },
 
-    setUserFlags: (rs, { payload }: PayloadAction<number>) => {
-      rs.user!.flags = payload;
-    },
-
     ...rGroups,
     ...rCategories,
     ...rReceipts,
@@ -58,10 +54,6 @@ export const combinedSA = slice.actions;
 export const rCombined = {
   init: (data: Initializer) => (dispatch: AppDispatch) => {
     return dispatch(combinedSA.init(data));
-  },
-
-  setUserFlags: (flags: number) => (dispatch: AppDispatch) => {
-    return dispatch(combinedSA.setUserFlags(flags));
   },
 
   ...tGroups,

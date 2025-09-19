@@ -1,9 +1,10 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 
-import { AppDispatch } from "../store";
+import { AppDispatch, RootState } from "../store";
 import { TGroup, TMembership } from "@/lib/db";
-import { insertAlphabetically } from "../utils";
+import { appToast, insertAlphabetically } from "../utils";
 import { combinedSA as csa, CombinedState as CS } from ".";
+import { svcSetChartStyle } from "../services/memberships";
 
 export const rGroups = {
   updateGroup: (rs: CS, { payload }: PayloadAction<TGroup>) => {
@@ -30,6 +31,16 @@ export const rGroups = {
 
     ms.flags = payload.flags;
   },
+
+  setMSChartStyle: (
+    rs: CS,
+    { payload: { style, uid } }: PayloadAction<{ style: string; uid?: number }>
+  ) => {
+    const group = rs.groups.find((grp) => grp.id === rs.groupId)!;
+    const user = group.pareto!.users.find((u) => u.id === uid)!;
+
+    user.chartStyle = style;
+  },
 };
 
 export const tGroups = {
@@ -52,4 +63,25 @@ export const tGroups = {
   setDefaultGroupId: (groupId: number) => (dispatch: AppDispatch) => {
     return dispatch(csa.setDefaultGroupId(groupId));
   },
+
+  setChartStyle:
+    (style: string, uid?: number) =>
+    async (dispatch: AppDispatch, getState: () => RootState) => {
+      const rs = getState().combined;
+      const prevState = rs.groups
+        .find((g) => g.id === rs.groupId)
+        ?.pareto?.users.find((u) => u.id === uid)!.chartStyle!;
+
+      if (uid) {
+        appToast.promise(
+          svcSetChartStyle(rs.groupId!, uid, style).catch((err) => {
+            dispatch(csa.setMSChartStyle({ style: prevState, uid }));
+            throw err;
+          }),
+          "updating Chart config"
+        );
+      }
+
+      return dispatch(csa.setMSChartStyle({ style, uid }));
+    },
 };
