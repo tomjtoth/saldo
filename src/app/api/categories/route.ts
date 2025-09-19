@@ -1,46 +1,13 @@
 import protectedRoute from "@/lib/protectedRoute";
-import {
-  err,
-  has3ConsecutiveLetters,
-  nullEmptyStrings,
-  nulledEmptyStrings,
-} from "@/lib/utils";
+import { err, nulledEmptyStrings } from "@/lib/utils";
 
 import { TCategory } from "@/lib/db";
 import {
-  createCategory,
   TCategoryUpdater,
   updateCategory,
   userAccessToCat,
 } from "@/lib/services/categories";
 import { updateMembership } from "@/lib/services/memberships";
-
-export const POST = protectedRoute(async (req) => {
-  const {
-    name,
-    groupId,
-    description,
-  }: Pick<TCategory, "name" | "groupId" | "description"> = await req.json();
-
-  if (
-    typeof name !== "string" ||
-    typeof groupId !== "number" ||
-    !["string", "undefined"].includes(typeof description)
-  )
-    err();
-
-  has3ConsecutiveLetters(name);
-
-  const data = {
-    groupId,
-    name,
-    description,
-  };
-
-  nullEmptyStrings(data);
-
-  return await createCategory(req.__user.id, data);
-});
 
 export const PUT = protectedRoute(async (req) => {
   const {

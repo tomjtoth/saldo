@@ -6,7 +6,8 @@ import Link from "next/link";
 import { TCategory } from "@/lib/db";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
+import { has3ConsecutiveLetters, appToast } from "@/lib/utils";
+import { svcCreateCategory } from "@/lib/services/categories";
 
 import NameDescrAdder from "../nameDescrAdder";
 import Entry from "./entry";
@@ -41,14 +42,9 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
                   }
 
                   appToast.promise(
-                    sendJSON(`/api/categories`, {
-                      groupId: rs.groupId,
-                      name,
-                      description,
-                    })
-                      .then(async (res) => {
-                        const body = await res.json();
-                        dispatch(red.addCat(body as TCategory));
+                    svcCreateCategory(rs.groupId!, name, description)
+                      .then((res) => {
+                        dispatch(red.addCat(res as TCategory));
                         done(true);
                       })
                       .catch((err) => {

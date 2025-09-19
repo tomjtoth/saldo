@@ -1,3 +1,5 @@
+"use server";
+
 import { and, eq, exists, sql } from "drizzle-orm";
 
 import {
@@ -6,19 +8,44 @@ import {
   getArchivePopulator,
   isActive,
   TCategory,
-  TCrCategory,
   TGroup,
   updater,
 } from "@/lib/db";
 import { categories, groups, memberships } from "@/lib/db/schema";
-import { err, sortByName } from "../utils";
+import {
+  err,
+  has3ConsecutiveLetters,
+  nullEmptyStrings,
+  sortByName,
+} from "../utils";
+import { withUser } from "./users";
 
-export async function createCategory(
-  revisedBy: number,
-  data: Pick<TCrCategory, "name" | "description" | "groupId">
+export async function svcCreateCategory(
+  groupId: number,
+  name: string,
+  description: string
 ) {
+  const { id } = await withUser();
+
+  if (
+    typeof name !== "string" ||
+    typeof groupId !== "number" ||
+    !["string", "undefined"].includes(typeof description)
+  )
+    err();
+
+  has3ConsecutiveLetters(name);
+
+  const data = {
+    groupId,
+    name,
+    description,
+  };
+
+  nullEmptyStrings(data);
+
   return await atomic(
-    { operation: "Creating category", revisedBy },
+    { operation: "Creating category", revisedBy: id },
     async (tx, revisionId) => {
       const [{ id }] = await tx
         .insert(categories)
