@@ -12,10 +12,12 @@ import {
   Legend,
 } from "recharts";
 
+import { chart } from "@/lib/utils";
+
 import ParetoTooltip from "./tooltip";
 
 export type TParetoChartData = {
-  users: string[];
+  users: { id: number; name: string; chartStyle: string }[];
   categories: ({
     category: string;
   } & {
@@ -23,7 +25,12 @@ export type TParetoChartData = {
   })[];
 };
 
-export default class ParetoChart extends PureComponent<TParetoChartData> {
+export default class ParetoChart extends PureComponent<
+  TParetoChartData & {
+    onLegendClick: () => void;
+  },
+  { users: TParetoChartData["users"] }
+> {
   render() {
     const { users, categories } = this.props;
 
@@ -42,16 +49,14 @@ export default class ParetoChart extends PureComponent<TParetoChartData> {
             />
             <YAxis />
             <Tooltip content={ParetoTooltip} />
-            <Legend />
-            {users.map((s) => (
+            <Legend onClick={this.props.onLegendClick} />
+            {users.map(({ id, name, chartStyle }) => (
               <Bar
-                dataKey={s}
-                name={s}
-                key={s}
+                dataKey={id}
+                name={name}
+                key={id}
                 stackId="a"
-                fill={`#${Math.floor(Math.random() * 0xfff)
-                  .toString(16)
-                  .padStart(3, "0")}`}
+                fill={chart(chartStyle).color}
               />
             ))}
           </BarChart>
