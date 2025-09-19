@@ -3,9 +3,10 @@
 import { useState } from "react";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { appToast, sendJSON, virt } from "@/lib/utils";
+import { appToast, virt } from "@/lib/utils";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
+import { svcUpdateCategory } from "@/lib/services/categories";
 
 import Canceler from "../canceler";
 import Details from "./details";
@@ -45,15 +46,11 @@ export default function Entry({
             ev.stopPropagation();
             if (!isDefault)
               appToast.promise(
-                sendJSON(
-                  "/api/categories",
-                  {
-                    id: cat.id,
-                    groupId: cat.groupId,
-                    setAsDefault: true,
-                  },
-                  { method: "PUT" }
-                ).then(() => {
+                svcUpdateCategory({
+                  id: cat.id,
+                  groupId: cat.groupId,
+                  setAsDefault: true,
+                }).then(() => {
                   dispatch(
                     red.updateDefaultCatId({
                       catId: cat.id!,

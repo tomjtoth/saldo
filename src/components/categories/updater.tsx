@@ -3,13 +3,8 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-import {
-  has3ConsecutiveLetters,
-  sendJSON,
-  appToast,
-  virt,
-  nulledEmptyStrings,
-} from "@/lib/utils";
+import { has3ConsecutiveLetters, appToast, virt } from "@/lib/utils";
+import { svcUpdateCategory } from "@/lib/services/categories";
 import { useAppDispatch } from "@/lib/hooks";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
@@ -44,19 +39,15 @@ export default function Updater({ cat }: { cat: TCategory }) {
         }
 
         appToast.promise(
-          sendJSON(
-            "/api/categories",
-            nulledEmptyStrings({
-              id: cat.id,
-              groupId: cat.groupId,
-              name,
-              description,
-              flags,
-            }),
-            { method: "PUT" }
-          )
-            .then(async (res) => {
-              const body = (await res.json()) as TCategory;
+          svcUpdateCategory({
+            id: cat.id,
+            groupId: cat.groupId,
+            name,
+            description,
+            flags,
+          })
+            .then((res) => {
+              const body = res!;
 
               const operations = [
                 ...(body.name !== cat.name ? ["renaming"] : []),

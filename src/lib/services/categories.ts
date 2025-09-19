@@ -12,13 +12,15 @@ import {
   updater,
 } from "@/lib/db";
 import { categories, groups, memberships } from "@/lib/db/schema";
+import { updateMembership } from "@/lib/services/memberships";
+import { withUser } from "@/lib/services/users";
 import {
   err,
   has3ConsecutiveLetters,
   nullEmptyStrings,
+  nulledEmptyStrings,
   sortByName,
 } from "../utils";
-import { withUser } from "./users";
 
 export async function svcCreateCategory(
   groupId: number,
@@ -77,13 +79,49 @@ export type TCategoryUpdater = Pick<
   "name" | "description" | "flags"
 >;
 
-export async function updateCategory(
-  id: number,
-  revisedBy: number,
-  modifier: TCategoryUpdater
-) {
+export async function svcUpdateCategory({
+  id,
+  groupId,
+  flags,
+  name,
+  description,
+  setAsDefault,
+}: TCategoryUpdater &
+  Pick<TCategory, "id" | "groupId"> & {
+    setAsDefault?: true;
+  }) {
+  const { id: userId } = await withUser();
+
+  if (
+    typeof id !== "number" ||
+    typeof groupId !== "number" ||
+    (typeof name !== "string" &&
+      typeof description !== "string" &&
+      typeof flags !== "number" &&
+      typeof setAsDefault !== "boolean")
+  )
+    err();
+
+  if (!(await userAccessToCat(userId, id))) err(403);
+
+  if (setAsDefault) {
+    await updateMembership(userId, {
+      userId,
+      groupId,
+      defaultCategoryId: id,
+    });
+
+    return;
+  }
+
+  const modifier = nulledEmptyStrings({
+    name,
+    description,
+    flags,
+  });
+
   return await atomic(
-    { operation: "Updating category", revisedBy },
+    { operation: "Updating category", revisedBy: userId },
     async (tx, revisionId) => {
       const cat = (await tx.query.categories.findFirst({
         where: eq(categories.id, id),
