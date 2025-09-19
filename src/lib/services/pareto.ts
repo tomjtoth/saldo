@@ -1,3 +1,5 @@
+"use server";
+
 import { DateTime } from "luxon";
 import { sql } from "drizzle-orm";
 
@@ -31,7 +33,13 @@ export async function getPareto(
         g.id AS gid,
         g.name AS gName,
         cats.name AS cat,
-        u.name AS user,
+        u.id AS user_id,
+        u.name AS user_name,
+        u.flags as user_flags,
+        coalesce(
+          json_extract(ms.chart_style, concat('$.', u.id)),
+          u.chart_style
+        ) AS chart_style,
         sum(share) AS total
       FROM "memberships" ms
       INNER JOIN consumption con ON ms.group_id = con.group_id
@@ -48,7 +56,7 @@ export async function getPareto(
         gName,
         sum(total) AS orderer,
         json_insert(
-          json_group_object(user, total),
+          json_group_object(user_id, total),
           '$.category', cat
         ) AS cats
       FROM sums_per_row
@@ -78,7 +86,11 @@ export async function getPareto(
           json_quote(s3.gName),
           ', "pareto": { ',
             ' "users": ',
-            json_group_array(DISTINCT s1.user),
+            json_group_array(DISTINCT json_object(
+            	'id', s1.user_id,
+            	'name', s1.user_name,
+            	'chartStyle', s1.chart_style
+            )),
             ', "categories": ',
             categories,
           ' }}'
