@@ -4,7 +4,7 @@ import { joinGroup } from "@/lib/services/groups";
 import protectedRoute from "@/lib/protectedRoute";
 
 export const GET = protectedRoute<{ id: string }>(
-  { redirectAs: (req) => `/api/groups/${req.__params?.id}` },
+  { redirectAs: (req) => `/join/${req.__params?.id}` },
 
   async (req) => {
     await joinGroup(req.__params!.id, req.__user.id);
