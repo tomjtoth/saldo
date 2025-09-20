@@ -1,10 +1,10 @@
 "use client";
 
 import { TCategory } from "@/lib/db";
+import { virt } from "@/lib/utils";
 
 import Updater from "./updater";
 import Slider from "../slider";
-import { virt } from "@/lib/utils";
 
 export default function Details({
   cat,
