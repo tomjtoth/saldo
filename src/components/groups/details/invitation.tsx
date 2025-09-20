@@ -6,6 +6,7 @@ import { useAppDispatch } from "@/lib/hooks";
 import { TGroup } from "@/lib/db";
 import { sendJSON, appToast } from "@/lib/utils";
 import { rCombined as red } from "@/lib/reducers";
+import { svcGenerateInviteLink } from "@/lib/services/groups";
 
 export default function Invitation({
   group,
@@ -56,14 +57,9 @@ export default function Invitation({
         <button
           onClick={() => {
             appToast.promise(
-              sendJSON(
-                "/api/groups",
-                { id: group.id, generateLink: true },
-                { method: "PUT" }
-              ).then(async (res) => {
-                const body = await res.json();
-                dispatch(red.updateGroup(body));
-              }),
+              svcGenerateInviteLink(group.id!).then((res) =>
+                dispatch(red.updateGroup(res))
+              ),
               "Generating invitation link"
             );
           }}

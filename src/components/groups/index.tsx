@@ -3,14 +3,14 @@
 import { toast } from "react-toastify";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { TGroup } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 import { has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
+import { useRootDivCx } from "../rootDiv/clientSide";
+import { svcCreateGroup } from "@/lib/services/groups";
 
 import Entry from "./entry";
 import NameDescrAdder from "../nameDescrAdder";
 import Header from "../header";
-import { useRootDivCx } from "../rootDiv/clientSide";
 
 export default function CliGroupsPage() {
   const rs = useGroupSelector();
@@ -33,35 +33,20 @@ export default function CliGroupsPage() {
       <div className="p-2 flex flex-wrap gap-2 justify-center">
         <NameDescrAdder
           placeholder="Group"
-          handler={({ name, description }) =>
-            new Promise<boolean>((done) => {
-              try {
-                has3ConsecutiveLetters(name);
-              } catch (err) {
-                return toast.error(
-                  (err as Error).message as string,
-                  appToast.theme()
-                );
-              }
+          handler={async ({ name, description }) => {
+            try {
+              has3ConsecutiveLetters(name);
+            } catch (err) {
+              toast.error((err as Error).message as string, appToast.theme());
+              throw err;
+            }
 
-              appToast.promise(
-                sendJSON(`/api/groups`, {
-                  name,
-                  description,
-                })
-                  .then(async (res) => {
-                    const body = await res.json();
-                    dispatch(red.addGroup(body as TGroup));
-                    done(true);
-                  })
-                  .catch((err) => {
-                    done(false);
-                    throw err;
-                  }),
-                `Saving group "${name}" to db`
-              );
-            })
-          }
+            const op = svcCreateGroup(name, description);
+            appToast.promise(op, `Saving group "${name}" to db`);
+
+            const res = await op;
+            dispatch(red.addGroup(res));
+          }}
         />
 
         {rs.groups.map((group) => (

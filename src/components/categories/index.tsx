@@ -3,7 +3,6 @@
 import { toast } from "react-toastify";
 import Link from "next/link";
 
-import { TCategory } from "@/lib/db";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 import { has3ConsecutiveLetters, appToast } from "@/lib/utils";
@@ -29,32 +28,24 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
           <>
             <NameDescrAdder
               id="category-adder"
-              handler={({ name, description }) =>
-                new Promise<boolean>((done) => {
-                  try {
-                    has3ConsecutiveLetters(name);
-                  } catch (err) {
-                    toast.error(
-                      (err as Error).message as string,
-                      appToast.theme()
-                    );
-                    return done(false);
-                  }
-
-                  appToast.promise(
-                    svcCreateCategory(rs.groupId!, name, description)
-                      .then((res) => {
-                        dispatch(red.addCat(res as TCategory));
-                        done(true);
-                      })
-                      .catch((err) => {
-                        done(false);
-                        throw err;
-                      }),
-                    `Saving "${name}" to db`
+              handler={async ({ name, description }) => {
+                try {
+                  has3ConsecutiveLetters(name);
+                } catch (err) {
+                  toast.error(
+                    (err as Error).message as string,
+                    appToast.theme()
                   );
-                })
-              }
+                  throw err;
+                }
+
+                const op = svcCreateCategory(rs.groupId!, name, description);
+
+                appToast.promise(op, `Saving "${name}" to db`);
+
+                const res = await op;
+                dispatch(red.addCat(res));
+              }}
             />{" "}
             category for group: <GroupSelector />
           </>
