@@ -1,12 +1,9 @@
 "use client";
 
-import { toast } from "react-toastify";
 import Link from "next/link";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { has3ConsecutiveLetters, appToast } from "@/lib/utils";
-import { svcCreateCategory } from "@/lib/services/categories";
 
 import NameDescrAdder from "../nameDescrAdder";
 import Entry from "./entry";
@@ -28,24 +25,9 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
           <>
             <NameDescrAdder
               id="category-adder"
-              handler={async ({ name, description }) => {
-                try {
-                  has3ConsecutiveLetters(name);
-                } catch (err) {
-                  toast.error(
-                    (err as Error).message as string,
-                    appToast.theme()
-                  );
-                  throw err;
-                }
-
-                const op = svcCreateCategory(rs.groupId!, name, description);
-
-                appToast.promise(op, `Saving "${name}" to db`);
-
-                const res = await op;
-                dispatch(red.addCat(res));
-              }}
+              handler={({ name, description }) =>
+                dispatch(red.addCategory(rs.groupId!, name, description))
+              }
             />{" "}
             category for group: <GroupSelector />
           </>

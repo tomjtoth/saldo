@@ -2,9 +2,17 @@ import { PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch, RootState } from "../store";
 import { TCategory } from "@/lib/db";
-import { appToast, insertAlphabetically } from "../utils";
+import {
+  appToast,
+  has3ConsecutiveLetters,
+  insertAlphabetically,
+} from "../utils";
 import { CombinedState as CS, combinedSA as csa } from ".";
-import { svcSetDefaultCategory } from "../services/categories";
+import {
+  svcCreateCategory,
+  svcSetDefaultCategory,
+} from "../services/categories";
+import { toast } from "react-toastify";
 
 export const rCategories = {
   updateCat: (rs: CS, { payload }: PayloadAction<TCategory>) => {
@@ -15,7 +23,7 @@ export const rCategories = {
     insertAlphabetically(payload, cats);
   },
 
-  addCat: (rs: CS, { payload }: PayloadAction<TCategory>) => {
+  addCategory: (rs: CS, { payload }: PayloadAction<TCategory>) => {
     const group = rs.groups.find((g) => g.id === payload.groupId)!;
     const cats = group.categories!;
 
@@ -38,9 +46,24 @@ export const tCategories = {
     return dispatch(csa.updateCat(cat));
   },
 
-  addCat: (cat: TCategory) => (dispatch: AppDispatch) => {
-    return dispatch(csa.addCat(cat));
-  },
+  addCategory:
+    (groupId: number, name: string, description: string) =>
+    async (dispatch: AppDispatch) => {
+      try {
+        has3ConsecutiveLetters(name);
+      } catch (err) {
+        toast.error((err as Error).message as string, appToast.theme());
+        throw err;
+      }
+
+      const op = svcCreateCategory(groupId, name, description).then((res) => {
+        dispatch(csa.addCategory(res));
+      });
+
+      appToast.promise(op, `Saving "${name}" to db`);
+
+      return op;
+    },
 
   updateDefaultCategoryId:
     (categoryId: number, groupId: number, fallback: number) =>
