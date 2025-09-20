@@ -5,14 +5,20 @@ import { sql } from "drizzle-orm";
 
 import { db, TGroup } from "@/lib/db";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
+import { withUser } from "./users";
 
-export async function getPareto(
-  userId: number,
-  opts: {
-    from?: string;
-    to?: string;
-  } = {}
-) {
+type ParetoOpts = {
+  from?: string;
+  to?: string;
+};
+
+export async function svcGetParetoData(opts: ParetoOpts) {
+  const { id } = await withUser();
+
+  return getPareto(id, opts);
+}
+
+export async function getPareto(userId: number, opts: ParetoOpts = {}) {
   const from =
     opts.from &&
     // SQL injection prevented here
