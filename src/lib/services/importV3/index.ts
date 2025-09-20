@@ -2,7 +2,9 @@
 
 import { db, inChunks } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
+import { err } from "@/lib/utils";
 import { parseCSV, parseData, TDBData } from "./parsers";
+import { FromDB } from "@/components/import/clientSide";
 
 export const alreadyInProd = async () => {
   const user = await db.query.users.findFirst({
@@ -13,7 +15,9 @@ export const alreadyInProd = async () => {
   return !!user;
 };
 
-export async function importV3() {
+export async function svcImportV3() {
+  if (await alreadyInProd()) err(403, "already in production");
+
   const read = await parseCSV(process.env.CSV_PATH || "data/saldo-v3.csv");
   const parsed = parseData(read);
   return await insertData(parsed);
@@ -45,5 +49,5 @@ export async function insertData(data: TDBData) {
 
   return Object.fromEntries(
     Object.entries(data).map(([key, arr]) => [key, arr.length])
-  );
+  ) as FromDB;
 }
