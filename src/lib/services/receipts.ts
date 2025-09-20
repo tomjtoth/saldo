@@ -12,6 +12,7 @@ import {
 import { groups, items, itemShares, memberships, receipts } from "../db/schema";
 import { TCliReceipt } from "../reducers";
 import { err, nulledEmptyStrings, sortByName } from "../utils";
+import { withUser } from "./users";
 
 export type TReceiptInput = TCliReceipt & { groupId: number };
 
@@ -100,6 +101,15 @@ export async function addReceipt(
       return receipt;
     }
   );
+}
+
+export async function svcGetReceipts(knownIds: number[]) {
+  const user = await withUser();
+
+  if (!Array.isArray(knownIds) || knownIds.some(isNaN))
+    err("known ids contain NaN");
+
+  return await getReceipts(user.id, knownIds);
 }
 
 export async function getReceipts(userId: number, knownIds: number[] = []) {

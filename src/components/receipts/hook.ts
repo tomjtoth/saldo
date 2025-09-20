@@ -3,8 +3,8 @@ import { v4 as uuid } from "uuid";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { useRootDivCx } from "../rootDiv/clientSide";
-import { TGroup } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
+import { svcGetReceipts } from "@/lib/services/receipts";
 
 const INFINITE_SCROLL = `INFINITE_SCROLL-${uuid()}`;
 
@@ -29,20 +29,13 @@ export default function useInfiniteScroll() {
       setFetching(true);
       const fetchedGroupId = rs.groupId;
 
-      fetch(
-        `/api/receipts?knownIds=${rs.groups
-          .flatMap((grp) => grp.receipts?.map((r) => r.id))
-          .join(",")}`
-      ).then(async (body) => {
-        let groups: TGroup[];
-
+      svcGetReceipts(
+        rs.groups.flatMap((grp) => grp.receipts!.map((r) => r.id!))
+      ).then((groups) => {
         let updating = false;
         const limits = { ...hasMore };
 
-        try {
-          groups = await body.json();
-        } catch {
-          groups = [];
+        if (groups.length === 0) {
           updating = true;
           limits[fetchedGroupId] = false;
         }
