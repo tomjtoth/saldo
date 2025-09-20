@@ -5,9 +5,10 @@ import { useState } from "react";
 import { useAppDispatch } from "@/lib/hooks";
 import { TMembership } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
-import { sendJSON, appToast, virt } from "@/lib/utils";
+import { appToast, virt } from "@/lib/utils";
 
 import Slider from "@/components/slider";
+import { svcUpdateMembership } from "@/lib/services/memberships";
 
 export default function Individual({
   clientIsAdmin,
@@ -34,18 +35,12 @@ export default function Individual({
               const nextState = virt({ flags }, setFlags).toggle("active");
 
               appToast.promise(
-                sendJSON(
-                  `/api/memberships`,
-                  {
-                    groupId: ms.groupId,
-                    userId: ms.user!.id,
-                    flags: nextState,
-                  },
-                  { method: "PUT" }
-                )
-                  .then(async (res) => {
-                    const { flags }: TMembership = await res.json();
-
+                svcUpdateMembership({
+                  groupId: ms.groupId,
+                  userId: ms.user!.id,
+                  flags: nextState,
+                })
+                  .then(({ flags }) => {
                     dispatch(
                       red.updateMS({
                         flags,
@@ -59,9 +54,9 @@ export default function Individual({
                     throw err;
                   }),
 
-                `${nextState === 0 ? "Re-instating" : "Banning"} "${
-                  ms.user!.name
-                }"`
+                `${
+                  virt({ flags: nextState }).active ? "Re-instating" : "Banning"
+                } "${ms.user!.name}"`
               );
             }}
           />

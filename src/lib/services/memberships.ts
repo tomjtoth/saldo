@@ -6,6 +6,32 @@ import { and, eq, sql } from "drizzle-orm";
 import { memberships } from "../db/schema";
 import { withUser } from "./users";
 
+export async function svcUpdateMembership({
+  groupId,
+  userId,
+  flags,
+}: TMembership) {
+  const { id: revisedBy } = await withUser();
+  if (
+    typeof groupId !== "number" ||
+    typeof userId !== "number" ||
+    typeof flags !== "number"
+  )
+    err();
+
+  if (!(await isAdmin(revisedBy, groupId))) err(403);
+
+  const ms = await updateMembership(revisedBy, {
+    groupId,
+    userId,
+    flags,
+  });
+
+  if (!ms) err(404);
+
+  return ms;
+}
+
 type MembershipUpdater = Pick<TCrMembership, "groupId" | "userId"> &
   Pick<TMembership, "flags" | "defaultCategoryId">;
 
@@ -45,7 +71,7 @@ export async function updateMembership(
           )
           .returning({ flags: memberships.flags });
 
-        return res;
+        return res as TMembership;
       } else err("No changes were made");
     }
   );
