@@ -4,9 +4,12 @@ import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
 import { TGroup } from "@/lib/db";
-import { sendJSON, appToast } from "@/lib/utils";
+import { appToast } from "@/lib/utils";
 import { rCombined as red } from "@/lib/reducers";
-import { svcGenerateInviteLink } from "@/lib/services/groups";
+import {
+  svcGenerateInviteLink,
+  svcRemoveInviteLink,
+} from "@/lib/services/groups";
 
 export default function Invitation({
   group,
@@ -71,13 +74,8 @@ export default function Invitation({
           <button
             onClick={() => {
               appToast.promise(
-                sendJSON(
-                  "/api/groups",
-                  { id: group.id, removeLink: true },
-                  { method: "PUT" }
-                ).then(async (res) => {
-                  const body = await res.json();
-                  dispatch(red.updateGroup(body));
+                svcRemoveInviteLink(group.id!).then((res) => {
+                  dispatch(red.updateGroup(res));
                 }),
                 "Deleting invitation link"
               );

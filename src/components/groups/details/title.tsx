@@ -4,9 +4,10 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { has3ConsecutiveLetters, sendJSON, appToast, virt } from "@/lib/utils";
+import { has3ConsecutiveLetters, appToast, virt } from "@/lib/utils";
 import { TGroup } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
+import { svcUpdateGroup } from "@/lib/services/groups";
 
 import Slider from "@/components/slider";
 
@@ -40,20 +41,14 @@ export default function Title({
         }
 
         appToast.promise(
-          sendJSON(
-            `/api/groups`,
-            {
-              id: group.id,
-              name,
-              description,
-              flags,
-            },
-            { method: "PUT" }
-          )
-            .then(async (res) => {
-              const body = await res.json();
-              const ops = appToast.opsDone(group, body);
-              dispatch(red.updateGroup(body));
+          svcUpdateGroup(group.id!, {
+            name,
+            description,
+            flags,
+          })
+            .then((res) => {
+              const ops = appToast.opsDone(group, res);
+              dispatch(red.updateGroup(res));
 
               return `${ops} "${group.name}" succeeded!`;
             })
