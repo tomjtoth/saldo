@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { has3ConsecutiveLetters, sendJSON, appToast } from "@/lib/utils";
+import { has3ConsecutiveLetters, appToast } from "@/lib/utils";
 import { useRootDivCx } from "../rootDiv/clientSide";
 import { svcCreateGroup } from "@/lib/services/groups";
 
