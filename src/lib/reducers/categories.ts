@@ -1,11 +1,10 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 
-import { AppDispatch } from "../store";
+import { AppDispatch, RootState } from "../store";
 import { TCategory } from "@/lib/db";
-import { insertAlphabetically } from "../utils";
+import { appToast, insertAlphabetically } from "../utils";
 import { CombinedState as CS, combinedSA as csa } from ".";
-
-type DefaultCatIdUpdater = { groupId: number; catId: number };
+import { svcSetDefaultCategory } from "../services/categories";
 
 export const rCategories = {
   updateCat: (rs: CS, { payload }: PayloadAction<TCategory>) => {
@@ -23,14 +22,14 @@ export const rCategories = {
     insertAlphabetically(payload, cats);
   },
 
-  updateDefaultCatId: (
+  updateDefaultCategoryId: (
     rs: CS,
-    { payload }: PayloadAction<DefaultCatIdUpdater>
+    { payload }: PayloadAction<{ groupId: number; categoryId: number }>
   ) => {
     const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
     const ms = group.memberships?.at(0);
 
-    ms!.defaultCategoryId = payload.catId;
+    ms!.defaultCategoryId = payload.categoryId;
   },
 };
 
@@ -43,8 +42,27 @@ export const tCategories = {
     return dispatch(csa.addCat(cat));
   },
 
-  updateDefaultCatId:
-    (data: DefaultCatIdUpdater) => (dispatch: AppDispatch) => {
-      return dispatch(csa.updateDefaultCatId(data));
+  updateDefaultCategoryId:
+    (categoryId: number, groupId: number, fallback: number) =>
+    (dispatch: AppDispatch) => {
+      dispatch(
+        csa.updateDefaultCategoryId({
+          categoryId,
+          groupId,
+        })
+      );
+
+      const op = svcSetDefaultCategory(categoryId!).catch(() => {
+        dispatch(
+          csa.updateDefaultCategoryId({
+            categoryId: fallback,
+            groupId,
+          })
+        );
+      });
+
+      appToast.promise(op, "Setting default category");
+
+      return op;
     },
 };

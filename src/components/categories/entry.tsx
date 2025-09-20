@@ -3,10 +3,9 @@
 import { useState } from "react";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { appToast, virt } from "@/lib/utils";
+import { virt } from "@/lib/utils";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
-import { svcSetDefaultCategory } from "@/lib/services/categories";
 
 import Canceler from "../canceler";
 import Details from "./details";
@@ -23,7 +22,8 @@ export default function Entry({
   const hideDetails = () => setShowDetails(false);
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
-  const isDefault = rs.group?.memberships?.at(0)?.defaultCategoryId === cat.id;
+  const currentdefaultId = rs.group?.memberships?.at(0)?.defaultCategoryId;
+  const isDefault = currentdefaultId === cat.id;
 
   return (
     <>
@@ -45,16 +45,12 @@ export default function Entry({
           onClick={(ev) => {
             ev.stopPropagation();
             if (!isDefault)
-              appToast.promise(
-                svcSetDefaultCategory(cat.id!).then(() => {
-                  dispatch(
-                    red.updateDefaultCatId({
-                      catId: cat.id!,
-                      groupId: cat.groupId!,
-                    })
-                  );
-                }),
-                "Setting default category"
+              dispatch(
+                red.updateDefaultCategoryId(
+                  cat.id!,
+                  cat.groupId!,
+                  currentdefaultId!
+                )
               );
           }}
         />{" "}
