@@ -1,9 +1,12 @@
+"use server";
+
 import { eq, exists, and, sql } from "drizzle-orm";
 
-import { err, sortByName } from "../utils";
+import { err, nullEmptyStrings, sortByName } from "../utils";
 import { updater } from "../db/updater";
 import { atomic, db, isActive, TCrGroup, TGroup } from "../db";
 import { groups, memberships } from "../db/schema";
+import { withUser } from "./users";
 
 const COLS_WITH = {
   columns: {
@@ -24,6 +27,22 @@ const COLS_WITH = {
     },
   },
 };
+
+export async function svcCreateGroup(name: string, description?: string) {
+  const { id } = await withUser();
+
+  if (
+    typeof name !== "string" ||
+    (description !== null &&
+      !["string", "undefined"].includes(typeof description))
+  )
+    err();
+
+  const data = { name, description };
+  nullEmptyStrings(data);
+
+  return createGroup(id, data);
+}
 
 export async function createGroup(
   ownerId: number,

@@ -5,23 +5,7 @@ import protectedRoute from "@/lib/protectedRoute";
 import { db, TGroup } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { err, nullEmptyStrings } from "@/lib/utils";
-import { createGroup, updateGroup } from "@/lib/services/groups";
-
-export const POST = protectedRoute(async (req) => {
-  const { name, description }: Pick<TGroup, "name" | "description"> =
-    await req.json();
-  if (
-    typeof name !== "string" ||
-    (description !== null &&
-      !["string", "undefined"].includes(typeof description))
-  )
-    err();
-
-  const data = { name, description };
-  nullEmptyStrings(data);
-
-  return await createGroup(req.__user.id, data);
-});
+import { updateGroup } from "@/lib/services/groups";
 
 type GroupUpdater = { id: number } & Pick<
   TGroup,
