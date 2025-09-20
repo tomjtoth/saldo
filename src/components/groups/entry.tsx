@@ -6,6 +6,7 @@ import { TGroup } from "@/lib/db";
 import { appToast, sendJSON, virt } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
+import { svcSetDefaultGroup } from "@/lib/services/groups";
 
 import Canceler from "../canceler";
 import Details from "./details";
@@ -46,14 +47,7 @@ export default function Entry({
 
             if (!isDefault)
               appToast.promise(
-                sendJSON(
-                  "/api/groups",
-                  {
-                    id: group.id,
-                    setAsDefault: true,
-                  },
-                  { method: "PUT" }
-                ).then(() => {
+                svcSetDefaultGroup(group.id!).then(() => {
                   dispatch(red.setDefaultGroupId(group.id!));
                 }),
                 "Setting default group"

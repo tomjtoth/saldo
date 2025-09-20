@@ -1,9 +1,7 @@
 import { v4 as uuid } from "uuid";
-import { eq } from "drizzle-orm";
 
 import protectedRoute from "@/lib/protectedRoute";
-import { db, TGroup } from "@/lib/db";
-import { users } from "@/lib/db/schema";
+import { TGroup } from "@/lib/db";
 import { err, nullEmptyStrings } from "@/lib/utils";
 import { updateGroup } from "@/lib/services/groups";
 
@@ -13,14 +11,12 @@ type GroupUpdater = { id: number } & Pick<
 > & {
     generateLink?: true;
     removeLink?: true;
-    setAsDefault?: true;
   };
 
 export const PUT = protectedRoute(async (req) => {
   const {
     generateLink,
     removeLink,
-    setAsDefault,
     id,
     flags,
     name,
@@ -35,15 +31,6 @@ export const PUT = protectedRoute(async (req) => {
       !["string", "undefined"].includes(typeof description))
   )
     err();
-
-  if (setAsDefault) {
-    await db
-      .update(users)
-      .set({ defaultGroupId: id })
-      .where(eq(users.id, req.__user.id));
-
-    return;
-  }
 
   const data = {
     flags,

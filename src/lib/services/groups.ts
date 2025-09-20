@@ -5,7 +5,7 @@ import { eq, exists, and, sql } from "drizzle-orm";
 import { err, nullEmptyStrings, sortByName } from "../utils";
 import { updater } from "../db/updater";
 import { atomic, db, isActive, TCrGroup, TGroup } from "../db";
-import { groups, memberships } from "../db/schema";
+import { groups, memberships, users } from "../db/schema";
 import { withUser } from "./users";
 
 const COLS_WITH = {
@@ -42,6 +42,16 @@ export async function svcCreateGroup(name: string, description?: string) {
   nullEmptyStrings(data);
 
   return createGroup(id, data);
+}
+
+export async function svcSetDefaultGroup(id: number) {
+  const { id: userId } = await withUser();
+  if (typeof id !== "number") err();
+
+  await db
+    .update(users)
+    .set({ defaultGroupId: id })
+    .where(eq(users.id, userId));
 }
 
 export async function createGroup(
