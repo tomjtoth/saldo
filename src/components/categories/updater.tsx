@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "react-toastify";
 
-import { has3ConsecutiveLetters, appToast, virt } from "@/lib/utils";
-import { svcUpdateCategory } from "@/lib/services/categories";
+import { virt } from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
@@ -29,43 +27,12 @@ export default function Updater({ cat }: { cat: TCategory }) {
       onSubmit={(ev) => {
         ev.preventDefault();
 
-        try {
-          has3ConsecutiveLetters(name);
-        } catch (err) {
-          return toast.error(
-            (err as Error).message as string,
-            appToast.theme()
-          );
-        }
-
-        appToast.promise(
-          svcUpdateCategory(cat.id!, {
-            name,
-            description,
-            flags,
-          })
-            .then((res) => {
-              const operations = [
-                ...(res.name !== cat.name ? ["renaming"] : []),
-                ...(res.flags !== cat.flags ? ["toggling"] : []),
-                ...(res.description !== cat.description
-                  ? ["altering the description of"]
-                  : []),
-              ].join(", ");
-
-              dispatch(red.updateCat(res));
-
-              return `${operations[0].toUpperCase() + operations.slice(1)} "${
-                cat.name
-              }" succeeded!`;
-            })
-            .catch((err) => {
-              setName(cat.name!);
-              setDescr(cat.description ?? "");
-              setFlags(cat.flags!);
-              throw err;
-            }),
-          `Updating "${cat.name}"`
+        dispatch(red.updateCategory(cat, { name, description, flags })).catch(
+          () => {
+            setName(cat.name!);
+            setDescr(cat.description ?? "");
+            setFlags(cat.flags!);
+          }
         );
       }}
     >

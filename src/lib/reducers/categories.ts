@@ -11,11 +11,12 @@ import { CombinedState as CS, combinedSA as csa } from ".";
 import {
   svcCreateCategory,
   svcSetDefaultCategory,
+  svcUpdateCategory,
 } from "../services/categories";
 import { toast } from "react-toastify";
 
 export const rCategories = {
-  updateCat: (rs: CS, { payload }: PayloadAction<TCategory>) => {
+  updateCategory: (rs: CS, { payload }: PayloadAction<TCategory>) => {
     const cats = rs.groups.find((g) => g.id === payload.groupId)!.categories!;
 
     const popFrom = cats.findIndex(({ id }) => id === payload.id)!;
@@ -42,9 +43,27 @@ export const rCategories = {
 };
 
 export const tCategories = {
-  updateCat: (cat: TCategory) => (dispatch: AppDispatch) => {
-    return dispatch(csa.updateCat(cat));
-  },
+  updateCategory:
+    (original: TCategory, modifiers: TCategory) => (dispatch: AppDispatch) => {
+      try {
+        has3ConsecutiveLetters(modifiers.name!);
+      } catch (err) {
+        toast.error((err as Error).message, appToast.theme());
+        throw err;
+      }
+
+      const crudOp = svcUpdateCategory(original.id!, modifiers).then((res) => {
+        dispatch(csa.updateCategory(res));
+
+        return `${appToast.opsDone(original, modifiers)} "${
+          modifiers.name
+        }" succeeded!`;
+      });
+
+      appToast.promise(crudOp, `Updating "${modifiers.name}"`);
+
+      return crudOp;
+    },
 
   addCategory:
     (groupId: number, name: string, description: string) =>
