@@ -57,7 +57,7 @@ export async function svcCreateCategory(
         })
         .returning({ id: categories.id });
 
-      return await tx.query.categories.findFirst({
+      const res = await tx.query.categories.findFirst({
         with: {
           revision: {
             columns: {
@@ -70,6 +70,8 @@ export async function svcCreateCategory(
         },
         where: eq(categories.id, id),
       });
+
+      return res as TCategory;
     }
   );
 }

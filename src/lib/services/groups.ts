@@ -45,7 +45,7 @@ export async function svcCreateGroup(name: string, description?: string) {
   return createGroup(id, data);
 }
 
-type GroupUpdater = Pick<TGroup, "name" | "description" | "flags" | "uuid">;
+type GroupUpdater = Pick<TGroup, "name" | "description" | "flags">;
 
 export async function svcUpdateGroup(
   groupId: number,
@@ -130,10 +130,12 @@ export async function createGroup(
         revisionId,
       });
 
-      return await tx.query.groups.findFirst({
+      const res = await tx.query.groups.findFirst({
         ...COLS_WITH,
         where: eq(groups.id, groupId),
       });
+
+      return res as TGroup;
     }
   );
 }
