@@ -1,6 +1,7 @@
 "use server";
 
 import { eq, exists, and, sql } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
 
 import { err, nullEmptyStrings, sortByName } from "../utils";
 import { updater } from "../db/updater";
@@ -52,6 +53,26 @@ export async function svcSetDefaultGroup(id: number) {
     .update(users)
     .set({ defaultGroupId: id })
     .where(eq(users.id, userId));
+}
+
+export async function svcRemoveInviteLink(groupId: number) {
+  const { id: userId } = await withUser();
+  if (typeof groupId !== "number") err();
+
+  const group = await updateGroup(userId, groupId, { uuid: null });
+  if (!group) err(404);
+
+  return group;
+}
+
+export async function svcGenerateInviteLink(groupId: number) {
+  const { id: userId } = await withUser();
+  if (typeof groupId !== "number") err();
+
+  const group = await updateGroup(userId, groupId, { uuid: uuidv4() });
+  if (!group) err(404);
+
+  return group;
 }
 
 export async function createGroup(
