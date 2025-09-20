@@ -45,6 +45,38 @@ export async function svcCreateGroup(name: string, description?: string) {
   return createGroup(id, data);
 }
 
+type GroupUpdater = Pick<TGroup, "name" | "description" | "flags" | "uuid">;
+
+export async function svcUpdateGroup(
+  groupId: number,
+  { flags, name, description }: GroupUpdater
+) {
+  const { id: userId } = await withUser();
+
+  if (
+    typeof groupId !== "number" ||
+    !["number", "undefined"].includes(typeof flags) ||
+    !["string", "undefined"].includes(typeof name) ||
+    (description !== null &&
+      !["string", "undefined"].includes(typeof description))
+  )
+    err();
+
+  const data = {
+    flags,
+    name,
+    description,
+  };
+
+  nullEmptyStrings(data);
+
+  const group = await updateGroup(userId, groupId, data);
+
+  if (!group) err(404);
+
+  return group;
+}
+
 export async function svcSetDefaultGroup(id: number) {
   const { id: userId } = await withUser();
   if (typeof id !== "number") err();
