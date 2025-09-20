@@ -4,13 +4,10 @@ import { useEffect, useRef, useState } from "react";
 
 import Canceler from "./canceler";
 
-type AdderHandler = ({
-  name,
-  description,
-}: {
+type AdderHandler = (data: {
   name: string;
   description: string;
-}) => Promise<boolean>;
+}) => Promise<void>;
 
 export default function NameDescrAdder({
   id,
@@ -45,16 +42,14 @@ export default function NameDescrAdder({
               "rounded border bg-background " +
               "grid gap-2 grid-cols-[min-width_min-width]"
             }
-            onSubmit={async (ev) => {
+            onSubmit={(ev) => {
               ev.preventDefault();
 
-              const res = await handler({ name, description });
-
-              if (res) {
+              handler({ name, description }).then(() => {
                 setName("");
                 setDescr("");
                 setVisible(false);
-              }
+              });
             }}
           >
             <input
