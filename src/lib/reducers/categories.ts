@@ -75,13 +75,15 @@ export const tCategories = {
         })
       );
 
-      const op = svcSetDefaultCategory(categoryId!).catch(() => {
+      const op = svcSetDefaultCategory(categoryId!).catch((err) => {
         dispatch(
           csa.updateDefaultCategoryId({
             categoryId: fallback,
             groupId,
           })
         );
+
+        throw err;
       });
 
       appToast.promise(op, "Setting default category");
