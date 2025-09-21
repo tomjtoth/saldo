@@ -144,7 +144,7 @@ function opsDone<T extends Pick<TCategory, "name" | "description" | "flags">>(
 ) {
   const ops = [
     ...(after.name !== before.name ? ["renaming"] : []),
-    ...(after.flags !== before.flags ? ["toggling"] : []),
+    ...(virt(after).active !== virt(before).active ? ["toggling"] : []),
     ...(after.description !== before.description
       ? ["altering the description of"]
       : []),
