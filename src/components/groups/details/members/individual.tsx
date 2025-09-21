@@ -5,10 +5,9 @@ import { useState } from "react";
 import { useAppDispatch } from "@/lib/hooks";
 import { TMembership } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
-import { appToast, virt } from "@/lib/utils";
+import { virt } from "@/lib/utils";
 
 import Slider from "@/components/slider";
-import { svcUpdateMembership } from "@/lib/services/memberships";
 
 export default function Individual({
   clientIsAdmin,
@@ -34,30 +33,20 @@ export default function Individual({
               const prevState = flags;
               const nextState = virt({ flags }, setFlags).toggle("active");
 
-              appToast.promise(
-                svcUpdateMembership({
-                  groupId: ms.groupId,
-                  userId: ms.user!.id,
-                  flags: nextState,
-                })
-                  .then(({ flags }) => {
-                    dispatch(
-                      red.updateMS({
-                        flags,
-                        groupId: ms.groupId,
-                        userId: ms.user!.id,
-                      })
-                    );
-                  })
-                  .catch((err) => {
-                    setFlags(prevState);
-                    throw err;
-                  }),
-
-                `${
-                  virt({ flags: nextState }).active ? "Re-instating" : "Banning"
-                } "${ms.user!.name}"`
-              );
+              dispatch(
+                red.updateMembership(
+                  ms.groupId!,
+                  ms.user!.id!,
+                  nextState,
+                  `${
+                    virt({ flags: nextState }).active
+                      ? "Re-instating"
+                      : "Banning"
+                  } "${ms.user!.name}"`
+                )
+              ).catch(() => {
+                setFlags(prevState);
+              });
             }}
           />
         )
