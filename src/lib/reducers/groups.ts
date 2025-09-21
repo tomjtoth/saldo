@@ -5,6 +5,7 @@ import { TGroup, TMembership } from "@/lib/db";
 import { appToast, insertAlphabetically } from "../utils";
 import { combinedSA as csa, CombinedState as CS } from ".";
 import { svcSetChartStyle, svcUpdateMembership } from "../services/memberships";
+import { svcGenerateInviteLink, svcRemoveInviteLink } from "../services/groups";
 
 export const rGroups = {
   updateGroup: (rs: CS, { payload }: PayloadAction<TGroup>) => {
@@ -50,6 +51,22 @@ export const tGroups = {
 
   addGroup: (group: TGroup) => (dispatch: AppDispatch) => {
     return dispatch(csa.addGroup(group));
+  },
+
+  generateInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
+    const crudOp = svcGenerateInviteLink(groupId).then((res) =>
+      dispatch(csa.updateGroup(res))
+    );
+
+    appToast.promise(crudOp, "Generating invitation link");
+  },
+
+  removeInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
+    const crudOp = svcRemoveInviteLink(groupId).then((res) => {
+      dispatch(csa.updateGroup(res));
+    });
+
+    appToast.promise(crudOp, "Deleting invitation link");
   },
 
   updateMembership:

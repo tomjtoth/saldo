@@ -6,10 +6,6 @@ import { useAppDispatch } from "@/lib/hooks";
 import { TGroup } from "@/lib/db";
 import { appToast } from "@/lib/utils";
 import { rCombined as red } from "@/lib/reducers";
-import {
-  svcGenerateInviteLink,
-  svcRemoveInviteLink,
-} from "@/lib/services/groups";
 
 export default function Invitation({
   group,
@@ -57,30 +53,12 @@ export default function Invitation({
       <div className="flex gap-2 justify-evenly">
         {!!invitationLink && <button onClick={copyToClipboard}>Copy 🔗</button>}
 
-        <button
-          onClick={() => {
-            appToast.promise(
-              svcGenerateInviteLink(group.id!).then((res) =>
-                dispatch(red.updateGroup(res))
-              ),
-              "Generating invitation link"
-            );
-          }}
-        >
+        <button onClick={() => dispatch(red.generateInviteLink(group.id!))}>
           Generate 🔁
         </button>
 
         {!!invitationLink && (
-          <button
-            onClick={() => {
-              appToast.promise(
-                svcRemoveInviteLink(group.id!).then((res) => {
-                  dispatch(red.updateGroup(res));
-                }),
-                "Deleting invitation link"
-              );
-            }}
-          >
+          <button onClick={() => dispatch(red.removeInviteLink(group.id!))}>
             Remove 🚫
           </button>
         )}
