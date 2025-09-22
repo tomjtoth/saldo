@@ -1,11 +1,20 @@
 import { PayloadAction } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 
 import { AppDispatch, RootState } from "../store";
 import { TGroup, TMembership } from "@/lib/db";
-import { appToast, insertAlphabetically } from "../utils";
+import {
+  appToast,
+  has3ConsecutiveLetters,
+  insertAlphabetically,
+} from "../utils";
 import { combinedSA as csa, CombinedState as CS } from ".";
 import { svcSetChartStyle, svcUpdateMembership } from "../services/memberships";
-import { svcGenerateInviteLink, svcRemoveInviteLink } from "../services/groups";
+import {
+  svcGenerateInviteLink,
+  svcRemoveInviteLink,
+  svcUpdateGroup,
+} from "../services/groups";
 
 export const rGroups = {
   updateGroup: (rs: CS, { payload }: PayloadAction<TGroup>) => {
@@ -45,9 +54,27 @@ export const rGroups = {
 };
 
 export const tGroups = {
-  updateGroup: (group: TGroup) => (dispatch: AppDispatch) => {
-    return dispatch(csa.updateGroup(group));
-  },
+  updateGroup:
+    (groupId: number, modifiers: TGroup, original: TGroup) =>
+    (dispatch: AppDispatch) => {
+      try {
+        has3ConsecutiveLetters(modifiers.name!);
+      } catch (err) {
+        toast.error((err as Error).message as string, appToast.theme());
+        throw err;
+      }
+
+      const crudOps = svcUpdateGroup(groupId, modifiers).then((res) => {
+        const ops = appToast.opsDone(original, res);
+        dispatch(csa.updateGroup(res));
+
+        return `${ops} "${original.name}" succeeded!`;
+      });
+
+      appToast.promise(crudOps, `Updating "${original.name}"`);
+
+      return crudOps;
+    },
 
   addGroup: (group: TGroup) => (dispatch: AppDispatch) => {
     return dispatch(csa.addGroup(group));
