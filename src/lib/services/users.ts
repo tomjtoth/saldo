@@ -41,7 +41,9 @@ export async function addUser(
   );
 }
 
-export async function currentUser(session: Session) {
+export async function currentUser(session?: Session | null) {
+  if (session === undefined) session = await auth();
+
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const email = session?.user?.email!;
@@ -113,11 +115,4 @@ export async function updateUser(id: number, modifier: { flags: number }) {
       } else err("No changes were made");
     }
   );
-}
-
-export async function withUser(errorCode: number = 401) {
-  const session = await auth();
-  if (!session) err(errorCode);
-
-  return currentUser(session);
 }

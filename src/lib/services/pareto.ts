@@ -5,7 +5,7 @@ import { sql } from "drizzle-orm";
 
 import { db, TGroup } from "@/lib/db";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
-import { withUser } from "./users";
+import { currentUser } from "./users";
 
 type ParetoOpts = {
   from?: string;
@@ -13,7 +13,7 @@ type ParetoOpts = {
 };
 
 export async function svcGetParetoData(opts: ParetoOpts) {
-  const { id } = await withUser();
+  const { id } = await currentUser();
 
   return getPareto(id, opts);
 }

@@ -14,7 +14,7 @@ import {
 import { groups, items, itemShares, memberships, receipts } from "../db/schema";
 import { TCliReceipt } from "../reducers";
 import { err, nulledEmptyStrings, sortByName } from "../utils";
-import { withUser } from "./users";
+import { currentUser } from "./users";
 
 const RECEIPT_COLS_WITH = {
   columns: {
@@ -43,7 +43,7 @@ export async function svcAddReceipt({
   paidBy,
   items: itemsCli,
 }: TReceiptInput) {
-  const { id: addedBy } = await withUser();
+  const { id: addedBy } = await currentUser();
 
   if (
     typeof groupId !== "number" ||
@@ -119,7 +119,7 @@ export async function svcAddReceipt({
 }
 
 export async function svcGetReceipts(knownIds: number[]) {
-  const user = await withUser();
+  const user = await currentUser();
 
   if (!Array.isArray(knownIds) || knownIds.some(isNaN))
     err("known ids contain NaN");

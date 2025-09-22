@@ -13,7 +13,7 @@ import {
 } from "@/lib/db";
 import { categories, groups, memberships } from "@/lib/db/schema";
 import { updateMembership } from "@/lib/services/memberships";
-import { withUser } from "@/lib/services/users";
+import { currentUser } from "@/lib/services/users";
 import {
   err,
   has3ConsecutiveLetters,
@@ -27,7 +27,7 @@ export async function svcCreateCategory(
   name: string,
   description: string
 ) {
-  const { id } = await withUser();
+  const { id } = await currentUser();
 
   if (
     typeof name !== "string" ||
@@ -85,7 +85,7 @@ export async function svcUpdateCategory(
   id: number,
   { flags, name, description }: TCategoryUpdater
 ) {
-  const { id: userId } = await withUser();
+  const { id: userId } = await currentUser();
 
   if (
     typeof id !== "number" ||
@@ -147,7 +147,7 @@ export async function svcUpdateCategory(
 }
 
 export async function svcSetDefaultCategory(id: number) {
-  const { id: userId } = await withUser();
+  const { id: userId } = await currentUser();
 
   if (typeof id !== "number") err();
 

@@ -4,14 +4,14 @@ import { atomic, db, TCrMembership, TMembership, updater } from "@/lib/db";
 import { err } from "../utils";
 import { and, eq, sql } from "drizzle-orm";
 import { memberships } from "../db/schema";
-import { withUser } from "./users";
+import { currentUser } from "./users";
 
 export async function svcUpdateMembership({
   groupId,
   userId,
   flags,
 }: TMembership) {
-  const { id: revisedBy } = await withUser();
+  const { id: revisedBy } = await currentUser();
   if (
     typeof groupId !== "number" ||
     typeof userId !== "number" ||
@@ -97,7 +97,7 @@ export async function svcSetChartStyle(
   userId: number,
   style: string | null
 ) {
-  const { id } = await withUser(401);
+  const { id } = await currentUser();
 
   await db
     .update(memberships)

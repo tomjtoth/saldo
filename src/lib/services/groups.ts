@@ -7,7 +7,7 @@ import { err, nullEmptyStrings, sortByName } from "../utils";
 import { updater } from "../db/updater";
 import { atomic, db, isActive, TCrGroup, TGroup } from "../db";
 import { groups, memberships, users } from "../db/schema";
-import { withUser } from "./users";
+import { currentUser } from "./users";
 
 const COLS_WITH = {
   columns: {
@@ -30,7 +30,7 @@ const COLS_WITH = {
 };
 
 export async function svcCreateGroup(name: string, description?: string) {
-  const { id } = await withUser();
+  const { id } = await currentUser();
 
   if (
     typeof name !== "string" ||
@@ -51,7 +51,7 @@ export async function svcUpdateGroup(
   groupId: number,
   { flags, name, description }: GroupUpdater
 ) {
-  const { id: userId } = await withUser();
+  const { id: userId } = await currentUser();
 
   if (
     typeof groupId !== "number" ||
@@ -78,7 +78,7 @@ export async function svcUpdateGroup(
 }
 
 export async function svcSetDefaultGroup(id: number) {
-  const { id: userId } = await withUser();
+  const { id: userId } = await currentUser();
   if (typeof id !== "number") err();
 
   await db
@@ -88,7 +88,7 @@ export async function svcSetDefaultGroup(id: number) {
 }
 
 export async function svcRemoveInviteLink(groupId: number) {
-  const { id: userId } = await withUser();
+  const { id: userId } = await currentUser();
   if (typeof groupId !== "number") err();
 
   const group = await updateGroup(userId, groupId, { uuid: null });
@@ -98,7 +98,7 @@ export async function svcRemoveInviteLink(groupId: number) {
 }
 
 export async function svcGenerateInviteLink(groupId: number) {
-  const { id: userId } = await withUser();
+  const { id: userId } = await currentUser();
   if (typeof groupId !== "number") err();
 
   const group = await updateGroup(userId, groupId, { uuid: uuidv4() });
