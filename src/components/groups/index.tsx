@@ -1,12 +1,8 @@
 "use client";
 
-import { toast } from "react-toastify";
-
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { has3ConsecutiveLetters, appToast } from "@/lib/utils";
 import { useRootDivCx } from "../rootDiv/clientSide";
-import { svcCreateGroup } from "@/lib/services/groups";
 
 import Entry from "./entry";
 import NameDescrAdder from "../nameDescrAdder";
@@ -33,20 +29,7 @@ export default function CliGroupsPage() {
       <div className="p-2 flex flex-wrap gap-2 justify-center">
         <NameDescrAdder
           placeholder="Group"
-          handler={async ({ name, description }) => {
-            try {
-              has3ConsecutiveLetters(name);
-            } catch (err) {
-              toast.error((err as Error).message as string, appToast.theme());
-              throw err;
-            }
-
-            const op = svcCreateGroup(name, description);
-            appToast.promise(op, `Saving group "${name}" to db`);
-
-            const res = await op;
-            dispatch(red.addGroup(res));
-          }}
+          handler={async (data) => dispatch(red.addGroup(data))}
         />
 
         {rs.groups.map((group) => (

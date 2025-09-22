@@ -11,6 +11,7 @@ import {
 import { combinedSA as csa, CombinedState as CS } from ".";
 import { svcSetChartStyle, svcUpdateMembership } from "../services/memberships";
 import {
+  svcCreateGroup,
   svcGenerateInviteLink,
   svcRemoveInviteLink,
   svcSetDefaultGroup,
@@ -77,9 +78,22 @@ export const tGroups = {
       return crudOps;
     },
 
-  addGroup: (group: TGroup) => (dispatch: AppDispatch) => {
-    return dispatch(csa.addGroup(group));
-  },
+  addGroup:
+    ({ name, description }: TGroup) =>
+    (dispatch: AppDispatch) => {
+      try {
+        has3ConsecutiveLetters(name!);
+      } catch (err) {
+        toast.error((err as Error).message as string, appToast.theme());
+      }
+
+      const crudOp = svcCreateGroup(name!, description!).then((res) => {
+        dispatch(csa.addGroup(res));
+      });
+      appToast.promise(crudOp, `Saving group "${name}" to db`);
+
+      return crudOp;
+    },
 
   generateInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
     const crudOp = svcGenerateInviteLink(groupId).then((res) =>
