@@ -1,6 +1,5 @@
 "use client";
 
-import React, { PureComponent } from "react";
 import {
   BarChart,
   Bar,
@@ -25,43 +24,40 @@ export type TParetoChartData = {
   })[];
 };
 
-export default class ParetoChart extends PureComponent<
-  TParetoChartData & {
-    onLegendClick: () => void;
-  },
-  { users: TParetoChartData["users"] }
-> {
-  render() {
-    const { users, categories } = this.props;
-
-    return (
-      <div className=" h-full w-full">
-        <ResponsiveContainer>
-          <BarChart data={categories}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="category"
-              type="category"
-              allowDuplicatedCategory={false}
-              angle={-75}
-              textAnchor="end"
-              height={100}
+export default function ParetoChart({
+  users,
+  categories,
+  onLegendClick,
+}: TParetoChartData & {
+  onLegendClick: () => void;
+}) {
+  return (
+    <div className=" h-full w-full">
+      <ResponsiveContainer>
+        <BarChart data={categories}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="category"
+            type="category"
+            allowDuplicatedCategory={false}
+            angle={-75}
+            textAnchor="end"
+            height={100}
+          />
+          <YAxis />
+          <Tooltip content={ParetoTooltip} />
+          <Legend onClick={onLegendClick} />
+          {users.map(({ id, name, chartStyle }) => (
+            <Bar
+              dataKey={id}
+              name={name}
+              key={id}
+              stackId="a"
+              fill={chart(chartStyle).color}
             />
-            <YAxis />
-            <Tooltip content={ParetoTooltip} />
-            <Legend onClick={this.props.onLegendClick} />
-            {users.map(({ id, name, chartStyle }) => (
-              <Bar
-                dataKey={id}
-                name={name}
-                key={id}
-                stackId="a"
-                fill={chart(chartStyle).color}
-              />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    );
-  }
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
 }
