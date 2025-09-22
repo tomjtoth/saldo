@@ -10,6 +10,14 @@ export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppSelector = useSelector.withTypes<RootState>();
 export const useAppStore = useStore.withTypes<AppStore>();
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const useDebounce = (callback: CallableFunction, deps: any[]) => {
+  useEffect(() => {
+    const id = setTimeout(callback, 50);
+    return () => clearTimeout(id);
+  }, deps);
+};
+
 // TODO: rename to useClientState
 export const useGroupSelector = () => {
   const dispatch = useAppDispatch();
