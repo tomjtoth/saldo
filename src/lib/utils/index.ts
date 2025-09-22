@@ -90,28 +90,6 @@ export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));
 }
 
-export async function sendJSON(
-  endpoint: string,
-  payload?: unknown,
-  options?: { method?: "POST" | "PUT" }
-) {
-  return fetch(endpoint, {
-    method: options?.method ?? "POST",
-
-    ...(payload !== undefined
-      ? {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      : {}),
-  }).then((res) => {
-    if (!res.ok) err(res.statusText);
-    return res;
-  });
-}
-
 export class ErrorWithStatus extends Error {
   status: number;
 
