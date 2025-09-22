@@ -1,6 +1,6 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch } from "../store";
 import { TCategory } from "@/lib/db";
 import {
   appToast,
