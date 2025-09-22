@@ -13,6 +13,7 @@ import { svcSetChartStyle, svcUpdateMembership } from "../services/memberships";
 import {
   svcGenerateInviteLink,
   svcRemoveInviteLink,
+  svcSetDefaultGroup,
   svcUpdateGroup,
 } from "../services/groups";
 
@@ -121,7 +122,13 @@ export const tGroups = {
   },
 
   setDefaultGroupId: (groupId: number) => (dispatch: AppDispatch) => {
-    return dispatch(csa.setDefaultGroupId(groupId));
+    const crudOp = svcSetDefaultGroup(groupId).then(() => {
+      dispatch(csa.setDefaultGroupId(groupId));
+    });
+
+    appToast.promise(crudOp, "Setting default group");
+
+    return crudOp;
   },
 
   setChartStyle:
