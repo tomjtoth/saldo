@@ -10,8 +10,6 @@ import { svcGetParetoData } from "@/lib/services/pareto";
 import ParetoChart from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
-import ChartStyler from "../chartStyler";
-import Canceler from "../canceler";
 
 export default function CliParetoPage(srv: { from?: string; to?: string }) {
   const dispatch = useAppDispatch();
@@ -19,8 +17,6 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
 
   const [from, setFrom] = useState(srv.from ?? "");
   const [to, setTo] = useState(srv.to ?? "");
-
-  const [showStyler, setShowStyler] = useState(false);
 
   const group = rs.group;
 
@@ -71,19 +67,7 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
         </form>
 
         {!!group && (group.pareto?.categories.length ?? 0) > 0 ? (
-          <>
-            {showStyler ? (
-              <Canceler onClick={() => setShowStyler(false)}>
-                <ChartStyler users={group.pareto!.users} />
-              </Canceler>
-            ) : null}
-            <ParetoChart
-              {...{
-                ...group.pareto!,
-                onLegendClick: () => setShowStyler(!showStyler),
-              }}
-            />
-          </>
+          <ParetoChart {...group.pareto!} />
         ) : (
           <div className="grow flex items-center">
             <h2>no data to show</h2>
