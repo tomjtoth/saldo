@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useRef, useEffect } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
 import type { RootState, AppDispatch, AppStore } from "./store";
@@ -11,12 +11,26 @@ export const useAppSelector = useSelector.withTypes<RootState>();
 export const useAppStore = useStore.withTypes<AppStore>();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const useDebounce = (callback: CallableFunction, deps: any[]) => {
+export function useDebounce<T extends (...args: any[]) => void>(
+  callback: T,
+  delay: number
+) {
+  const timeoutRef = useRef<number>(-1);
+
   useEffect(() => {
-    const id = setTimeout(callback, 50);
-    return () => clearTimeout(id);
-  }, deps);
-};
+    return () => window.clearTimeout(timeoutRef.current);
+  }, []);
+
+  return useCallback(
+    (...args: Parameters<T>) => {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = window.setTimeout(() => {
+        callback(...args);
+      }, delay);
+    },
+    [callback, delay]
+  );
+}
 
 // TODO: rename to useClientState
 export const useGroupSelector = () => {
