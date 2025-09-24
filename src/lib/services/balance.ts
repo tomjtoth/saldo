@@ -20,16 +20,41 @@ export async function getBalance(userId: number) {
       ORDER BY ms.group_id, "date"
     ),
 
+    step1u1 AS (
+      SELECT DISTINCT gid, uid1 AS "uid" FROM step1 
+      UNION ALL
+      SELECT DISTINCT gid, uid2 AS "uid" FROM step1
+    ),
+
+    step1u2 AS (
+      SELECT
+        gid,
+        json_group_array(
+          json_object(
+            'id', "uid",
+            'name', u.name,
+            'chartStyle', coalesce(
+              json_extract(ms.chart_style, concat('$.', "uid")),
+              u.chart_style
+            )
+          )
+        ) AS "json"
+      FROM step1u1
+      INNER JOIN memberships ms ON ms.group_id = gid AND ms.user_id = "uid"
+      INNER JOIN users u ON "uid" = u.id
+      GROUP BY gid
+    ),
+
     step2 AS (
       SELECT
         gid,
         gName,
         "date",
-        concat(u1.name, ' vs ', u2.name) AS relation,
+        concat(uid1, ' vs ', uid2) AS relation,
         sum(share) AS share
       FROM step1
       INNER JOIN users u1 ON u1.id = step1.uid1
-      INNER JOIN users u2 on u2.id = step1.uid2
+      INNER JOIN users u2 ON u2.id = step1.uid2
       GROUP BY gid, "date", relation
     ),
 
@@ -49,28 +74,32 @@ export async function getBalance(userId: number) {
     
     step4 AS (
       SELECT
-        concat(
-          '{ "id": ',
-          json_quote(gid),
+          json_insert(
+            json_object(
+              'id', s3.gid,
+              'name', gName
+            ),
 
-          ', "name": ',
-          json_quote(gName),
+            '$.balance', 
+            json_object(
+              'relations',
+              json_group_array(distinct relation),
 
-          ', "balance": ',
-          json_object(
-            'relations',
-            json_group_array(distinct relation),
-
-            'data',
-            json_group_array(json_object('date', date, relation, round(share, 2)))
-          ),
-        
-        ' }'
+              'users',
+              json_extract(su.json, '$'),
+      
+              'data',
+              json_group_array(json_object('date', date, relation, round(share, 2)))
+            )
         ) AS "json"
-      FROM step3
-      GROUP BY gid
+      FROM step3 s3
+      INNER JOIN step1u2 su ON su.gid = s3.gid
+      GROUP BY s3.gid
       ORDER BY gName
     )
+
+    -- debug during development
+    -- SELECT * from step4
 
     SELECT concat('[',  group_concat("json"), ']') AS "json"
     FROM step4`
