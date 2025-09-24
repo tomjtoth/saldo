@@ -1,6 +1,5 @@
 "use client";
 
-import React, { PureComponent } from "react";
 import {
   LineChart,
   Line,
@@ -22,41 +21,37 @@ export type TBalanceChartData = {
   }[];
 };
 
-export default class BalanceChart extends PureComponent<TBalanceChartData> {
-  render() {
-    const { data, relations } = this.props;
-
-    return (
-      <div className="h-full w-full">
-        <ResponsiveContainer>
-          <LineChart>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="date"
-              type="number"
-              height={100}
-              tick={BalanceTick}
-              padding={{ left: 10, right: 10 }}
-              domain={[data.at(0)!.date, data.at(-1)!.date]}
+export default function BalanceChart({ data, relations }: TBalanceChartData) {
+  return (
+    <div className="h-full w-full">
+      <ResponsiveContainer>
+        <LineChart>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="date"
+            type="number"
+            height={100}
+            tick={BalanceTick}
+            padding={{ left: 10, right: 10 }}
+            domain={[data.at(0)!.date, data.at(-1)!.date]}
+          />
+          <YAxis />
+          <Tooltip content={BalanceTooltip} />
+          <Legend />
+          {relations.map((s) => (
+            <Line
+              dataKey={s}
+              data={data}
+              name={s}
+              key={s}
+              connectNulls
+              stroke={`#${Math.floor(Math.random() * 0xfff)
+                .toString(16)
+                .padStart(3, "0")}`}
             />
-            <YAxis />
-            <Tooltip content={BalanceTooltip} />
-            <Legend />
-            {relations.map((s) => (
-              <Line
-                dataKey={s}
-                data={data}
-                name={s}
-                key={s}
-                connectNulls
-                stroke={`#${Math.floor(Math.random() * 0xfff)
-                  .toString(16)
-                  .padStart(3, "0")}`}
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    );
-  }
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
 }
