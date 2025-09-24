@@ -100,7 +100,7 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
             ', "categories": ',
             categories,
           ' }}'
-        ) AS json
+        ) AS "json"
       FROM categories_in_array_per_row s3
       LEFT JOIN sums_per_row s1 ON s1.gid = s3.gid
       GROUP BY s3.gid
@@ -110,9 +110,9 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
     -- all groups in 1 array
     SELECT concat(
       '[', 
-      group_concat(json),
+      group_concat("json"),
       ']'
-    ) AS json
+    ) AS "json"
     FROM one_group_per_row;`
   );
 
