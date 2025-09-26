@@ -5,8 +5,9 @@ import { DateTime } from "luxon";
 
 import { useGroupSelector } from "@/lib/hooks";
 import { dateToInt, EUROPE_HELSINKI } from "@/lib/utils";
+import { TBalanceChartData } from "@/lib/db";
 
-import BalanceChart, { TBalanceChartData } from "./chart";
+import BalanceChart from "./chart";
 import Header from "../header";
 import GroupSelector from "../groups/selector";
 
@@ -22,15 +23,26 @@ export default function CliBalancePage() {
   const dateFrom = DateTime.fromISO(from, EUROPE_HELSINKI);
   const dateTo = DateTime.fromISO(to, EUROPE_HELSINKI);
 
+  // TODO: migrate this to a working useMemo implementation
+  // currently every single keystroke into the date filters triggers re-render
+  const toBeMemoized =
+    !!filtered && filtered.data.length > 0 ? (
+      <BalanceChart {...filtered} />
+    ) : (
+      <div className="grow flex items-center">
+        <h2 className="rounded border-2 border-red-500">
+          There is no data to show with those filters
+        </h2>
+      </div>
+    );
+
   const filter = () => {
     const set = rs.group?.balance;
     if (!set) return;
 
-    const { relations, data } = set;
-
     setFiltered({
-      relations,
-      data: data.filter(({ date }) => {
+      ...set,
+      data: set.data.filter(({ date }) => {
         let res = true;
 
         if (dateFrom.isValid && date < dateToInt(dateFrom.toISODate())) {
@@ -83,16 +95,7 @@ export default function CliBalancePage() {
           </label>
           <button>filter</button>
         </form>
-
-        {!!filtered && filtered.data.length > 0 ? (
-          <BalanceChart {...filtered} />
-        ) : (
-          <div className="grow flex items-center">
-            <h2 className="rounded border-2 border-red-500">
-              There is no data to show with those filters
-            </h2>
-          </div>
-        )}
+        {toBeMemoized}
       </div>
     </>
   );
