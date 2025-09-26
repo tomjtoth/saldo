@@ -9,6 +9,7 @@ export async function getBalance(userId: number) {
         ms.group_id AS gid,
         g.name AS gName,
         paid_on AS "date",
+        ${userId} as "uid",
         min(paid_by, paid_to) AS uid1,
         max(paid_by, paid_to) AS uid2,
         sum(share * CASE WHEN paid_by < paid_to THEN 1 ELSE -1 END) as share
@@ -21,27 +22,28 @@ export async function getBalance(userId: number) {
     ),
 
     step1u1 AS (
-      SELECT DISTINCT gid, uid1 AS "uid" FROM step1 
+      SELECT DISTINCT gid, "uid", uid1 AS "uidx" FROM step1 
       UNION ALL
-      SELECT DISTINCT gid, uid2 AS "uid" FROM step1
+      SELECT DISTINCT gid, "uid", uid2 AS "uidx" FROM step1
     ),
 
     step1u2 AS (
       SELECT
         gid,
+        uid,
         json_group_array(
           json_object(
-            'id', "uid",
+            'id', "uidx",
             'name', u.name,
             'chartStyle', coalesce(
-              json_extract(ms.chart_style, concat('$.', "uid")),
+              json_extract(ms.chart_style, concat('$.', "uidx")),
               u.chart_style
             )
           )
         ) AS "json"
       FROM step1u1
       INNER JOIN memberships ms ON ms.group_id = gid AND ms.user_id = "uid"
-      INNER JOIN users u ON "uid" = u.id
+      INNER JOIN users u ON "uidx" = u.id
       GROUP BY gid
     ),
 
@@ -99,7 +101,7 @@ export async function getBalance(userId: number) {
     )
 
     -- debug during development
-    -- SELECT * from step4
+    -- SELECT * from step1u2
 
     SELECT concat('[',  group_concat("json"), ']') AS "json"
     FROM step4`
