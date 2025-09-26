@@ -18,11 +18,18 @@ export default function ParetoTooltip({
     <div className="bg-background rounded border p-2">
       <h3>{label}</h3>
 
-      {(payload as TooltipPayload).map((x) => (
-        <p key={x.name} style={{ color: x.color }} className="ml-2">
-          {x.name}: {(x.value as number).toFixed(2)}
-        </p>
-      ))}
+      {(payload as TooltipPayload)
+        .toSorted(({ name: a }, { name: b }) => {
+          a = (a as string).toLowerCase();
+          b = (b as string).toLowerCase();
+
+          return a < b ? -1 : a > b ? 1 : 0;
+        })
+        .map((x) => (
+          <p key={x.name} style={{ color: x.color }} className="ml-2">
+            {x.name}: {(x.value as number).toFixed(2)}
+          </p>
+        ))}
     </div>
   );
 }
