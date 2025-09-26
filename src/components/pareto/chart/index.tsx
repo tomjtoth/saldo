@@ -13,19 +13,11 @@ import {
 } from "recharts";
 
 import { chart } from "@/lib/utils";
+import { TParetoChartData } from "@/lib/db";
 
 import ParetoTooltip from "./tooltip";
 import Canceler from "@/components/canceler";
 import ChartStyler from "@/components/chartStyler";
-
-export type TParetoChartData = {
-  users: { id: number; name: string; chartStyle: string }[];
-  categories: ({
-    category: string;
-  } & {
-    [user: string]: number;
-  })[];
-};
 
 export default function ParetoChart({ users, categories }: TParetoChartData) {
   const [showStyler, setShowStyler] = useState(false);
