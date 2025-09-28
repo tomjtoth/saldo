@@ -67,7 +67,7 @@ function protectedRoute<P>(
       if (requireSession) {
         const reqWithUser = reqWithParams as RequestWithUser<P>;
         reqWithUser.__user = await currentUser({
-          redirectTo: redirectAs(reqWithParams),
+          redirectTo: redirectAs ? redirectAs(reqWithParams) : undefined,
         });
 
         res = await (handler as HandlerWithUser<P>)(reqWithUser);
