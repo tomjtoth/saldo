@@ -50,10 +50,7 @@ function protectedPage<T = object>({
       params
     );
 
-    const session = await auth();
-    if (!session) return signIn("", { redirectTo });
-
-    const { id, flags, defaultGroupId } = await currentUser(session);
+    const { id, flags, defaultGroupId } = await currentUser({ redirectTo });
     const groups = await getData(id);
 
     const children =

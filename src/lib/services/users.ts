@@ -1,9 +1,8 @@
 "use server";
 
-import { Session } from "next-auth";
 import { eq } from "drizzle-orm";
 
-import { auth } from "@/auth";
+import { auth, signIn } from "@/auth";
 
 import { createGroup } from "./groups";
 import { atomic, db, TCrUser, TUser, updater } from "../db";
@@ -41,8 +40,18 @@ export async function addUser(
   );
 }
 
-export async function currentUser(session?: Session | null) {
-  if (session === undefined) session = await auth();
+export async function currentUser(
+  opts: { errorCode?: number; redirectTo?: string } = {}
+) {
+  const { errorCode, redirectTo } = opts;
+
+  const session = await auth();
+
+  if (!session) {
+    if (errorCode) err(errorCode);
+
+    return await signIn("", { redirectTo });
+  }
 
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
