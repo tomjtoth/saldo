@@ -6,6 +6,7 @@ import {
   appToast,
   has3ConsecutiveLetters,
   insertAlphabetically,
+  nulledEmptyStrings,
 } from "../utils";
 import { CombinedState as CS, combinedSA as csa } from ".";
 import {
@@ -55,8 +56,8 @@ export const tCategories = {
       const crudOp = svcUpdateCategory(original.id!, modifiers).then((res) => {
         dispatch(csa.updateCategory(res));
 
-        return `${appToast.opsDone(original, modifiers)} "${
-          modifiers.name
+        return `${appToast.opsDone(original, nulledEmptyStrings(modifiers))} "${
+          original.name
         }" succeeded!`;
       });
 
