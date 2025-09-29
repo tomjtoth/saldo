@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 
-import { db, TGroup } from "@/lib/db";
+import { db, SQL_RANDOM_COLOR, TGroup } from "@/lib/db";
 
 export async function getBalance(userId: number) {
   const data = await db.get<{ json: string } | null>(
@@ -36,7 +36,8 @@ export async function getBalance(userId: number) {
             'name', u.name,
             'chartStyle', coalesce(
               json_extract(ms.chart_style, concat('$.', "uidx")),
-              u.chart_style
+              u.chart_style,
+              ${SQL_RANDOM_COLOR}
             )
           )
         ) AS "user_data"

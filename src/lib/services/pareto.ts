@@ -3,7 +3,7 @@
 import { DateTime } from "luxon";
 import { sql } from "drizzle-orm";
 
-import { db, TGroup } from "@/lib/db";
+import { db, SQL_RANDOM_COLOR, TGroup } from "@/lib/db";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
 import { currentUser } from "./users";
 
@@ -44,7 +44,8 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
         u.flags as user_flags,
         coalesce(
           json_extract(ms.chart_style, concat('$.', u.id)),
-          u.chart_style
+          u.chart_style,
+          ${SQL_RANDOM_COLOR}
         ) AS chart_style,
         sum(share) AS total
       FROM "memberships" ms
