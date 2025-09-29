@@ -1,5 +1,6 @@
 "use client";
 
+import { useContext } from "react";
 import { TooltipContentProps } from "recharts";
 import {
   NameType,
@@ -8,16 +9,16 @@ import {
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
 import { chart, dateFromInt } from "@/lib/utils";
-import { useChartUsersData } from ".";
+import { CtxBalanceChart } from ".";
 
 export default function BalanceTooltip({
   payload,
   label,
   active,
 }: TooltipContentProps<ValueType, NameType>) {
-  const users = useChartUsersData();
+  const users = useContext(CtxBalanceChart);
 
-  if (!active || !payload || !label) return null;
+  if (!active || !payload) return null;
 
   return (
     <div className="bg-background rounded border p-2">
