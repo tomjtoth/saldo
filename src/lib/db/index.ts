@@ -32,6 +32,10 @@ export type DrizzleTx = SQLiteTransaction<
 
 type TblCtx<ColName extends string> = { [K in ColName]: SQLiteColumn };
 
+export const SQL_RANDOM_COLOR = sql.raw(
+  "printf('%07x', abs(random()) % 0x2000000)"
+);
+
 export const orderByLowerName = (table: TblCtx<"name">) =>
   sql`lower(${table.name})`;
 
