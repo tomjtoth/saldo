@@ -56,7 +56,9 @@ export default function Adder() {
       svcAddReceipt({
         ...currReceipt!,
         groupId,
-      }).then((res) => dispatch(red.addReceipt({ ...res, groupId }))),
+      }).then((res) => {
+        dispatch(red.addReceipt({ ...res, groupId }));
+      }),
       "Submitting new receipt"
     );
   };
