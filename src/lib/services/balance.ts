@@ -30,8 +30,8 @@ export async function getBalance(userId: number) {
     distinct_users_data AS (
       SELECT
         gid,
-        json_group_array(
-          json_object(
+        jsonb_group_array(
+          jsonb_object(
             'id', "uidx",
             'name', u.name,
             'chartStyle', coalesce(
@@ -58,6 +58,12 @@ export async function getBalance(userId: number) {
       GROUP BY gid, "date", relation
     ),
 
+    distinct_relations AS (
+      SELECT gid, jsonb_group_array(distinct relation) AS relations
+      FROM relations_and_daily_sums
+      GROUP BY gid
+    ),
+
     cumulated_daily_sums AS (
       SELECT
         gid,
@@ -75,60 +81,46 @@ export async function getBalance(userId: number) {
       SELECT
         gid,
         "date",
-        json_patch(
-          json_object(
+        jsonb_patch(
+          jsonb_object(
             'date', "date",
             'min', round(min(share), 2),
             'max', round(max(share), 2)
           ),
 
-          json_group_object(relation, round(share, 2))
+          jsonb_group_object(relation, round(share, 2))
         ) AS daily_data
       FROM cumulated_daily_sums cds
       GROUP BY "gid", "date"
     ),
 
-    data_by_date_and_gid AS (
+    group_per_row AS (
       SELECT
         dbd.gid,
-        json_insert(
-          json_object(
-            'id', dbd.gid,
-            'name', g.name
-          ),
+   
+        jsonb_object(
+          'id', dbd.gid,
+          'name', g.name,
 
-          '$.balance.users',
-          json_extract(user_data, '$'),
-
-          '$.balance.data',
-          json_group_array(json_extract(daily_data, '$'))
-
-        ) as "json"
+          'balance', jsonb_object(
+            'relations', relations,
+            'users', user_data,
+            'data', jsonb_group_array(daily_data)
+          )
+        ) as "data"
       FROM data_by_date dbd
       INNER JOIN groups g ON g.id = dbd.gid
       INNER JOIN distinct_users_data dud ON dud.gid = dbd.gid
+      INNER JOIN distinct_relations dr ON dr.gid = dbd.gid
       GROUP BY dbd.gid
       ORDER by g.name
-    ),
-
-    with_relations AS (
-      SELECT 
-        json_insert(
-          "json",
-
-          '$.balance.relations',
-          json_group_array(distinct relation)
-        ) AS "json"
-      FROM data_by_date_and_gid dbd
-      INNER JOIN relations_and_daily_sums rads ON rads.gid = dbd.gid
-      GROUP BY dbd.gid
     )
 
     -- debug during development
-    -- SELECT * from data_by_date_and_gid
+    -- SELECT * from group_per_row
 
-    SELECT concat('[',  group_concat("json"), ']') AS "json"
-    FROM with_relations`
+    SELECT json(jsonb_group_array("data"))
+    FROM group_per_row`
   );
 
   return data ? (JSON.parse(data.json) as TGroup[]) : [];
