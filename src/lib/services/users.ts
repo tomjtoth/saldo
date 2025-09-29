@@ -1,5 +1,8 @@
-import { Session } from "next-auth";
+"use server";
+
 import { eq } from "drizzle-orm";
+
+import { auth, signIn } from "@/auth";
 
 import { createGroup } from "./groups";
 import { atomic, db, TCrUser, TUser, updater } from "../db";
@@ -20,7 +23,7 @@ export async function addUser(
         })
         .returning({
           id: users.id,
-          statusId: users.statusId,
+          flags: users.flags,
           name: users.name,
           email: users.email,
           image: users.image,
@@ -37,7 +40,19 @@ export async function addUser(
   );
 }
 
-export async function currentUser(session: Session) {
+export async function currentUser(
+  opts: { errorCode?: number; redirectTo?: string } = {}
+) {
+  const { errorCode, redirectTo } = opts;
+
+  const session = await auth();
+
+  if (!session) {
+    if (errorCode) err(errorCode);
+
+    return await signIn("", { redirectTo });
+  }
+
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const email = session?.user?.email!;
@@ -47,7 +62,7 @@ export async function currentUser(session: Session) {
   let user = await db.query.users.findFirst({
     columns: {
       id: true,
-      statusId: true,
+      flags: true,
       name: true,
       email: true,
       image: true,
@@ -83,7 +98,7 @@ export async function currentUser(session: Session) {
   return user;
 }
 
-export async function updateUser(id: number, modifier: { statusId: number }) {
+export async function updateUser(id: number, modifier: { flags: number }) {
   return await atomic(
     { operation: "Updating user", revisedBy: id },
     async (tx, revisionId) => {
@@ -103,7 +118,7 @@ export async function updateUser(id: number, modifier: { statusId: number }) {
           .update(users)
           .set(user)
           .where(eq(users.id, id))
-          .returning({ statusId: users.statusId });
+          .returning({ flags: users.flags });
 
         return res;
       } else err("No changes were made");

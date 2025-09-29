@@ -1,29 +1,111 @@
-import { eq, exists, and, sql } from "drizzle-orm";
+"use server";
 
-import { err, sortByName } from "../utils";
+import { eq, exists, and, sql } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
+
+import { err, nullEmptyStrings, sortByName } from "../utils";
 import { updater } from "../db/updater";
 import { atomic, db, isActive, TCrGroup, TGroup } from "../db";
-import { groups, memberships } from "../db/schema";
+import { groups, memberships, users } from "../db/schema";
+import { currentUser } from "./users";
 
 const COLS_WITH = {
   columns: {
     id: true,
     name: true,
     description: true,
-    statusId: true,
+    flags: true,
     uuid: true,
   },
   with: {
     memberships: {
-      columns: { statusId: true },
+      columns: { flags: true },
       with: {
         user: {
-          columns: { name: true, id: true, email: true, statusId: true },
+          columns: { name: true, id: true, email: true, flags: true },
         },
       },
     },
   },
 };
+
+export async function svcCreateGroup(name: string, description?: string) {
+  const { id } = await currentUser();
+
+  if (
+    typeof name !== "string" ||
+    (description !== null &&
+      !["string", "undefined"].includes(typeof description))
+  )
+    err();
+
+  const data = { name, description };
+  nullEmptyStrings(data);
+
+  return createGroup(id, data);
+}
+
+type GroupUpdater = Pick<TGroup, "name" | "description" | "flags">;
+
+export async function svcUpdateGroup(
+  groupId: number,
+  { flags, name, description }: GroupUpdater
+) {
+  const { id: userId } = await currentUser();
+
+  if (
+    typeof groupId !== "number" ||
+    !["number", "undefined"].includes(typeof flags) ||
+    !["string", "undefined"].includes(typeof name) ||
+    (description !== null &&
+      !["string", "undefined"].includes(typeof description))
+  )
+    err();
+
+  const data = {
+    flags,
+    name,
+    description,
+  };
+
+  nullEmptyStrings(data);
+
+  const group = await updateGroup(userId, groupId, data);
+
+  if (!group) err(404);
+
+  return group;
+}
+
+export async function svcSetDefaultGroup(id: number) {
+  const { id: userId } = await currentUser();
+  if (typeof id !== "number") err();
+
+  await db
+    .update(users)
+    .set({ defaultGroupId: id })
+    .where(eq(users.id, userId));
+}
+
+export async function svcRemoveInviteLink(groupId: number) {
+  const { id: userId } = await currentUser();
+  if (typeof groupId !== "number") err();
+
+  const group = await updateGroup(userId, groupId, { uuid: null });
+  if (!group) err(404);
+
+  return group;
+}
+
+export async function svcGenerateInviteLink(groupId: number) {
+  const { id: userId } = await currentUser();
+  if (typeof groupId !== "number") err();
+
+  const group = await updateGroup(userId, groupId, { uuid: uuidv4() });
+  if (!group) err(404);
+
+  return group;
+}
 
 export async function createGroup(
   ownerId: number,
@@ -48,10 +130,12 @@ export async function createGroup(
         revisionId,
       });
 
-      return await tx.query.groups.findFirst({
+      const res = await tx.query.groups.findFirst({
         ...COLS_WITH,
         where: eq(groups.id, groupId),
       });
+
+      return res as TGroup;
     }
   );
 }
@@ -113,7 +197,7 @@ export async function getGroups(userId: number) {
 export async function updateGroup(
   adminId: number,
   groupId: number,
-  modifier: Pick<TGroup, "name" | "description" | "statusId" | "uuid">
+  modifier: Pick<TGroup, "name" | "description" | "flags" | "uuid">
 ) {
   return await atomic(
     { operation: "Updating group", revisedBy: adminId },

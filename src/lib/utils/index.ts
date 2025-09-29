@@ -1,9 +1,9 @@
 import { Draft, WritableDraft } from "immer";
 import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
-
-import { TCategory } from "@/lib/db";
 import { Dispatch, SetStateAction } from "react";
+
+import { TCategory, TUserChartData } from "@/lib/db";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value === 0.5) return [1, 2];
@@ -90,28 +90,6 @@ export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));
 }
 
-export async function sendJSON(
-  endpoint: string,
-  payload?: unknown,
-  options?: { method?: "POST" | "PUT" }
-) {
-  return fetch(endpoint, {
-    method: options?.method ?? "POST",
-
-    ...(payload !== undefined
-      ? {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      : {}),
-  }).then((res) => {
-    if (!res.ok) err(res.statusText);
-    return res;
-  });
-}
-
 export class ErrorWithStatus extends Error {
   status: number;
 
@@ -138,12 +116,13 @@ export function has3ConsecutiveLetters(val: string) {
     err("must have at least 3 consecutive letters");
 }
 
-function opsDone<
-  T extends Pick<TCategory, "name" | "description" | "statusId">
->(before: T, after: T) {
+function opsDone<T extends Pick<TCategory, "name" | "description" | "flags">>(
+  before: T,
+  after: T
+) {
   const ops = [
     ...(after.name !== before.name ? ["renaming"] : []),
-    ...(after.statusId !== before.statusId ? ["toggling"] : []),
+    ...(virt(after).active !== virt(before).active ? ["toggling"] : []),
     ...(after.description !== before.description
       ? ["altering the description of"]
       : []),
@@ -210,14 +189,30 @@ export type NumericKeys<T> = {
 
 export type LineType = "solid" | "dashed";
 
-export const status = <T extends { statusId?: number }>(
+export const chart = (
+  style: string | null | Pick<TUserChartData, "chartStyle">
+) => {
+  const code =
+    typeof style === "string"
+      ? style
+      : typeof style === "object" && style !== null
+      ? style.chartStyle
+      : "";
+
+  return {
+    color: `#${code.slice(1)}`,
+    lineType: code.slice(0, 1) === "0" ? "solid" : "dashed",
+  };
+};
+
+export const virt = <T extends { flags?: number }>(
   entity: T,
   setter?: Dispatch<SetStateAction<number>>
 ) => {
   let int =
-    entity.statusId ??
+    entity.flags ??
     (process.env.NODE_ENV === "development"
-      ? err("calling status without statusId")
+      ? err("calling status without passing flags")
       : 0);
 
   const getFlag = (bit: number) => (int & (1 << bit)) !== 0;
@@ -228,7 +223,7 @@ export const status = <T extends { statusId?: number }>(
 
   const finalizeInt = () => {
     if (setter) setter(int);
-    else entity.statusId = int;
+    else entity.flags = int;
   };
 
   const scaleTo255 = (value: number) => {
@@ -247,11 +242,12 @@ export const status = <T extends { statusId?: number }>(
 
   const color = {
     get r() {
-      return getColor(6);
+      return getColor(2);
     },
 
     set r(value) {
-      setColor(value, 6);
+      setColor(value, 2);
+      setFlag(10, true);
     },
 
     get g() {
@@ -260,14 +256,16 @@ export const status = <T extends { statusId?: number }>(
 
     set g(value) {
       setColor(value, 4);
+      setFlag(10, true);
     },
 
     get b() {
-      return getColor(2);
+      return getColor(6);
     },
 
     set b(value) {
-      setColor(value, 2);
+      setColor(value, 6);
+      setFlag(10, true);
     },
 
     rgba(alpha: number) {
@@ -305,14 +303,29 @@ export const status = <T extends { statusId?: number }>(
       return int;
     },
 
-    color,
+    chart: {
+      get configured() {
+        return getFlag(10);
+      },
 
-    get lineType() {
-      return getFlag(9) ? "solid" : "dashed";
-    },
+      restoreConfig() {
+        setFlag(10, true);
+      },
 
-    set lineType(value: LineType) {
-      setFlag(9, value === "solid");
+      resetConfig() {
+        setFlag(10, false);
+      },
+
+      color,
+
+      get lineType() {
+        return getFlag(9) ? "dashed" : "solid";
+      },
+
+      set lineType(value: LineType) {
+        setFlag(9, value === "dashed");
+        setFlag(10, true);
+      },
     },
   };
 };

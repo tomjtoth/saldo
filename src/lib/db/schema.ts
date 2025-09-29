@@ -42,7 +42,7 @@ const id = integer().primaryKey();
 const revisionId = integer()
   .notNull()
   .references(() => revisions.id, { onDelete: "cascade" });
-const statusId = integer().notNull().default(1);
+const flags = integer().notNull().default(1);
 
 const userId = integer()
   .notNull()
@@ -53,7 +53,7 @@ const groupId = integer()
   .references(() => groups.id);
 
 const colSR = {
-  statusId,
+  flags,
   revisionId,
   // active,
 };
@@ -133,6 +133,8 @@ export const users = sqliteTable("users", {
   image: text(),
 
   defaultGroupId: integer().references(() => groups.id),
+
+  chartStyle: text(),
 });
 
 export const usersRel = relations(users, ({ one, many }) => ({
@@ -192,6 +194,8 @@ export const memberships = sqliteTable(
     userId,
 
     defaultCategoryId: integer().references(() => categories.id),
+
+    chartStyle: text(),
   },
   (table) => [primaryKey({ columns: [table.groupId, table.userId] })]
 );

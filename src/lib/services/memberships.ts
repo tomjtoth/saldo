@@ -1,10 +1,39 @@
+"use server";
+
 import { atomic, db, TCrMembership, TMembership, updater } from "@/lib/db";
 import { err } from "../utils";
 import { and, eq, sql } from "drizzle-orm";
 import { memberships } from "../db/schema";
+import { currentUser } from "./users";
+
+export async function svcUpdateMembership({
+  groupId,
+  userId,
+  flags,
+}: TMembership) {
+  const { id: revisedBy } = await currentUser();
+  if (
+    typeof groupId !== "number" ||
+    typeof userId !== "number" ||
+    typeof flags !== "number"
+  )
+    err();
+
+  if (!(await isAdmin(revisedBy, groupId))) err(403);
+
+  const ms = await updateMembership(revisedBy, {
+    groupId,
+    userId,
+    flags,
+  });
+
+  if (!ms) err(404);
+
+  return ms;
+}
 
 type MembershipUpdater = Pick<TCrMembership, "groupId" | "userId"> &
-  Pick<TMembership, "statusId" | "defaultCategoryId">;
+  Pick<TMembership, "flags" | "defaultCategoryId">;
 
 export async function updateMembership(
   revisedBy: number,
@@ -40,9 +69,9 @@ export async function updateMembership(
               eq(memberships.groupId, groupId)
             )
           )
-          .returning({ statusId: memberships.statusId });
+          .returning({ flags: memberships.flags });
 
-        return res;
+        return res as TMembership;
       } else err("No changes were made");
     }
   );
@@ -56,9 +85,27 @@ export async function isAdmin(userId: number, groupId: number) {
       and(
         eq(memberships.userId, userId),
         eq(memberships.groupId, groupId),
-        sql`${memberships.statusId} & 2 = 2`
+        sql`${memberships.flags} & 2 = 2`
       )
     );
 
   return !!ms;
+}
+
+export async function svcSetChartStyle(
+  groupId: number,
+  userId: number,
+  style: string | null
+) {
+  const { id } = await currentUser();
+
+  await db
+    .update(memberships)
+    .set({
+      chartStyle: sql`coalesce(
+        json_set(${memberships.chartStyle}, ${`$.${userId}`}, ${style}),
+        json_object(${userId.toString()}, ${style})
+      )`,
+    })
+    .where(and(eq(memberships.groupId, groupId), eq(memberships.userId, id)));
 }

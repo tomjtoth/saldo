@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
 import { TGroup } from "@/lib/db";
-import { sendJSON, appToast } from "@/lib/utils";
+import { appToast } from "@/lib/utils";
 import { rCombined as red } from "@/lib/reducers";
 
 export default function Invitation({
@@ -16,7 +16,7 @@ export default function Invitation({
 }) {
   const dispatch = useAppDispatch();
   const invitationLink = group.uuid
-    ? `${location.origin}/api/groups/${group.uuid}`
+    ? `${location.origin}/join/${group.uuid}`
     : null;
 
   const copyToClipboard = () =>
@@ -53,40 +53,12 @@ export default function Invitation({
       <div className="flex gap-2 justify-evenly">
         {!!invitationLink && <button onClick={copyToClipboard}>Copy 🔗</button>}
 
-        <button
-          onClick={() => {
-            appToast.promise(
-              sendJSON(
-                "/api/groups",
-                { id: group.id, generateLink: true },
-                { method: "PUT" }
-              ).then(async (res) => {
-                const body = await res.json();
-                dispatch(red.updateGroup(body));
-              }),
-              "Generating invitation link"
-            );
-          }}
-        >
+        <button onClick={() => dispatch(red.generateInviteLink(group.id!))}>
           Generate 🔁
         </button>
 
         {!!invitationLink && (
-          <button
-            onClick={() => {
-              appToast.promise(
-                sendJSON(
-                  "/api/groups",
-                  { id: group.id, removeLink: true },
-                  { method: "PUT" }
-                ).then(async (res) => {
-                  const body = await res.json();
-                  dispatch(red.updateGroup(body));
-                }),
-                "Deleting invitation link"
-              );
-            }}
-          >
+          <button onClick={() => dispatch(red.removeInviteLink(group.id!))}>
             Remove 🚫
           </button>
         )}

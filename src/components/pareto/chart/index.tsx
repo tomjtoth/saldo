@@ -1,6 +1,6 @@
 "use client";
 
-import React, { PureComponent } from "react";
+import { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -12,22 +12,23 @@ import {
   Legend,
 } from "recharts";
 
+import { chart } from "@/lib/utils";
+import { TParetoChartData } from "@/lib/db";
+
 import ParetoTooltip from "./tooltip";
+import Canceler from "@/components/canceler";
+import ChartStyler from "@/components/chartStyler";
 
-export type TParetoChartData = {
-  users: string[];
-  categories: ({
-    category: string;
-  } & {
-    [user: string]: number;
-  })[];
-};
+export default function ParetoChart({ users, categories }: TParetoChartData) {
+  const [showStyler, setShowStyler] = useState(false);
 
-export default class ParetoChart extends PureComponent<TParetoChartData> {
-  render() {
-    const { users, categories } = this.props;
-
-    return (
+  return (
+    <>
+      {showStyler ? (
+        <Canceler onClick={() => setShowStyler(false)}>
+          <ChartStyler {...{ users }} />
+        </Canceler>
+      ) : null}
       <div className=" h-full w-full">
         <ResponsiveContainer>
           <BarChart data={categories}>
@@ -42,21 +43,19 @@ export default class ParetoChart extends PureComponent<TParetoChartData> {
             />
             <YAxis />
             <Tooltip content={ParetoTooltip} />
-            <Legend />
-            {users.map((s) => (
+            <Legend onClick={() => setShowStyler(!showStyler)} />
+            {users.map(({ id, name, chartStyle }) => (
               <Bar
-                dataKey={s}
-                name={s}
-                key={s}
+                dataKey={id}
+                name={name}
+                key={id}
                 stackId="a"
-                fill={`#${Math.floor(Math.random() * 0xfff)
-                  .toString(16)
-                  .padStart(3, "0")}`}
+                fill={chart(chartStyle).color}
               />
             ))}
           </BarChart>
         </ResponsiveContainer>
       </div>
-    );
-  }
+    </>
+  );
 }

@@ -4,8 +4,6 @@ import type {
   InferSelectModel,
 } from "drizzle-orm";
 import * as schema from "./schema";
-import { TParetoChartData } from "@/components/pareto/chart";
-import { TBalanceChartData } from "@/components/balance/chart";
 
 type Schema = typeof schema;
 type TSchema = ExtractTablesWithRelations<Schema>;
@@ -42,6 +40,32 @@ type TModelWithRelations<TTableName extends keyof TSchema> = Partial<
         : never; // Could not infer TRelation
     }
 >;
+
+export type TParetoChartData = {
+  users: TUserChartData[];
+  categories: ({
+    category: string;
+  } & {
+    [user: string]: number;
+  })[];
+};
+
+export type TBalanceChartData = {
+  users: TUserChartData[];
+  relations: string[];
+  data: {
+    date: number;
+    min: number;
+    max: number;
+    [relation: string]: number;
+  }[];
+};
+
+export type TUserChartData = {
+  id: number;
+  name: string;
+  chartStyle: string;
+};
 
 export type TCrRevision = typeof schema.revisions.$inferInsert;
 export type TCrUser = typeof schema.users.$inferInsert;

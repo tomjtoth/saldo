@@ -19,7 +19,7 @@ export type TRootDiv = {
   children: ReactNode;
 
   rewritePath?: string;
-  user?: { id: number; statusId: number };
+  user?: { id: number; flags: number };
 
   groupId?: number;
   defaultGroupId?: number;
@@ -100,7 +100,7 @@ const RootDivCx = createContext<{
   sidepanel: ReactNode;
   groups: TGroup[];
   groupId?: number;
-  user?: { id: number; statusId: number };
+  user?: { id: number; flags: number };
   rootDivRef?: RefObject<HTMLDivElement | null>;
 }>({
   addOnScroll: () => {},

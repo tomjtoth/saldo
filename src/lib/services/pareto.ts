@@ -1,16 +1,24 @@
+"use server";
+
 import { DateTime } from "luxon";
 import { sql } from "drizzle-orm";
 
 import { db, TGroup } from "@/lib/db";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
+import { currentUser } from "./users";
 
-export async function getPareto(
-  userId: number,
-  opts: {
-    from?: string;
-    to?: string;
-  } = {}
-) {
+type ParetoOpts = {
+  from?: string;
+  to?: string;
+};
+
+export async function svcGetParetoData(opts: ParetoOpts) {
+  const { id } = await currentUser();
+
+  return getPareto(id, opts);
+}
+
+export async function getPareto(userId: number, opts: ParetoOpts = {}) {
   const from =
     opts.from &&
     // SQL injection prevented here
@@ -31,7 +39,13 @@ export async function getPareto(
         g.id AS gid,
         g.name AS gName,
         cats.name AS cat,
-        u.name AS user,
+        u.id AS user_id,
+        u.name AS user_name,
+        u.flags as user_flags,
+        coalesce(
+          json_extract(ms.chart_style, concat('$.', u.id)),
+          u.chart_style
+        ) AS chart_style,
         sum(share) AS total
       FROM "memberships" ms
       INNER JOIN consumption con ON ms.group_id = con.group_id
@@ -48,7 +62,7 @@ export async function getPareto(
         gName,
         sum(total) AS orderer,
         json_insert(
-          json_group_object(user, total),
+          json_group_object(user_id, total),
           '$.category', cat
         ) AS cats
       FROM sums_per_row
@@ -78,11 +92,15 @@ export async function getPareto(
           json_quote(s3.gName),
           ', "pareto": { ',
             ' "users": ',
-            json_group_array(DISTINCT s1.user),
+            json_group_array(DISTINCT json_object(
+            	'id', s1.user_id,
+            	'name', s1.user_name,
+            	'chartStyle', s1.chart_style
+            )),
             ', "categories": ',
             categories,
           ' }}'
-        ) AS json
+        ) AS "json"
       FROM categories_in_array_per_row s3
       LEFT JOIN sums_per_row s1 ON s1.gid = s3.gid
       GROUP BY s3.gid
@@ -92,9 +110,9 @@ export async function getPareto(
     -- all groups in 1 array
     SELECT concat(
       '[', 
-      group_concat(json),
+      group_concat("json"),
       ']'
-    ) AS json
+    ) AS "json"
     FROM one_group_per_row;`
   );
 

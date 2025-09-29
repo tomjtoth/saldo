@@ -35,12 +35,12 @@ type TblCtx<ColName extends string> = { [K in ColName]: SQLiteColumn };
 export const orderByLowerName = (table: TblCtx<"name">) =>
   sql`lower(${table.name})`;
 
-export const colActive = (t: TblCtx<"statusId">) => ({
+export const colActive = (t: TblCtx<"flags">) => ({
   active: isActive(t).as("active"),
 });
 
-const bitFlagCheck = (flag: number) => (table: TblCtx<"statusId">) =>
-  sql<boolean>`${table.statusId} & ${sql.raw(flag.toString())} = ${sql.raw(
+const bitFlagCheck = (flag: number) => (table: TblCtx<"flags">) =>
+  sql<boolean>`${table.flags} & ${sql.raw(flag.toString())} = ${sql.raw(
     flag.toString()
   )}`;
 

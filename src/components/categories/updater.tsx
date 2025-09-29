@@ -1,15 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "react-toastify";
 
-import {
-  has3ConsecutiveLetters,
-  sendJSON,
-  appToast,
-  status,
-  nulledEmptyStrings,
-} from "@/lib/utils";
+import { virt } from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
@@ -20,7 +13,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
   const dispatch = useAppDispatch();
   const [name, setName] = useState(cat.name!);
   const [description, setDescr] = useState(cat.description ?? "");
-  const [statusId, setStatusId] = useState(cat.statusId!);
+  const [flags, setFlags] = useState(cat.flags!);
 
   return (
     <form
@@ -28,57 +21,18 @@ export default function Updater({ cat }: { cat: TCategory }) {
       key={`${cat.id}-${cat.revisionId!}`}
       className={
         "p-2 bg-background rounded border-2 " +
-        (status({ statusId }).active ? "border-green-500" : "border-red-500") +
+        (virt({ flags }).active ? "border-green-500" : "border-red-500") +
         " grid items-center gap-2 grid-cols-[min-width_min-width_min-width]"
       }
       onSubmit={(ev) => {
         ev.preventDefault();
 
-        try {
-          has3ConsecutiveLetters(name);
-        } catch (err) {
-          return toast.error(
-            (err as Error).message as string,
-            appToast.theme()
-          );
-        }
-
-        appToast.promise(
-          sendJSON(
-            "/api/categories",
-            nulledEmptyStrings({
-              id: cat.id,
-              groupId: cat.groupId,
-              name,
-              description,
-              statusId,
-            }),
-            { method: "PUT" }
-          )
-            .then(async (res) => {
-              const body = (await res.json()) as TCategory;
-
-              const operations = [
-                ...(body.name !== cat.name ? ["renaming"] : []),
-                ...(body.statusId !== cat.statusId ? ["toggling"] : []),
-                ...(body.description !== cat.description
-                  ? ["altering the description of"]
-                  : []),
-              ].join(", ");
-
-              dispatch(red.updateCat(body));
-
-              return `${operations[0].toUpperCase() + operations.slice(1)} "${
-                cat.name
-              }" succeeded!`;
-            })
-            .catch((err) => {
-              setName(cat.name!);
-              setDescr(cat.description ?? "");
-              setStatusId(cat.statusId!);
-              throw err;
-            }),
-          `Updating "${cat.name}"`
+        dispatch(red.updateCategory(cat, { name, description, flags })).catch(
+          () => {
+            setName(cat.name!);
+            setDescr(cat.description ?? "");
+            setFlags(cat.flags!);
+          }
         );
       }}
     >
@@ -90,8 +44,8 @@ export default function Updater({ cat }: { cat: TCategory }) {
       />
 
       <Slider
-        checked={status({ statusId }).active}
-        onClick={() => status({ statusId }, setStatusId).toggle("active")}
+        checked={virt({ flags }).active}
+        onClick={() => virt({ flags }, setFlags).toggle("active")}
       />
 
       <button>💾</button>

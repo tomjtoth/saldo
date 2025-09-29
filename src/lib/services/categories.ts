@@ -1,3 +1,5 @@
+"use server";
+
 import { and, eq, exists, sql } from "drizzle-orm";
 
 import {
@@ -6,19 +8,46 @@ import {
   getArchivePopulator,
   isActive,
   TCategory,
-  TCrCategory,
   TGroup,
   updater,
 } from "@/lib/db";
 import { categories, groups, memberships } from "@/lib/db/schema";
-import { err, sortByName } from "../utils";
+import { updateMembership } from "@/lib/services/memberships";
+import { currentUser } from "@/lib/services/users";
+import {
+  err,
+  has3ConsecutiveLetters,
+  nullEmptyStrings,
+  nulledEmptyStrings,
+  sortByName,
+} from "../utils";
 
-export async function createCategory(
-  revisedBy: number,
-  data: Pick<TCrCategory, "name" | "description" | "groupId">
+export async function svcCreateCategory(
+  groupId: number,
+  name: string,
+  description: string
 ) {
+  const { id } = await currentUser();
+
+  if (
+    typeof name !== "string" ||
+    typeof groupId !== "number" ||
+    !["string", "undefined"].includes(typeof description)
+  )
+    err();
+
+  has3ConsecutiveLetters(name);
+
+  const data = {
+    groupId,
+    name,
+    description,
+  };
+
+  nullEmptyStrings(data);
+
   return await atomic(
-    { operation: "Creating category", revisedBy },
+    { operation: "Creating category", revisedBy: id },
     async (tx, revisionId) => {
       const [{ id }] = await tx
         .insert(categories)
@@ -28,7 +57,7 @@ export async function createCategory(
         })
         .returning({ id: categories.id });
 
-      return await tx.query.categories.findFirst({
+      const res = await tx.query.categories.findFirst({
         with: {
           revision: {
             columns: {
@@ -41,22 +70,41 @@ export async function createCategory(
         },
         where: eq(categories.id, id),
       });
+
+      return res as TCategory;
     }
   );
 }
 
 export type TCategoryUpdater = Pick<
   TCategory,
-  "name" | "description" | "statusId"
+  "name" | "description" | "flags"
 >;
 
-export async function updateCategory(
+export async function svcUpdateCategory(
   id: number,
-  revisedBy: number,
-  modifier: TCategoryUpdater
+  { flags, name, description }: TCategoryUpdater
 ) {
+  const { id: userId } = await currentUser();
+
+  if (
+    typeof id !== "number" ||
+    (typeof name !== "string" &&
+      typeof description !== "string" &&
+      typeof flags !== "number")
+  )
+    err();
+
+  if (!(await userAccessToCat(userId, id))) err(403);
+
+  const modifier = nulledEmptyStrings({
+    name,
+    description,
+    flags,
+  });
+
   return await atomic(
-    { operation: "Updating category", revisedBy },
+    { operation: "Updating category", revisedBy: userId },
     async (tx, revisionId) => {
       const cat = (await tx.query.categories.findFirst({
         where: eq(categories.id, id),
@@ -96,6 +144,24 @@ export async function updateCategory(
       return res;
     }
   );
+}
+
+export async function svcSetDefaultCategory(id: number) {
+  const { id: userId } = await currentUser();
+
+  if (typeof id !== "number") err();
+
+  if (!(await userAccessToCat(userId, id))) err(403);
+
+  const { groupId } = (await db.query.categories.findFirst({
+    columns: { groupId: true },
+  }))!;
+
+  await updateMembership(userId, {
+    userId,
+    groupId,
+    defaultCategoryId: id,
+  });
 }
 
 export async function userAccessToCat(userId: number, catId: number) {

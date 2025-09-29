@@ -1,3 +1,5 @@
+"use server";
+
 import { and, desc, eq, exists, sql } from "drizzle-orm";
 
 import {
@@ -12,8 +14,7 @@ import {
 import { groups, items, itemShares, memberships, receipts } from "../db/schema";
 import { TCliReceipt } from "../reducers";
 import { err, nulledEmptyStrings, sortByName } from "../utils";
-
-export type TReceiptInput = TCliReceipt & { groupId: number };
+import { currentUser } from "./users";
 
 const RECEIPT_COLS_WITH = {
   columns: {
@@ -34,16 +35,31 @@ const RECEIPT_COLS_WITH = {
   },
 };
 
-export async function addReceipt(
-  addedBy: number,
-  { groupId, paidOn, items: itemsCli, paidBy: paidById }: TReceiptInput
-) {
+export type TReceiptInput = TCliReceipt & { groupId: number };
+
+export async function svcAddReceipt({
+  groupId,
+  paidOn,
+  paidBy,
+  items: itemsCli,
+}: TReceiptInput) {
+  const { id: addedBy } = await currentUser();
+
+  if (
+    typeof groupId !== "number" ||
+    typeof paidOn !== "string" ||
+    typeof paidBy !== "number" ||
+    !Array.isArray(itemsCli) ||
+    itemsCli.length === 0
+  )
+    err();
+
   return await atomic(
     { operation: "Adding receipt", revisedBy: addedBy },
     async (tx, revisionId) => {
       const [{ receiptId }] = await tx
         .insert(receipts)
-        .values({ groupId, revisionId, paidOn, paidById })
+        .values({ groupId, revisionId, paidOn, paidById: paidBy })
         .returning({ receiptId: receipts.id });
 
       const itemIds = await tx
@@ -100,6 +116,15 @@ export async function addReceipt(
       return receipt;
     }
   );
+}
+
+export async function svcGetReceipts(knownIds: number[]) {
+  const user = await currentUser();
+
+  if (!Array.isArray(knownIds) || knownIds.some(isNaN))
+    err("known ids contain NaN");
+
+  return await getReceipts(user.id, knownIds);
 }
 
 export async function getReceipts(userId: number, knownIds: number[] = []) {
