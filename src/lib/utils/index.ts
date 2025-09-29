@@ -1,9 +1,9 @@
 import { Draft, WritableDraft } from "immer";
 import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
-
-import { TCategory } from "@/lib/db";
 import { Dispatch, SetStateAction } from "react";
+
+import { TCategory, TUserChartData } from "@/lib/db";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value === 0.5) return [1, 2];
@@ -189,8 +189,15 @@ export type NumericKeys<T> = {
 
 export type LineType = "solid" | "dashed";
 
-export const chart = (style: string | null) => {
-  const code = style ?? "";
+export const chart = (
+  style: string | null | Pick<TUserChartData, "chartStyle">
+) => {
+  const code =
+    typeof style === "string"
+      ? style
+      : typeof style === "object" && style !== null
+      ? style.chartStyle
+      : "";
 
   return {
     color: `#${code.slice(1)}`,
