@@ -51,7 +51,7 @@ export default function BalanceTooltip({
 
         return (
           <p key={x.name} style={{ color: x.color }} className="ml-2">
-            {title}: {val.toFixed(2)}€
+            {title}: {Math.abs(val).toFixed(2)}€
           </p>
         );
       })}
