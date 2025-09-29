@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 
 import { TGroup } from "./db";
-import { auth, signIn } from "@/auth";
 import { currentUser } from "@/lib/services/users";
 
 import RootDiv from "@/components/rootDiv";

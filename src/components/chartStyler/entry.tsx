@@ -1,15 +1,11 @@
 import { useAppDispatch, useDebounce } from "@/lib/hooks";
-import { TParetoChartData } from "../pareto/chart";
 import { rCombined } from "@/lib/reducers";
 import { chart } from "@/lib/utils";
+import { TUserChartData } from "@/lib/db";
 
 import LineTypeOption from "./typeSelector";
 
-export default function Entry({
-  id,
-  name,
-  chartStyle,
-}: TParetoChartData["users"][number]) {
+export default function Entry({ id, name, chartStyle }: TUserChartData) {
   const dispatch = useAppDispatch();
   const { color } = chart(chartStyle);
 

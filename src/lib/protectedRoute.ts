@@ -1,8 +1,7 @@
 import { NextRequest } from "next/server";
 
-import { auth, signIn } from "@/auth";
 import { currentUser } from "@/lib/services/users";
-import { err, ErrorWithStatus } from "./utils";
+import { ErrorWithStatus } from "./utils";
 
 interface RequestWithParams<P> extends NextRequest {
   __params?: P;

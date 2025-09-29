@@ -1,4 +1,4 @@
-import { TParetoChartData } from "../pareto/chart";
+import { TParetoChartData } from "@/lib/db";
 
 import Entry from "./entry";
 
