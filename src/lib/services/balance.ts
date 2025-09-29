@@ -4,33 +4,32 @@ import { db, TGroup } from "@/lib/db";
 
 export async function getBalance(userId: number) {
   const data = await db.get<{ json: string } | null>(
-    sql`WITH step1 AS (
+    sql`WITH normalized_shares_and_uids AS (
       SELECT
         ms.group_id AS gid,
-        g.name AS gName,
         paid_on AS "date",
-        ${userId} as "uid",
         min(paid_by, paid_to) AS uid1,
         max(paid_by, paid_to) AS uid2,
         sum(share * CASE WHEN paid_by < paid_to THEN 1 ELSE -1 END) as share
       FROM memberships ms
       INNER JOIN consumption c ON ms.group_id = c.group_id
-      INNER JOIN groups g ON c.group_id = g.id
       WHERE ms.user_id = ${userId} AND paid_by != paid_to
-      GROUP BY ms.group_id, paid_on, paid_by, paid_to
-      ORDER BY ms.group_id, "date"
+      GROUP BY gid, paid_on, paid_by, paid_to
+      ORDER BY gid, "date"
     ),
 
-    step1u1 AS (
-      SELECT DISTINCT gid, "uid", uid1 AS "uidx" FROM step1 
-      UNION ALL
-      SELECT DISTINCT gid, "uid", uid2 AS "uidx" FROM step1
+    distinct_uids AS (
+      SELECT DISTINCT gid, uid1 AS "uidx"
+      FROM normalized_shares_and_uids
+      UNION
+
+      SELECT DISTINCT gid, uid2 AS "uidx"
+      FROM normalized_shares_and_uids
     ),
 
-    step1u2 AS (
+    distinct_users_data AS (
       SELECT
         gid,
-        uid,
         json_group_array(
           json_object(
             'id', "uidx",
@@ -40,71 +39,96 @@ export async function getBalance(userId: number) {
               u.chart_style
             )
           )
-        ) AS "json"
-      FROM step1u1
-      INNER JOIN memberships ms ON ms.group_id = gid AND ms.user_id = "uid"
+        ) AS "user_data"
+      FROM distinct_uids
+      INNER JOIN memberships ms ON ms.group_id = gid AND ms.user_id = ${userId}
       INNER JOIN users u ON "uidx" = u.id
       GROUP BY gid
     ),
 
-    step2 AS (
+    relations_and_daily_sums AS (
       SELECT
         gid,
-        gName,
         "date",
         concat(uid1, ' vs ', uid2) AS relation,
         sum(share) AS share
-      FROM step1
-      INNER JOIN users u1 ON u1.id = step1.uid1
-      INNER JOIN users u2 ON u2.id = step1.uid2
+      FROM normalized_shares_and_uids nsu
+      INNER JOIN users u1 ON u1.id = nsu.uid1
+      INNER JOIN users u2 ON u2.id = nsu.uid2
       GROUP BY gid, "date", relation
     ),
 
-    step3 AS (
+    cumulated_daily_sums AS (
       SELECT
         gid,
-        gName,
         "date",
         relation,
         sum(share) OVER (
           PARTITION BY gid, relation
           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
         ) AS share
-      FROM step2
+      FROM relations_and_daily_sums
       GROUP BY gid, "date", relation
-    ), 
-    
-    step4 AS (
+    ),
+
+    data_by_date AS (
       SELECT
-          json_insert(
-            json_object(
-              'id', s3.gid,
-              'name', gName
-            ),
+        gid,
+        "date",
+        json_patch(
+          json_object(
+            'date', "date",
+            'min', round(min(share), 2),
+            'max', round(max(share), 2)
+          ),
 
-            '$.balance', 
-            json_object(
-              'relations',
-              json_group_array(distinct relation),
+          json_group_object(relation, round(share, 2))
+        ) AS daily_data
+      FROM cumulated_daily_sums cds
+      GROUP BY "gid", "date"
+    ),
 
-              'users',
-              json_extract(su.json, '$'),
-      
-              'data',
-              json_group_array(json_object('date', date, relation, round(share, 2)))
-            )
+    data_by_date_and_gid AS (
+      SELECT
+        dbd.gid,
+        json_insert(
+          json_object(
+            'id', dbd.gid,
+            'name', g.name
+          ),
+
+          '$.balance.users',
+          json_extract(user_data, '$'),
+
+          '$.balance.data',
+          json_group_array(json_extract(daily_data, '$'))
+
+        ) as "json"
+      FROM data_by_date dbd
+      INNER JOIN groups g ON g.id = dbd.gid
+      INNER JOIN distinct_users_data dud ON dud.gid = dbd.gid
+      GROUP BY dbd.gid
+      ORDER by g.name
+    ),
+
+    with_relations AS (
+      SELECT 
+        json_insert(
+          "json",
+
+          '$.balance.relations',
+          json_group_array(distinct relation)
         ) AS "json"
-      FROM step3 s3
-      INNER JOIN step1u2 su ON su.gid = s3.gid
-      GROUP BY s3.gid
-      ORDER BY gName
+      FROM data_by_date_and_gid dbd
+      INNER JOIN relations_and_daily_sums rads ON rads.gid = dbd.gid
+      GROUP BY dbd.gid
     )
 
     -- debug during development
-    -- SELECT * from step1u2
+    -- SELECT * from data_by_date_and_gid
 
     SELECT concat('[',  group_concat("json"), ']') AS "json"
-    FROM step4`
+    FROM with_relations`
   );
 
   return data ? (JSON.parse(data.json) as TGroup[]) : [];
