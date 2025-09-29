@@ -55,6 +55,8 @@ export type TBalanceChartData = {
   relations: string[];
   data: {
     date: number;
+    min: number;
+    max: number;
     [relation: string]: number;
   }[];
 };
