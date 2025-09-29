@@ -119,7 +119,7 @@ export async function getBalance(userId: number) {
     -- debug during development
     -- SELECT * from group_per_row
 
-    SELECT json(jsonb_group_array("data"))
+    SELECT json(jsonb_group_array("data")) AS "json"
     FROM group_per_row`
   );
 
