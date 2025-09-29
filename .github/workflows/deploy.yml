@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - dev
+      - main
+      - staging
   pull_request:
     branches:
       - main
@@ -17,7 +19,7 @@ jobs:
   lint-build-test:
     name: Lint, Build and Test
     env:
-      SKIP_CI: ${{ contains(github.event.head_commit.message, '#skip-ci') }}
+      SKIP_CI: ${{ contains(github.event.head_commit.message, '#skip-ci') && github.ref_name != 'main' && github.ref_name != 'staging' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
