@@ -3,8 +3,6 @@ import { rCombined } from "@/lib/reducers";
 import { chart } from "@/lib/utils";
 import { TUserChartData } from "@/lib/db";
 
-import LineTypeOption from "./typeSelector";
-
 export default function Entry({ id, name, chartStyle }: TUserChartData) {
   const dispatch = useAppDispatch();
   const { color } = chart(chartStyle);
@@ -35,9 +33,6 @@ export default function Entry({ id, name, chartStyle }: TUserChartData) {
           value={color}
           onChange={(ev) => debouncedSetter(ev.target.value)}
         />
-
-        <LineTypeOption {...{ chartStyle, id, setTo: "solid" }} />
-        <LineTypeOption {...{ chartStyle, id, setTo: "dashed" }} />
       </div>
     </div>
   );

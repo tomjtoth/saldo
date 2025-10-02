@@ -201,7 +201,6 @@ export const chart = (
 
   return {
     color: `#${code.slice(1)}`,
-    lineType: code.slice(0, 1) === "0" ? "solid" : "dashed",
   };
 };
 
