@@ -49,7 +49,9 @@ export const rGroups = {
     { payload: { style, uid } }: PayloadAction<{ style: string; uid?: number }>
   ) => {
     const group = rs.groups.find((grp) => grp.id === rs.groupId)!;
-    const user = group.pareto!.users.find((u) => u.id === uid)!;
+    const user = (group.pareto ?? group.balance)!.users.find(
+      (u) => u.id === uid
+    )!;
 
     user.chartStyle = style;
   },
@@ -149,9 +151,10 @@ export const tGroups = {
     (style: string, uid?: number) =>
     async (dispatch: AppDispatch, getState: () => RootState) => {
       const rs = getState().combined;
-      const prevState = rs.groups
-        .find((g) => g.id === rs.groupId)!
-        .pareto!.users.find((u) => u.id === uid)!.chartStyle;
+      const group = rs.groups.find((g) => g.id === rs.groupId)!;
+      const prevState = (group.pareto ?? group.balance)!.users.find(
+        (u) => u.id === uid
+      )!.chartStyle;
 
       if (uid) {
         appToast.promise(
