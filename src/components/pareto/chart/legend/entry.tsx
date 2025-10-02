@@ -19,21 +19,15 @@ export default function Entry({ id, name, chartStyle }: TUserChartData) {
   );
 
   return (
-    <div
-      key={id}
-      className="flex flex-col gap-2 items-center"
-      style={{ color }}
-    >
-      {name}
+    <label style={{ color }}>
+      <input
+        type="color"
+        className="border-0! w-8"
+        value={color}
+        onChange={(ev) => debouncedSetter(ev.target.value)}
+      />
 
-      <div className="flex p-2 gap-2 justify-between">
-        <input
-          type="color"
-          className="border-0! cursor-pointer"
-          value={color}
-          onChange={(ev) => debouncedSetter(ev.target.value)}
-        />
-      </div>
-    </div>
+      {name}
+    </label>
   );
 }
