@@ -3,7 +3,7 @@
 import { useGroupSelector } from "@/lib/hooks";
 
 import BalanceChart from "./chart";
-import Header from "../header";
+import Header from "../../header";
 
 export default function CliBalancePage() {
   const rs = useGroupSelector();

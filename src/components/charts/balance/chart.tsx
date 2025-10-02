@@ -18,6 +18,7 @@ import { TBalanceChartData, TUserChartData } from "@/lib/db";
 
 import BalanceTick from "./tick";
 import BalanceTooltip from "./tooltip";
+import BalanceLegend from "./legend";
 import GroupSelector from "@/components/groups/selector";
 
 export const CtxBalanceChart = createContext<TUserChartData[]>([]);
@@ -174,7 +175,7 @@ export default function BalanceChart({
             />
             <YAxis allowDataOverflow domain={[bottom, top]} />
             <Tooltip content={BalanceTooltip} />
-            <Legend />
+            <Legend content={BalanceLegend} />
 
             <defs>{gradientDefinitions}</defs>
             {lines}

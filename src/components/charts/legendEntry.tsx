@@ -3,7 +3,12 @@ import { rCombined } from "@/lib/reducers";
 import { chart } from "@/lib/utils";
 import { TUserChartData } from "@/lib/db";
 
-export default function Entry({ id, name, chartStyle }: TUserChartData) {
+export default function Entry({
+  id,
+  name,
+  chartStyle,
+  invisible = false,
+}: TUserChartData & { invisible?: boolean }) {
   const dispatch = useAppDispatch();
   const { color } = chart(chartStyle);
 
@@ -22,7 +27,9 @@ export default function Entry({ id, name, chartStyle }: TUserChartData) {
     <label style={{ color }}>
       <input
         type="color"
-        className="border-0! w-8"
+        className={
+          "border-0! " + (invisible ? "w-0 px-[1px]! invisible" : "w-8")
+        }
         value={color}
         onChange={(ev) => debouncedSetter(ev.target.value)}
       />

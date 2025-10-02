@@ -9,7 +9,7 @@ import {
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
 import { chart, dateFromInt } from "@/lib/utils";
-import { CtxBalanceChart } from ".";
+import { CtxBalanceChart } from "./chart";
 
 export default function BalanceTooltip({
   payload,

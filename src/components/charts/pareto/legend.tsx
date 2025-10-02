@@ -1,5 +1,5 @@
 import { DefaultLegendContentProps } from "recharts";
-import Entry from "./entry";
+import Entry from "../legendEntry";
 
 export default function ParetoLegend(x: DefaultLegendContentProps) {
   return (
@@ -7,6 +7,7 @@ export default function ParetoLegend(x: DefaultLegendContentProps) {
       {x.payload?.map(({ color, value, dataKey }) => {
         return (
           <Entry
+            key={dataKey as number}
             id={dataKey as number}
             name={value as string}
             chartStyle={color as string}
