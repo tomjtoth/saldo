@@ -33,7 +33,9 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
 
             appToast.promise(
               svcGetParetoData({ from, to })
-                .then((groups) => dispatch(red.init({ groups })))
+                .then((groups) => {
+                  dispatch(red.init({ groups }));
+                })
                 .catch((err) => {
                   setFrom("");
                   setTo("");
