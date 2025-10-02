@@ -36,85 +36,88 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
   const data = await db.get<{ json: string } | null>(
     sql`WITH sums_per_row AS (
       SELECT
-        g.id AS gid,
-        g.name AS gName,
-        cats.name AS cat,
+        con.group_id AS gid,
+        paid_to AS "uid",
+        c.name AS category,
+        sum(share) AS total
+      FROM memberships ms
+      INNER JOIN consumption con ON ms.group_id = con.group_id
+      INNER JOIN categories c ON con.category_id = c.id
+      WHERE ms.user_id = ${userId} --${sql.raw(`${from} ${to}`)}
+      GROUP BY gid, paid_to, category_id
+    ),
+
+    distinct_users_data AS (
+      SELECT DISTINCT
+        gid,
         u.id AS user_id,
         u.name AS user_name,
-        u.flags as user_flags,
         coalesce(
           json_extract(ms.chart_style, concat('$.', u.id)),
-          u.chart_style,
-          ${SQL_RANDOM_COLOR}
-        ) AS chart_style,
-        sum(share) AS total
-      FROM "memberships" ms
-      INNER JOIN consumption con ON ms.group_id = con.group_id
-      INNER JOIN "categories" cats ON con.category_id = cats.id
-      INNER JOIN "users" u ON u.id = con.paid_to
-      INNER JOIN "groups" g ON g.id = con.group_id
-      WHERE ms.user_id = ${userId} ${sql.raw(`${from} ${to}`)}
-      GROUP BY g.id, paid_to, category_id
+          u.chart_style
+        ) AS chart_style
+      FROM sums_per_row spr
+      INNER JOIN users u ON u.id = spr.uid
+      INNER JOIN memberships ms ON ms.user_id = ${userId} AND ms.group_id = spr.gid
+      ORDER BY u.name
+    ),
+
+    dud_as_jsonb AS (
+      SELECT
+        gid,
+        jsonb_group_array(jsonb_object(
+          'id', user_id,
+          'name', user_name,
+          'chartStyle', coalesce(chart_style, ${SQL_RANDOM_COLOR})
+        )) AS users_data_as_jsonb
+      FROM distinct_users_data dud
+      GROUP BY gid
     ),
 
     one_category_per_row AS (
       SELECT
         gid,
-        gName,
-        sum(total) AS orderer,
-        json_insert(
-          json_group_object(user_id, total),
-          '$.category', cat
-        ) AS cats
+        jsonb_insert(
+          jsonb_group_object("uid", total),
+          '$.category', category
+        ) AS category
       FROM sums_per_row
-      GROUP BY gid, cat
-      ORDER BY orderer DESC
+      GROUP BY gid, category
+      ORDER BY sum(total) DESC
     ),
 
     categories_in_array_per_row AS (
       SELECT
         gid,
-        gName,
-        concat(
-          '[',
-          group_concat(cats),
-          ']'
-        ) AS categories
+        jsonb_group_array(category) AS categories
       FROM one_category_per_row
       GROUP BY gid
     ),
 
     one_group_per_row AS (
       SELECT
-        concat('{ ',
-          '"id": ',
-          s3.gid,
-          ', "name": ',
-          json_quote(s3.gName),
-          ', "pareto": { ',
-            ' "users": ',
-            json_group_array(DISTINCT json_object(
-            	'id', s1.user_id,
-            	'name', s1.user_name,
-            	'chartStyle', s1.chart_style
-            )),
-            ', "categories": ',
-            categories,
-          ' }}'
-        ) AS "json"
+        g.id,
+        g.name,
+        jsonb_object(
+          'id', s3.gid,
+          'name', g.name,
+          
+          'pareto', jsonb_object(
+            'users', users_data_as_jsonb,
+            'categories', categories
+          )
+        ) AS "data"
       FROM categories_in_array_per_row s3
+      INNER JOIN groups g ON g.id = s3.gid
+      INNER JOIN dud_as_jsonb dud ON dud.gid = s3.gid
       LEFT JOIN sums_per_row s1 ON s1.gid = s3.gid
-      GROUP BY s3.gid
-      ORDER BY s3.gName
+      GROUP BY g.id
+      ORDER BY g.name
     )
 
     -- all groups in 1 array
-    SELECT concat(
-      '[', 
-      group_concat("json"),
-      ']'
-    ) AS "json"
-    FROM one_group_per_row;`
+    SELECT json(jsonb_group_array("data")) AS "json"
+    FROM one_group_per_row`
   );
 
   return data ? (JSON.parse(data.json) as TGroup[]) : [];
