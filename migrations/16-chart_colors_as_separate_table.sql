@@ -9,6 +9,8 @@ CREATE TABLE chart_colors (
     color INTEGER NOT NULL
 );
 
+CREATE INDEX idx_chart_colors_uid_gid_mid ON chart_colors (user_id, group_id, member_id);
+
 ALTER TABLE users DROP COLUMN chart_style;
 ALTER TABLE memberships DROP COLUMN chart_style;
 
