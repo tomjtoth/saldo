@@ -20,6 +20,12 @@ const floatToInt = customType<{ data: number; driverData: number }>({
   fromDriver: (val) => val / 100,
 });
 
+const hexColorAsInt = customType<{ data: string; driverData: number }>({
+  dataType: () => "INTEGER",
+  toDriver: (val) => parseInt(val.slice(1), 16),
+  fromDriver: (val) => `#${val.toString(16).padStart(6, "0")}`,
+});
+
 const dateInt = customType<{ data: string; driverData: number; notNull: true }>(
   {
     dataType: () => "INTEGER",
@@ -44,14 +50,10 @@ const revisionId = integer()
   .references(() => revisions.id, { onDelete: "cascade" });
 const flags = integer().notNull().default(1);
 
-const userId = integer()
-  .notNull()
-  .references(() => users.id);
-
-const groupId = integer()
-  .notNull()
-  .references(() => groups.id);
-
+const uidCore = integer().references(() => users.id);
+const userId = uidCore.notNull();
+const gidCore = integer().references(() => groups.id);
+const groupId = gidCore.notNull();
 const colSR = {
   flags,
   revisionId,
@@ -223,11 +225,11 @@ export const chartColors = sqliteTable("chart_colors", {
 
   userId,
 
-  groupId,
+  groupId: gidCore,
 
-  memberId: integer().references(() => users.id),
+  memberId: uidCore,
 
-  color: integer().notNull(),
+  color: hexColorAsInt().notNull(),
 });
 
 export const chartColorsRel = relations(chartColors, ({ one }) => ({
