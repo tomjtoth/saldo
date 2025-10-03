@@ -11,3 +11,7 @@ CREATE TABLE chart_colors (
 
 ALTER TABLE users DROP COLUMN chart_style;
 ALTER TABLE memberships DROP COLUMN chart_style;
+
+-- DOWN --
+
+DROP TABLE chart_colors;
