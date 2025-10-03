@@ -30,7 +30,7 @@ export default function BalanceChart({
 }: TBalanceChartData) {
   const gradientDefinitions: ReactNode[] = [];
 
-  const lines = relations.map((rel) => {
+  const lines = relations?.map((rel) => {
     const uids = rel.split(" vs ").map(Number);
     const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
