@@ -50,8 +50,9 @@ const revisionId = integer()
   .references(() => revisions.id, { onDelete: "cascade" });
 const flags = integer().notNull().default(1);
 
-const uidCore = integer().references(() => users.id);
-const userId = uidCore.notNull();
+const userId = integer()
+  .notNull()
+  .references(() => users.id);
 const gidCore = integer().references(() => groups.id);
 const groupId = gidCore.notNull();
 const colSR = {
@@ -227,7 +228,7 @@ export const chartColors = sqliteTable("chart_colors", {
 
   groupId: gidCore,
 
-  memberId: uidCore,
+  memberId: integer().references(() => users.id),
 
   color: hexColorAsInt().notNull(),
 });
