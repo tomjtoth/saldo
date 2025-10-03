@@ -11,7 +11,7 @@ import {
   Legend,
 } from "recharts";
 
-import { chart } from "@/lib/utils";
+import { virt } from "@/lib/utils";
 import { TParetoChartData } from "@/lib/db";
 
 import ParetoTooltip from "./tooltip";
@@ -40,7 +40,7 @@ export default function ParetoChart({ users, categories }: TParetoChartData) {
               name={name}
               key={id}
               stackId="a"
-              fill={chart(chartStyle).color}
+              fill={virt({ chartStyle }).color}
             />
           ))}
         </BarChart>

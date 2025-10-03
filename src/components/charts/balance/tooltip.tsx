@@ -8,7 +8,7 @@ import {
 } from "recharts/types/component/DefaultTooltipContent";
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
-import { chart, dateFromInt } from "@/lib/utils";
+import { dateFromInt, virt } from "@/lib/utils";
 import { CtxBalanceChart } from "./chart";
 
 export default function BalanceTooltip({
@@ -28,13 +28,9 @@ export default function BalanceTooltip({
         const uids = (x.dataKey as string).split(" vs ").map(Number);
         const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
-        const u1span = (
-          <span style={{ color: chart(u1).color }}>{u1.name}</span>
-        );
+        const u1span = <span style={{ color: virt(u1).color }}>{u1.name}</span>;
 
-        const u2span = (
-          <span style={{ color: chart(u2).color }}>{u2.name}</span>
-        );
+        const u2span = <span style={{ color: virt(u2).color }}>{u2.name}</span>;
 
         const val = x.value as number;
 
