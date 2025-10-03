@@ -10,7 +10,7 @@ export default function ParetoLegend(x: DefaultLegendContentProps) {
             key={dataKey as number}
             id={dataKey as number}
             name={value as string}
-            chartStyle={color as string}
+            color={color as string}
           />
         );
       })}

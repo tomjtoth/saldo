@@ -53,7 +53,7 @@ export const rGroups = {
       (u) => u.id === uid
     )!;
 
-    user.chartStyle = style;
+    user.color = style;
   },
 };
 
@@ -154,7 +154,7 @@ export const tGroups = {
       const group = rs.groups.find((g) => g.id === rs.groupId)!;
       const prevState = (group.pareto ?? group.balance)!.users.find(
         (u) => u.id === uid
-      )!.chartStyle;
+      )!.color;
 
       if (uid) {
         appToast.promise(
