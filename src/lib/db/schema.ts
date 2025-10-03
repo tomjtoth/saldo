@@ -133,8 +133,6 @@ export const users = sqliteTable("users", {
   image: text(),
 
   defaultGroupId: integer().references(() => groups.id),
-
-  chartStyle: text(),
 });
 
 export const usersRel = relations(users, ({ one, many }) => ({
@@ -194,8 +192,6 @@ export const memberships = sqliteTable(
     userId,
 
     defaultCategoryId: integer().references(() => categories.id),
-
-    chartStyle: text(),
   },
   (table) => [primaryKey({ columns: [table.groupId, table.userId] })]
 );
@@ -219,6 +215,35 @@ export const membershipsRel = relations(memberships, ({ one }) => ({
   defaultCategory: one(categories, {
     fields: [memberships.defaultCategoryId],
     references: [categories.id],
+  }),
+}));
+
+export const chartColors = sqliteTable("chart_colors", {
+  id,
+
+  userId,
+
+  groupId,
+
+  memberId: integer().references(() => users.id),
+
+  color: integer().notNull(),
+});
+
+export const chartColorsRel = relations(chartColors, ({ one }) => ({
+  user: one(users, {
+    fields: [chartColors.userId],
+    references: [users.id],
+  }),
+
+  group: one(groups, {
+    fields: [chartColors.groupId],
+    references: [groups.id],
+  }),
+
+  member: one(users, {
+    fields: [chartColors.memberId],
+    references: [users.id],
   }),
 }));
 
