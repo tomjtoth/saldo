@@ -3,7 +3,7 @@ import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
 import { Dispatch, SetStateAction } from "react";
 
-import { TCategory, TUserChartData } from "@/lib/db";
+import { TCategory, TUser, TUserChartData } from "@/lib/db";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value === 0.5) return [1, 2];
@@ -187,27 +187,42 @@ export type NumericKeys<T> = {
   [P in keyof T]: T[P] extends number ? P : never;
 }[keyof T];
 
-export type LineType = "solid" | "dashed";
+type WithStlye = Pick<TUserChartData, "chartStyle">;
+type WithFlags = Pick<TUser, "flags">;
+type Setter<T> = Dispatch<SetStateAction<T>>;
 
-export const chart = (
-  style: string | null | Pick<TUserChartData, "chartStyle">
-) => {
-  const code =
-    typeof style === "string"
-      ? style
-      : typeof style === "object" && style !== null
-      ? style.chartStyle
-      : "";
-
-  return {
-    color: `#${code.slice(1)}`,
-  };
+export function virt(
+  entity: WithStlye,
+  setter?: Setter<string>
+): {
+  color: string;
 };
 
-export const virt = <T extends { flags?: number }>(
-  entity: T,
-  setter?: Dispatch<SetStateAction<number>>
-) => {
+export function virt(
+  entity: WithFlags,
+  setter?: Setter<number>
+): {
+  active: boolean;
+  admin: boolean;
+  toggle: (key: "active" | "admin") => number;
+};
+
+export function virt(
+  entity: WithFlags | WithStlye,
+  setter?: Setter<number> | Setter<string>
+) {
+  return "chartStyle" in entity
+    ? virtStyle(entity, setter as Setter<string>)
+    : virtFlags(entity, setter as Setter<number>);
+}
+
+function virtStyle({ chartStyle }: WithStlye, setter?: Setter<string>) {
+  return {
+    color: `#${chartStyle.slice(1)}`,
+  };
+}
+
+function virtFlags(entity: WithFlags, setter?: Setter<number>) {
   let int =
     entity.flags ??
     (process.env.NODE_ENV === "development"
@@ -248,7 +263,7 @@ export const virt = <T extends { flags?: number }>(
       return int;
     },
   };
-};
+}
 
 type ObjectWithUnknownValues = { [key: string]: unknown };
 type ObjectWithNulledStrings<T> = {
