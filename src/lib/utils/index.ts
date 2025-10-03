@@ -225,60 +225,6 @@ export const virt = <T extends { flags?: number }>(
     else entity.flags = int;
   };
 
-  const scaleTo255 = (value: number) => {
-    return Math.round((value / 3) * 255);
-
-    // const linear = value / 3; // 0.0–1.0
-    // const gamma = 2.2; // typical sRGB gamma
-    // const corrected = Math.pow(linear, 1 / gamma);
-    // return Math.round(corrected * 255);
-  };
-  const getColor = (offset: number) => (int >> offset) & 0b11;
-  const setColor = (value: number, offset: number) => {
-    int = (int & ~(0b11 << offset)) | ((value & 0b11) << offset);
-    finalizeInt();
-  };
-
-  const color = {
-    get r() {
-      return getColor(2);
-    },
-
-    set r(value) {
-      setColor(value, 2);
-      setFlag(10, true);
-    },
-
-    get g() {
-      return getColor(4);
-    },
-
-    set g(value) {
-      setColor(value, 4);
-      setFlag(10, true);
-    },
-
-    get b() {
-      return getColor(6);
-    },
-
-    set b(value) {
-      setColor(value, 6);
-      setFlag(10, true);
-    },
-
-    rgba(alpha: number) {
-      const args = [
-        scaleTo255(this.r),
-        scaleTo255(this.g),
-        scaleTo255(this.b),
-        alpha.toFixed(1),
-      ];
-
-      return `rgba(${args.join(",")})`;
-    },
-  };
-
   return {
     get active() {
       return getFlag(0);
@@ -300,31 +246,6 @@ export const virt = <T extends { flags?: number }>(
       this[key] = !this[key];
 
       return int;
-    },
-
-    chart: {
-      get configured() {
-        return getFlag(10);
-      },
-
-      restoreConfig() {
-        setFlag(10, true);
-      },
-
-      resetConfig() {
-        setFlag(10, false);
-      },
-
-      color,
-
-      get lineType() {
-        return getFlag(9) ? "dashed" : "solid";
-      },
-
-      set lineType(value: LineType) {
-        setFlag(9, value === "dashed");
-        setFlag(10, true);
-      },
     },
   };
 };
