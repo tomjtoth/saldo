@@ -3,7 +3,7 @@
 import { DateTime } from "luxon";
 import { sql } from "drizzle-orm";
 
-import { db, SQL_RANDOM_COLOR, TGroup } from "@/lib/db";
+import { db, distinctUsersData, TGroup } from "@/lib/db";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
 import { currentUser } from "./users";
 
@@ -47,32 +47,11 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
       GROUP BY gid, paid_to, category_id
     ),
 
-    distinct_users_data AS (
-      SELECT DISTINCT
-        gid,
-        u.id AS user_id,
-        u.name AS user_name,
-        coalesce(
-          json_extract(ms.chart_style, concat('$.', u.id)),
-          u.chart_style
-        ) AS chart_style
-      FROM sums_per_row spr
-      INNER JOIN users u ON u.id = spr.uid
-      INNER JOIN memberships ms ON ms.user_id = ${userId} AND ms.group_id = spr.gid
-      ORDER BY u.name
+    distinct_uids AS (
+      SELECT DISTINCT gid, "uid" FROM sums_per_row
     ),
 
-    dud_as_jsonb AS (
-      SELECT
-        gid,
-        jsonb_group_array(jsonb_object(
-          'id', user_id,
-          'name', user_name,
-          'chartStyle', coalesce(chart_style, ${SQL_RANDOM_COLOR})
-        )) AS users_data_as_jsonb
-      FROM distinct_users_data dud
-      GROUP BY gid
-    ),
+    ${distinctUsersData(userId)},
 
     one_category_per_row AS (
       SELECT
@@ -103,13 +82,13 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
           'name', g.name,
           
           'pareto', jsonb_object(
-            'users', users_data_as_jsonb,
+            'users', user_data,
             'categories', categories
           )
         ) AS "data"
       FROM categories_in_array_per_row s3
       INNER JOIN groups g ON g.id = s3.gid
-      INNER JOIN dud_as_jsonb dud ON dud.gid = s3.gid
+      INNER JOIN distinct_users_data dud ON dud.gid = s3.gid
       LEFT JOIN sums_per_row s1 ON s1.gid = s3.gid
       GROUP BY g.id
       ORDER BY g.name

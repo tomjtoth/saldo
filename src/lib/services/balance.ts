@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 
-import { db, TGroup } from "@/lib/db";
+import { db, distinctUsersData, TGroup } from "@/lib/db";
 
 export async function getBalance(userId: number) {
   const data = await db.get<{ json: string } | null>(
@@ -19,50 +19,15 @@ export async function getBalance(userId: number) {
     ),
 
     distinct_uids AS (
-      SELECT DISTINCT gid, uid1 AS "uidx"
+      SELECT DISTINCT gid, uid1 AS "uid"
       FROM normalized_shares_and_uids
       UNION
 
-      SELECT DISTINCT gid, uid2 AS "uidx"
+      SELECT DISTINCT gid, uid2 AS "uid"
       FROM normalized_shares_and_uids
     ),
 
-    distinct_users_data AS (
-      SELECT
-        gid,
-        jsonb_group_array(
-          jsonb_object(
-            'id', "uidx",
-            'name', u.name,
-            'color', printf('#%06x', 
-              coalesce(
-                (
-                  SELECT cc.color FROM chart_colors cc
-                  WHERE cc.user_id = ${userId}
-                  AND cc.group_id = gid
-                  AND cc.member_id = "uidx"
-                ),
-                (
-                  SELECT cc.color FROM chart_colors cc
-                  WHERE cc.user_id = "uidx"
-                  AND cc.group_id = gid
-                  AND cc.member_id IS NULL
-                ),
-                (
-                  SELECT cc.color FROM chart_colors cc
-                  WHERE cc.user_id = "uidx"
-                  AND cc.group_id IS NULL
-                  AND cc.member_id IS NULL
-                ),
-                abs(random()) % 0x1000000
-              )
-            )
-          )
-        ) AS "user_data"
-      FROM distinct_uids du
-      INNER JOIN users u ON u.id = "uidx"
-      GROUP BY gid
-    ),
+    ${distinctUsersData(userId)},
 
     relations_and_daily_sums AS (
       SELECT
