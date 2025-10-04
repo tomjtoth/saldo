@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 
-import { db, SQL_RANDOM_COLOR, TGroup } from "@/lib/db";
+import { db, TGroup } from "@/lib/db";
 
 export async function getBalance(userId: number) {
   const data = await db.get<{ json: string } | null>(
@@ -34,16 +34,33 @@ export async function getBalance(userId: number) {
           jsonb_object(
             'id', "uidx",
             'name', u.name,
-            'chartStyle', coalesce(
-              json_extract(ms.chart_style, concat('$.', "uidx")),
-              u.chart_style,
-              ${SQL_RANDOM_COLOR}
+            'color', printf('#%06x', 
+              coalesce(
+                (
+                  SELECT cc.color FROM chart_colors cc
+                  WHERE cc.user_id = ${userId}
+                  AND cc.group_id = gid
+                  AND cc.member_id = "uidx"
+                ),
+                (
+                  SELECT cc.color FROM chart_colors cc
+                  WHERE cc.user_id = "uidx"
+                  AND cc.group_id = gid
+                  AND cc.member_id IS NULL
+                ),
+                (
+                  SELECT cc.color FROM chart_colors cc
+                  WHERE cc.user_id = "uidx"
+                  AND cc.group_id IS NULL
+                  AND cc.member_id IS NULL
+                ),
+                abs(random()) % 0x1000000
+              )
             )
           )
         ) AS "user_data"
-      FROM distinct_uids
-      INNER JOIN memberships ms ON ms.group_id = gid AND ms.user_id = ${userId}
-      INNER JOIN users u ON "uidx" = u.id
+      FROM distinct_uids du
+      INNER JOIN users u ON u.id = "uidx"
       GROUP BY gid
     ),
 
