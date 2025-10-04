@@ -13,7 +13,6 @@ import {
   ReferenceArea,
 } from "recharts";
 
-import { virt } from "@/lib/utils";
 import { TBalanceChartData, TUserChartData } from "@/lib/db";
 
 import BalanceTick from "./tick";
@@ -52,8 +51,8 @@ export default function BalanceChart({
 
     gradientDefinitions.push(
       <linearGradient key={defId} id={defId} x1="0" y1="0" x2="0" y2="1">
-        <stop offset={`${switchAt}%`} stopColor={virt(u1).color} />
-        <stop offset={`${switchAt}%`} stopColor={virt(u2).color} />
+        <stop offset={`${switchAt}%`} stopColor={u1.color} />
+        <stop offset={`${switchAt}%`} stopColor={u2.color} />
       </linearGradient>
     );
 
