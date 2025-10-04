@@ -11,7 +11,6 @@ import {
   Legend,
 } from "recharts";
 
-import { virt } from "@/lib/utils";
 import { TParetoChartData } from "@/lib/db";
 
 import ParetoTooltip from "./tooltip";
@@ -34,14 +33,8 @@ export default function ParetoChart({ users, categories }: TParetoChartData) {
           <YAxis />
           <Tooltip content={ParetoTooltip} />
           <Legend content={ParetoLegend} />
-          {users.map(({ id, name, chartStyle }) => (
-            <Bar
-              dataKey={id}
-              name={name}
-              key={id}
-              stackId="a"
-              fill={virt({ chartStyle }).color}
-            />
+          {users.map(({ id, name, color }) => (
+            <Bar dataKey={id} name={name} key={id} stackId="a" fill={color} />
           ))}
         </BarChart>
       </ResponsiveContainer>
