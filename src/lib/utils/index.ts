@@ -3,7 +3,7 @@ import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
 import { Dispatch, SetStateAction } from "react";
 
-import { TCategory, TUser, TUserChartData } from "@/lib/db";
+import { TCategory, TUser } from "@/lib/db";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value === 0.5) return [1, 2];
@@ -187,42 +187,10 @@ export type NumericKeys<T> = {
   [P in keyof T]: T[P] extends number ? P : never;
 }[keyof T];
 
-type WithStlye = Pick<TUserChartData, "chartStyle">;
-type WithFlags = Pick<TUser, "flags">;
-type Setter<T> = Dispatch<SetStateAction<T>>;
-
 export function virt(
-  entity: WithStlye,
-  setter?: Setter<string>
-): {
-  color: string;
-};
-
-export function virt(
-  entity: WithFlags,
-  setter?: Setter<number>
-): {
-  active: boolean;
-  admin: boolean;
-  toggle: (key: "active" | "admin") => number;
-};
-
-export function virt(
-  entity: WithFlags | WithStlye,
-  setter?: Setter<number> | Setter<string>
+  entity: Pick<TUser, "flags">,
+  setter?: Dispatch<SetStateAction<number>>
 ) {
-  return "chartStyle" in entity
-    ? virtStyle(entity, setter as Setter<string>)
-    : virtFlags(entity, setter as Setter<number>);
-}
-
-function virtStyle({ chartStyle }: WithStlye, setter?: Setter<string>) {
-  return {
-    color: `#${chartStyle.slice(1)}`,
-  };
-}
-
-function virtFlags(entity: WithFlags, setter?: Setter<number>) {
   let int =
     entity.flags ??
     (process.env.NODE_ENV === "development"
