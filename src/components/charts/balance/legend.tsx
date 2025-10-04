@@ -10,20 +10,33 @@ export default function BalanceLegend(x: DefaultLegendContentProps) {
 
   return (
     <div className="flex gap-2 items-center justify-center">
-      {x.payload?.map(({ color, dataKey }) => {
+      {x.payload?.map(({ dataKey }) => {
         const uids = (dataKey as string).split(" vs ").map(Number);
         const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
-        return (
+        return u1 && u2 ? (
           <div
             key={dataKey as string}
-            className="rounded border px-2"
-            style={{ borderColor: color }}
+            className="px-2"
+            style={{
+              backgroundImage: `linear-gradient(
+                  to right,
+                  ${u1.color} 0%,
+                  ${u1.color} 30%,
+                  ${u2.color} 70%,
+                  ${u2.color} 100%
+                )`,
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              color: "transparent",
+              WebkitTextFillColor: "transparent",
+              display: "inline-block",
+            }}
           >
             <Entry {...u1} invisible={true} /> vs{" "}
             <Entry {...u2} invisible={true} />
           </div>
-        );
+        ) : null;
       })}
     </div>
   );

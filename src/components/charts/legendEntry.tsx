@@ -16,7 +16,7 @@ export default function Entry({
   );
 
   return (
-    <label style={{ color }}>
+    <label>
       <input
         type="color"
         className={
