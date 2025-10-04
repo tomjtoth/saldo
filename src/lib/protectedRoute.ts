@@ -3,41 +3,48 @@ import { NextRequest } from "next/server";
 import { currentUser } from "@/lib/services/users";
 import { ErrorWithStatus } from "./utils";
 
-interface RequestWithParams<P> extends NextRequest {
-  __params?: P;
+type RouteHandler<P, R> = (req: NextRequest, ctx: RequestContext<P>) => R;
+
+type RequestContext<P> = {
+  params: Promise<P>;
+};
+
+interface HandlerContext<P> {
+  req: NextRequest;
+  params: P;
 }
 
-interface RequestWithUser<P> extends RequestWithParams<P> {
-  __user: Awaited<ReturnType<typeof currentUser>>;
+interface HandlerContextWithUser<P> extends HandlerContext<P> {
+  user: Awaited<ReturnType<typeof currentUser>>;
 }
-
-type RequestContext<P> = { params: Promise<P> };
 
 interface OptionsWithUser<P> {
-  redirectAs?: (req: RequestWithParams<P>) => string;
+  redirectAs?: (ctx: HandlerContext<P>) => string;
 }
 
 interface OptionsWithParams<P> extends OptionsWithUser<P> {
   requireSession: false;
 }
 
-type Handler<P, R = unknown> = (req: RequestWithParams<P>) => Promise<R>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type HandlerReturnType = Promise<any>;
 
-type HandlerWithUser<P, R = unknown> = (req: RequestWithUser<P>) => Promise<R>;
+type Handler<P, HC = HandlerContext<P>> = (ctx: HC) => HandlerReturnType;
+type HandlerWithUser<P> = (ctx: HandlerContextWithUser<P>) => HandlerReturnType;
 
-function protectedRoute<P>(
+function protectedRoute<P, R = ReturnType<Handler<P>>>(
   options: OptionsWithParams<P>,
   handler: Handler<P>
-): Handler<P, Response>;
+): RouteHandler<P, R>;
 
-function protectedRoute<P>(
+function protectedRoute<P, R = ReturnType<Handler<P>>>(
   options: OptionsWithUser<P>,
   handler: HandlerWithUser<P>
-): HandlerWithUser<P, Response>;
+): RouteHandler<P, R>;
 
-function protectedRoute<P>(
+function protectedRoute<P, R = ReturnType<Handler<P>>>(
   handler: HandlerWithUser<P>
-): HandlerWithUser<P, Response>;
+): RouteHandler<P, R>;
 
 function protectedRoute<P>(
   optsOrHandler:
@@ -60,17 +67,17 @@ function protectedRoute<P>(
 
     try {
       let res: unknown;
-      const reqWithParams = req as RequestWithParams<P>;
-      reqWithParams.__params = await cx?.params;
+      const params = (await cx?.params) as P;
 
       if (requireSession) {
-        const reqWithUser = reqWithParams as RequestWithUser<P>;
-        reqWithUser.__user = await currentUser({
-          redirectTo: redirectAs ? redirectAs(reqWithParams) : undefined,
+        const user = await currentUser({
+          redirectTo: redirectAs ? redirectAs({ req, params }) : undefined,
         });
 
-        res = await (handler as HandlerWithUser<P>)(reqWithUser);
-      } else res = await (handler as Handler<P>)(reqWithParams);
+        res = await (handler as HandlerWithUser<P>)({ req, params, user });
+      } else {
+        res = await (handler as Handler<P>)({ req, params });
+      }
 
       if (res instanceof Response) return res;
       if (res !== null && res !== undefined) return Response.json(res);
