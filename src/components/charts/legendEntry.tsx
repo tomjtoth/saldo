@@ -1,25 +1,17 @@
 import { useAppDispatch, useDebounce } from "@/lib/hooks";
 import { rCombined } from "@/lib/reducers";
-import { virt } from "@/lib/utils";
 import { TUserChartData } from "@/lib/db";
 
 export default function Entry({
   id,
   name,
-  chartStyle,
+  color,
   invisible = false,
 }: TUserChartData & { invisible?: boolean }) {
   const dispatch = useAppDispatch();
-  const { color } = virt({ chartStyle });
 
   const debouncedSetter = useDebounce(
-    (color: string) =>
-      dispatch(
-        rCombined.setChartStyle(
-          `${chartStyle?.at(0) ?? "0"}${color.slice(1)}`,
-          id
-        )
-      ),
+    (color: string) => dispatch(rCombined.setUserColor(color, id)),
     500
   );
 
