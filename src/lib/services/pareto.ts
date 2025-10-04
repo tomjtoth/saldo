@@ -43,7 +43,7 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
       FROM memberships ms
       INNER JOIN consumption con ON ms.group_id = con.group_id
       INNER JOIN categories c ON con.category_id = c.id
-      WHERE ms.user_id = ${userId} --${sql.raw(`${from} ${to}`)}
+      WHERE ms.user_id = ${userId} ${sql.raw(`${from} ${to}`)}
       GROUP BY gid, paid_to, category_id
     ),
 
