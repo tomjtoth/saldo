@@ -3,7 +3,7 @@ import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
 import { Dispatch, SetStateAction } from "react";
 
-import { TCategory, TUserChartData } from "@/lib/db";
+import { TCategory, TUser } from "@/lib/db";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value === 0.5) return [1, 2];
@@ -187,28 +187,10 @@ export type NumericKeys<T> = {
   [P in keyof T]: T[P] extends number ? P : never;
 }[keyof T];
 
-export type LineType = "solid" | "dashed";
-
-export const chart = (
-  style: string | null | Pick<TUserChartData, "chartStyle">
-) => {
-  const code =
-    typeof style === "string"
-      ? style
-      : typeof style === "object" && style !== null
-      ? style.chartStyle
-      : "";
-
-  return {
-    color: `#${code.slice(1)}`,
-    lineType: code.slice(0, 1) === "0" ? "solid" : "dashed",
-  };
-};
-
-export const virt = <T extends { flags?: number }>(
-  entity: T,
+export function virt(
+  entity: Pick<TUser, "flags">,
   setter?: Dispatch<SetStateAction<number>>
-) => {
+) {
   let int =
     entity.flags ??
     (process.env.NODE_ENV === "development"
@@ -224,60 +206,6 @@ export const virt = <T extends { flags?: number }>(
   const finalizeInt = () => {
     if (setter) setter(int);
     else entity.flags = int;
-  };
-
-  const scaleTo255 = (value: number) => {
-    return Math.round((value / 3) * 255);
-
-    // const linear = value / 3; // 0.0–1.0
-    // const gamma = 2.2; // typical sRGB gamma
-    // const corrected = Math.pow(linear, 1 / gamma);
-    // return Math.round(corrected * 255);
-  };
-  const getColor = (offset: number) => (int >> offset) & 0b11;
-  const setColor = (value: number, offset: number) => {
-    int = (int & ~(0b11 << offset)) | ((value & 0b11) << offset);
-    finalizeInt();
-  };
-
-  const color = {
-    get r() {
-      return getColor(2);
-    },
-
-    set r(value) {
-      setColor(value, 2);
-      setFlag(10, true);
-    },
-
-    get g() {
-      return getColor(4);
-    },
-
-    set g(value) {
-      setColor(value, 4);
-      setFlag(10, true);
-    },
-
-    get b() {
-      return getColor(6);
-    },
-
-    set b(value) {
-      setColor(value, 6);
-      setFlag(10, true);
-    },
-
-    rgba(alpha: number) {
-      const args = [
-        scaleTo255(this.r),
-        scaleTo255(this.g),
-        scaleTo255(this.b),
-        alpha.toFixed(1),
-      ];
-
-      return `rgba(${args.join(",")})`;
-    },
   };
 
   return {
@@ -302,33 +230,8 @@ export const virt = <T extends { flags?: number }>(
 
       return int;
     },
-
-    chart: {
-      get configured() {
-        return getFlag(10);
-      },
-
-      restoreConfig() {
-        setFlag(10, true);
-      },
-
-      resetConfig() {
-        setFlag(10, false);
-      },
-
-      color,
-
-      get lineType() {
-        return getFlag(9) ? "dashed" : "solid";
-      },
-
-      set lineType(value: LineType) {
-        setFlag(9, value === "dashed");
-        setFlag(10, true);
-      },
-    },
   };
-};
+}
 
 type ObjectWithUnknownValues = { [key: string]: unknown };
 type ObjectWithNulledStrings<T> = {

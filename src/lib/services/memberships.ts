@@ -2,8 +2,8 @@
 
 import { atomic, db, TCrMembership, TMembership, updater } from "@/lib/db";
 import { err } from "../utils";
-import { and, eq, sql } from "drizzle-orm";
-import { memberships } from "../db/schema";
+import { and, eq, isNull, sql } from "drizzle-orm";
+import { chartColors, memberships } from "../db/schema";
 import { currentUser } from "./users";
 
 export async function svcUpdateMembership({
@@ -92,20 +92,30 @@ export async function isAdmin(userId: number, groupId: number) {
   return !!ms;
 }
 
-export async function svcSetChartStyle(
-  groupId: number,
-  userId: number,
-  style: string | null
+export async function svcSetUserColor(
+  color: string,
+  groupId?: number | null,
+  memberId?: number | null
 ) {
-  const { id } = await currentUser();
+  const { id: userId } = await currentUser();
 
-  await db
-    .update(memberships)
-    .set({
-      chartStyle: sql`coalesce(
-        json_set(${memberships.chartStyle}, ${`$.${userId}`}, ${style}),
-        json_object(${userId.toString()}, ${style})
-      )`,
-    })
-    .where(and(eq(memberships.groupId, groupId), eq(memberships.userId, id)));
+  groupId = groupId ?? null;
+  memberId = memberId ?? null;
+
+  const conditions = and(
+    eq(chartColors.userId, userId),
+    groupId ? eq(chartColors.groupId, groupId) : isNull(chartColors.groupId),
+    memberId ? eq(chartColors.memberId, memberId) : isNull(chartColors.memberId)
+  );
+
+  const exists = await db
+    .select({ x: sql`1` })
+    .from(chartColors)
+    .where(conditions);
+
+  if (exists.length) {
+    await db.update(chartColors).set({ color }).where(conditions);
+  } else {
+    await db.insert(chartColors).values({ userId, groupId, memberId, color });
+  }
 }

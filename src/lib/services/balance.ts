@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 
-import { db, SQL_RANDOM_COLOR, TGroup } from "@/lib/db";
+import { db, distinctUsersData, TGroup } from "@/lib/db";
 
 export async function getBalance(userId: number) {
   const data = await db.get<{ json: string } | null>(
@@ -19,33 +19,15 @@ export async function getBalance(userId: number) {
     ),
 
     distinct_uids AS (
-      SELECT DISTINCT gid, uid1 AS "uidx"
+      SELECT DISTINCT gid, uid1 AS "uid"
       FROM normalized_shares_and_uids
       UNION
 
-      SELECT DISTINCT gid, uid2 AS "uidx"
+      SELECT DISTINCT gid, uid2 AS "uid"
       FROM normalized_shares_and_uids
     ),
 
-    distinct_users_data AS (
-      SELECT
-        gid,
-        jsonb_group_array(
-          jsonb_object(
-            'id', "uidx",
-            'name', u.name,
-            'chartStyle', coalesce(
-              json_extract(ms.chart_style, concat('$.', "uidx")),
-              u.chart_style,
-              ${SQL_RANDOM_COLOR}
-            )
-          )
-        ) AS "user_data"
-      FROM distinct_uids
-      INNER JOIN memberships ms ON ms.group_id = gid AND ms.user_id = ${userId}
-      INNER JOIN users u ON "uidx" = u.id
-      GROUP BY gid
-    ),
+    ${distinctUsersData(userId)},
 
     relations_and_daily_sums AS (
       SELECT

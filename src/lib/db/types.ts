@@ -64,7 +64,7 @@ export type TBalanceChartData = {
 export type TUserChartData = {
   id: number;
   name: string;
-  chartStyle: string;
+  color: string;
 };
 
 export type TCrRevision = typeof schema.revisions.$inferInsert;

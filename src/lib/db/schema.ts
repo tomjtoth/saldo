@@ -20,6 +20,12 @@ const floatToInt = customType<{ data: number; driverData: number }>({
   fromDriver: (val) => val / 100,
 });
 
+const hexColorAsInt = customType<{ data: string; driverData: number }>({
+  dataType: () => "INTEGER",
+  toDriver: (val) => parseInt(val.slice(1), 16),
+  fromDriver: (val) => `#${val.toString(16).padStart(6, "0")}`,
+});
+
 const dateInt = customType<{ data: string; driverData: number; notNull: true }>(
   {
     dataType: () => "INTEGER",
@@ -47,11 +53,8 @@ const flags = integer().notNull().default(1);
 const userId = integer()
   .notNull()
   .references(() => users.id);
-
-const groupId = integer()
-  .notNull()
-  .references(() => groups.id);
-
+const gidCore = integer().references(() => groups.id);
+const groupId = gidCore.notNull();
 const colSR = {
   flags,
   revisionId,
@@ -133,8 +136,6 @@ export const users = sqliteTable("users", {
   image: text(),
 
   defaultGroupId: integer().references(() => groups.id),
-
-  chartStyle: text(),
 });
 
 export const usersRel = relations(users, ({ one, many }) => ({
@@ -194,8 +195,6 @@ export const memberships = sqliteTable(
     userId,
 
     defaultCategoryId: integer().references(() => categories.id),
-
-    chartStyle: text(),
   },
   (table) => [primaryKey({ columns: [table.groupId, table.userId] })]
 );
@@ -219,6 +218,35 @@ export const membershipsRel = relations(memberships, ({ one }) => ({
   defaultCategory: one(categories, {
     fields: [memberships.defaultCategoryId],
     references: [categories.id],
+  }),
+}));
+
+export const chartColors = sqliteTable("chart_colors", {
+  id,
+
+  userId,
+
+  groupId: gidCore,
+
+  memberId: integer().references(() => users.id),
+
+  color: hexColorAsInt().notNull(),
+});
+
+export const chartColorsRel = relations(chartColors, ({ one }) => ({
+  user: one(users, {
+    fields: [chartColors.userId],
+    references: [users.id],
+  }),
+
+  group: one(groups, {
+    fields: [chartColors.groupId],
+    references: [groups.id],
+  }),
+
+  member: one(users, {
+    fields: [chartColors.memberId],
+    references: [users.id],
   }),
 }));
 

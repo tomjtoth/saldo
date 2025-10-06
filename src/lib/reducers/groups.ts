@@ -9,7 +9,7 @@ import {
   insertAlphabetically,
 } from "../utils";
 import { combinedSA as csa, CombinedState as CS } from ".";
-import { svcSetChartStyle, svcUpdateMembership } from "../services/memberships";
+import { svcSetUserColor, svcUpdateMembership } from "../services/memberships";
 import {
   svcCreateGroup,
   svcGenerateInviteLink,
@@ -44,14 +44,16 @@ export const rGroups = {
     ms.flags = payload.flags;
   },
 
-  setMSChartStyle: (
+  setUserColor: (
     rs: CS,
-    { payload: { style, uid } }: PayloadAction<{ style: string; uid?: number }>
+    { payload: { color, uid } }: PayloadAction<{ color: string; uid?: number }>
   ) => {
     const group = rs.groups.find((grp) => grp.id === rs.groupId)!;
-    const user = group.pareto!.users.find((u) => u.id === uid)!;
+    const user = (group.pareto ?? group.balance)!.users.find(
+      (u) => u.id === uid
+    )!;
 
-    user.chartStyle = style;
+    user.color = color;
   },
 };
 
@@ -145,24 +147,25 @@ export const tGroups = {
     return crudOp;
   },
 
-  setChartStyle:
-    (style: string, uid?: number) =>
+  setUserColor:
+    (color: string, uid?: number) =>
     async (dispatch: AppDispatch, getState: () => RootState) => {
       const rs = getState().combined;
-      const prevState = rs.groups
-        .find((g) => g.id === rs.groupId)!
-        .pareto!.users.find((u) => u.id === uid)!.chartStyle;
+      const group = rs.groups.find((g) => g.id === rs.groupId)!;
+      const prevState = (group.pareto ?? group.balance)!.users.find(
+        (u) => u.id === uid
+      )!.color;
 
       if (uid) {
         appToast.promise(
-          svcSetChartStyle(rs.groupId!, uid, style).catch((err) => {
-            dispatch(csa.setMSChartStyle({ style: prevState, uid }));
+          svcSetUserColor(color, rs.groupId, uid).catch((err) => {
+            dispatch(csa.setUserColor({ color: prevState, uid }));
             throw err;
           }),
-          "updating Chart config"
+          "updating color of member"
         );
       }
 
-      return dispatch(csa.setMSChartStyle({ style, uid }));
+      return dispatch(csa.setUserColor({ color, uid }));
     },
 };

@@ -13,11 +13,11 @@ import {
   ReferenceArea,
 } from "recharts";
 
-import { chart } from "@/lib/utils";
 import { TBalanceChartData, TUserChartData } from "@/lib/db";
 
 import BalanceTick from "./tick";
 import BalanceTooltip from "./tooltip";
+import BalanceLegend from "./legend";
 import GroupSelector from "@/components/groups/selector";
 
 export const CtxBalanceChart = createContext<TUserChartData[]>([]);
@@ -29,7 +29,7 @@ export default function BalanceChart({
 }: TBalanceChartData) {
   const gradientDefinitions: ReactNode[] = [];
 
-  const lines = relations.map((rel) => {
+  const lines = relations?.map((rel) => {
     const uids = rel.split(" vs ").map(Number);
     const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
@@ -51,8 +51,8 @@ export default function BalanceChart({
 
     gradientDefinitions.push(
       <linearGradient key={defId} id={defId} x1="0" y1="0" x2="0" y2="1">
-        <stop offset={`${switchAt}%`} stopColor={chart(u1).color} />
-        <stop offset={`${switchAt}%`} stopColor={chart(u2).color} />
+        <stop offset={`${switchAt}%`} stopColor={u1.color} />
+        <stop offset={`${switchAt}%`} stopColor={u2.color} />
       </linearGradient>
     );
 
@@ -174,7 +174,7 @@ export default function BalanceChart({
             />
             <YAxis allowDataOverflow domain={[bottom, top]} />
             <Tooltip content={BalanceTooltip} />
-            <Legend />
+            <Legend content={BalanceLegend} />
 
             <defs>{gradientDefinitions}</defs>
             {lines}

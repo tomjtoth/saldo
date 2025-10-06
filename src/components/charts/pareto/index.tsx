@@ -8,8 +8,8 @@ import { rCombined as red } from "@/lib/reducers";
 import { svcGetParetoData } from "@/lib/services/pareto";
 
 import ParetoChart from "./chart";
-import Header from "../header";
-import GroupSelector from "../groups/selector";
+import Header from "../../header";
+import GroupSelector from "../../groups/selector";
 
 export default function CliParetoPage(srv: { from?: string; to?: string }) {
   const dispatch = useAppDispatch();
@@ -33,7 +33,9 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
 
             appToast.promise(
               svcGetParetoData({ from, to })
-                .then((groups) => dispatch(red.init({ groups })))
+                .then((groups) => {
+                  dispatch(red.init({ groups }));
+                })
                 .catch((err) => {
                   setFrom("");
                   setTo("");
