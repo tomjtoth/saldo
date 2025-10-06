@@ -126,6 +126,7 @@ export async function createGroup(
 
       await tx.insert(memberships).values({
         userId: ownerId,
+        flags: 3,
         groupId,
         revisionId,
       });

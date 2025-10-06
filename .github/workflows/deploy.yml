@@ -19,7 +19,7 @@ jobs:
   lint-build-test:
     name: Lint, Build and Test
     env:
-      SKIP_CI: ${{ contains(github.event.head_commit.message, '#skip-ci') && github.ref_name != 'main' && github.ref_name != 'staging' }}
+      SKIP_CI: ${{ contains(github.event.head_commit.message, '#skip-ci') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,7 +52,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   deploy:
-    if: contains(github.event.head_commit.message, '#deploy')
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '#deploy')
     name: Generate Docker image
     needs: lint-build-test
     runs-on: ubuntu-latest
