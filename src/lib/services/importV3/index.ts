@@ -38,12 +38,14 @@ export async function insertData(data: TDBData) {
 
     await inChunks(
       (chunk) => tx.insert(schema.items).values(chunk),
-      data.items
+      data.items,
+      7
     );
 
     await inChunks(
       (chunk) => tx.insert(schema.itemShares).values(chunk),
-      data.itemShares
+      data.itemShares,
+      5
     );
   });
 
