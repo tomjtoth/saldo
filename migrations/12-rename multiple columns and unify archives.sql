@@ -46,7 +46,7 @@ CREATE TABLE users (
     email TEXT NOT NULL UNIQUE,
     "name" TEXT,
     "image" TEXT,
-    default_group_id INTEGER REFERENCES groups (id)
+    default_group_id INTEGER REFERENCES groups (id) ON DELETE SET NULL
 );
 
 CREATE TABLE groups (
@@ -64,7 +64,7 @@ CREATE TABLE memberships (
     group_id INTEGER REFERENCES groups (id),
     revision_id INTEGER NOT NULL REFERENCES revisions (id) ON DELETE CASCADE,
     status_id INTEGER NOT NULL DEFAULT (1),
-    default_category_id INTEGER REFERENCES categories (id),
+    default_category_id INTEGER REFERENCES categories (id) ON DELETE SET NULL,
 
     PRIMARY KEY (user_id, group_id)
 ) WITHOUT ROWID;
