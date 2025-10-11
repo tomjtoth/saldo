@@ -57,6 +57,7 @@ export async function updateMembership(
         entityPk1: userId,
         entityPk2: groupId,
         revisionId,
+        skipArchivalOf: ["defaultCategoryId"],
       });
 
       if (saving) {
