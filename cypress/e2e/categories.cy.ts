@@ -1,49 +1,11 @@
-import { loginAs } from "./session.cy";
+import { loginAs, loginShouldBeVisible } from "./session.cy";
+import {
+  methodsOf,
+  successfulToastShouldNotExist,
+  successfulToastShwon,
+} from "./utils.cy";
 
-function addCategory(name: string, description?: string) {
-  // React re-render was dismissing my click event belo
-  cy.wait(500);
-  cy.get("#category-adder-opener").click();
-
-  cy.get("#category-adder-form > input").type(name);
-  if (description) cy.get("#category-adder-form > textarea").type(description);
-  cy.get("#category-adder-form > button").click();
-
-  successfulToastShwon(`Saving "${name}" to db succeeded!`);
-}
-
-const updaterToggler = () => cy.get("#category-updater-form > div").first();
-const openUpdater = () => cy.get(`div.category`).click();
-
-function updateCategory({
-  name,
-  descr,
-  toggle,
-}: {
-  name?: string;
-  descr?: string;
-  toggle?: true;
-}) {
-  if (name) cy.get("#category-updater-form > input").type(name);
-  if (descr) cy.get("#category-updater-form > textarea").type(descr);
-  if (toggle) updaterToggler().click();
-
-  cy.get("#category-updater-form > button").click();
-}
-
-function successfulToastShwon(msg: string) {
-  const toast = "div.Toastify__toast--success";
-  cy.get(toast, { timeout: 10000 }).then(($toast) => {
-    expect($toast.text()).to.eq(msg);
-    $toast.trigger("click");
-  });
-
-  cy.get(toast).should("not.exist");
-}
-
-function loginShouldBeVisible() {
-  cy.location("pathname").should("equal", "/api/auth/signin");
-}
+const cats = methodsOf("category");
 
 const TEST_CATEGORY = `test-cat-${Date.now()}`;
 
@@ -68,27 +30,47 @@ describe("categories", () => {
     });
 
     it("can be added", () => {
-      addCategory(TEST_CATEGORY);
+      cats.add(TEST_CATEGORY);
     });
 
     it("can be renamed", () => {
-      addCategory(TEST_CATEGORY);
+      cats.add(TEST_CATEGORY);
 
-      openUpdater();
-      updateCategory({ name: "-2" });
+      cats.update({ name: "-2" });
 
       successfulToastShwon(`Renaming "${TEST_CATEGORY}" succeeded!`);
     });
 
     it("can be toggled", () => {
-      addCategory(TEST_CATEGORY);
+      cats.add(TEST_CATEGORY);
 
-      openUpdater();
-      updateCategory({ toggle: true });
+      cats.update({ toggle: true });
 
       successfulToastShwon(`Toggling "${TEST_CATEGORY}" succeeded!`);
-      updaterToggler().should("have.class", "bg-red-500");
-      updaterToggler().parent().should("have.class", "border-red-500");
+      cats.toggler.should("have.class", "bg-red-500");
+      cats.toggler.parent().should("have.class", "border-red-500");
+    });
+
+    describe("can be set as favorit", () => {
+      it("but not if they're already set favorit", () => {
+        cats.add(TEST_CATEGORY);
+
+        cy.contains(TEST_CATEGORY).children().first().click();
+        successfulToastShwon("Setting default category succeeded!");
+
+        cy.contains(TEST_CATEGORY).children().first().click();
+        successfulToastShouldNotExist();
+      });
+
+      it("on a per group basis", () => {
+        cats.add(TEST_CATEGORY);
+
+        cats.update({ toggle: true });
+
+        successfulToastShwon(`Toggling "${TEST_CATEGORY}" succeeded!`);
+        cats.toggler.should("have.class", "bg-red-500");
+        cats.toggler.parent().should("have.class", "border-red-500");
+      });
     });
   });
 

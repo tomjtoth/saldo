@@ -6,6 +6,10 @@ export function loginAs(email: string, passwd: string, fromPage = "/") {
   cy.get("#submitButton").click();
 }
 
+export function loginShouldBeVisible() {
+  cy.location("pathname").should("equal", "/api/auth/signin");
+}
+
 function logout() {
   cy.get("#sidepanel-opener").click();
   cy.get("#sign-out-button").click();
