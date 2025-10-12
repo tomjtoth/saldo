@@ -29,6 +29,7 @@ export default function CliGroupsPage() {
       <div className="p-2 flex flex-wrap gap-2 justify-center">
         <NameDescrAdder
           placeholder="Group"
+          id="group-adder"
           handler={async (data) => dispatch(red.addGroup(data))}
         />
 
