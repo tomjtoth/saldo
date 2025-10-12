@@ -1,5 +1,6 @@
 import { login, loginShouldBeVisible } from "./session.cy";
 import {
+  accessibleViaSidepanel,
   cleanup,
   methodsOf,
   successfulToastShouldNotExist,
@@ -19,12 +20,7 @@ describe("categories", () => {
 
     afterEach(cleanup);
 
-    it("are accessible via the sidepanel", () => {
-      cy.wait(500);
-      cy.get("#sidepanel-opener").click();
-      cy.get("a[href='/categories']").click();
-      cy.get("#category-adder-opener").click();
-    });
+    accessibleViaSidepanel("/categories");
 
     it("can be added", () => {
       cats.add(TEST_CATEGORY);

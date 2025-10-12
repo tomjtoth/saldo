@@ -57,3 +57,11 @@ export const methodsOf = (entity: "category" | "group") => ({
 });
 
 export const cleanup = () => cy.request("/api/cleanup");
+
+export const accessibleViaSidepanel = (url: string) =>
+  it("are accessible via the sidepanel", () => {
+    cy.wait(500);
+    cy.get("#sidepanel-opener").click();
+    cy.get(`a[href='${url}']`).click();
+    cy.location("pathname").should("equal", url);
+  });
