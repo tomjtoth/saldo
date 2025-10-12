@@ -54,6 +54,10 @@ export const methodsOf = (entity: "category" | "group") => ({
   get toggler() {
     return cy.get(`#${entity}-updater-form > div`).first();
   },
+
+  shouldBeFavorit(name: string) {
+    cy.contains(name).find("svg g[fill='#FB0']").should("exist");
+  },
 });
 
 export const cleanup = () => cy.request("/api/cleanup");
@@ -65,3 +69,6 @@ export const accessibleViaSidepanel = (url: string) =>
     cy.get(`a[href='${url}']`).click();
     cy.location("pathname").should("equal", url);
   });
+
+export const selectGroup = (group: string) =>
+  cy.get("#group-selector").select(group);
