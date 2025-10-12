@@ -3,13 +3,15 @@ import {
   accessibleViaSidepanel,
   cleanup,
   methodsOf,
+  selectGroup,
   successfulToastShouldNotExist,
   successfulToastShwon,
 } from "./utils.cy";
 
 const cats = methodsOf("category");
+const groups = methodsOf("group");
 
-const TEST_CATEGORY = `test-cat-${Date.now()}`;
+const TEST_CATEGORY = `category-${Date.now()}`;
 
 describe("categories", () => {
   describe("while logged in", () => {
@@ -48,21 +50,41 @@ describe("categories", () => {
       it("but not if they're already set favorit", () => {
         cats.add(TEST_CATEGORY);
 
-        cy.contains(TEST_CATEGORY).children().first().click();
+        cy.contains(TEST_CATEGORY).find("svg").click();
         successfulToastShwon("Setting default category succeeded!");
+        cats.shouldBeFavorit(TEST_CATEGORY);
 
-        cy.contains(TEST_CATEGORY).children().first().click();
+        cy.contains(TEST_CATEGORY).find("svg").click();
         successfulToastShouldNotExist();
+        cats.shouldBeFavorit(TEST_CATEGORY);
       });
 
-      it("on a per group basis", () => {
-        cats.add(TEST_CATEGORY);
+      it("on a per-group basis", () => {
+        const catA = TEST_CATEGORY + "-A";
+        const catB = TEST_CATEGORY + "-B";
 
-        cats.update({ toggle: true });
+        cats.add(catA);
+        cats.add(catB);
 
-        successfulToastShwon(`Toggling "${TEST_CATEGORY}" succeeded!`);
-        cats.toggler.should("have.class", "bg-red-500");
-        cats.toggler.parent().should("have.class", "border-red-500");
+        cy.contains(catA).find("svg").click();
+        successfulToastShwon("Setting default category succeeded!");
+        cats.shouldBeFavorit(catA);
+
+        cy.visit("/groups");
+        groups.add("group2");
+
+        cy.visit("/categories");
+        selectGroup("group2");
+
+        cats.add(catA);
+        cats.add(catB);
+
+        cy.contains(catB).find("svg").click();
+        successfulToastShwon("Setting default category succeeded!");
+        cats.shouldBeFavorit(catB);
+
+        selectGroup("just you");
+        cats.shouldBeFavorit(catA);
       });
     });
   });
