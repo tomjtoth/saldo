@@ -1,5 +1,6 @@
 import { loginAs, loginShouldBeVisible } from "./session.cy";
 import {
+  cleanup,
   methodsOf,
   successfulToastShouldNotExist,
   successfulToastShwon,
@@ -16,11 +17,7 @@ describe("categories", () => {
       cy.visit("/categories");
     });
 
-    afterEach(async () => {
-      await new Promise((proceed) => {
-        cy.request("/api/cleanup/categories").then(proceed);
-      });
-    });
+    afterEach(cleanup);
 
     it("are accessible via the sidepanel", () => {
       cy.wait(500);

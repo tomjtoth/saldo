@@ -55,3 +55,5 @@ export const methodsOf = (entity: "category" | "group") => ({
     return cy.get(`#${entity}-updater-form > div`).first();
   },
 });
+
+export const cleanup = () => cy.request("/api/cleanup");
