@@ -1,4 +1,4 @@
-import { loginAs, loginShouldBeVisible } from "./session.cy";
+import { login, loginShouldBeVisible } from "./session.cy";
 import {
   cleanup,
   methodsOf,
@@ -13,7 +13,7 @@ const TEST_CATEGORY = `test-cat-${Date.now()}`;
 describe("categories", () => {
   describe("while logged in", () => {
     beforeEach(() => {
-      loginAs("dev@dev.dev", "TEST_PASSWD");
+      login();
       cy.visit("/categories");
     });
 
