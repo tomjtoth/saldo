@@ -24,7 +24,7 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
         {rs.groups.length > 0 ? (
           <>
             <NameDescrAdder
-              id="category-adder"
+              placeholder="Category"
               handler={({ name, description }) =>
                 dispatch(red.addCategory(rs.groupId!, name, description))
               }

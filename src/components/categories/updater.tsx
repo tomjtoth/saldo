@@ -17,7 +17,7 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
   return (
     <form
-      id="category-updater-form"
+      id="updater"
       key={`${cat.id}-${cat.revisionId!}`}
       className={
         "p-2 bg-background rounded border-2 " +
