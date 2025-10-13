@@ -58,7 +58,10 @@ export const entities = {
   },
 
   shouldBeFavorit(name: string) {
-    cy.contains(name).find("svg g[fill='#FB0']").should("exist");
+    cy.contains(name)
+      .filter((_, el) => el.textContent?.trim() === name)
+      .find("svg g[fill='#FB0']")
+      .should("exist");
   },
 };
 
