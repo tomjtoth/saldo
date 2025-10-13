@@ -16,6 +16,8 @@
 # testing
 /coverage
 /cypress/screenshots/
+/instrumented/
+/.nyc_output/
 
 # next.js
 /.next/
