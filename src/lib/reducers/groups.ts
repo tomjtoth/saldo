@@ -98,9 +98,9 @@ export const tGroups = {
     },
 
   generateInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = svcGenerateInviteLink(groupId).then((res) =>
-      dispatch(csa.updateGroup(res))
-    );
+    const crudOp = svcGenerateInviteLink(groupId).then((res) => {
+      dispatch(csa.updateGroup(res));
+    });
 
     appToast.promise(crudOp, "Generating invitation link");
   },
