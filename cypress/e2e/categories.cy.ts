@@ -4,8 +4,7 @@ import {
   cleanup,
   entities,
   selectGroup,
-  successfulToastShouldNotExist,
-  successfulToastShwon,
+  toast,
 } from "./utils.cy";
 
 const TEST_CATEGORY = `category-${Date.now()}`;
@@ -30,7 +29,7 @@ describe("categories", () => {
 
       entities.update(TEST_CATEGORY, { name: "-2" });
 
-      successfulToastShwon(`Renaming "${TEST_CATEGORY}" succeeded!`);
+      toast(`Renaming "${TEST_CATEGORY}" succeeded!`);
     });
 
     it("can be toggled", () => {
@@ -38,7 +37,7 @@ describe("categories", () => {
 
       entities.update(TEST_CATEGORY, { toggle: true });
 
-      successfulToastShwon(`Toggling "${TEST_CATEGORY}" succeeded!`);
+      toast(`Toggling "${TEST_CATEGORY}" succeeded!`);
       entities.toggler.should("have.class", "bg-red-500");
       entities.toggler.parent().should("have.class", "border-red-500");
     });
@@ -48,11 +47,11 @@ describe("categories", () => {
         entities.add(TEST_CATEGORY);
 
         cy.contains(TEST_CATEGORY).find("svg").click();
-        successfulToastShwon("Setting default category succeeded!");
+        toast("Setting default category succeeded!");
         entities.shouldBeFavorit(TEST_CATEGORY);
 
         cy.contains(TEST_CATEGORY).find("svg").click();
-        successfulToastShouldNotExist();
+        toast().should("not.exist");
         entities.shouldBeFavorit(TEST_CATEGORY);
       });
 
@@ -64,7 +63,7 @@ describe("categories", () => {
         entities.add(catB);
 
         cy.contains(catA).find("svg").click();
-        successfulToastShwon("Setting default category succeeded!");
+        toast("Setting default category succeeded!");
         entities.shouldBeFavorit(catA);
 
         cy.visit("/groups");
@@ -77,7 +76,7 @@ describe("categories", () => {
         entities.add(catB);
 
         cy.contains(catB).find("svg").click();
-        successfulToastShwon("Setting default category succeeded!");
+        toast("Setting default category succeeded!");
         entities.shouldBeFavorit(catB);
 
         selectGroup("just you");
