@@ -1,18 +1,3 @@
-const TOAST_SUCCESS = "div.Toastify__toast--success";
-
-export function successfulToastShwon(msg: string) {
-  cy.get(TOAST_SUCCESS, { timeout: 10000 }).then(($toast) => {
-    expect($toast.text()).to.eq(msg);
-    $toast.trigger("click");
-  });
-
-  successfulToastShouldNotExist();
-}
-
-export function successfulToastShouldNotExist() {
-  cy.get(TOAST_SUCCESS).should("not.exist");
-}
-
 export const toast = (
   text?: string,
   {
@@ -53,7 +38,7 @@ export const entities = {
     if (description) cy.get("#entity-adder-form > textarea").type(description);
     cy.get("#entity-adder-form > button").click();
 
-    successfulToastShwon(`Saving "${name}" to db succeeded!`);
+    toast(`Saving "${name}" to db succeeded!`);
   },
 
   update(
