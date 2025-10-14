@@ -13,6 +13,32 @@ export function successfulToastShouldNotExist() {
   cy.get(TOAST_SUCCESS).should("not.exist");
 }
 
+export const toast = (
+  text?: string,
+  {
+    cls = "success",
+    autoClose = true,
+  }: { cls?: "success" | ""; autoClose?: boolean } = {}
+) => {
+  let selector = "div.Toastify__toast";
+  if (cls) selector += "--" + cls;
+
+  const getter = () => cy.get(selector, { timeout: 10000 });
+
+  return text !== undefined
+    ? getter()
+        .filter((_, el) => el.textContent === text)
+        .then(($node) => {
+          if (autoClose) {
+            $node.trigger("click");
+            cy.wrap($node).should("not.exist");
+          }
+
+          return cy.wrap($node);
+        })
+    : getter();
+};
+
 /**
  * @param entity `"category"` | `"group"`
  * @returns an object with methods to add/update/open entities
