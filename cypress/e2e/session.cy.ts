@@ -19,6 +19,7 @@ export function loginShouldBeVisible() {
 export function logout() {
   cy.get("#sidepanel-opener").click();
   cy.get("#sign-out-button").click();
+  cy.location("pathname", { timeout: 10000 }).should("eq", "/");
 }
 
 describe("Signing in", () => {
