@@ -20,9 +20,6 @@ interface HandlerContextWithUser<P> extends HandlerContext<P> {
 
 interface Options<P> {
   redirectAs?: (ctx: HandlerContext<P>) => string;
-}
-
-interface MoreOptions<P> extends Options<P> {
   requireSession?: false;
   onlyDuringDevelopment?: true;
 }
@@ -34,13 +31,13 @@ type Handler<P, HC = HandlerContext<P>> = (ctx: HC) => HandlerReturnType;
 type HandlerWithUser<P> = (ctx: HandlerContextWithUser<P>) => HandlerReturnType;
 
 function protectedRoute<P, R = ReturnType<Handler<P>>>(
-  options: MoreOptions<P>,
-  handler: Handler<P>
+  options: Options<P>,
+  handler: HandlerWithUser<P>
 ): RouteHandler<P, R>;
 
 function protectedRoute<P, R = ReturnType<Handler<P>>>(
   options: Options<P>,
-  handler: HandlerWithUser<P>
+  handler: Handler<P>
 ): RouteHandler<P, R>;
 
 function protectedRoute<P, R = ReturnType<Handler<P>>>(
@@ -48,19 +45,16 @@ function protectedRoute<P, R = ReturnType<Handler<P>>>(
 ): RouteHandler<P, R>;
 
 function protectedRoute<P>(
-  optsOrHandler: (MoreOptions<P> | Options<P>) | HandlerWithUser<P>,
+  optsOrHandler: Options<P> | HandlerWithUser<P>,
   maybeHandler?: Handler<P> | HandlerWithUser<P>
 ) {
   return async (req: NextRequest, cx?: RequestContext<P>) => {
     const hasOptions = typeof optsOrHandler !== "function";
 
     const { redirectAs } = hasOptions ? optsOrHandler : {};
-    const { requireSession = true, onlyDuringDevelopment = false } =
-      hasOptions &&
-      "requireSession" in optsOrHandler &&
-      typeof optsOrHandler.requireSession === "boolean"
-        ? optsOrHandler
-        : {};
+    const { requireSession = true, onlyDuringDevelopment = false } = hasOptions
+      ? optsOrHandler
+      : {};
 
     const handler = hasOptions ? maybeHandler : optsOrHandler;
 
