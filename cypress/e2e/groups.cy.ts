@@ -67,15 +67,15 @@ describe("groups", () => {
 
     describe("invitation link", () => {
       it("can be genereated", () => {
-        groups.add(TEST_GROUP);
+        cy.contains("just you").click();
 
-        cy.contains(TEST_GROUP)
-          // .filter((_, el) => el.textContent === TEST_GROUP)
-          .click();
-
+        invLink.copier.should("not.exist");
         invLink.remover.should("not.exist");
+
         invLink.generator.click();
         toast("Generating invitation link succeeded!");
+
+        invLink.copier.should("exist");
         invLink.remover.should("exist");
       });
 
