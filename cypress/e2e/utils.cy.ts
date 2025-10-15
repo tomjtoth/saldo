@@ -72,7 +72,7 @@ export const entities = {
   },
 };
 
-export const cleanup = () => cy.request("/api/cleanup");
+export const cleanup = () => cy.request("/api/e2e/cleanup");
 
 export const accessibleViaSidepanel = (url: string) =>
   it("are accessible via the sidepanel", () => {
