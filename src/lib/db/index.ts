@@ -94,13 +94,12 @@ const SQLITE_MAX_VARIABLE_NUMBER = 32766;
 
 export const inChunks = async <T extends object>(
   op: (chunk: T[]) => Promise<unknown>,
-  arr: T[]
+  arr: T[],
+  numberOfCols: number
 ) => {
   let idx = 0;
   const totalRows = arr.length;
-  const batchSize = Math.floor(
-    SQLITE_MAX_VARIABLE_NUMBER / Object.keys(arr[0]).length
-  );
+  const batchSize = Math.floor(SQLITE_MAX_VARIABLE_NUMBER / numberOfCols);
 
   const res: unknown[] = [];
 

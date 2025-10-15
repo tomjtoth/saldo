@@ -32,6 +32,7 @@ export default function Title({
 
   return clientIsAdmin ? (
     <form
+      id="updater"
       className="grid items-center grid-cols-[min-width_min-width_min-width] gap-2"
       onSubmit={(ev) => {
         ev.preventDefault();

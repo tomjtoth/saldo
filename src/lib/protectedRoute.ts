@@ -84,10 +84,11 @@ function protectedRoute<P>(
 
       return new Response(null, { status: 200 });
     } catch (err: unknown) {
-      return new Response(null, {
-        status: (err as ErrorWithStatus).status ?? 400,
-        statusText: (err as Error).message,
-      });
+      const { message, status = 400 } = err as ErrorWithStatus;
+
+      if (message === "NEXT_REDIRECT") throw err;
+
+      return new Response(null, { status, statusText: message });
     }
   };
 }

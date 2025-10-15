@@ -10,11 +10,9 @@ type AdderHandler = (data: {
 }) => Promise<void>;
 
 export default function NameDescrAdder({
-  id,
   placeholder,
   handler,
 }: {
-  id?: string;
   placeholder?: string;
   handler: AdderHandler;
 }) {
@@ -30,13 +28,13 @@ export default function NameDescrAdder({
 
   return (
     <>
-      <button id={id + "-opener"} onClick={() => setVisible(true)}>
+      <button id="entity-adder-button" onClick={() => setVisible(true)}>
         Add new...
       </button>
       {visible && (
         <Canceler onClick={() => setVisible(false)}>
           <form
-            id={id + "-form"}
+            id="entity-adder-form"
             className={
               "absolute top-1/2 left-1/2 -translate-1/2 p-2 " +
               "rounded border bg-background " +
