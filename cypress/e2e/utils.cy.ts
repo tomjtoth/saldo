@@ -24,10 +24,6 @@ export const toast = (
     : getter();
 };
 
-/**
- * @param entity `"category"` | `"group"`
- * @returns an object with methods to add/update/open entities
- */
 export const entities = {
   add(name: string, description?: string) {
     // React re-render was dismissing my click event below
