@@ -16,7 +16,7 @@ export function loginShouldBeVisible() {
   cy.location("pathname").should("equal", "/api/auth/signin");
 }
 
-function logout() {
+export function logout() {
   cy.get("#sidepanel-opener").click();
   cy.get("#sign-out-button").click();
 }
