@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 
 import { currentUser } from "@/lib/services/users";
-import { ErrorWithStatus } from "./utils";
+import { err, ErrorWithStatus } from "./utils";
 
 type RouteHandler<P, R> = (req: NextRequest, ctx: RequestContext<P>) => R;
 
@@ -18,12 +18,10 @@ interface HandlerContextWithUser<P> extends HandlerContext<P> {
   user: Awaited<ReturnType<typeof currentUser>>;
 }
 
-interface OptionsWithUser<P> {
+interface Options<P> {
   redirectAs?: (ctx: HandlerContext<P>) => string;
-}
-
-interface OptionsWithParams<P> extends OptionsWithUser<P> {
-  requireSession: false;
+  requireSession?: false;
+  onlyDuringDevelopment?: true;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,13 +31,13 @@ type Handler<P, HC = HandlerContext<P>> = (ctx: HC) => HandlerReturnType;
 type HandlerWithUser<P> = (ctx: HandlerContextWithUser<P>) => HandlerReturnType;
 
 function protectedRoute<P, R = ReturnType<Handler<P>>>(
-  options: OptionsWithParams<P>,
-  handler: Handler<P>
+  options: Options<P>,
+  handler: HandlerWithUser<P>
 ): RouteHandler<P, R>;
 
 function protectedRoute<P, R = ReturnType<Handler<P>>>(
-  options: OptionsWithUser<P>,
-  handler: HandlerWithUser<P>
+  options: Options<P>,
+  handler: Handler<P>
 ): RouteHandler<P, R>;
 
 function protectedRoute<P, R = ReturnType<Handler<P>>>(
@@ -47,25 +45,23 @@ function protectedRoute<P, R = ReturnType<Handler<P>>>(
 ): RouteHandler<P, R>;
 
 function protectedRoute<P>(
-  optsOrHandler:
-    | (OptionsWithParams<P> | OptionsWithUser<P>)
-    | HandlerWithUser<P>,
+  optsOrHandler: Options<P> | HandlerWithUser<P>,
   maybeHandler?: Handler<P> | HandlerWithUser<P>
 ) {
   return async (req: NextRequest, cx?: RequestContext<P>) => {
     const hasOptions = typeof optsOrHandler !== "function";
 
     const { redirectAs } = hasOptions ? optsOrHandler : {};
-    const { requireSession = true } =
-      hasOptions &&
-      "requireSession" in optsOrHandler &&
-      typeof optsOrHandler.requireSession === "boolean"
-        ? optsOrHandler
-        : {};
+    const { requireSession = true, onlyDuringDevelopment = false } = hasOptions
+      ? optsOrHandler
+      : {};
 
     const handler = hasOptions ? maybeHandler : optsOrHandler;
 
     try {
+      if (onlyDuringDevelopment && process.env.NODE_ENV !== "development")
+        err(404);
+
       let res: unknown;
       const params = (await cx?.params) as P;
 

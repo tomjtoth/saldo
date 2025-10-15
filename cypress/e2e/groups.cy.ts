@@ -9,6 +9,9 @@ import {
 const TEST_GROUP = `group-${Date.now()}`;
 
 const invLink = {
+  get copier() {
+    return cy.contains("Copy 🔗");
+  },
   get generator() {
     return cy.contains("Generate 🔁");
   },
@@ -67,15 +70,16 @@ describe("groups", () => {
 
     describe("invitation link", () => {
       it("can be genereated", () => {
-        groups.add(TEST_GROUP);
+        cy.contains("just you").click();
 
-        cy.contains(TEST_GROUP)
-          // .filter((_, el) => el.textContent === TEST_GROUP)
-          .click();
-
+        invLink.copier.should("not.exist");
         invLink.remover.should("not.exist");
+
         invLink.generator.click();
         toast("Generating invitation link succeeded!");
+
+        invLink.copier.should("exist");
+        invLink.generator.should("exist");
         invLink.remover.should("exist");
       });
 
@@ -95,36 +99,12 @@ describe("groups", () => {
       });
 
       it("can be used to join a group", () => {
-        const g1 = TEST_GROUP + "-1";
-        const g2 = TEST_GROUP + "-2";
-
-        groups.add(g1);
-        groups.add(g2);
-
-        // generate link for g1
-        cy.contains(g1).click();
-        invLink.generator.click();
-        toast("Generating invitation link succeeded!");
-
-        cy.contains("http://localhost")
-          .invoke("text")
-          .then((text) => {
-            console.log(text);
-            const link = text.replaceAll(
-              /http:\/\/localhost:3000|\u200b/gu,
-              ""
-            );
-
-            // close via Canceler
-            cy.get("#updater").parent().parent().click(1, 1);
-
-            logout();
-            login("e2e2@tester.saldo");
-            console.log(link);
-            cy.visit(link);
-            cy.location("pathname").should("eq", "/groups");
-            cy.contains(g1).should("exist");
-          });
+        cy.request(
+          "/api/e2e/groups/invitation-link/can-be-used-to-join-a-group"
+        );
+        cy.visit("/join/some-uuid");
+        cy.location("pathname").should("eq", "/groups");
+        cy.contains("you and me").should("exist");
       });
     });
   });
