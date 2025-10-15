@@ -107,6 +107,24 @@ describe("groups", () => {
         cy.contains("you and me").should("exist");
       });
     });
+
+    it("members can be banned", () => {
+      cy.request("/api/e2e/groups/member-status-can-be-modified");
+      cy.reload();
+      cy.contains("just you").click();
+
+      cy.contains("e2e2").children().first().click();
+      toast('Banning "e2e2" succeeded!');
+
+      cy.contains("e2e2").children().first().should("have.class", "bg-red-500");
+      cy.get("#updater").parent().parent().click(1, 1);
+      logout();
+
+      login("e2e2@tester.saldo");
+      cy.visit("/groups");
+
+      cy.contains("you and me").should("not.exist");
+    });
   });
 
   describe("while not logged in", () => {
