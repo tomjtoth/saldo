@@ -9,6 +9,9 @@ import {
 const TEST_GROUP = `group-${Date.now()}`;
 
 const invLink = {
+  get copier() {
+    return cy.contains("Copy 🔗");
+  },
   get generator() {
     return cy.contains("Generate 🔁");
   },
@@ -76,6 +79,7 @@ describe("groups", () => {
         toast("Generating invitation link succeeded!");
 
         invLink.copier.should("exist");
+        invLink.generator.should("exist");
         invLink.remover.should("exist");
       });
 
