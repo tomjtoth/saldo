@@ -1,5 +1,7 @@
 "use server";
 
+import { and, eq, ne } from "drizzle-orm";
+
 import { db, inChunks } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { err } from "@/lib/utils";
@@ -9,7 +11,10 @@ import { FromDB } from "@/components/import/clientSide";
 export const alreadyInProd = async () => {
   const user = await db.query.users.findFirst({
     columns: { id: true },
-    where: (t, o) => o.and(o.eq(t.id, 1), o.ne(t.email, "user0@just.imported")),
+    where: and(
+      eq(schema.users.id, 1),
+      ne(schema.users.email, "user0@just.imported")
+    ),
   });
 
   return !!user;

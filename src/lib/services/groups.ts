@@ -158,12 +158,15 @@ export async function addMember(groupId: number, userId: number) {
 
 export async function joinGroup(uuid: string, userId: number) {
   const group = await db.query.groups.findFirst({
-    where: (t, o) => o.eq(t.uuid, uuid),
+    where: eq(groups.uuid, uuid),
   });
   if (!group) err("link expired");
 
   const ms = await db.query.memberships.findFirst({
-    where: (t, o) => o.and(o.eq(t.userId, userId), eq(t.groupId, group.id)),
+    where: and(
+      eq(memberships.userId, userId),
+      eq(memberships.groupId, group.id)
+    ),
   });
   if (ms) err("already a member");
 
@@ -204,7 +207,7 @@ export async function updateGroup(
     { operation: "Updating group", revisedBy: adminId },
     async (tx, revisionId) => {
       const group = await tx.query.groups.findFirst({
-        where: (t, o) => o.eq(t.id, groupId),
+        where: eq(groups.id, groupId),
       });
       if (!group) return null;
 
