@@ -67,10 +67,10 @@ export async function svcAddReceipt({
         .values(
           itemsCli.map(({ cost: strCost, categoryId, notes }) => {
             if (typeof categoryId !== "number")
-              err(`categoryId ${categoryId} is NaN`);
+              err(`categoryId "${categoryId}" is NaN`);
 
             const cost = parseFloat(strCost);
-            if (isNaN(cost)) err(`cost ${strCost} is NaN`);
+            if (isNaN(cost)) err(`cost "${strCost}" is NaN`);
 
             if (notes !== null && typeof notes !== "string")
               err(`note "${notes}" is not a string`);
