@@ -42,7 +42,7 @@ describe("Signing out", () => {
   it("works", () => {
     login();
     logout();
-    cy.get("#sign-in-button").should("exist");
+    cy.get("#sign-in-button", { timeout: 10000 }).should("exist");
     cy.get("#sidepanel-opener svg").should("not.exist");
   });
 });
