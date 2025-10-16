@@ -5,7 +5,7 @@ import { addUser } from "@/lib/services/users";
 export const GET = protectedRoute(
   { requireSession: false, onlyDuringDevelopment: true },
   async () => {
-    const user = await addUser({ name: "e2e2", email: "e2e2@tester.saldo" });
+    const user = await addUser({ name: "user2", email: "user2@e2e.tests" });
 
     const group = await createGroup(user.id, { name: "you and me" });
 

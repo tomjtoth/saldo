@@ -112,14 +112,17 @@ describe("groups", () => {
       cy.reload();
       cy.contains("just you").click();
 
-      cy.contains("e2e2").children().first().click();
-      toast('Banning "e2e2" succeeded!');
+      cy.contains("user2").children().first().click();
+      toast('Banning "user2" succeeded!');
 
-      cy.contains("e2e2").children().first().should("have.class", "bg-red-500");
+      cy.contains("user2")
+        .children()
+        .first()
+        .should("have.class", "bg-red-500");
       cy.get("#updater").parent().parent().click(1, 1);
       logout();
 
-      login({ email: "e2e2@tester.saldo" });
+      login({ email: "user2@e2e.tests" });
       cy.visit("/groups");
 
       cy.contains("you and me").should("not.exist");

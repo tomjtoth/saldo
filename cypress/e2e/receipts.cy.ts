@@ -6,8 +6,7 @@ describe("receipts", () => {
       login({ page: "/receipts" });
     });
 
-    it.only("can be accessed", () => {
-      cy.visit("/receipts");
+    it("can be accessed", () => {
       cy.contains("receipt for group").should("exist");
     });
   });

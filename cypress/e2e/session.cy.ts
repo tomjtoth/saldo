@@ -1,6 +1,6 @@
 export function login({
   page = "/",
-  email = "e2e@tester.saldo",
+  email = "user1@e2e.tests",
   passwd = "TEST_PASSWD",
 }: {
   email?: string;
