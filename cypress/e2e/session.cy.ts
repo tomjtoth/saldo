@@ -1,14 +1,18 @@
-export function login(
-  email?: string,
-  opts?: {
-    passwd: string;
-    fromPage?: string;
-  }
-) {
-  cy.visit(opts?.fromPage ?? "/");
-  cy.get("#sign-in-button").click();
-  cy.get("#email", { timeout: 10000 }).type(email ?? "e2e@tester.saldo");
-  cy.get("#passwd").type(opts?.passwd ?? "TEST_PASSWD");
+export function login({
+  page = "/",
+  email = "user1@e2e.tests",
+  passwd = "TEST_PASSWD",
+}: {
+  email?: string;
+  passwd?: string;
+  page?: string;
+} = {}) {
+  cy.visit(page);
+
+  if (page === "/") cy.get("#sign-in-button").click();
+
+  cy.get("#email", { timeout: 10000 }).type(email);
+  cy.get("#passwd").type(passwd);
   cy.get("#submitButton").click();
 }
 
@@ -29,7 +33,7 @@ describe("Signing in", () => {
   });
 
   it("works with image on the OAuth profile", () => {
-    login("withImage@dev.dev");
+    login({ email: "withImage@dev.dev" });
     cy.get("#sidepanel-opener img[src='/globe.svg']").should("exist");
   });
 });
@@ -38,7 +42,7 @@ describe("Signing out", () => {
   it("works", () => {
     login();
     logout();
-    cy.get("#sign-in-button").should("exist");
+    cy.get("#sign-in-button", { timeout: 10000 }).should("exist");
     cy.get("#sidepanel-opener svg").should("not.exist");
   });
 });

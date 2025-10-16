@@ -23,8 +23,7 @@ const invLink = {
 describe("groups", () => {
   describe("while logged in", () => {
     beforeEach(() => {
-      login();
-      cy.visit("/groups");
+      login({ page: "/groups" });
     });
 
     afterEach(cleanup);
@@ -106,6 +105,27 @@ describe("groups", () => {
         cy.location("pathname").should("eq", "/groups");
         cy.contains("you and me").should("exist");
       });
+    });
+
+    it("members can be banned", () => {
+      cy.request("/api/e2e/groups/member-status-can-be-modified");
+      cy.reload();
+      cy.contains("just you").click();
+
+      cy.contains("user2").children().first().click();
+      toast('Banning "user2" succeeded!');
+
+      cy.contains("user2")
+        .children()
+        .first()
+        .should("have.class", "bg-red-500");
+      cy.get("#updater").parent().parent().click(1, 1);
+      logout();
+
+      login({ email: "user2@e2e.tests" });
+      cy.visit("/groups");
+
+      cy.contains("you and me").should("not.exist");
     });
   });
 

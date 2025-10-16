@@ -76,9 +76,11 @@ export const tCategories = {
         throw err;
       }
 
-      const op = svcCreateCategory(groupId, name, description).then((res) => {
-        dispatch(csa.addCategory(res));
-      });
+      const op = svcCreateCategory({ groupId, name, description }).then(
+        (res) => {
+          dispatch(csa.addCategory(res));
+        }
+      );
 
       appToast.promise(op, `Saving "${name}" to db`);
 
