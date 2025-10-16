@@ -22,12 +22,14 @@ import {
   sortByName,
 } from "../utils";
 
-export async function svcCreateCategory(
-  groupId: number,
-  name: string,
-  description: string
-) {
-  const { id } = await currentUser();
+type RequiredCategoryFields = Required<
+  Pick<TCategory, "groupId" | "name" | "description">
+>;
+
+export async function svcCreateCategory(uncheckedData: RequiredCategoryFields) {
+  const { id: revisedBy } = await currentUser();
+
+  const { groupId, name, description } = uncheckedData;
 
   if (
     typeof name !== "string" ||
@@ -38,16 +40,19 @@ export async function svcCreateCategory(
 
   has3ConsecutiveLetters(name);
 
-  const data = {
-    groupId,
-    name,
-    description,
-  };
+  const data = { groupId, name, description };
 
   nullEmptyStrings(data);
 
+  return await createCategory(revisedBy, data);
+}
+
+export async function createCategory(
+  revisedBy: number,
+  data: RequiredCategoryFields
+) {
   return await atomic(
-    { operation: "Creating category", revisedBy: id },
+    { operation: "Creating category", revisedBy },
     async (tx, revisionId) => {
       const [{ id }] = await tx
         .insert(categories)
