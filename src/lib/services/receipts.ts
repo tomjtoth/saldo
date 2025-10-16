@@ -86,25 +86,27 @@ export async function svcAddReceipt({
         )
         .returning({ id: items.id });
 
-      await tx.insert(itemShares).values(
-        itemsCli.flatMap((i, idx) =>
-          Object.entries(i.shares)
-            .filter(([, share]) => share !== 0)
-            .map(([uidStr, share]) => {
-              if (typeof share !== "number") err(`share ${share} is NaN`);
+      const parsedItemShares = itemsCli.flatMap((i, idx) =>
+        Object.entries(i.shares)
+          .filter(([, share]) => share !== 0)
+          .map(([uidStr, share]) => {
+            if (typeof share !== "number") err(`share ${share} is NaN`);
 
-              const userId = Number(uidStr);
-              if (isNaN(userId)) err(`userId ${uidStr} is NaN`);
+            const userId = Number(uidStr);
+            if (isNaN(userId)) err(`userId ${uidStr} is NaN`);
 
-              return {
-                itemId: itemIds[idx].id,
-                userId,
-                revisionId,
-                share,
-              };
-            })
-        )
+            return {
+              itemId: itemIds[idx].id,
+              userId,
+              revisionId,
+              share,
+            };
+          })
       );
+
+      if (parsedItemShares.length) {
+        await tx.insert(itemShares).values(parsedItemShares);
+      }
 
       const receipt = (await tx.query.receipts.findFirst({
         ...RECEIPT_COLS_WITH,
