@@ -3,7 +3,7 @@ import { login } from "./session.cy";
 describe("receipts", () => {
   describe("while logged in", () => {
     beforeEach(() => {
-      login();
+      login({ page: "/receipts" });
     });
 
     it.only("can be accessed", () => {

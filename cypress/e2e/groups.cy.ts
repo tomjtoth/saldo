@@ -23,8 +23,7 @@ const invLink = {
 describe("groups", () => {
   describe("while logged in", () => {
     beforeEach(() => {
-      login();
-      cy.visit("/groups");
+      login({ page: "/groups" });
     });
 
     afterEach(cleanup);
@@ -120,7 +119,7 @@ describe("groups", () => {
       cy.get("#updater").parent().parent().click(1, 1);
       logout();
 
-      login("e2e2@tester.saldo");
+      login({ email: "e2e2@tester.saldo" });
       cy.visit("/groups");
 
       cy.contains("you and me").should("not.exist");
