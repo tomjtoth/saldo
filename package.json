@@ -8,8 +8,9 @@
     "coverage": "vitest run --coverage",
     "coverage:open": "xdg-open coverage/index.html",
     "cypress:open": "cypress open",
-    "e2e": "MIGRATE=true NEXTJS_CONFIG=tsconfig.instrumented.json start-server-and-test dev http://localhost:3000 \"cypress open --e2e\"",
-    "e2e:headless": "MIGRATE=true NEXTJS_CONFIG=tsconfig.instrumented.json start-server-and-test dev http://localhost:3000 \"cypress run --e2e\"",
+    "e2e": "MIGRATE=true start-server-and-test dev http://localhost:3000 \"cypress open --e2e\"",
+    "e2e:headless": "MIGRATE=true start-server-and-test dev http://localhost:3000 \"cypress run --e2e\"",
+    "pree2e:headless": "mv e2e.babelrc.ts .babelrc.ts",
     "build": "next build",
     "start": "next start"
   },
