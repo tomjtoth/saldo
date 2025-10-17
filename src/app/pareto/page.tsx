@@ -1,7 +1,7 @@
 import { getPareto } from "@/lib/services/pareto";
 
 import protectedPage from "@/lib/protectedPage";
-import CliParetoPage from "@/components/pareto";
+import CliParetoPage from "@/components/charts/pareto";
 
 export default protectedPage<{ from?: string; to?: string }>({
   getData: getPareto,

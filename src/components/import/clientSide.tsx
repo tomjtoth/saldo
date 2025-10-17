@@ -1,9 +1,10 @@
 "use client";
 
-import { appToast, sendJSON } from "@/lib/utils";
+import { svcImportV3 } from "@/lib/services/importV3";
+import { appToast } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-export default function CliImportSection(fromDB: {
+export type FromDB = {
   revisions: number;
   users: number;
   groups: number;
@@ -12,7 +13,9 @@ export default function CliImportSection(fromDB: {
   receipts: number;
   items: number;
   itemShares: number;
-}) {
+};
+
+export default function CliImportSection(fromDB: FromDB) {
   const [data, setData] = useState(fromDB);
 
   useEffect(() => {
@@ -33,9 +36,7 @@ export default function CliImportSection(fromDB: {
         id="import-btn"
         onClick={() => {
           appToast.promise(
-            sendJSON("/api/import").then(async (res) => {
-              setData(await res.json());
-            }),
+            svcImportV3().then((res) => setData(res)),
             "Dropping and re-populating all data in DB"
           );
         }}

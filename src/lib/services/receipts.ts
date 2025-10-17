@@ -1,3 +1,5 @@
+"use server";
+
 import { and, desc, eq, exists, sql } from "drizzle-orm";
 
 import {
@@ -12,8 +14,7 @@ import {
 import { groups, items, itemShares, memberships, receipts } from "../db/schema";
 import { TCliReceipt } from "../reducers";
 import { err, nulledEmptyStrings, sortByName } from "../utils";
-
-export type TReceiptInput = TCliReceipt & { groupId: number };
+import { currentUser } from "./users";
 
 const RECEIPT_COLS_WITH = {
   columns: {
@@ -34,16 +35,31 @@ const RECEIPT_COLS_WITH = {
   },
 };
 
-export async function addReceipt(
-  addedBy: number,
-  { groupId, paidOn, items: itemsCli, paidBy: paidById }: TReceiptInput
-) {
+export type TReceiptInput = TCliReceipt & { groupId: number };
+
+export async function svcAddReceipt({
+  groupId,
+  paidOn,
+  paidBy,
+  items: itemsCli,
+}: TReceiptInput) {
+  const { id: addedBy } = await currentUser();
+
+  if (
+    typeof groupId !== "number" ||
+    typeof paidOn !== "string" ||
+    typeof paidBy !== "number" ||
+    !Array.isArray(itemsCli) ||
+    itemsCli.length === 0
+  )
+    err();
+
   return await atomic(
     { operation: "Adding receipt", revisedBy: addedBy },
     async (tx, revisionId) => {
       const [{ receiptId }] = await tx
         .insert(receipts)
-        .values({ groupId, revisionId, paidOn, paidById })
+        .values({ groupId, revisionId, paidOn, paidById: paidBy })
         .returning({ receiptId: receipts.id });
 
       const itemIds = await tx
@@ -51,10 +67,10 @@ export async function addReceipt(
         .values(
           itemsCli.map(({ cost: strCost, categoryId, notes }) => {
             if (typeof categoryId !== "number")
-              err(`categoryId ${categoryId} is NaN`);
+              err(`categoryId "${categoryId}" is NaN`);
 
             const cost = parseFloat(strCost);
-            if (isNaN(cost)) err(`cost ${strCost} is NaN`);
+            if (isNaN(cost)) err(`cost "${strCost}" is NaN`);
 
             if (notes !== null && typeof notes !== "string")
               err(`note "${notes}" is not a string`);
@@ -70,25 +86,27 @@ export async function addReceipt(
         )
         .returning({ id: items.id });
 
-      await tx.insert(itemShares).values(
-        itemsCli.flatMap((i, idx) =>
-          Object.entries(i.shares)
-            .filter(([, share]) => share !== 0)
-            .map(([uidStr, share]) => {
-              if (typeof share !== "number") err(`share ${share} is NaN`);
+      const parsedItemShares = itemsCli.flatMap((i, idx) =>
+        Object.entries(i.shares)
+          .filter(([, share]) => share !== 0)
+          .map(([uidStr, share]) => {
+            if (typeof share !== "number") err(`share ${share} is NaN`);
 
-              const userId = Number(uidStr);
-              if (isNaN(userId)) err(`userId ${uidStr} is NaN`);
+            const userId = Number(uidStr);
+            if (isNaN(userId)) err(`userId ${uidStr} is NaN`);
 
-              return {
-                itemId: itemIds[idx].id,
-                userId,
-                revisionId,
-                share,
-              };
-            })
-        )
+            return {
+              itemId: itemIds[idx].id,
+              userId,
+              revisionId,
+              share,
+            };
+          })
       );
+
+      if (parsedItemShares.length) {
+        await tx.insert(itemShares).values(parsedItemShares);
+      }
 
       const receipt = (await tx.query.receipts.findFirst({
         ...RECEIPT_COLS_WITH,
@@ -100,6 +118,15 @@ export async function addReceipt(
       return receipt;
     }
   );
+}
+
+export async function svcGetReceipts(knownIds: number[]) {
+  const user = await currentUser();
+
+  if (!Array.isArray(knownIds) || knownIds.some(isNaN))
+    err("known ids contain NaN");
+
+  return await getReceipts(user.id, knownIds);
 }
 
 export async function getReceipts(userId: number, knownIds: number[] = []) {

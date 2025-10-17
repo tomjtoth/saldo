@@ -12,7 +12,7 @@ import {
   has3ConsecutiveLetters,
   nulledEmptyStrings,
   nullEmptyStrings,
-  status,
+  virt,
 } from ".";
 import { DateTime } from "luxon";
 
@@ -43,50 +43,50 @@ describe("datetimeFunctions", () => {
 
 describe("status", () => {
   it("resolves ACTIVE state correctly", () => {
-    expect(status({ statusId: 0 }).active).to.be.false;
-    expect(status({ statusId: 1 }).active).to.be.true;
-    expect(status({ statusId: 2 }).active).to.be.false;
-    expect(status({ statusId: 3 }).active).to.be.true;
+    expect(virt({ flags: 0 }).active).to.be.false;
+    expect(virt({ flags: 1 }).active).to.be.true;
+    expect(virt({ flags: 2 }).active).to.be.false;
+    expect(virt({ flags: 3 }).active).to.be.true;
   });
 
   it("resolves ADMIN state correctly", () => {
-    expect(status({ statusId: 0 }).admin).to.be.false;
-    expect(status({ statusId: 1 }).admin).to.be.false;
-    expect(status({ statusId: 2 }).admin).to.be.true;
-    expect(status({ statusId: 3 }).admin).to.be.true;
+    expect(virt({ flags: 0 }).admin).to.be.false;
+    expect(virt({ flags: 1 }).admin).to.be.false;
+    expect(virt({ flags: 2 }).admin).to.be.true;
+    expect(virt({ flags: 3 }).admin).to.be.true;
   });
 
   it("sets state correctly via setters", () => {
-    const obj = { statusId: 0 };
+    const obj = { flags: 0 };
 
-    status(obj).active = true;
-    expect(obj.statusId).to.equal(1);
+    virt(obj).active = true;
+    expect(obj.flags).to.equal(1);
 
-    status(obj).admin = true;
-    expect(obj.statusId).to.equal(3);
+    virt(obj).admin = true;
+    expect(obj.flags).to.equal(3);
 
-    status(obj).active = false;
-    expect(obj.statusId).to.equal(2);
+    virt(obj).active = false;
+    expect(obj.flags).to.equal(2);
 
-    status(obj).admin = false;
-    expect(obj.statusId).to.equal(0);
+    virt(obj).admin = false;
+    expect(obj.flags).to.equal(0);
   });
 
-  it("sets state via toggle + returns statusId correctly", () => {
-    const obj = { statusId: 0 };
+  it("sets state via toggle + returns flags correctly", () => {
+    const obj = { flags: 0 };
     let res: number;
 
-    res = status(obj).toggle("active");
-    expect(res).to.equal(obj.statusId).to.equal(1);
+    res = virt(obj).toggle("active");
+    expect(res).to.equal(obj.flags).to.equal(1);
 
-    res = status(obj).toggle("admin");
-    expect(res).to.equal(obj.statusId).to.equal(3);
+    res = virt(obj).toggle("admin");
+    expect(res).to.equal(obj.flags).to.equal(3);
 
-    res = status(obj).toggle("active");
-    expect(res).to.equal(obj.statusId).to.equal(2);
+    res = virt(obj).toggle("active");
+    expect(res).to.equal(obj.flags).to.equal(2);
 
-    res = status(obj).toggle("admin");
-    expect(res).to.equal(obj.statusId).to.equal(0);
+    res = virt(obj).toggle("admin");
+    expect(res).to.equal(obj.flags).to.equal(0);
   });
 });
 

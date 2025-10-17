@@ -32,15 +32,58 @@ export type DrizzleTx = SQLiteTransaction<
 
 type TblCtx<ColName extends string> = { [K in ColName]: SQLiteColumn };
 
+export const SQL_RANDOM_COLOR = sql.raw(
+  "printf('%07x', abs(random()) % 0x2000000)"
+);
+
+export const distinctUsersData = (userId: number) => sql`
+  distinct_users_data AS (
+    SELECT
+      gid,
+      jsonb_group_array(
+        jsonb_object(
+          'id', "uid",
+          'name', u.name,
+          'color', printf('#%06x', 
+            coalesce(
+              (
+                SELECT cc.color FROM chart_colors cc
+                WHERE cc.user_id = ${userId}
+                AND cc.group_id = gid
+                AND cc.member_id = "uid"
+              ),
+              (
+                SELECT cc.color FROM chart_colors cc
+                WHERE cc.user_id = "uid"
+                AND cc.group_id = gid
+                AND cc.member_id IS NULL
+              ),
+              (
+                SELECT cc.color FROM chart_colors cc
+                WHERE cc.user_id = "uid"
+                AND cc.group_id IS NULL
+                AND cc.member_id IS NULL
+              ),
+              abs(random()) % 0x1000000
+            )
+          )
+        )
+      ) AS "user_data"
+    FROM distinct_uids
+    INNER JOIN users u ON u.id = "uid"
+    GROUP BY gid
+  )
+`;
+
 export const orderByLowerName = (table: TblCtx<"name">) =>
   sql`lower(${table.name})`;
 
-export const colActive = (t: TblCtx<"statusId">) => ({
+export const colActive = (t: TblCtx<"flags">) => ({
   active: isActive(t).as("active"),
 });
 
-const bitFlagCheck = (flag: number) => (table: TblCtx<"statusId">) =>
-  sql<boolean>`${table.statusId} & ${sql.raw(flag.toString())} = ${sql.raw(
+const bitFlagCheck = (flag: number) => (table: TblCtx<"flags">) =>
+  sql<boolean>`${table.flags} & ${sql.raw(flag.toString())} = ${sql.raw(
     flag.toString()
   )}`;
 
@@ -51,13 +94,12 @@ const SQLITE_MAX_VARIABLE_NUMBER = 32766;
 
 export const inChunks = async <T extends object>(
   op: (chunk: T[]) => Promise<unknown>,
-  arr: T[]
+  arr: T[],
+  numberOfCols: number
 ) => {
   let idx = 0;
   const totalRows = arr.length;
-  const batchSize = Math.floor(
-    SQLITE_MAX_VARIABLE_NUMBER / Object.keys(arr[0]).length
-  );
+  const batchSize = Math.floor(SQLITE_MAX_VARIABLE_NUMBER / numberOfCols);
 
   const res: unknown[] = [];
 

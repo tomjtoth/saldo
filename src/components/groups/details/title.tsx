@@ -1,28 +1,22 @@
 "use client";
 
 import { Dispatch, SetStateAction, useState } from "react";
-import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/lib/hooks";
-import {
-  has3ConsecutiveLetters,
-  sendJSON,
-  appToast,
-  status,
-} from "@/lib/utils";
+import { virt } from "@/lib/utils";
 import { TGroup } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
 import Slider from "@/components/slider";
 
 export default function Title({
-  statusId,
-  setStatusId,
+  flags,
+  setFlags,
   clientIsAdmin,
   group,
 }: {
-  statusId: number;
-  setStatusId: Dispatch<SetStateAction<number>>;
+  flags: number;
+  setFlags: Dispatch<SetStateAction<number>>;
   clientIsAdmin: boolean;
   group: TGroup;
 }) {
@@ -30,46 +24,22 @@ export default function Title({
   const [name, setName] = useState(group.name!);
   const [description, setDescription] = useState(group.description ?? "");
 
+  function restoreOriginals() {
+    setName(group.name!);
+    setDescription(group.description ?? "");
+    setFlags(group.flags!);
+  }
+
   return clientIsAdmin ? (
     <form
+      id="updater"
       className="grid items-center grid-cols-[min-width_min-width_min-width] gap-2"
       onSubmit={(ev) => {
         ev.preventDefault();
-        try {
-          has3ConsecutiveLetters(name);
-        } catch (err) {
-          return toast.error(
-            (err as Error).message as string,
-            appToast.theme()
-          );
-        }
 
-        appToast.promise(
-          sendJSON(
-            `/api/groups`,
-            {
-              id: group.id,
-              name,
-              description,
-              statusId,
-            },
-            { method: "PUT" }
-          )
-            .then(async (res) => {
-              const body = await res.json();
-              const ops = appToast.opsDone(group, body);
-              dispatch(red.updateGroup(body));
-
-              return `${ops} "${group.name}" succeeded!`;
-            })
-            .catch((err) => {
-              setName(group.name!);
-              setDescription(group.description ?? "");
-              setStatusId(group.statusId!);
-              throw err;
-            }),
-          `Updating "${group.name}"`
-        );
+        dispatch(
+          red.updateGroup(group.id!, { name, description, flags }, group)
+        ).catch(restoreOriginals);
       }}
     >
       <input
@@ -80,8 +50,8 @@ export default function Title({
       />
 
       <Slider
-        checked={status({ statusId }).active}
-        onClick={() => status({ statusId }, setStatusId).toggle("active")}
+        checked={virt({ flags }).active}
+        onClick={() => virt({ flags }, setFlags).toggle("active")}
       />
 
       <button>💾</button>

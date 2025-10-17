@@ -1,16 +1,24 @@
+"use server";
+
 import { DateTime } from "luxon";
 import { sql } from "drizzle-orm";
 
-import { db, TGroup } from "@/lib/db";
+import { db, distinctUsersData, TGroup } from "@/lib/db";
 import { dateToInt, EUROPE_HELSINKI } from "../utils";
+import { currentUser } from "./users";
 
-export async function getPareto(
-  userId: number,
-  opts: {
-    from?: string;
-    to?: string;
-  } = {}
-) {
+type ParetoOpts = {
+  from?: string;
+  to?: string;
+};
+
+export async function svcGetParetoData(opts: ParetoOpts) {
+  const { id } = await currentUser();
+
+  return getPareto(id, opts);
+}
+
+export async function getPareto(userId: number, opts: ParetoOpts = {}) {
   const from =
     opts.from &&
     // SQL injection prevented here
@@ -28,74 +36,67 @@ export async function getPareto(
   const data = await db.get<{ json: string } | null>(
     sql`WITH sums_per_row AS (
       SELECT
-        g.id AS gid,
-        g.name AS gName,
-        cats.name AS cat,
-        u.name AS user,
+        con.group_id AS gid,
+        paid_to AS "uid",
+        c.name AS category,
         sum(share) AS total
-      FROM "memberships" ms
+      FROM memberships ms
       INNER JOIN consumption con ON ms.group_id = con.group_id
-      INNER JOIN "categories" cats ON con.category_id = cats.id
-      INNER JOIN "users" u ON u.id = con.paid_to
-      INNER JOIN "groups" g ON g.id = con.group_id
+      INNER JOIN categories c ON con.category_id = c.id
       WHERE ms.user_id = ${userId} ${sql.raw(`${from} ${to}`)}
-      GROUP BY g.id, paid_to, category_id
+      GROUP BY gid, paid_to, category_id
     ),
+
+    distinct_uids AS (
+      SELECT DISTINCT gid, "uid" FROM sums_per_row
+    ),
+
+    ${distinctUsersData(userId)},
 
     one_category_per_row AS (
       SELECT
         gid,
-        gName,
-        sum(total) AS orderer,
-        json_insert(
-          json_group_object(user, total),
-          '$.category', cat
-        ) AS cats
+        jsonb_insert(
+          jsonb_group_object("uid", total),
+          '$.category', category
+        ) AS category
       FROM sums_per_row
-      GROUP BY gid, cat
-      ORDER BY orderer DESC
+      GROUP BY gid, category
+      ORDER BY sum(total) DESC
     ),
 
     categories_in_array_per_row AS (
       SELECT
         gid,
-        gName,
-        concat(
-          '[',
-          group_concat(cats),
-          ']'
-        ) AS categories
+        jsonb_group_array(category) AS categories
       FROM one_category_per_row
       GROUP BY gid
     ),
 
     one_group_per_row AS (
       SELECT
-        concat('{ ',
-          '"id": ',
-          s3.gid,
-          ', "name": ',
-          json_quote(s3.gName),
-          ', "pareto": { ',
-            ' "users": ',
-            json_group_array(DISTINCT s1.user),
-            ', "categories": ',
-            categories,
-          ' }}'
-        ) AS json
+        g.id,
+        g.name,
+        jsonb_object(
+          'id', s3.gid,
+          'name', g.name,
+          
+          'pareto', jsonb_object(
+            'users', user_data,
+            'categories', categories
+          )
+        ) AS "data"
       FROM categories_in_array_per_row s3
+      INNER JOIN groups g ON g.id = s3.gid
+      INNER JOIN distinct_users_data dud ON dud.gid = s3.gid
       LEFT JOIN sums_per_row s1 ON s1.gid = s3.gid
-      GROUP BY s3.gid
-      ORDER BY s3.gName
+      GROUP BY g.id
+      ORDER BY g.name
     )
 
     -- all groups in 1 array
-    SELECT concat(
-      '[', 
-      group_concat(json),
-      ']'
-    ) AS json
-    FROM one_group_per_row;`
+    SELECT json(jsonb_group_array("data")) AS "json"
+    FROM one_group_per_row`
   );
 
   return data ? (JSON.parse(data.json) as TGroup[]) : [];

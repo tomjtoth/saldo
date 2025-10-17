@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { TGroup } from "@/lib/db";
-import { appToast, sendJSON, status } from "@/lib/utils";
+import { virt } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 
@@ -35,7 +35,7 @@ export default function Entry({
       <div
         className={
           "cursor-pointer select-none p-2 rounded border-2 " +
-          (status(group).active ? "border-green-500" : "border-red-500")
+          (virt(group).active ? "border-green-500" : "border-red-500")
         }
         onClick={() => setShowDetails(true)}
       >
@@ -44,20 +44,7 @@ export default function Entry({
           onClick={(ev) => {
             ev.stopPropagation();
 
-            if (!isDefault)
-              appToast.promise(
-                sendJSON(
-                  "/api/groups",
-                  {
-                    id: group.id,
-                    setAsDefault: true,
-                  },
-                  { method: "PUT" }
-                ).then(() => {
-                  dispatch(red.setDefaultGroupId(group.id!));
-                }),
-                "Setting default group"
-              );
+            if (!isDefault) dispatch(red.setDefaultGroupId(group.id!));
           }}
         />{" "}
         {group.name}

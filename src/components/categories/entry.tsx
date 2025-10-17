@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { appToast, sendJSON, status } from "@/lib/utils";
+import { virt } from "@/lib/utils";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
@@ -22,7 +22,8 @@ export default function Entry({
   const hideDetails = () => setShowDetails(false);
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
-  const isDefault = rs.group?.memberships?.at(0)?.defaultCategoryId === cat.id;
+  const currentdefaultId = rs.group?.memberships?.at(0)?.defaultCategoryId;
+  const isDefault = currentdefaultId === cat.id;
 
   return (
     <>
@@ -34,8 +35,8 @@ export default function Entry({
 
       <div
         className={
-          "category cursor-pointer select-none text-center p-2 rounded border-2 " +
-          (status(cat).active ? "border-green-500" : "border-red-500")
+          "cursor-pointer select-none text-center p-2 rounded border-2 " +
+          (virt(cat).active ? "border-green-500" : "border-red-500")
         }
         onClick={() => setShowDetails(true)}
       >
@@ -44,24 +45,12 @@ export default function Entry({
           onClick={(ev) => {
             ev.stopPropagation();
             if (!isDefault)
-              appToast.promise(
-                sendJSON(
-                  "/api/categories",
-                  {
-                    id: cat.id,
-                    groupId: cat.groupId,
-                    setAsDefault: true,
-                  },
-                  { method: "PUT" }
-                ).then(() => {
-                  dispatch(
-                    red.updateDefaultCatId({
-                      catId: cat.id!,
-                      groupId: cat.groupId!,
-                    })
-                  );
-                }),
-                "Setting default category"
+              dispatch(
+                red.updateDefaultCategoryId(
+                  cat.id!,
+                  cat.groupId!,
+                  currentdefaultId!
+                )
               );
           }}
         />{" "}

@@ -1,93 +1,90 @@
 import { NextRequest } from "next/server";
 
-import { auth, signIn } from "@/auth";
 import { currentUser } from "@/lib/services/users";
 import { err, ErrorWithStatus } from "./utils";
 
-interface RequestWithParams<P> extends NextRequest {
-  __params?: P;
+type RouteHandler<P, R> = (req: NextRequest, ctx: RequestContext<P>) => R;
+
+type RequestContext<P> = {
+  params: Promise<P>;
+};
+
+interface HandlerContext<P> {
+  req: NextRequest;
+  params: P;
 }
 
-interface RequestWithUser<P> extends RequestWithParams<P> {
-  __user: Awaited<ReturnType<typeof currentUser>>;
+interface HandlerContextWithUser<P> extends HandlerContext<P> {
+  user: Awaited<ReturnType<typeof currentUser>>;
 }
 
-type RequestContext<P> = { params: Promise<P> };
-
-interface OptionsWithUser<P> {
-  redirectAs?: (req: RequestWithParams<P>) => string;
+interface Options<P> {
+  redirectAs?: (ctx: HandlerContext<P>) => string;
+  requireSession?: false;
+  onlyDuringDevelopment?: true;
 }
 
-interface OptionsWithParams<P> extends OptionsWithUser<P> {
-  requireSession: false;
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type HandlerReturnType = Promise<any>;
 
-type Handler<P, R = unknown> = (req: RequestWithParams<P>) => Promise<R>;
+type Handler<P, HC = HandlerContext<P>> = (ctx: HC) => HandlerReturnType;
+type HandlerWithUser<P> = (ctx: HandlerContextWithUser<P>) => HandlerReturnType;
 
-type HandlerWithUser<P, R = unknown> = (req: RequestWithUser<P>) => Promise<R>;
+function protectedRoute<P, R = ReturnType<Handler<P>>>(
+  options: Options<P>,
+  handler: HandlerWithUser<P>
+): RouteHandler<P, R>;
 
-function protectedRoute<P>(
-  options: OptionsWithParams<P>,
+function protectedRoute<P, R = ReturnType<Handler<P>>>(
+  options: Options<P>,
   handler: Handler<P>
-): Handler<P, Response>;
+): RouteHandler<P, R>;
 
-function protectedRoute<P>(
-  options: OptionsWithUser<P>,
+function protectedRoute<P, R = ReturnType<Handler<P>>>(
   handler: HandlerWithUser<P>
-): HandlerWithUser<P, Response>;
+): RouteHandler<P, R>;
 
 function protectedRoute<P>(
-  handler: HandlerWithUser<P>
-): HandlerWithUser<P, Response>;
-
-function protectedRoute<P>(
-  optsOrHandler:
-    | (OptionsWithParams<P> | OptionsWithUser<P>)
-    | HandlerWithUser<P>,
+  optsOrHandler: Options<P> | HandlerWithUser<P>,
   maybeHandler?: Handler<P> | HandlerWithUser<P>
 ) {
   return async (req: NextRequest, cx?: RequestContext<P>) => {
     const hasOptions = typeof optsOrHandler !== "function";
 
     const { redirectAs } = hasOptions ? optsOrHandler : {};
-    const { requireSession = true } =
-      hasOptions &&
-      "requireSession" in optsOrHandler &&
-      typeof optsOrHandler.requireSession === "boolean"
-        ? optsOrHandler
-        : {};
+    const { requireSession = true, onlyDuringDevelopment = false } = hasOptions
+      ? optsOrHandler
+      : {};
 
     const handler = hasOptions ? maybeHandler : optsOrHandler;
 
     try {
+      if (onlyDuringDevelopment && process.env.NODE_ENV !== "development")
+        err(404);
+
       let res: unknown;
-      const reqWithParams = req as RequestWithParams<P>;
-      reqWithParams.__params = await cx?.params;
+      const params = (await cx?.params) as P;
 
       if (requireSession) {
-        const session = await auth();
-        if (!session) {
-          if (!redirectAs) err(401);
-          else {
-            return await signIn("", { redirectTo: redirectAs(reqWithParams) });
-          }
-        }
+        const user = await currentUser({
+          redirectTo: redirectAs ? redirectAs({ req, params }) : undefined,
+        });
 
-        const reqWithUser = reqWithParams as RequestWithUser<P>;
-        reqWithUser.__user = await currentUser(session);
-
-        res = await (handler as HandlerWithUser<P>)(reqWithUser);
-      } else res = await (handler as Handler<P>)(reqWithParams);
+        res = await (handler as HandlerWithUser<P>)({ req, params, user });
+      } else {
+        res = await (handler as Handler<P>)({ req, params });
+      }
 
       if (res instanceof Response) return res;
       if (res !== null && res !== undefined) return Response.json(res);
 
       return new Response(null, { status: 200 });
     } catch (err: unknown) {
-      return new Response(null, {
-        status: (err as ErrorWithStatus).status ?? 400,
-        statusText: (err as Error).message,
-      });
+      const { message, status = 400 } = err as ErrorWithStatus;
+
+      if (message === "NEXT_REDIRECT") throw err;
+
+      return new Response(null, { status, statusText: message });
     }
   };
 }

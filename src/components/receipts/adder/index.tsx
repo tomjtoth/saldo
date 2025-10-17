@@ -11,10 +11,11 @@ import { toast } from "react-toastify";
 
 import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { appToast, sendJSON } from "@/lib/utils";
+import { appToast } from "@/lib/utils";
 
 import Canceler from "../../canceler";
 import ItemRow from "./itemRow";
+import { svcAddReceipt } from "@/lib/services/receipts";
 
 const DIFFS = {
   ArrowUp: -1,
@@ -49,15 +50,14 @@ export default function Adder() {
       return toast.error("Invalid item cost", appToast.theme());
     }
 
-    const groupId = rs.groupId;
+    const groupId = rs.groupId!;
 
     appToast.promise(
-      sendJSON("/api/receipts", {
-        ...currReceipt,
+      svcAddReceipt({
+        ...currReceipt!,
         groupId,
-      }).then(async (res) => {
-        const body = await res.json();
-        dispatch(red.addReceipt({ ...body, groupId }));
+      }).then((res) => {
+        dispatch(red.addReceipt({ ...res, groupId }));
       }),
       "Submitting new receipt"
     );

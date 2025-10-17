@@ -29,6 +29,7 @@ export default function GroupSelector() {
       <select
         ref={selectRef}
         className="cursor-pointer p-2"
+        id="group-selector"
         value={rs.groupId}
         onChange={(ev) => dispatch(red.setGroupId(Number(ev.target.value)))}
       >

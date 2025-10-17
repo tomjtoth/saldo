@@ -1,10 +1,39 @@
+"use server";
+
 import { atomic, db, TCrMembership, TMembership, updater } from "@/lib/db";
 import { err } from "../utils";
-import { and, eq, sql } from "drizzle-orm";
-import { memberships } from "../db/schema";
+import { and, eq, isNull, sql } from "drizzle-orm";
+import { chartColors, memberships } from "../db/schema";
+import { currentUser } from "./users";
+
+export async function svcUpdateMembership({
+  groupId,
+  userId,
+  flags,
+}: TMembership) {
+  const { id: revisedBy } = await currentUser();
+  if (
+    typeof groupId !== "number" ||
+    typeof userId !== "number" ||
+    typeof flags !== "number"
+  )
+    err();
+
+  if (!(await isAdmin(revisedBy, groupId))) err(403);
+
+  const ms = await updateMembership(revisedBy, {
+    groupId,
+    userId,
+    flags,
+  });
+
+  if (!ms) err(404);
+
+  return ms;
+}
 
 type MembershipUpdater = Pick<TCrMembership, "groupId" | "userId"> &
-  Pick<TMembership, "statusId" | "defaultCategoryId">;
+  Pick<TMembership, "flags" | "defaultCategoryId">;
 
 export async function updateMembership(
   revisedBy: number,
@@ -28,6 +57,7 @@ export async function updateMembership(
         entityPk1: userId,
         entityPk2: groupId,
         revisionId,
+        skipArchivalOf: ["defaultCategoryId"],
       });
 
       if (saving) {
@@ -40,9 +70,9 @@ export async function updateMembership(
               eq(memberships.groupId, groupId)
             )
           )
-          .returning({ statusId: memberships.statusId });
+          .returning({ flags: memberships.flags });
 
-        return res;
+        return res as TMembership;
       } else err("No changes were made");
     }
   );
@@ -56,9 +86,37 @@ export async function isAdmin(userId: number, groupId: number) {
       and(
         eq(memberships.userId, userId),
         eq(memberships.groupId, groupId),
-        sql`${memberships.statusId} & 2 = 2`
+        sql`${memberships.flags} & 2 = 2`
       )
     );
 
   return !!ms;
+}
+
+export async function svcSetUserColor(
+  color: string,
+  groupId?: number | null,
+  memberId?: number | null
+) {
+  const { id: userId } = await currentUser();
+
+  groupId = groupId ?? null;
+  memberId = memberId ?? null;
+
+  const conditions = and(
+    eq(chartColors.userId, userId),
+    groupId ? eq(chartColors.groupId, groupId) : isNull(chartColors.groupId),
+    memberId ? eq(chartColors.memberId, memberId) : isNull(chartColors.memberId)
+  );
+
+  const exists = await db
+    .select({ x: sql`1` })
+    .from(chartColors)
+    .where(conditions);
+
+  if (exists.length) {
+    await db.update(chartColors).set({ color }).where(conditions);
+  } else {
+    await db.insert(chartColors).values({ userId, groupId, memberId, color });
+  }
 }

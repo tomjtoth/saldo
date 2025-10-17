@@ -4,20 +4,15 @@ import { useEffect, useRef, useState } from "react";
 
 import Canceler from "./canceler";
 
-type AdderHandler = ({
-  name,
-  description,
-}: {
+type AdderHandler = (data: {
   name: string;
   description: string;
-}) => Promise<boolean>;
+}) => Promise<void>;
 
 export default function NameDescrAdder({
-  id,
   placeholder,
   handler,
 }: {
-  id?: string;
   placeholder?: string;
   handler: AdderHandler;
 }) {
@@ -33,28 +28,26 @@ export default function NameDescrAdder({
 
   return (
     <>
-      <button id={id + "-opener"} onClick={() => setVisible(true)}>
+      <button id="entity-adder-button" onClick={() => setVisible(true)}>
         Add new...
       </button>
       {visible && (
         <Canceler onClick={() => setVisible(false)}>
           <form
-            id={id + "-form"}
+            id="entity-adder-form"
             className={
               "absolute top-1/2 left-1/2 -translate-1/2 p-2 " +
               "rounded border bg-background " +
               "grid gap-2 grid-cols-[min-width_min-width]"
             }
-            onSubmit={async (ev) => {
+            onSubmit={(ev) => {
               ev.preventDefault();
 
-              const res = await handler({ name, description });
-
-              if (res) {
+              handler({ name, description }).then(() => {
                 setName("");
                 setDescr("");
                 setVisible(false);
-              }
+              });
             }}
           >
             <input

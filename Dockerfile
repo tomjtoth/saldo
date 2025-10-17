@@ -7,12 +7,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-RUN if [ "$(uname -m)" = "aarch64" ] && \
-      ldd --version 2>&1 | grep -qi musl; then \
-        npm i @libsql/linux-arm64-musl; \
-    else \
+RUN if [ ! -d ./node_modules/@libsql/linux-arm64-musl ]; then \
         mkdir -p ./node_modules/@libsql/linux-arm64-musl; \
-    fi
+    fi 
 
 # ----------------------------
 FROM base AS builder

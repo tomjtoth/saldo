@@ -1,9 +1,9 @@
 import { Draft, WritableDraft } from "immer";
 import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
-
-import { TCategory } from "@/lib/db";
 import { Dispatch, SetStateAction } from "react";
+
+import { TCategory, TUser } from "@/lib/db";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value === 0.5) return [1, 2];
@@ -90,28 +90,6 @@ export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));
 }
 
-export async function sendJSON(
-  endpoint: string,
-  payload?: unknown,
-  options?: { method?: "POST" | "PUT" }
-) {
-  return fetch(endpoint, {
-    method: options?.method ?? "POST",
-
-    ...(payload !== undefined
-      ? {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      : {}),
-  }).then((res) => {
-    if (!res.ok) err(res.statusText);
-    return res;
-  });
-}
-
 export class ErrorWithStatus extends Error {
   status: number;
 
@@ -138,12 +116,13 @@ export function has3ConsecutiveLetters(val: string) {
     err("must have at least 3 consecutive letters");
 }
 
-function opsDone<
-  T extends Pick<TCategory, "name" | "description" | "statusId">
->(before: T, after: T) {
+function opsDone<T extends Pick<TCategory, "name" | "description" | "flags">>(
+  before: T,
+  after: T
+) {
   const ops = [
     ...(after.name !== before.name ? ["renaming"] : []),
-    ...(after.statusId !== before.statusId ? ["toggling"] : []),
+    ...(virt(after).active !== virt(before).active ? ["toggling"] : []),
     ...(after.description !== before.description
       ? ["altering the description of"]
       : []),
@@ -208,16 +187,14 @@ export type NumericKeys<T> = {
   [P in keyof T]: T[P] extends number ? P : never;
 }[keyof T];
 
-export type LineType = "solid" | "dashed";
-
-export const status = <T extends { statusId?: number }>(
-  entity: T,
+export function virt(
+  entity: Pick<TUser, "flags">,
   setter?: Dispatch<SetStateAction<number>>
-) => {
+) {
   let int =
-    entity.statusId ??
+    entity.flags ??
     (process.env.NODE_ENV === "development"
-      ? err("calling status without statusId")
+      ? err("calling status without passing flags")
       : 0);
 
   const getFlag = (bit: number) => (int & (1 << bit)) !== 0;
@@ -228,58 +205,7 @@ export const status = <T extends { statusId?: number }>(
 
   const finalizeInt = () => {
     if (setter) setter(int);
-    else entity.statusId = int;
-  };
-
-  const scaleTo255 = (value: number) => {
-    return Math.round((value / 3) * 255);
-
-    // const linear = value / 3; // 0.0–1.0
-    // const gamma = 2.2; // typical sRGB gamma
-    // const corrected = Math.pow(linear, 1 / gamma);
-    // return Math.round(corrected * 255);
-  };
-  const getColor = (offset: number) => (int >> offset) & 0b11;
-  const setColor = (value: number, offset: number) => {
-    int = (int & ~(0b11 << offset)) | ((value & 0b11) << offset);
-    finalizeInt();
-  };
-
-  const color = {
-    get r() {
-      return getColor(6);
-    },
-
-    set r(value) {
-      setColor(value, 6);
-    },
-
-    get g() {
-      return getColor(4);
-    },
-
-    set g(value) {
-      setColor(value, 4);
-    },
-
-    get b() {
-      return getColor(2);
-    },
-
-    set b(value) {
-      setColor(value, 2);
-    },
-
-    rgba(alpha: number) {
-      const args = [
-        scaleTo255(this.r),
-        scaleTo255(this.g),
-        scaleTo255(this.b),
-        alpha.toFixed(1),
-      ];
-
-      return `rgba(${args.join(",")})`;
-    },
+    else entity.flags = int;
   };
 
   return {
@@ -304,18 +230,8 @@ export const status = <T extends { statusId?: number }>(
 
       return int;
     },
-
-    color,
-
-    get lineType() {
-      return getFlag(9) ? "solid" : "dashed";
-    },
-
-    set lineType(value: LineType) {
-      setFlag(9, value === "solid");
-    },
   };
-};
+}
 
 type ObjectWithUnknownValues = { [key: string]: unknown };
 type ObjectWithNulledStrings<T> = {
