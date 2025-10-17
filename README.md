@@ -3,57 +3,25 @@
 
 # Saldo
 
-A _Work in Progress_ multi-user expense tracker supporting `one-to-many` sharing of items. Keeping track of debts, and analysis of consumption. Branch `main` is deployed [here](https://saldo.ttj.hu), while `staging` [here](https://saldo-staging.ttj.hu).
+A multi-user expense tracker made for making splitting the bills, keeping track of debts, and providing summary of consumption easier. Click [here](https://saldo.ttj.hu) to check it out in production (branch _main_).
 
-## Next.js
+## Typical usage scenarios
 
-Using the App router and instrumentation to handle migrations.
+- Friends _A_, _B_ and _C_ spend the weekend in a rented weekend house, they travel by the same car:
 
-## Authentication
+  - _A_ pays for gas, which is split 3-way
+  - _B_ pays for all the food and soft-drinks (split 3-way)
+  - _B_ pays for alcoholic beverages, which are split 2-way, since _person A_ doesn't drink alcohol
+  - _C_ books and pays for the accommodation (split 3-way)
 
-Currently relying 100% on OAuth by `next-auth`, storing the returned profile's name, image and email, keeping the former 2 in sync.
+After everyone joined the same _[group](https://saldo.ttj.hu/groups)_,
+created the relevant _[categories](https://saldo.ttj.hu/categories)_,
+added their _[receipts](https://saldo.ttj.hu/receipts)_ (marking shares of each _item vs. user_),
+the _[balance](https://saldo.ttj.hu/balance)_ view will show each "realtion of debt" within the group,
+while the _[pareto](https://saldo.ttj.hu/pareto)_ view shows the total consumption of each category/user.
 
-## Database
+## Implementation
 
-Custom `*.sql` migration files were handled originally by `Umzug` and now via a custom solution transactionally and with `PRAGMA foreign_keys = OFF`, but rolling back in case of violations (`PRAGMA foreign_key_check`).
+The app uses _Next.js_, _Auth.js_, _drizzle ORM_ and custom migrations written in plain SQL, which are handled atomically (also rolling back on FK violations) during _instrumentation_. The database sports a few solutions aiming to minimize storage size.
 
-### Drizzle
-
-Seems to work, filtering junction tables is kind of tough.
-
-- [x] shouldn't pull in 10s of MB dependencies.. docker image:
-  - even w/o explicit sqlite3 274MB vs 261MB Sequelize vs 283MB Prisma
-  - and I get 3.45.1 sqlite with JSONB
-- [x] should work with the custom migrations solution
-  - [x] can be synced/migrated during tests to in-memory db based on JS schema
-- [x] should handle custom types as POJOs
-- [x] should produce minimal amount of queries per query, duh? (unlike prisma...)
-- [x] should handle calculated fields as POJOs
-  - yes, they are implemented as additional virtual fields in the DB
-  - extras fields can be included
-  - but it doesn't solve the problem of manipulating statusInt
-- [x] should catch typos in column names of nested queries
-- [x] placeholders can be skipped with `sql\`raw sql\``
-  - in retrospect the same could have been applied to Prisma
-
-### Previous ORMs tried/tested
-
-- Prisma
-
-  - using `prisma/generate.sh` to generate types with relations.
-    Running `npx prisma migrate resolve --applied 20250708_pre-prisma` is necessary before handling additional migrations via Prisma during development. **Discarded it** due to inefficient `getReceipts` queries (receiptIds passed by `?,?,?,... ?` to `notIn: knownIds` and the **separate** items query...)
-
-- Mikro-ORM
-
-  - could not bootstrap with Next.js
-
-- custom ORM solution
-
-  - gave up on the idea after 1 month of low-intensity development work, due to increasing concern with reliability
-
-- better-sqlite3
-
-  - database changes were not reflected in the numerous raw SQL queries throughout the app
-
-- Sequelize
-  - querying allows including non-existent columns
+Branch [staging](https://github.com/tomjtoth/saldo/tree/staging) is accessible [here](https://staging.saldo.ttj.hu), providing access to (the clone of) production data, while branch [dev](https://github.com/tomjtoth/saldo/tree/dev) is accessible from [here](https://dev.saldo.ttj.hu) without access to production data or _OAuth_ (any email address is viable and the password `TEST_PASSWD`).
