@@ -1,4 +1,4 @@
-import { login, loginShouldBeVisible, toast } from "./utils.cy";
+import { login, loginShouldBeVisible } from "./utils.cy";
 
 describe("pareto", () => {
   describe("while logged in", () => {
