@@ -1,30 +1,4 @@
-export function login({
-  page = "/",
-  email = "user1@e2e.tests",
-  passwd = "TEST_PASSWD",
-}: {
-  email?: string;
-  passwd?: string;
-  page?: string;
-} = {}) {
-  cy.visit(page);
-
-  if (page === "/") cy.get("#sign-in-button").click();
-
-  cy.get("#email", { timeout: 10000 }).type(email);
-  cy.get("#passwd").type(passwd);
-  cy.get("#submitButton").click();
-}
-
-export function loginShouldBeVisible() {
-  cy.location("pathname").should("equal", "/api/auth/signin");
-}
-
-export function logout() {
-  cy.get("#sidepanel-opener").click();
-  cy.get("#sign-out-button").click();
-  cy.location("pathname", { timeout: 10000 }).should("eq", "/");
-}
+import { login, logout } from "./utils.cy";
 
 describe("Signing in", () => {
   it("works without image on the OAuth profile", () => {

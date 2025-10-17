@@ -1,8 +1,9 @@
-import { login, loginShouldBeVisible } from "./session.cy";
 import {
   accessibleViaSidepanel,
   cleanup,
   entities,
+  login,
+  loginShouldBeVisible,
   selectGroup,
   toast,
 } from "./utils.cy";
