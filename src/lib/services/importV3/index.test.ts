@@ -12,13 +12,13 @@ describe("import-v3", async () => {
         {
           id: 1,
           revisionId: 1,
-          name: "user #0",
+          name: "user #1",
           email: "user1@just.imported",
         },
         {
           id: 2,
           revisionId: 1,
-          name: "user #1",
+          name: "user #2",
           email: "user2@just.imported",
         },
       ]);
