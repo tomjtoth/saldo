@@ -27,7 +27,7 @@
   "nyc": {
     "all": true,
     "include": [
-      "app/**/*"
+      "src/**/*"
     ],
     "exclude": [
       "cypress/**/*",
