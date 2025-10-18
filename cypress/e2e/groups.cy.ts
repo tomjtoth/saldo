@@ -25,10 +25,9 @@ const invLink = {
 describe("groups", () => {
   describe("while logged in", () => {
     beforeEach(() => {
+      cleanup();
       login({ page: "/groups" });
     });
-
-    afterEach(cleanup);
 
     accessibleViaSidepanel("/groups");
 
