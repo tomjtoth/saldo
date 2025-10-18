@@ -6,11 +6,13 @@ import "./globals.css";
 import StoreProvider from "../components/storeProvider";
 import { ModalProvider } from "@/components/modal";
 
+/* istanbul ignore next */
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
+/* istanbul ignore next */
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
