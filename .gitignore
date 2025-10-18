@@ -18,6 +18,7 @@
 /cypress/screenshots/
 /instrumented/
 /.nyc_output/
+/.babelrc.json
 
 # next.js
 /.next/
