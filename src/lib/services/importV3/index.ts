@@ -13,7 +13,7 @@ export const alreadyInProd = async () => {
     columns: { id: true },
     where: and(
       eq(schema.users.id, 1),
-      ne(schema.users.email, "user0@just.imported")
+      ne(schema.users.email, "user1@just.imported")
     ),
   });
 

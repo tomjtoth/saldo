@@ -1,8 +1,10 @@
-import { login, loginShouldBeVisible, logout } from "./session.cy";
 import {
   accessibleViaSidepanel,
   cleanup,
   entities as groups,
+  login,
+  loginShouldBeVisible,
+  logout,
   toast,
 } from "./utils.cy";
 
@@ -23,10 +25,9 @@ const invLink = {
 describe("groups", () => {
   describe("while logged in", () => {
     beforeEach(() => {
+      cleanup();
       login({ page: "/groups" });
     });
-
-    afterEach(cleanup);
 
     accessibleViaSidepanel("/groups");
 

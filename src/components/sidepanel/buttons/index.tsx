@@ -1,13 +1,8 @@
-import { signIn, signOut } from "@/auth";
+import { svcSignIn, svcSignOut } from "./services";
 
 export async function SignInButton() {
   return (
-    <form
-      action={async () => {
-        "use server";
-        await signIn();
-      }}
-    >
+    <form action={svcSignIn}>
       <button type="submit" id="sign-in-button">
         Sign In To
       </button>
@@ -17,12 +12,7 @@ export async function SignInButton() {
 
 export async function SignOutButton() {
   return (
-    <form
-      action={async () => {
-        "use server";
-        await signOut({ redirectTo: "/" });
-      }}
-    >
+    <form action={svcSignOut}>
       <button type="submit" id="sign-out-button">
         Sign Out
       </button>

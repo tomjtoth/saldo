@@ -42,8 +42,9 @@ jobs:
         if: env.SKIP_CI != 'true'
         run: |
           export AUTH_SECRET=$(uuidgen)
-          npm run coverage
+          npm run coverage:unit
           DATABASE_URL=file:e2e.db npm run e2e:headless
+          npm run coverage:report
 
       - name: Upload results to Codecov
         if: env.SKIP_CI != 'true'

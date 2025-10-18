@@ -1,8 +1,9 @@
-import { login, loginShouldBeVisible } from "./session.cy";
 import {
   accessibleViaSidepanel,
   cleanup,
   entities,
+  login,
+  loginShouldBeVisible,
   selectGroup,
   toast,
 } from "./utils.cy";
@@ -12,10 +13,9 @@ const TEST_CATEGORY = `category-${Date.now()}`;
 describe("categories", () => {
   describe("while logged in", () => {
     beforeEach(() => {
+      cleanup();
       login({ page: "/categories" });
     });
-
-    afterEach(cleanup);
 
     accessibleViaSidepanel("/categories");
 

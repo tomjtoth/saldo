@@ -211,8 +211,8 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
 
   // masking names during development
   dd.users.forEach((user, idx) => {
-    user.name = "user #" + idx;
-    user.email = "user" + idx + "@just.imported";
+    user.name = "user #" + (idx + 1);
+    user.email = "user" + (idx + 1) + "@just.imported";
   });
 
   return dd;

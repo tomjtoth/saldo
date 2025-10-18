@@ -1,5 +1,4 @@
-import { login, loginShouldBeVisible } from "./session.cy";
-import { toast } from "./utils.cy";
+import { login, loginShouldBeVisible, toast } from "./utils.cy";
 
 describe("receipts", () => {
   describe("while logged in", () => {
