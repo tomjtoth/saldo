@@ -25,6 +25,16 @@
     "not dead",
     "not op_mini all"
   ],
+  "nyc": {
+    "all": true,
+    "include": [
+      "app/**/*"
+    ],
+    "exclude": [
+      "cypress/**/*",
+      "node_modules/**/*"
+    ]
+  },
   "dependencies": {
     "@libsql/client": "^0.15.11",
     "@reduxjs/toolkit": "^2.8.2",
