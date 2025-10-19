@@ -31,7 +31,15 @@
     ],
     "exclude": [
       "cypress/**/*",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "src/auth.ts",
+      "src/instrumentation.ts",
+      "src/middleware.ts",
+      "src/lib/db/migrator.ts",
+      "src/lib/db/schema.ts",
+      "src/lib/db/types.ts",
+      "src/lib/protectedPage.ts",
+      "src/lib/protectedRoute.ts"
     ]
   },
   "dependencies": {
