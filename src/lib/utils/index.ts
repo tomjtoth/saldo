@@ -191,11 +191,7 @@ export function virt(
   entity: Pick<TUser, "flags">,
   setter?: Dispatch<SetStateAction<number>>
 ) {
-  let int =
-    entity.flags ??
-    (process.env.NODE_ENV === "development"
-      ? err("calling status without passing flags")
-      : 0);
+  let int = entity.flags ?? 0;
 
   const getFlag = (bit: number) => (int & (1 << bit)) !== 0;
   const setFlag = (bit: number, value: boolean) => {
