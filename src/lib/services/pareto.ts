@@ -1,10 +1,9 @@
 "use server";
 
-import { DateTime } from "luxon";
 import { sql } from "drizzle-orm";
 
 import { db, distinctUsersData, TGroup } from "@/lib/db";
-import { dateToInt, EUROPE_HELSINKI } from "../utils";
+import { dateToInt, isValidDateString } from "../utils";
 import { currentUser } from "./users";
 
 type ParetoOpts = {
@@ -22,14 +21,14 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
   const from =
     opts.from &&
     // SQL injection prevented here
-    DateTime.fromISO(opts.from, EUROPE_HELSINKI).isValid
+    isValidDateString(opts.from)
       ? `AND paidOn > ${dateToInt(opts.from)}`
       : "";
 
   const to =
     opts.to &&
     // SQL injection prevented here
-    DateTime.fromISO(opts.to, EUROPE_HELSINKI).isValid
+    isValidDateString(opts.to)
       ? `AND paidOn < ${dateToInt(opts.to)}`
       : "";
 
