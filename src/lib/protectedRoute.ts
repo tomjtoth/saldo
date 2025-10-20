@@ -30,25 +30,29 @@ type HandlerReturnType = Promise<any>;
 type Handler<P, HC = HandlerContext<P>> = (ctx: HC) => HandlerReturnType;
 type HandlerWithUser<P> = (ctx: HandlerContextWithUser<P>) => HandlerReturnType;
 
-function protectedRoute<P, R = ReturnType<Handler<P>>>(
-  options: Options<P>,
-  handler: HandlerWithUser<P>
-): RouteHandler<P, R>;
+type Overrides = {
+  <P, R = ReturnType<Handler<P>>>(
+    options: Options<P>,
+    handler: HandlerWithUser<P>
+  ): RouteHandler<P, R>;
 
-function protectedRoute<P, R = ReturnType<Handler<P>>>(
-  options: Options<P>,
-  handler: Handler<P>
-): RouteHandler<P, R>;
+  <P, R = ReturnType<Handler<P>>>(
+    options: Options<P>,
+    handler: Handler<P>
+  ): RouteHandler<P, R>;
 
-function protectedRoute<P, R = ReturnType<Handler<P>>>(
-  handler: HandlerWithUser<P>
-): RouteHandler<P, R>;
+  <P, R = ReturnType<Handler<P>>>(handler: HandlerWithUser<P>): RouteHandler<
+    P,
+    R
+  >;
+};
 
-function protectedRoute<P>(
-  optsOrHandler: Options<P> | HandlerWithUser<P>,
-  maybeHandler?: Handler<P> | HandlerWithUser<P>
-) {
-  return async (req: NextRequest, cx?: RequestContext<P>) => {
+const protectedRoute: Overrides =
+  <P>(
+    optsOrHandler: Options<P> | HandlerWithUser<P>,
+    maybeHandler?: Handler<P> | HandlerWithUser<P>
+  ) =>
+  async (req: NextRequest, cx?: RequestContext<P>) => {
     const hasOptions = typeof optsOrHandler !== "function";
 
     const { redirectAs } = hasOptions ? optsOrHandler : {};
@@ -87,6 +91,5 @@ function protectedRoute<P>(
       return new Response(null, { status, statusText: message });
     }
   };
-}
 
 export default protectedRoute;
