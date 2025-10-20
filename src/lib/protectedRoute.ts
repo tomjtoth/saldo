@@ -30,7 +30,7 @@ type HandlerReturnType = Promise<any>;
 type Handler<P, HC = HandlerContext<P>> = (ctx: HC) => HandlerReturnType;
 type HandlerWithUser<P> = (ctx: HandlerContextWithUser<P>) => HandlerReturnType;
 
-type Overrides = {
+type Overloads = {
   <P, R = ReturnType<Handler<P>>>(
     options: Options<P>,
     handler: HandlerWithUser<P>
@@ -47,7 +47,7 @@ type Overrides = {
   >;
 };
 
-const protectedRoute: Overrides =
+const protectedRoute: Overloads =
   <P>(
     optsOrHandler: Options<P> | HandlerWithUser<P>,
     maybeHandler?: Handler<P> | HandlerWithUser<P>
