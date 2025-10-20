@@ -183,10 +183,6 @@ export function sortByName<T extends { name?: string | null }>(a: T, b: T) {
   return 0;
 }
 
-export type NumericKeys<T> = {
-  [P in keyof T]: T[P] extends number ? P : never;
-}[keyof T];
-
 export function virt(
   entity: Pick<TUser, "flags">,
   setter?: Dispatch<SetStateAction<number>>
