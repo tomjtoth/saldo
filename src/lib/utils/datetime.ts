@@ -25,6 +25,10 @@ export function dateFromInt(val: number) {
   return date.toISODate()!;
 }
 
+export function todayAsISO() {
+  return DateTime.local(EUROPE_HELSINKI).toISODate();
+}
+
 export function isValidDateString(val: string) {
   return DateTime.fromFormat(val, "y-M-d", EUROPE_HELSINKI).isValid;
 }
