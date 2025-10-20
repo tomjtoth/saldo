@@ -1,9 +1,14 @@
 import { Draft, WritableDraft } from "immer";
-import { DateTime, DateTimeJSOptions } from "luxon";
 import { toast, ToastPromiseParams } from "react-toastify";
-import { Dispatch, SetStateAction } from "react";
 
-import { TCategory, TUser } from "@/lib/db";
+import { TCategory } from "@/lib/db";
+import { virt } from "./virt";
+
+export * from "./datetime";
+export * from "./errors";
+export * from "./nullEmptyStrings";
+export * from "./validators";
+export * from "./virt";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value === 0.5) return [1, 2];
@@ -29,91 +34,8 @@ export function approxFloat(value: number, maxDenominator = 1000) {
   return [bestNumerator, bestDenominator];
 }
 
-export const EUROPE_HELSINKI = {
-  zone: "Europe/Helsinki",
-} satisfies DateTimeJSOptions;
-
-const DT_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
-// TODO: store this in the DB for consistency with the data
-export const DT_ANCHOR = DateTime.fromFormat(
-  "2020-01-01",
-  "y-M-d",
-  EUROPE_HELSINKI
-).toMillis();
-
-const DAY = 24 * 60 * 60 * 1000;
-
-export function dateFromInt(val: number) {
-  const raw = val * DAY + DT_ANCHOR;
-  const date = DateTime.fromMillis(raw, EUROPE_HELSINKI);
-
-  return date.toISODate()!;
-}
-
-export function dateToInt(val?: string) {
-  const date = val
-    ? DateTime.fromFormat(val, "y-M-d", EUROPE_HELSINKI)
-    : DateTime.local(EUROPE_HELSINKI);
-
-  return Math.floor((date.toMillis() - DT_ANCHOR) / DAY);
-}
-
-export function datetimeFromInt(val?: number) {
-  const date = val
-    ? DateTime.fromMillis(val * 1000 + DT_ANCHOR, EUROPE_HELSINKI)
-    : DateTime.local(EUROPE_HELSINKI);
-
-  return date.toFormat(DT_FORMAT);
-}
-
-export function datetimeToInt(val?: DateTime | string) {
-  if (
-    typeof val === "string" &&
-    ![DT_FORMAT, "y.M.d. H:m:s"].some((fmt) => {
-      const parsed = DateTime.fromFormat(val as string, fmt, EUROPE_HELSINKI);
-      if (parsed.isValid) {
-        val = parsed;
-        return true;
-      }
-    })
-  )
-    err("unparsable DateTime string");
-
-  const millis = (
-    (val as DateTime) ?? DateTime.local(EUROPE_HELSINKI)
-  ).toMillis();
-  return Math.round((millis - DT_ANCHOR) / 1000);
-}
-
 export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));
-}
-
-export class ErrorWithStatus extends Error {
-  status: number;
-
-  constructor(status: number, message?: string) {
-    super(message);
-    this.status = status;
-  }
-}
-
-export function err(status: number, message?: string): never;
-export function err(message?: string): never;
-export function err(intOrStr?: string | number, message?: string): never {
-  if (typeof intOrStr === "string") throw new Error(intOrStr);
-  if (typeof intOrStr === "number")
-    throw new ErrorWithStatus(intOrStr, message);
-
-  throw new Error();
-}
-
-const RE_3_CONSECUTIVE_LETTERS = /\p{Letter}{3,}/u;
-
-export function has3ConsecutiveLetters(val: string) {
-  if (!val.match(RE_3_CONSECUTIVE_LETTERS))
-    err("must have at least 3 consecutive letters");
 }
 
 function opsDone<T extends Pick<TCategory, "name" | "description" | "flags">>(
@@ -181,69 +103,4 @@ export function sortByName<T extends { name?: string | null }>(a: T, b: T) {
   if (lowerA < lowerB) return -1;
   if (lowerA > lowerB) return 1;
   return 0;
-}
-
-export function virt(
-  entity: Pick<TUser, "flags">,
-  setter?: Dispatch<SetStateAction<number>>
-) {
-  let int = entity.flags ?? 0;
-
-  const getFlag = (bit: number) => (int & (1 << bit)) !== 0;
-  const setFlag = (bit: number, value: boolean) => {
-    int = value ? int | (1 << bit) : int & ~(1 << bit);
-    finalizeInt();
-  };
-
-  const finalizeInt = () => {
-    if (setter) setter(int);
-    else entity.flags = int;
-  };
-
-  return {
-    get active() {
-      return getFlag(0);
-    },
-
-    set active(value: boolean) {
-      setFlag(0, value);
-    },
-
-    get admin() {
-      return getFlag(1);
-    },
-
-    set admin(value: boolean) {
-      setFlag(1, value);
-    },
-
-    toggle(key: "active" | "admin") {
-      this[key] = !this[key];
-
-      return int;
-    },
-  };
-}
-
-type ObjectWithUnknownValues = { [key: string]: unknown };
-type ObjectWithNulledStrings<T> = {
-  [P in keyof T]: T[P] extends string ? string | null : T[P];
-};
-
-export function nullEmptyStrings(obj: ObjectWithUnknownValues): void {
-  for (const key in obj) {
-    const val = obj[key];
-
-    if (val === "") (obj[key] as unknown | null) = null;
-  }
-}
-
-export function nulledEmptyStrings<T extends ObjectWithUnknownValues>(
-  obj: T
-): ObjectWithNulledStrings<T> {
-  const res = { ...obj };
-
-  nullEmptyStrings(res);
-
-  return res as ObjectWithNulledStrings<T>;
 }
