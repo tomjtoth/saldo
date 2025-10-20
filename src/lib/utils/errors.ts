@@ -7,16 +7,17 @@ export class ErrorWithStatus extends Error {
   }
 }
 
-type ErrorOverloads = {
+type Overloads = {
   (status: number, message?: string): never;
   (message?: string): never;
 };
 
-export const err: ErrorOverloads = (
+export const err: Overloads = (
   intOrStr?: string | number,
   message?: string
 ): never => {
   if (typeof intOrStr === "string") throw new Error(intOrStr);
+
   if (typeof intOrStr === "number")
     throw new ErrorWithStatus(intOrStr, message);
 
