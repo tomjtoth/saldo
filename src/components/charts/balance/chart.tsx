@@ -65,9 +65,11 @@ export default function BalanceChart({
 
     return (
       <Line
+        type="stepAfter"
         key={rel}
         dataKey={rel}
         data={data}
+        dot={false}
         connectNulls
         name={[u1.name, u2.name].toSorted().join(" vs ")}
         stroke={`url(#${defId})`}
@@ -156,6 +158,7 @@ export default function BalanceChart({
       <div className="h-full w-full">
         <ResponsiveContainer>
           <LineChart
+            className="select-none"
             onMouseDown={(e) =>
               setState({ ...state, refAreaLeft: e.activeLabel })
             }
