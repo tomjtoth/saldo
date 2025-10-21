@@ -2,18 +2,14 @@ declare global {
   const accessibleViaSidepanel: typeof fnAccessibleViaSidepanel;
 
   namespace Cypress {
-    interface Chainable {
-      toast: typeof toast;
-      cleanup: typeof cleanup;
-      addEntity: typeof addEntity;
-      updateEntity: typeof updateEntity;
-      entityToggler: typeof entityToggler;
-      entityShouldBeFavorit: typeof entityShouldBeFavorit;
-      selectGroup: typeof selectGroup;
-      login: typeof login;
-      logout: typeof logout;
-      loginShouldBeVisible: typeof loginShouldBeVisible;
-    }
+    type MappedCommands<AC = typeof allCommands> = {
+      [K in keyof AC]: AC[K] extends (...args: infer A) => infer R
+        ? (...args: A) => Chainable<R>
+        : never;
+    };
+
+    // Declaration merging: this *adds* to the existing interface
+    interface Chainable extends MappedCommands {}
   }
 }
 
@@ -130,15 +126,19 @@ function logout() {
   cy.location("pathname", { timeout: 10000 }).should("eq", "/");
 }
 
-Cypress.Commands.add("toast", toast);
-Cypress.Commands.add("cleanup", cleanup);
-Cypress.Commands.add("addEntity", addEntity);
-Cypress.Commands.add("updateEntity", updateEntity);
-Cypress.Commands.add("entityToggler", entityToggler);
-Cypress.Commands.add("entityShouldBeFavorit", entityShouldBeFavorit);
-Cypress.Commands.add("selectGroup", selectGroup);
-Cypress.Commands.add("login", login);
-Cypress.Commands.add("logout", logout);
-Cypress.Commands.add("loginShouldBeVisible", loginShouldBeVisible);
+const allCommands = {
+  toast,
+  cleanup,
+  addEntity,
+  updateEntity,
+  entityToggler,
+  entityShouldBeFavorit,
+  selectGroup,
+  login,
+  logout,
+  loginShouldBeVisible,
+};
+
+Cypress.Commands.addAll(allCommands);
 
 export {};
