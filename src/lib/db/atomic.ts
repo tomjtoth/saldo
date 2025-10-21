@@ -22,22 +22,21 @@ type AtomicFunWithRevision<T> = (
   revisionId: number
 ) => Promise<T>;
 
-export function atomic<T>(
-  options: AtomicWithRevOpts,
-  operation: AtomicFunWithRevision<T>
-): Promise<T>;
+type Overloads = {
+  <T>(
+    options: AtomicWithRevOpts,
+    operation: AtomicFunWithRevision<T>
+  ): Promise<T>;
 
-export function atomic<T>(
-  options: AtomicOpts,
-  operation: AtomicFun<T>
-): Promise<T>;
+  <T>(options: AtomicOpts, operation: AtomicFun<T>): Promise<T>;
 
-export function atomic<T>(operation: AtomicFun<T>): Promise<T>;
+  <T>(operation: AtomicFun<T>): Promise<T>;
+};
 
-export async function atomic<T>(
+export const atomic: Overloads = async <T>(
   optsOrFn: AtomicOpts | AtomicFun<T>,
   maybeFn?: AtomicFunWithRevision<T> | AtomicFun<T>
-): Promise<T> {
+): Promise<T> => {
   const isFnOnly = typeof optsOrFn === "function";
   const opts = isFnOnly ? {} : optsOrFn;
   const operation = isFnOnly ? optsOrFn : maybeFn!;
@@ -88,4 +87,4 @@ export async function atomic<T>(
     );
     throw err;
   }
-}
+};
