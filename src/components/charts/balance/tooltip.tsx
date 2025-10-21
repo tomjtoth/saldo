@@ -22,7 +22,7 @@ export default function BalanceTooltip({
 
   return (
     <div className="bg-background rounded border p-2">
-      <h3>{VDate.timeToStr(label as number)}</h3>
+      <h3>{VDate.toStr(label as number)}</h3>
 
       {(payload as TooltipPayload).map((x) => {
         const uids = (x.dataKey as string).split(" vs ").map(Number);
