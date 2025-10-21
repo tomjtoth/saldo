@@ -11,6 +11,8 @@ import {
   ResponsiveContainer,
   Legend,
   ReferenceArea,
+  ReferenceLine,
+  Label,
 } from "recharts";
 
 import { TBalanceChartData, TUserChartData } from "@/lib/db";
@@ -177,11 +179,24 @@ export default function BalanceChart({
               allowDataOverflow
               domain={[left, right]}
             />
-            <YAxis allowDataOverflow domain={[bottom, top]} />
+            <YAxis
+              allowDataOverflow
+              domain={[bottom, top]}
+              tickFormatter={(v) => v.toFixed(2)}
+            />
             <Tooltip content={BalanceTooltip} />
             <Legend content={BalanceLegend} />
 
             <defs>{gradientDefinitions}</defs>
+            <ReferenceLine
+              y={0}
+              offset={10}
+              stroke="yellow"
+              strokeWidth={1}
+              strokeDasharray="3 3"
+            >
+              <Label value="0.00" position="left" />
+            </ReferenceLine>
             {lines}
 
             {refAreaLeft !== undefined && refAreaRight !== undefined ? (
