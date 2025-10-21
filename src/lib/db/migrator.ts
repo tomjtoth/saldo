@@ -5,6 +5,9 @@ import { sql } from "drizzle-orm";
 import { err } from "../utils";
 import { db } from ".";
 
+const TAB = "\t";
+const LF = "\n\n";
+
 const migrate = (direcionIsUp: boolean) => async () => {
   /**
    * simple wrapper around sql template strings with working syntax highlight (dependent on the "sql" name) in VS Code
@@ -115,12 +118,22 @@ const migrate = (direcionIsUp: boolean) => async () => {
       res.push(migName);
     }
   } catch (err) {
-    throw err;
+    console.error(LF, TAB, "Migration failed:", LF, (err as Error).message, LF);
+    process.exit(1);
   } finally {
     await exec.sql`VACUUM`;
   }
 
-  return res;
+  const len = res.length;
+
+  if (len > 0) {
+    console.log(
+      LF,
+      TAB,
+      `${len > 1 ? `${len} migrations` : `Migration "${res[0]}"`} succeeded.`,
+      LF
+    );
+  }
 };
 
 export const migrator = {
