@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm";
 import { db, DrizzleTx } from ".";
 import * as schema from "@/lib/db/schema";
 
-import { datetimeFromInt } from "../utils";
+import { VDate } from "../utils";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 
@@ -61,7 +61,7 @@ export async function atomic<T>(
           .values([
             {
               createdById: revisedBy,
-              createdAt: datetimeFromInt(),
+              createdAt: VDate.timeToStr(),
             },
           ])
           .returning({ revisionId: schema.revisions.id });

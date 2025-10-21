@@ -8,6 +8,8 @@ export async function register() {
       await migrator.up();
     }
 
-    
+    const { VDate } = await import("./lib/utils");
+
+    await VDate.initAnchor();
   }
 }

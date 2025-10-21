@@ -3,7 +3,7 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
 import { combinedSA as csa, CombinedState as CS } from ".";
 import { TReceipt, TGroup } from "@/lib/db";
-import { todayAsISO } from "../utils";
+import { VDate } from "../utils";
 
 export type TCliReceipt = {
   paidOn: string;
@@ -40,7 +40,7 @@ function currentReceipt(rs: CS) {
 
   if (!current) {
     current = {
-      paidOn: todayAsISO(),
+      paidOn: VDate.asISO(),
       paidBy: rs.user!.id!,
       items: [],
     };

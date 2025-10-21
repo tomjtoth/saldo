@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 
 import { db, DrizzleTx } from ".";
-import { datetimeFromInt } from "../utils";
+import { VDate } from "../utils";
 
 type DateTimeConverter = { revision?: { createdAt: number | string } };
 
@@ -66,7 +66,7 @@ export async function getArchivePopulator<T extends { archives?: T[] }>(
           const curr = { ...prev, ...rev } as T;
 
           if ((curr as DateTimeConverter).revision?.createdAt) {
-            (curr as DateTimeConverter).revision!.createdAt = datetimeFromInt(
+            (curr as DateTimeConverter).revision!.createdAt = VDate.timeToStr(
               (curr as DateTimeConverter).revision!.createdAt as number
             );
           }

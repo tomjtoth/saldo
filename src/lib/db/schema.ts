@@ -7,12 +7,7 @@ import {
   customType,
 } from "drizzle-orm/sqlite-core";
 
-import {
-  dateFromInt,
-  datetimeFromInt,
-  datetimeToInt,
-  dateToInt,
-} from "../utils";
+import { VDate } from "../utils";
 
 const floatToInt = customType<{ data: number; driverData: number }>({
   dataType: () => "INTEGER",
@@ -29,8 +24,8 @@ const hexColorAsInt = customType<{ data: string; driverData: number }>({
 const dateInt = customType<{ data: string; driverData: number; notNull: true }>(
   {
     dataType: () => "INTEGER",
-    fromDriver: (value) => dateFromInt(value),
-    toDriver: (value) => dateToInt(value),
+    fromDriver: (value) => VDate.toStr(value),
+    toDriver: (value) => VDate.toInt(value),
   }
 );
 
@@ -40,8 +35,8 @@ const datetimeInt = customType<{
   notNull: true;
 }>({
   dataType: () => "INTEGER",
-  fromDriver: (value) => datetimeFromInt(value)!,
-  toDriver: (value) => datetimeToInt(value),
+  fromDriver: (value) => VDate.timeToStr(value),
+  toDriver: (value) => VDate.timeToInt(value),
 });
 
 const id = integer().primaryKey();

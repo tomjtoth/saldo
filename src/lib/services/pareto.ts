@@ -3,7 +3,7 @@
 import { sql } from "drizzle-orm";
 
 import { db, distinctUsersData, TGroup } from "@/lib/db";
-import { dateToInt, isValidDateString } from "../utils";
+import { VDate } from "../utils";
 import { currentUser } from "./users";
 
 type ParetoOpts = {
@@ -21,15 +21,15 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
   const from =
     opts.from &&
     // SQL injection prevented here
-    isValidDateString(opts.from)
-      ? `AND paidOn > ${dateToInt(opts.from)}`
+    VDate.couldBeParsedFrom(opts.from)
+      ? `AND paidOn > ${VDate.toInt(opts.from)}`
       : "";
 
   const to =
     opts.to &&
     // SQL injection prevented here
-    isValidDateString(opts.to)
-      ? `AND paidOn < ${dateToInt(opts.to)}`
+    VDate.couldBeParsedFrom(opts.to)
+      ? `AND paidOn < ${VDate.toInt(opts.to)}`
       : "";
 
   const data = await db.get<{ json: string } | null>(
