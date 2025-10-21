@@ -1,9 +1,7 @@
-import { login, loginShouldBeVisible } from "./utils.cy";
-
 describe("pareto", () => {
   describe("while logged in", () => {
     beforeEach(() => {
-      login({ page: "/pareto" });
+      cy.login({ page: "/pareto" });
     });
 
     it("can be accessed", () => {
@@ -14,7 +12,7 @@ describe("pareto", () => {
   describe("while *NOT* logged in", () => {
     it("should redirect to login", () => {
       cy.visit("/pareto");
-      loginShouldBeVisible();
+      cy.loginShouldBeVisible();
     });
   });
 });

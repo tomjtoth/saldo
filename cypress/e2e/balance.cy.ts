@@ -1,9 +1,7 @@
-import { login, loginShouldBeVisible } from "./utils.cy";
-
 describe("balance", () => {
   describe("while logged in", () => {
     beforeEach(() => {
-      login({ page: "/balance" });
+      cy.login({ page: "/balance" });
     });
 
     it("can be accessed", () => {
@@ -16,7 +14,7 @@ describe("balance", () => {
   describe("while *NOT* logged in", () => {
     it("should redirect to login", () => {
       cy.visit("/balance");
-      loginShouldBeVisible();
+      cy.loginShouldBeVisible();
     });
   });
 });
