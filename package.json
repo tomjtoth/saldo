@@ -11,6 +11,7 @@
     "coverage:report": "npx nyc report --reporter html --reporter json --report-dir coverage",
     "pree2e": "rm -rf .nyc_output coverage",
     "e2e": "cypress open --e2e",
+    "pree2e:headless": "[ -f e2e.db ] && rm e2e.db",
     "e2e:headless": "INSTRUMENT_E2E=1 MIGRATE=1 DATABASE_URL=file:e2e.db start-server-and-test dev http://localhost:3000 \"cypress run --e2e\"",
     "build": "next build",
     "start": "next start"
