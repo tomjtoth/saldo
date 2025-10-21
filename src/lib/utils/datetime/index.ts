@@ -76,7 +76,6 @@ export abstract class VDate extends TimeMethods {
   }
 
   static toStr(val?: number) {
-    if (val) val *= DAY;
     return this.timeToStr(val, DATE_FORMAT);
   }
 
