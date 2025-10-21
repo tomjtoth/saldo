@@ -46,13 +46,18 @@ export default function BalanceChart({
       { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY }
     );
 
-    const center = (max - min) / 2;
-    const switchAt = max <= 0 ? 100 : min >= 0 ? 0 : 100 * (center / 2 / max);
+    const abs = [min, max].map(Math.abs);
+    const total = abs.reduce((subTotal, curr) => subTotal + curr, 0);
+
+    const switchAt =
+      max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / total).toFixed(1);
+
+    console.log(switchAt);
 
     gradientDefinitions.push(
       <linearGradient key={defId} id={defId} x1="0" y1="0" x2="0" y2="1">
-        <stop offset={`${switchAt}%`} stopColor={u1.color} />
         <stop offset={`${switchAt}%`} stopColor={u2.color} />
+        <stop offset={`${switchAt}%`} stopColor={u1.color} />
       </linearGradient>
     );
 
