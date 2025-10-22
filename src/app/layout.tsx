@@ -35,14 +35,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.__SALDO_DATETIME_ANCHOR__ = ${VDate.anchor};`,
-        }}
-      />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__SALDO_DATETIME_ANCHOR__ = ${VDate.anchor};`,
+          }}
+        />
         <ToastContainer autoClose={2000} closeOnClick />
         <StoreProvider>
           <ModalProvider>{children}</ModalProvider>
