@@ -22,14 +22,14 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
     opts.from &&
     // SQL injection prevented here
     VDate.couldBeParsedFrom(opts.from)
-      ? `AND paidOn > ${VDate.toInt(opts.from)}`
+      ? `AND paid_on >= ${VDate.toInt(opts.from)}`
       : "";
 
   const to =
     opts.to &&
     // SQL injection prevented here
     VDate.couldBeParsedFrom(opts.to)
-      ? `AND paidOn < ${VDate.toInt(opts.to)}`
+      ? `AND paid_on <= ${VDate.toInt(opts.to)}`
       : "";
 
   const data = await db.get<{ json: string } | null>(
