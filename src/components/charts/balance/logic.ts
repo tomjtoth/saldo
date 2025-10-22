@@ -53,7 +53,7 @@ export default function useLogic(data: TBalanceChartData["data"]) {
     if (refAreaLeft! > refAreaRight)
       [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
-    let { min, max } = findMinMax({
+    const { min, max } = findMinMax({
       minDate: refAreaLeft as number,
       maxDate: refAreaRight as number,
     });

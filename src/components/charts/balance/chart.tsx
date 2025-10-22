@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, ReactNode, useEffect, useState } from "react";
+import { createContext, ReactNode, useEffect } from "react";
 import {
   LineChart,
   Line,
