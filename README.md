@@ -22,6 +22,6 @@ while the _[pareto](https://saldo.ttj.hu/pareto)_ view shows the total consumpti
 
 ## Implementation
 
-The app uses _Next.js_, _Auth.js_, _drizzle ORM_ and custom migrations written in plain SQL, which are handled atomically (also rolling back on FK violations) during instrumentation. The database sports a few solutions aiming to minimize storage size.
+The app uses _Next.js_, _Auth.js_, _Recharts_, _drizzle ORM_ (with _SQLite_ backend) and custom migrations written in plain SQL, which are handled atomically (also rolling back on FK violations) during instrumentation. The database sports a few solutions aiming to minimize storage size.
 
 Branch [staging](https://github.com/tomjtoth/saldo/tree/staging) is accessible [here](https://staging.saldo.ttj.hu), providing access to (the clone of) production data, while branch [dev](https://github.com/tomjtoth/saldo/tree/dev) is accessible from [here](https://dev.saldo.ttj.hu) without access to production data or _OAuth_ (any email address is viable and the password `TEST_PASSWD`).
