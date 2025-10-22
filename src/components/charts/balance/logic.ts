@@ -20,6 +20,19 @@ export default function useLogic(data: TBalanceChartData["data"]) {
 
   const [state, setState] = useState(initialState);
 
+  const findMinMax = (opts?: { minDate: number; maxDate: number }) =>
+    data.reduce(
+      (prev, curr) => {
+        if (!opts || (curr.date >= opts.minDate && curr.date <= opts.maxDate)) {
+          if (curr.min < prev.min) prev.min = curr.min;
+          if (curr.max > prev.max) prev.max = curr.max;
+        }
+
+        return prev;
+      },
+      { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY }
+    );
+
   const isZoomedIn = () =>
     Object.entries(initialState).some(
       ([side, value]) => value != state[side as keyof typeof initialState]
@@ -40,24 +53,14 @@ export default function useLogic(data: TBalanceChartData["data"]) {
     if (refAreaLeft! > refAreaRight)
       [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
-    let [bottom, top] = data.reduce(
-      (prev, curr) => {
-        if (
-          curr.date >= (refAreaLeft as number)! &&
-          curr.date <= (refAreaRight as number)!
-        ) {
-          if (curr.min < prev[0]) prev[0] = curr.min;
-          if (curr.max > prev[1]) prev[1] = curr.max;
-        }
-
-        return prev;
-      },
-      [data[0].min, data[0].max]
-    );
+    let { min, max } = findMinMax({
+      minDate: refAreaLeft as number,
+      maxDate: refAreaRight as number,
+    });
 
     setState({
-      bottom,
-      top,
+      bottom: min,
+      top: max,
       left: refAreaLeft!,
       right: refAreaRight!,
       refAreaLeft: undefined,
@@ -81,6 +84,7 @@ export default function useLogic(data: TBalanceChartData["data"]) {
 
   return {
     state,
+    findMinMax,
     zoomIn,
     zoomOut,
     isZoomedIn,

@@ -30,6 +30,16 @@ export default function BalanceChart({
   relations,
   users,
 }: TBalanceChartData) {
+  const {
+    state: { refAreaLeft, refAreaRight, left, right, bottom, top },
+    zoomIn,
+    zoomOut,
+    isZoomedIn,
+    startHighlight,
+    dragHighlight,
+    findMinMax,
+  } = useLogic(data);
+
   const gradientDefinitions: ReactNode[] = [];
 
   const lines = relations?.map((rel) => {
@@ -38,16 +48,7 @@ export default function BalanceChart({
 
     const defId = `${u1.id}-${u2.id}-chart-colors`;
 
-    const { min, max } = data.reduce(
-      (prev, curr) => {
-        const val = curr[rel];
-        if (val > prev.max) prev.max = val;
-        if (val < prev.min) prev.min = val;
-
-        return prev;
-      },
-      { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY }
-    );
+    const { min, max } = findMinMax();
 
     const abs = [min, max].map(Math.abs);
     const height = abs[0] + abs[1];
@@ -79,15 +80,6 @@ export default function BalanceChart({
   useEffect(() => {
     console.debug("lines got re-rendered (?)");
   }, [lines]);
-
-  const {
-    state: { refAreaLeft, refAreaRight, left, right, bottom, top },
-    zoomIn,
-    zoomOut,
-    isZoomedIn,
-    startHighlight,
-    dragHighlight,
-  } = useLogic(data);
 
   return (
     <CtxBalanceChart.Provider value={users}>
