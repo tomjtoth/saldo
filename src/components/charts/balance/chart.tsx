@@ -31,7 +31,10 @@ export default function BalanceChart({
 }: TBalanceChartData) {
   const gradientDefinitions: ReactNode[] = [];
 
-  const lines = relations?.map((rel) => {
+  let overallMin = -100;
+  let overallMax = 100;
+
+  const lines = relations?.map((rel, idx) => {
     const uids = rel.split(" vs ").map(Number);
     const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
@@ -49,10 +52,15 @@ export default function BalanceChart({
     );
 
     const abs = [min, max].map(Math.abs);
-    const total = abs.reduce((subTotal, curr) => subTotal + curr, 0);
+    const height = abs[0] + abs[1];
+
+    if (idx === 0) {
+      overallMax = max + 0.1 * height;
+      overallMin = min - 0.1 * height;
+    }
 
     const switchAt =
-      max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / total).toFixed(1);
+      max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / height).toFixed(1);
 
     console.log(switchAt);
 
@@ -87,8 +95,8 @@ export default function BalanceChart({
   } = {
     left: "dataMin",
     right: "dataMax",
-    top: "dataMax+1.1*dataMax",
-    bottom: "dataMin-1.1*dataMin",
+    top: overallMax,
+    bottom: overallMin,
   };
 
   const [state, setState] = useState(initialState);
@@ -127,8 +135,10 @@ export default function BalanceChart({
       [data[0].min, data[0].max]
     );
 
-    bottom *= 1.5;
-    top *= 1.5;
+    const height = top - bottom;
+
+    bottom -= height * 0.1;
+    top += height * 0.1;
 
     setState({
       bottom,
@@ -194,11 +204,10 @@ export default function BalanceChart({
             <ReferenceLine
               y={0}
               offset={10}
-              stroke="yellow"
-              strokeWidth={1}
-              strokeDasharray="3 3"
+              strokeWidth={2}
+              strokeDasharray="10 5"
             >
-              <Label value="0.00" position="left" />
+              <Label value="0.00" position="left" fontWeight="bold" />
             </ReferenceLine>
             {lines}
 
