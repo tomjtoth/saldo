@@ -67,10 +67,10 @@ export default function useLogic(data: TBalanceChartData["data"]) {
 
   const zoomOut = () => setState(initialState);
 
-  const onMouseDown: CategoricalChartFunc = (e) =>
+  const startHighlight: CategoricalChartFunc = (e) =>
     setState({ ...state, refAreaLeft: e.activeLabel });
 
-  const onMouseMove: CategoricalChartFunc = ({ activeLabel: lbl }) => {
+  const dragHighlight: CategoricalChartFunc = ({ activeLabel: lbl }) => {
     if (
       state.refAreaLeft !== undefined &&
       (state.refAreaRight === undefined || state.refAreaRight !== lbl)
@@ -84,7 +84,7 @@ export default function useLogic(data: TBalanceChartData["data"]) {
     zoomIn,
     zoomOut,
     isZoomedIn,
-    onMouseDown,
-    onMouseMove,
+    startHighlight,
+    dragHighlight,
   };
 }

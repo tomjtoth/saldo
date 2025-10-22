@@ -85,8 +85,8 @@ export default function BalanceChart({
     zoomIn,
     zoomOut,
     isZoomedIn,
-    onMouseDown,
-    onMouseMove,
+    startHighlight,
+    dragHighlight,
   } = useLogic(data);
 
   return (
@@ -102,8 +102,8 @@ export default function BalanceChart({
         <ResponsiveContainer>
           <LineChart
             className="select-none"
-            onMouseDown={onMouseDown}
-            onMouseMove={onMouseMove}
+            onMouseDown={startHighlight}
+            onMouseMove={dragHighlight}
             onMouseUp={zoomIn}
           >
             <CartesianGrid strokeDasharray="3 3" />
