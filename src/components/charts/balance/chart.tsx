@@ -31,10 +31,7 @@ export default function BalanceChart({
 }: TBalanceChartData) {
   const gradientDefinitions: ReactNode[] = [];
 
-  let overallMin = -100;
-  let overallMax = 100;
-
-  const lines = relations?.map((rel, idx) => {
+  const lines = relations?.map((rel) => {
     const uids = rel.split(" vs ").map(Number);
     const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
@@ -53,11 +50,6 @@ export default function BalanceChart({
 
     const abs = [min, max].map(Math.abs);
     const height = abs[0] + abs[1];
-
-    if (idx === 0) {
-      overallMax = max + 0.1 * height;
-      overallMin = min - 0.1 * height;
-    }
 
     const switchAt =
       max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / height).toFixed(1);
@@ -93,8 +85,8 @@ export default function BalanceChart({
   } = {
     left: "dataMin",
     right: "dataMax",
-    top: overallMax,
-    bottom: overallMin,
+    top: "dataMax",
+    bottom: "dataMin",
   };
 
   const [state, setState] = useState(initialState);
@@ -132,11 +124,6 @@ export default function BalanceChart({
       },
       [data[0].min, data[0].max]
     );
-
-    const height = top - bottom;
-
-    bottom -= height * 0.1;
-    top += height * 0.1;
 
     setState({
       bottom,
@@ -194,6 +181,7 @@ export default function BalanceChart({
               allowDataOverflow
               domain={[bottom, top]}
               tickFormatter={(v) => v.toFixed(2)}
+              padding={{ bottom: 10, top: 10 }}
             />
             <Tooltip content={BalanceTooltip} />
             <Legend content={BalanceLegend} />
