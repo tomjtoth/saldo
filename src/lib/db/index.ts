@@ -6,8 +6,8 @@ import * as schema from "@/lib/db/schema";
 import { ResultSet } from "@libsql/client";
 
 export * from "./types";
-export { migrator } from "./migrator";
-export { atomic } from "./atomic";
+export * from "./migrator";
+export * from "./atomic";
 export { updater } from "./updater";
 export { getArchivePopulator } from "./archives";
 

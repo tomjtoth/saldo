@@ -1,13 +1,3 @@
-import {
-  accessibleViaSidepanel,
-  cleanup,
-  entities as groups,
-  login,
-  loginShouldBeVisible,
-  logout,
-  toast,
-} from "./utils.cy";
-
 const TEST_GROUP = `group-${Date.now()}`;
 
 const invLink = {
@@ -25,46 +15,49 @@ const invLink = {
 describe("groups", () => {
   describe("while logged in", () => {
     beforeEach(() => {
-      cleanup();
-      login({ page: "/groups" });
+      cy.cleanup();
+      cy.login({ page: "/groups" });
     });
 
     accessibleViaSidepanel("/groups");
 
     it("can be added", () => {
-      groups.add(TEST_GROUP);
+      cy.addEntity(TEST_GROUP);
     });
 
     it("can be renamed", () => {
-      groups.add(TEST_GROUP);
+      cy.addEntity(TEST_GROUP);
 
-      groups.update(TEST_GROUP, { name: "-2" });
+      cy.updateEntity(TEST_GROUP, { name: "-2" });
 
-      toast(`Renaming "${TEST_GROUP}" succeeded!`);
+      cy.toast(`Renaming "${TEST_GROUP}" succeeded!`);
       cy.contains(`${TEST_GROUP}-2`).should("exist");
     });
 
     it("can be toggled", () => {
-      groups.add(TEST_GROUP);
+      cy.addEntity(TEST_GROUP);
 
-      groups.update(TEST_GROUP, { toggle: true });
+      cy.updateEntity(TEST_GROUP, { toggle: true });
 
-      toast(`Toggling "${TEST_GROUP}" succeeded!`);
-      groups.toggler.should("have.class", "bg-red-500");
-      groups.toggler.parent().parent().should("have.class", "border-red-500");
+      cy.toast(`Toggling "${TEST_GROUP}" succeeded!`);
+      cy.entityToggler().should("have.class", "bg-red-500");
+      cy.entityToggler()
+        .parent()
+        .parent()
+        .should("have.class", "border-red-500");
     });
 
     describe("can be set as favorit", () => {
       it("but not if they're already set favorit", () => {
-        groups.add(TEST_GROUP);
+        cy.addEntity(TEST_GROUP);
 
         cy.contains(TEST_GROUP).find("svg").click();
-        toast("Setting default group succeeded!");
-        groups.shouldBeFavorit(TEST_GROUP);
+        cy.toast("Setting default group succeeded!");
+        cy.entityShouldBeFavorit(TEST_GROUP);
 
         cy.contains(TEST_GROUP).find("svg").click();
-        toast().should("not.exist");
-        groups.shouldBeFavorit(TEST_GROUP);
+        cy.toast().should("not.exist");
+        cy.entityShouldBeFavorit(TEST_GROUP);
       });
     });
 
@@ -76,7 +69,7 @@ describe("groups", () => {
         invLink.remover.should("not.exist");
 
         invLink.generator.click();
-        toast("Generating invitation link succeeded!");
+        cy.toast("Generating invitation link succeeded!");
 
         invLink.copier.should("exist");
         invLink.generator.should("exist");
@@ -84,17 +77,17 @@ describe("groups", () => {
       });
 
       it("can be removed", () => {
-        groups.add(TEST_GROUP);
+        cy.addEntity(TEST_GROUP);
 
         cy.contains(TEST_GROUP)
           // .filter((_, el) => el.textContent === TEST_GROUP)
           .click();
 
         invLink.generator.click();
-        toast().should("not.exist");
+        cy.toast().should("not.exist");
 
         invLink.remover.click();
-        toast("Deleting invitation link succeeded!");
+        cy.toast("Deleting invitation link succeeded!");
         invLink.remover.should("not.exist");
       });
 
@@ -114,16 +107,16 @@ describe("groups", () => {
       cy.contains("just you").click();
 
       cy.contains("user2").children().first().click();
-      toast('Banning "user2" succeeded!');
+      cy.toast('Banning "user2" succeeded!');
 
       cy.contains("user2")
         .children()
         .first()
         .should("have.class", "bg-red-500");
       cy.get("#updater").parent().parent().click(1, 1);
-      logout();
+      cy.logout();
 
-      login({ email: "user2@e2e.tests" });
+      cy.login({ email: "user2@e2e.tests" });
       cy.visit("/groups");
 
       cy.contains("you and me").should("not.exist");
@@ -133,7 +126,7 @@ describe("groups", () => {
   describe("while not logged in", () => {
     it("should not be accessible", () => {
       cy.visit("/groups");
-      loginShouldBeVisible();
+      cy.loginShouldBeVisible();
     });
   });
 });

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 
+import { VDate } from "@/lib/utils";
+
 import "./globals.css";
 import StoreProvider from "../components/storeProvider";
 import { ModalProvider } from "@/components/modal";
@@ -36,6 +38,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__SALDO_DATETIME_ANCHOR__ = ${VDate.anchor};`,
+          }}
+        />
         <ToastContainer autoClose={2000} closeOnClick />
         <StoreProvider>
           <ModalProvider>{children}</ModalProvider>

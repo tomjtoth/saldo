@@ -11,6 +11,8 @@ import {
   ResponsiveContainer,
   Legend,
   ReferenceArea,
+  ReferenceLine,
+  Label,
 } from "recharts";
 
 import { TBalanceChartData, TUserChartData } from "@/lib/db";
@@ -29,7 +31,10 @@ export default function BalanceChart({
 }: TBalanceChartData) {
   const gradientDefinitions: ReactNode[] = [];
 
-  const lines = relations?.map((rel) => {
+  let overallMin = -100;
+  let overallMax = 100;
+
+  const lines = relations?.map((rel, idx) => {
     const uids = rel.split(" vs ").map(Number);
     const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
@@ -46,21 +51,31 @@ export default function BalanceChart({
       { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY }
     );
 
-    const center = (max - min) / 2;
-    const switchAt = max <= 0 ? 100 : min >= 0 ? 0 : 100 * (center / 2 / max);
+    const abs = [min, max].map(Math.abs);
+    const height = abs[0] + abs[1];
+
+    if (idx === 0) {
+      overallMax = max + 0.1 * height;
+      overallMin = min - 0.1 * height;
+    }
+
+    const switchAt =
+      max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / height).toFixed(1);
 
     gradientDefinitions.push(
       <linearGradient key={defId} id={defId} x1="0" y1="0" x2="0" y2="1">
-        <stop offset={`${switchAt}%`} stopColor={u1.color} />
         <stop offset={`${switchAt}%`} stopColor={u2.color} />
+        <stop offset={`${switchAt}%`} stopColor={u1.color} />
       </linearGradient>
     );
 
     return (
       <Line
+        type="stepAfter"
         key={rel}
         dataKey={rel}
         data={data}
+        dot={false}
         connectNulls
         name={[u1.name, u2.name].toSorted().join(" vs ")}
         stroke={`url(#${defId})`}
@@ -78,8 +93,8 @@ export default function BalanceChart({
   } = {
     left: "dataMin",
     right: "dataMax",
-    top: "dataMax+1.1*dataMax",
-    bottom: "dataMin-1.1*dataMin",
+    top: overallMax,
+    bottom: overallMin,
   };
 
   const [state, setState] = useState(initialState);
@@ -118,8 +133,10 @@ export default function BalanceChart({
       [data[0].min, data[0].max]
     );
 
-    bottom *= 1.5;
-    top *= 1.5;
+    const height = top - bottom;
+
+    bottom -= height * 0.1;
+    top += height * 0.1;
 
     setState({
       bottom,
@@ -149,6 +166,7 @@ export default function BalanceChart({
       <div className="h-full w-full">
         <ResponsiveContainer>
           <LineChart
+            className="select-none"
             onMouseDown={(e) =>
               setState({ ...state, refAreaLeft: e.activeLabel })
             }
@@ -172,11 +190,23 @@ export default function BalanceChart({
               allowDataOverflow
               domain={[left, right]}
             />
-            <YAxis allowDataOverflow domain={[bottom, top]} />
+            <YAxis
+              allowDataOverflow
+              domain={[bottom, top]}
+              tickFormatter={(v) => v.toFixed(2)}
+            />
             <Tooltip content={BalanceTooltip} />
             <Legend content={BalanceLegend} />
 
             <defs>{gradientDefinitions}</defs>
+            <ReferenceLine
+              y={0}
+              offset={10}
+              strokeWidth={2}
+              strokeDasharray="10 5"
+            >
+              <Label value="0.00" position="left" fontWeight="bold" />
+            </ReferenceLine>
             {lines}
 
             {refAreaLeft !== undefined && refAreaRight !== undefined ? (

@@ -1,10 +1,9 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import { DateTime } from "luxon";
 
 import { AppDispatch } from "../store";
 import { combinedSA as csa, CombinedState as CS } from ".";
 import { TReceipt, TGroup } from "@/lib/db";
-import { EUROPE_HELSINKI } from "../utils";
+import { VDate } from "../utils";
 
 export type TCliReceipt = {
   paidOn: string;
@@ -41,7 +40,7 @@ function currentReceipt(rs: CS) {
 
   if (!current) {
     current = {
-      paidOn: DateTime.local(EUROPE_HELSINKI).toISODate(),
+      paidOn: VDate.asISO(),
       paidBy: rs.user!.id!,
       items: [],
     };

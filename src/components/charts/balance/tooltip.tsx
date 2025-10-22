@@ -8,7 +8,7 @@ import {
 } from "recharts/types/component/DefaultTooltipContent";
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
-import { dateFromInt } from "@/lib/utils";
+import { VDate } from "@/lib/utils";
 import { CtxBalanceChart } from "./chart";
 
 export default function BalanceTooltip({
@@ -22,7 +22,7 @@ export default function BalanceTooltip({
 
   return (
     <div className="bg-background rounded border p-2">
-      <h3>{dateFromInt(label as number)}</h3>
+      <h3>{VDate.toStr(label as number)}</h3>
 
       {(payload as TooltipPayload).map((x) => {
         const uids = (x.dataKey as string).split(" vs ").map(Number);
