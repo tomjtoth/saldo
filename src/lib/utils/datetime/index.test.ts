@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import { VDate, DATETIME_OPTIONS } from ".";
-import { DateTime as LuxonDateTime } from "luxon";
+import { DateTime } from "luxon";
 
 await VDate.initAnchor("2020-01-01");
 
@@ -17,11 +17,7 @@ describe("datetimeFunctions", () => {
   });
 
   it("convert '2020-01-02' properly to 24*60*60", () => {
-    const jan2 = LuxonDateTime.fromFormat(
-      "2020-01-02",
-      "y-M-d",
-      DATETIME_OPTIONS
-    );
+    const jan2 = DateTime.fromFormat("2020-01-02", "y-M-d", DATETIME_OPTIONS);
     const diff = VDate.toInt(jan2);
 
     expect(diff).toEqual(1 * 24 * 60 * 60);
