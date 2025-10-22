@@ -62,8 +62,6 @@ export default function BalanceChart({
     const switchAt =
       max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / height).toFixed(1);
 
-    console.log(switchAt);
-
     gradientDefinitions.push(
       <linearGradient key={defId} id={defId} x1="0" y1="0" x2="0" y2="1">
         <stop offset={`${switchAt}%`} stopColor={u2.color} />
