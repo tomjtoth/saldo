@@ -8,7 +8,6 @@ export const DATETIME_OPTIONS: DateTimeJSOptions = {
 
 const DATETIME_FORMAT = process.env.DATETIME_FORMAT ?? "yyyy-MM-dd HH:mm:ss";
 const DATE_FORMAT = process.env.DATE_FORMAT ?? "yyyy-MM-dd";
-const DAY = 24 * 60 * 60;
 
 abstract class AnchorMethods {
   static get anchor() {
