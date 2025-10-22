@@ -59,9 +59,11 @@ abstract class TimeMethods extends AnchorMethods {
     return Math.round((millis - this.anchor) / 1000);
   }
 
-  static timeToStr(val?: number, fmt = DATETIME_FORMAT) {
+  static timeToStr(val?: number | DateTime, fmt = DATETIME_FORMAT) {
     const asDate =
-      typeof val === "number"
+      val !== undefined && val instanceof DateTime
+        ? val
+        : typeof val === "number"
         ? DateTime.fromMillis(val * 1000 + this.anchor, DATETIME_OPTIONS)
         : DateTime.local(DATETIME_OPTIONS);
 
@@ -74,12 +76,20 @@ export abstract class VDate extends TimeMethods {
     return this.timeToInt(val, DATE_FORMAT);
   }
 
-  static toStr(val?: number) {
+  static toStr(val?: number | DateTime) {
     return this.timeToStr(val, DATE_FORMAT);
   }
 
   static asISO() {
     return DateTime.local(DATETIME_OPTIONS).toISODate();
+  }
+
+  static nMonthsAgo(months: number) {
+    const date = DateTime.local(DATETIME_OPTIONS)
+      .minus({ months })
+      .set({ day: 1 });
+
+    return this.toStr(date);
   }
 
   static couldBeParsedFrom(val: string) {
