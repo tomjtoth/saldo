@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, ReactNode, useEffect, useState } from "react";
+import { createContext, ReactNode, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -17,6 +17,7 @@ import {
 
 import { TBalanceChartData, TUserChartData } from "@/lib/db";
 
+import useLogic from "./logic";
 import BalanceTick from "./tick";
 import BalanceTooltip from "./tooltip";
 import BalanceLegend from "./legend";
@@ -29,35 +30,29 @@ export default function BalanceChart({
   relations,
   users,
 }: TBalanceChartData) {
+  const {
+    state: { refAreaLeft, refAreaRight, left, right, bottom, top },
+    zoomIn,
+    zoomOut,
+    isZoomedIn,
+    startHighlight,
+    dragHighlight,
+    findMinMax,
+    cancelHighlight,
+  } = useLogic(data);
+
   const gradientDefinitions: ReactNode[] = [];
 
-  let overallMin = -100;
-  let overallMax = 100;
-
-  const lines = relations?.map((rel, idx) => {
+  const lines = relations?.map((rel) => {
     const uids = rel.split(" vs ").map(Number);
     const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
     const defId = `${u1.id}-${u2.id}-chart-colors`;
 
-    const { min, max } = data.reduce(
-      (prev, curr) => {
-        const val = curr[rel];
-        if (val > prev.max) prev.max = val;
-        if (val < prev.min) prev.min = val;
-
-        return prev;
-      },
-      { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY }
-    );
+    const { min, max } = findMinMax();
 
     const abs = [min, max].map(Math.abs);
     const height = abs[0] + abs[1];
-
-    if (idx === 0) {
-      overallMax = max + 0.1 * height;
-      overallMin = min - 0.1 * height;
-    }
 
     const switchAt =
       max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / height).toFixed(1);
@@ -83,74 +78,9 @@ export default function BalanceChart({
     );
   });
 
-  const initialState: {
-    refAreaLeft?: string | number;
-    refAreaRight?: string | number;
-    left: string | number;
-    right: string | number;
-    bottom: string | number;
-    top: string | number;
-  } = {
-    left: "dataMin",
-    right: "dataMax",
-    top: overallMax,
-    bottom: overallMin,
-  };
-
-  const [state, setState] = useState(initialState);
-
   useEffect(() => {
     console.debug("lines got re-rendered (?)");
   }, [lines]);
-
-  function zoom() {
-    let { refAreaLeft, refAreaRight } = state;
-
-    if (refAreaLeft === refAreaRight || refAreaRight === undefined) {
-      setState((prevState) => ({
-        ...prevState,
-        refAreaLeft: undefined,
-        refAreaRight: undefined,
-      }));
-      return;
-    }
-
-    if (refAreaLeft! > refAreaRight)
-      [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
-
-    let [bottom, top] = data.reduce(
-      (prev, curr) => {
-        if (
-          curr.date >= (refAreaLeft as number)! &&
-          curr.date <= (refAreaRight as number)!
-        ) {
-          if (curr.min < prev[0]) prev[0] = curr.min;
-          if (curr.max > prev[1]) prev[1] = curr.max;
-        }
-
-        return prev;
-      },
-      [data[0].min, data[0].max]
-    );
-
-    const height = top - bottom;
-
-    bottom -= height * 0.1;
-    top += height * 0.1;
-
-    setState({
-      bottom,
-      top,
-      left: refAreaLeft!,
-      right: refAreaRight!,
-      refAreaLeft: undefined,
-      refAreaRight: undefined,
-    });
-  }
-
-  const zoomOut = () => setState(initialState);
-
-  const { refAreaLeft, refAreaRight, left, right, bottom, top } = state;
 
   return (
     <CtxBalanceChart.Provider value={users}>
@@ -158,27 +88,17 @@ export default function BalanceChart({
         <label>
           group: <GroupSelector />
         </label>
-        {(left !== initialState.left || right !== initialState.right) && (
-          <button onClick={zoomOut}>zoom out</button>
-        )}
+        {isZoomedIn() && <button onClick={zoomOut}>zoom out</button>}
       </div>
 
       <div className="h-full w-full">
         <ResponsiveContainer>
           <LineChart
             className="select-none"
-            onMouseDown={(e) =>
-              setState({ ...state, refAreaLeft: e.activeLabel })
-            }
-            onMouseMove={({ activeLabel: lbl }) => {
-              if (
-                state.refAreaLeft !== undefined &&
-                (state.refAreaRight === undefined || state.refAreaRight !== lbl)
-              ) {
-                setState({ ...state, refAreaRight: lbl });
-              }
-            }}
-            onMouseUp={zoom}
+            onMouseDown={startHighlight}
+            onMouseMove={dragHighlight}
+            onMouseUp={zoomIn}
+            onMouseLeave={cancelHighlight}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
@@ -194,6 +114,7 @@ export default function BalanceChart({
               allowDataOverflow
               domain={[bottom, top]}
               tickFormatter={(v) => v.toFixed(2)}
+              padding={{ bottom: 10, top: 10 }}
             />
             <Tooltip content={BalanceTooltip} />
             <Legend content={BalanceLegend} />

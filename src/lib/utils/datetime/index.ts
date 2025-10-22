@@ -1,4 +1,4 @@
-import { DateTime as LuxonDateTime, DateTimeJSOptions } from "luxon";
+import { DateTime, DateTimeJSOptions } from "luxon";
 
 import { err } from "../errors";
 
@@ -26,7 +26,7 @@ abstract class AnchorMethods {
       anchor = res.payload;
     }
 
-    (global ?? window).__SALDO_DATETIME_ANCHOR__ = LuxonDateTime.fromFormat(
+    (global ?? window).__SALDO_DATETIME_ANCHOR__ = DateTime.fromFormat(
       anchor,
       DATE_FORMAT,
       DATETIME_OPTIONS
@@ -35,11 +35,11 @@ abstract class AnchorMethods {
 }
 
 abstract class TimeMethods extends AnchorMethods {
-  static timeToInt(val?: LuxonDateTime | string, fmt = DATETIME_FORMAT) {
+  static timeToInt(val?: DateTime | string, fmt = DATETIME_FORMAT) {
     const notParsableFromStr =
       typeof val === "string" &&
       ![fmt, "y.M.d. H:m:s"].some((fmt) => {
-        const parsed = LuxonDateTime.fromFormat(
+        const parsed = DateTime.fromFormat(
           val as string,
           fmt,
           DATETIME_OPTIONS
@@ -53,36 +53,46 @@ abstract class TimeMethods extends AnchorMethods {
     if (notParsableFromStr) err("unparsable DateTime string");
 
     const millis = (
-      (val as LuxonDateTime) ?? LuxonDateTime.local(DATETIME_OPTIONS)
+      (val as DateTime) ?? DateTime.local(DATETIME_OPTIONS)
     ).toMillis();
 
     return Math.round((millis - this.anchor) / 1000);
   }
 
-  static timeToStr(val?: number, fmt = DATETIME_FORMAT) {
+  static timeToStr(val?: number | DateTime, fmt = DATETIME_FORMAT) {
     const asDate =
-      typeof val === "number"
-        ? LuxonDateTime.fromMillis(val * 1000 + this.anchor, DATETIME_OPTIONS)
-        : LuxonDateTime.local(DATETIME_OPTIONS);
+      val !== undefined && val instanceof DateTime
+        ? val
+        : typeof val === "number"
+        ? DateTime.fromMillis(val * 1000 + this.anchor, DATETIME_OPTIONS)
+        : DateTime.local(DATETIME_OPTIONS);
 
     return asDate.toFormat(fmt);
   }
 }
 
 export abstract class VDate extends TimeMethods {
-  static toInt(val?: LuxonDateTime | string) {
+  static toInt(val?: DateTime | string) {
     return this.timeToInt(val, DATE_FORMAT);
   }
 
-  static toStr(val?: number) {
+  static toStr(val?: number | DateTime) {
     return this.timeToStr(val, DATE_FORMAT);
   }
 
   static asISO() {
-    return LuxonDateTime.local(DATETIME_OPTIONS).toISODate();
+    return DateTime.local(DATETIME_OPTIONS).toISODate();
+  }
+
+  static nMonthsAgo(months: number) {
+    const date = DateTime.local(DATETIME_OPTIONS)
+      .minus({ months })
+      .set({ day: 1 });
+
+    return this.toStr(date);
   }
 
   static couldBeParsedFrom(val: string) {
-    return LuxonDateTime.fromFormat(val, DATE_FORMAT, DATETIME_OPTIONS).isValid;
+    return DateTime.fromFormat(val, DATE_FORMAT, DATETIME_OPTIONS).isValid;
   }
 }
