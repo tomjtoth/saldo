@@ -30,7 +30,7 @@ export default function useInfiniteScroll() {
       const fetchedGroupId = rs.groupId;
 
       svcGetReceipts(
-        rs.groups.flatMap((grp) => grp.receipts!.map((r) => r.id!))
+        rs.groups.flatMap((grp) => grp.receipts?.map((r) => r.id!) ?? [])
       ).then((groups) => {
         let updating = false;
         const limits = { ...hasMore };
