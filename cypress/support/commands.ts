@@ -107,13 +107,16 @@ function login({
   passwd?: string;
   page?: string;
 } = {}) {
+  cy.session([email, passwd], () => {
+    cy.visit("/api/auth/signin");
+
+    cy.get("#email", { timeout: 10000 }).type(email);
+    cy.get("#passwd").type(passwd);
+    cy.get("#submitButton").click();
+    cy.location("pathname").should("eq", "/");
+  });
+
   cy.visit(page);
-
-  if (page === "/") cy.get("#sign-in-button").click();
-
-  cy.get("#email", { timeout: 10000 }).type(email);
-  cy.get("#passwd").type(passwd);
-  cy.get("#submitButton").click();
 }
 
 function loginShouldBeVisible() {
