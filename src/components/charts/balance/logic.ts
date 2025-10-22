@@ -1,6 +1,7 @@
-import { TBalanceChartData } from "@/lib/db";
 import { useState } from "react";
 import { CategoricalChartFunc } from "recharts/types/chart/types";
+
+import { TBalanceChartData } from "@/lib/db";
 
 export default function useLogic(data: TBalanceChartData["data"]) {
   const initialState: {
