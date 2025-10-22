@@ -38,6 +38,7 @@ export default function BalanceChart({
     startHighlight,
     dragHighlight,
     findMinMax,
+    cancelHighlight,
   } = useLogic(data);
 
   const gradientDefinitions: ReactNode[] = [];
@@ -97,6 +98,7 @@ export default function BalanceChart({
             onMouseDown={startHighlight}
             onMouseMove={dragHighlight}
             onMouseUp={zoomIn}
+            onMouseLeave={cancelHighlight}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis

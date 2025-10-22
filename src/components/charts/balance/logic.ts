@@ -82,6 +82,11 @@ export default function useLogic(data: TBalanceChartData["data"]) {
     }
   };
 
+  const cancelHighlight = () => {
+    if (state.refAreaLeft !== undefined)
+      setState((prev) => ({ ...prev, refAreaLeft: undefined }));
+  };
+
   return {
     state,
     findMinMax,
@@ -90,5 +95,6 @@ export default function useLogic(data: TBalanceChartData["data"]) {
     isZoomedIn,
     startHighlight,
     dragHighlight,
+    cancelHighlight,
   };
 }
