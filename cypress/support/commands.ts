@@ -48,6 +48,14 @@ function toast(
   return getter();
 }
 
+function cleanup() {
+  cy.request("/api/e2e/cleanup");
+}
+
+function populateDb() {
+  cy.request("/api/e2e/populate-db");
+}
+
 function addEntity(name: string, description?: string) {
   // React re-render was dismissing my click event below
   cy.wait(500);
@@ -132,6 +140,7 @@ function logout() {
 const allCommands = {
   toast,
   cleanup,
+  populateDb,
   addEntity,
   updateEntity,
   entityToggler,
