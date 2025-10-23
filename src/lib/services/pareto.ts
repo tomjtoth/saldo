@@ -2,7 +2,7 @@
 
 import { sql } from "drizzle-orm";
 
-import { db, distinctUsersData, TGroup } from "@/lib/db";
+import { db, groupsWithUsersCTE, TGroup } from "@/lib/db";
 import { VDate } from "../utils";
 import { currentUser } from "./users";
 
@@ -18,39 +18,35 @@ export async function svcGetParetoData(opts: ParetoOpts) {
 }
 
 export async function getPareto(userId: number, opts: ParetoOpts = {}) {
-  const from =
-    opts.from &&
-    // SQL injection prevented here
-    VDate.couldBeParsedFrom(opts.from)
-      ? `AND paid_on >= ${VDate.toInt(opts.from)}`
-      : "";
+  const paidOnCrit: string[] = [];
 
-  const to =
-    opts.to &&
-    // SQL injection prevented here
-    VDate.couldBeParsedFrom(opts.to)
-      ? `AND paid_on <= ${VDate.toInt(opts.to)}`
-      : "";
+  // SQL injection prevented here
+  if (opts.from && VDate.couldBeParsedFrom(opts.from))
+    paidOnCrit.push(`paid_on >= ${VDate.toInt(opts.from)}`);
+
+  // SQL injection prevented here
+  if (opts.to && VDate.couldBeParsedFrom(opts.to))
+    paidOnCrit.push(`paid_on <= ${VDate.toInt(opts.to)}`);
+
+  const whereClause = sql.raw(
+    paidOnCrit.length ? `WHERE ${paidOnCrit.join(" AND ")}` : ""
+  );
 
   const data = await db.get<{ json: string } | null>(
-    sql`WITH sums_per_row AS (
+    sql`WITH ${groupsWithUsersCTE(userId)},
+
+    sums_per_row AS (
       SELECT
-        con.group_id AS gid,
+        gid,
         paid_to AS "uid",
-        c.name AS category,
+        cat.name AS category,
         sum(share) AS total
-      FROM memberships ms
-      INNER JOIN consumption con ON ms.group_id = con.group_id
-      INNER JOIN categories c ON con.category_id = c.id
-      WHERE ms.user_id = ${userId} ${sql.raw(`${from} ${to}`)}
+      FROM groups_with_users gwu
+      LEFT JOIN consumption con ON gwu.gid = con.group_id
+      LEFT JOIN categories cat ON con.category_id = cat.id
+      ${whereClause}
       GROUP BY gid, paid_to, category_id
     ),
-
-    distinct_uids AS (
-      SELECT DISTINCT gid, "uid" FROM sums_per_row
-    ),
-
-    ${distinctUsersData(userId)},
 
     one_category_per_row AS (
       SELECT
@@ -74,27 +70,21 @@ export async function getPareto(userId: number, opts: ParetoOpts = {}) {
 
     one_group_per_row AS (
       SELECT
-        g.id,
-        g.name,
         jsonb_object(
-          'id', s3.gid,
-          'name', g.name,
-          
+          'id', gwu.gid,
+          'name', gwu.name,
+
           'pareto', jsonb_object(
-            'users', user_data,
-            'categories', categories
+            'users', gwu.users,
+            'categories', coalesce(arr.categories, jsonb_array())
           )
-        ) AS "data"
-      FROM categories_in_array_per_row s3
-      INNER JOIN groups g ON g.id = s3.gid
-      INNER JOIN distinct_users_data dud ON dud.gid = s3.gid
-      LEFT JOIN sums_per_row s1 ON s1.gid = s3.gid
-      GROUP BY g.id
-      ORDER BY g.name
+        ) AS "group"
+      FROM groups_with_users gwu
+      LEFT JOIN categories_in_array_per_row arr ON gwu.gid = arr.gid
     )
 
     -- all groups in 1 array
-    SELECT json(jsonb_group_array("data")) AS "json"
+    SELECT json(jsonb_group_array("group")) AS "json"
     FROM one_group_per_row`
   );
 
