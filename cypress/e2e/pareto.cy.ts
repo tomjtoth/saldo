@@ -1,6 +1,7 @@
 describe("pareto", () => {
   describe("while logged in", () => {
     beforeEach(() => {
+      cy.populateDb();
       cy.login({ page: "/pareto" });
     });
 

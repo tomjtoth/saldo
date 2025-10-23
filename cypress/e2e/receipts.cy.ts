@@ -1,7 +1,7 @@
 describe("receipts", () => {
   describe("while logged in", () => {
     beforeEach(() => {
-      cy.request("/api/e2e/receipts");
+      cy.populateDb();
       cy.login({ page: "/receipts" });
     });
 
