@@ -68,7 +68,7 @@ function addEntity(name: string, description?: string) {
   toast(`Saving "${name}" to db succeeded!`);
 }
 
-const updateEntity = (
+function updateEntity(
   text: string,
   {
     name,
@@ -79,7 +79,7 @@ const updateEntity = (
     description?: string;
     toggle?: true;
   }
-) => {
+) {
   cy.contains(text)
     .filter((_, el) => el.textContent?.trim() === text)
     .click();
@@ -89,9 +89,11 @@ const updateEntity = (
   if (toggle) entityToggler().click();
 
   cy.get("#updater>button").click();
-};
+}
 
-const entityToggler = () => cy.get("#updater > div").first();
+function entityToggler() {
+  return cy.get("#updater > div").first();
+}
 
 function entityShouldBeFavorit(name: string) {
   cy.contains(name)
@@ -100,11 +102,9 @@ function entityShouldBeFavorit(name: string) {
     .should("exist");
 }
 
-function cleanup() {
-  cy.request("/api/e2e/cleanup");
+function selectGroup(group: string) {
+  cy.get("#group-selector").select(group);
 }
-
-const selectGroup = (group: string) => cy.get("#group-selector").select(group);
 
 function login({
   page = "/",
