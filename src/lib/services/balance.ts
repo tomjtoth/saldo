@@ -1,33 +1,24 @@
 import { sql } from "drizzle-orm";
 
-import { db, distinctUsersData, TGroup } from "@/lib/db";
+import { db, groupsWithUsersCTE, TGroup } from "@/lib/db";
 
 export async function getBalance(userId: number) {
   const data = await db.get<{ json: string } | null>(
-    sql`WITH normalized_shares_and_uids AS (
+    sql`WITH ${groupsWithUsersCTE(userId)},
+    
+    normalized_shares_and_uids AS (
       SELECT
-        ms.group_id AS gid,
+        gid,
         paid_on AS "date",
         min(paid_by, paid_to) AS uid1,
         max(paid_by, paid_to) AS uid2,
-        sum(share * CASE WHEN paid_by < paid_to THEN 1 ELSE -1 END) as share
-      FROM memberships ms
-      INNER JOIN consumption c ON ms.group_id = c.group_id
-      WHERE ms.user_id = ${userId} AND paid_by != paid_to
+        sum(share * iif(paid_by < paid_to, 1, -1)) as share
+      FROM groups_with_users gwu
+      LEFT JOIN consumption c ON gwu.gid = c.group_id
+      WHERE paid_by != paid_to
       GROUP BY gid, paid_on, paid_by, paid_to
       ORDER BY gid, "date"
     ),
-
-    distinct_uids AS (
-      SELECT DISTINCT gid, uid1 AS "uid"
-      FROM normalized_shares_and_uids
-      UNION
-
-      SELECT DISTINCT gid, uid2 AS "uid"
-      FROM normalized_shares_and_uids
-    ),
-
-    ${distinctUsersData(userId)},
 
     relations_and_daily_sums AS (
       SELECT
@@ -35,9 +26,7 @@ export async function getBalance(userId: number) {
         "date",
         concat(uid1, ' vs ', uid2) AS relation,
         sum(share) AS share
-      FROM normalized_shares_and_uids nsu
-      INNER JOIN users u1 ON u1.id = nsu.uid1
-      INNER JOIN users u2 ON u2.id = nsu.uid2
+      FROM normalized_shares_and_uids
       GROUP BY gid, "date", relation
     ),
 
@@ -79,30 +68,29 @@ export async function getBalance(userId: number) {
 
     group_per_row AS (
       SELECT
-        dbd.gid,
+        gwu.gid,
    
         jsonb_object(
-          'id', dbd.gid,
-          'name', g.name,
+          'id', gwu.gid,
+          'name', gwu.name,
 
           'balance', jsonb_object(
             'relations', relations,
-            'users', user_data,
+            'users', gwu.users,
             'data', jsonb_group_array(daily_data)
           )
-        ) as "data"
-      FROM data_by_date dbd
-      INNER JOIN groups g ON g.id = dbd.gid
-      INNER JOIN distinct_users_data dud ON dud.gid = dbd.gid
-      INNER JOIN distinct_relations dr ON dr.gid = dbd.gid
-      GROUP BY dbd.gid
-      ORDER by g.name
+        ) as "group"
+      FROM groups_with_users gwu
+      LEFT JOIN data_by_date dbd ON gwu.gid = dbd.gid
+      LEFT JOIN distinct_relations dr ON gwu.gid = dr.gid
+      GROUP BY gwu.gid
+      ORDER BY gwu.name, "date"
     )
 
     -- debug during development
     -- SELECT * from group_per_row
 
-    SELECT json(jsonb_group_array("data")) AS "json"
+    SELECT json(jsonb_group_array("group")) AS "json"
     FROM group_per_row`
   );
 
