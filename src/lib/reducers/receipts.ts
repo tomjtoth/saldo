@@ -40,7 +40,7 @@ function currentReceipt(rs: CS) {
 
   if (!current) {
     current = {
-      paidOn: VDate.asISO(),
+      paidOn: VDate.toStrISO(),
       paidBy: rs.user!.id!,
       items: [],
     };
