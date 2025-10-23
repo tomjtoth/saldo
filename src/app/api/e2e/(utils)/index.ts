@@ -2,6 +2,7 @@ import { createCategory } from "@/lib/services/categories";
 import { addMember, createGroup } from "@/lib/services/groups";
 import { createReceipt } from "@/lib/services/receipts";
 import { addUser } from "@/lib/services/users";
+import { truncateDb } from "@/lib/db";
 
 type UserParams = Parameters<typeof addUser>[0];
 type GroupParams = Parameters<typeof createGroup>;
@@ -138,6 +139,8 @@ const FALLBACK_RECEIPTS: NonNullable<Args["receipts"]> = [
 ];
 
 export async function populateDb(args?: Args) {
+  await truncateDb();
+
   for (const user of args?.users ?? FALLBACK_USERS) {
     const { id: uid } = await addUser(user);
 
