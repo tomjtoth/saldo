@@ -9,6 +9,8 @@ describe("balance", () => {
         "exist"
       );
     });
+
+    itIsAccessibleViaSidepanel("/balance");
   });
 
   describe("while *NOT* logged in", () => {

@@ -7,7 +7,7 @@ describe("categories", () => {
       cy.login({ page: "/categories" });
     });
 
-    accessibleViaSidepanel("/categories");
+    itIsAccessibleViaSidepanel("/categories");
 
     it("can be added", () => {
       cy.addEntity(TEST_CATEGORY);

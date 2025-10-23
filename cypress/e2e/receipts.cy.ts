@@ -9,6 +9,8 @@ describe("receipts", () => {
       cy.contains("receipt for group").should("exist");
     });
 
+    itIsAccessibleViaSidepanel("/receipts");
+
     it("can be added", () => {
       cy.contains("Add new...").click();
       cy.get("input[placeholder='cost']").type("123");

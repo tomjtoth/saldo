@@ -1,5 +1,5 @@
 declare global {
-  const accessibleViaSidepanel: typeof fnAccessibleViaSidepanel;
+  const itIsAccessibleViaSidepanel: typeof fnAccessibleViaSidepanel;
 
   namespace Cypress {
     type MappedCommands<AC = typeof allCommands> = {
@@ -21,7 +21,7 @@ const fnAccessibleViaSidepanel = (url: string) =>
     cy.location("pathname").should("equal", url);
   });
 
-(globalThis as any).accessibleViaSidepanel = fnAccessibleViaSidepanel;
+(globalThis as any).itIsAccessibleViaSidepanel = fnAccessibleViaSidepanel;
 
 function toast(
   text?: string,
