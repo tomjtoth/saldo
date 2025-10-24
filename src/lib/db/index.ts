@@ -36,42 +36,46 @@ export const SQL_RANDOM_COLOR = sql.raw(
   "printf('%07x', abs(random()) % 0x2000000)"
 );
 
-export const distinctUsersData = (userId: number) => sql`
-  distinct_users_data AS (
+export const groupsWithUsersCTE = (userId: number) => sql`
+  groups_with_users AS (
     SELECT
-      gid,
-      jsonb_group_array(
-        jsonb_object(
-          'id', "uid",
-          'name', u.name,
-          'color', printf('#%06x', 
-            coalesce(
-              (
-                SELECT cc.color FROM chart_colors cc
-                WHERE cc.user_id = ${userId}
-                AND cc.group_id = gid
-                AND cc.member_id = "uid"
-              ),
-              (
-                SELECT cc.color FROM chart_colors cc
-                WHERE cc.user_id = "uid"
-                AND cc.group_id = gid
-                AND cc.member_id IS NULL
-              ),
-              (
-                SELECT cc.color FROM chart_colors cc
-                WHERE cc.user_id = "uid"
-                AND cc.group_id IS NULL
-                AND cc.member_id IS NULL
-              ),
-              abs(random()) % 0x1000000
-            )
+      m.group_id AS gid,
+      g.name,
+      jsonb_group_array(jsonb_object(
+        'id', m2.user_id,
+        'name', u.name,
+        'color', printf(
+          '#%06x', 
+          coalesce(
+            (
+              SELECT cc.color FROM chart_colors cc
+              WHERE cc.user_id = ${userId}
+              AND cc.group_id = m.group_id
+              AND cc.member_id = m2.user_id
+            ),
+            (
+              SELECT cc.color FROM chart_colors cc
+              WHERE cc.user_id = m2.user_id
+              AND cc.group_id = m.group_id
+              AND cc.member_id IS NULL
+            ),
+            (
+              SELECT cc.color FROM chart_colors cc
+              WHERE cc.user_id = m2.user_id
+              AND cc.group_id IS NULL
+              AND cc.member_id IS NULL
+            ),
+            abs(random()) % 0x1000000
           )
         )
-      ) AS "user_data"
-    FROM distinct_uids
-    INNER JOIN users u ON u.id = "uid"
-    GROUP BY gid
+      )) as users
+    FROM memberships m
+    INNER JOIN groups g ON g.id = m.group_id
+    INNER JOIN memberships m2 ON m2.group_id = m.group_id
+    INNER JOIN users u ON u.id = m2.user_id 
+    WHERE m.user_id = ${userId}
+    GROUP BY m.group_id
+    ORDER BY g.name
   )
 `;
 

@@ -99,6 +99,7 @@ export default function BalanceChart({
             onMouseMove={dragHighlight}
             onMouseUp={zoomIn}
             onMouseLeave={cancelHighlight}
+            onDoubleClick={zoomOut}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis

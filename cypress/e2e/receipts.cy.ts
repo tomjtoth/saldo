@@ -1,13 +1,15 @@
 describe("receipts", () => {
   describe("while logged in", () => {
     beforeEach(() => {
-      cy.request("/api/e2e/receipts");
+      cy.populateDb();
       cy.login({ page: "/receipts" });
     });
 
     it("can be accessed", () => {
       cy.contains("receipt for group").should("exist");
     });
+
+    itIsAccessibleViaSidepanel("/receipts");
 
     it("can be added", () => {
       cy.contains("Add new...").click();

@@ -1,5 +1,5 @@
 declare global {
-  const accessibleViaSidepanel: typeof fnAccessibleViaSidepanel;
+  const itIsAccessibleViaSidepanel: typeof fnAccessibleViaSidepanel;
 
   namespace Cypress {
     type MappedCommands<AC = typeof allCommands> = {
@@ -21,7 +21,7 @@ const fnAccessibleViaSidepanel = (url: string) =>
     cy.location("pathname").should("equal", url);
   });
 
-(globalThis as any).accessibleViaSidepanel = fnAccessibleViaSidepanel;
+(globalThis as any).itIsAccessibleViaSidepanel = fnAccessibleViaSidepanel;
 
 function toast(
   text?: string,
@@ -48,6 +48,14 @@ function toast(
   return getter();
 }
 
+function cleanup() {
+  cy.request("/api/e2e/cleanup");
+}
+
+function populateDb() {
+  cy.request("/api/e2e/populate-db");
+}
+
 function addEntity(name: string, description?: string) {
   // React re-render was dismissing my click event below
   cy.wait(500);
@@ -60,7 +68,7 @@ function addEntity(name: string, description?: string) {
   toast(`Saving "${name}" to db succeeded!`);
 }
 
-const updateEntity = (
+function updateEntity(
   text: string,
   {
     name,
@@ -71,7 +79,7 @@ const updateEntity = (
     description?: string;
     toggle?: true;
   }
-) => {
+) {
   cy.contains(text)
     .filter((_, el) => el.textContent?.trim() === text)
     .click();
@@ -81,9 +89,11 @@ const updateEntity = (
   if (toggle) entityToggler().click();
 
   cy.get("#updater>button").click();
-};
+}
 
-const entityToggler = () => cy.get("#updater > div").first();
+function entityToggler() {
+  return cy.get("#updater > div").first();
+}
 
 function entityShouldBeFavorit(name: string) {
   cy.contains(name)
@@ -92,11 +102,9 @@ function entityShouldBeFavorit(name: string) {
     .should("exist");
 }
 
-function cleanup() {
-  cy.request("/api/e2e/cleanup");
+function selectGroup(group: string) {
+  cy.get("#group-selector").select(group);
 }
-
-const selectGroup = (group: string) => cy.get("#group-selector").select(group);
 
 function login({
   page = "/",
@@ -132,6 +140,7 @@ function logout() {
 const allCommands = {
   toast,
   cleanup,
+  populateDb,
   addEntity,
   updateEntity,
   entityToggler,

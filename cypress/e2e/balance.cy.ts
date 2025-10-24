@@ -1,14 +1,15 @@
 describe("balance", () => {
   describe("while logged in", () => {
     beforeEach(() => {
+      cy.populateDb();
       cy.login({ page: "/balance" });
     });
 
     it("can be accessed", () => {
-      cy.contains("There is no data to show with those filters").should(
-        "exist"
-      );
+      cy.contains("shared group of user #1").should("exist");
     });
+
+    itIsAccessibleViaSidepanel("/balance");
   });
 
   describe("while *NOT* logged in", () => {

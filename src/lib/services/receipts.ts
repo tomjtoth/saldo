@@ -41,7 +41,7 @@ export async function svcAddReceipt({
   groupId,
   paidOn,
   paidBy,
-  items: itemsCli,
+  items,
 }: TReceiptInput) {
   const { id: addedBy } = await currentUser();
 
@@ -49,13 +49,25 @@ export async function svcAddReceipt({
     typeof groupId !== "number" ||
     typeof paidOn !== "string" ||
     typeof paidBy !== "number" ||
-    !Array.isArray(itemsCli) ||
-    itemsCli.length === 0
+    !Array.isArray(items) ||
+    items.length === 0
   )
     err();
 
+  return await createReceipt(addedBy, {
+    groupId,
+    paidOn,
+    paidBy,
+    items,
+  });
+}
+
+export async function createReceipt(
+  revisedBy: number,
+  { groupId, paidOn, paidBy, items: itemsCli }: TReceiptInput
+) {
   return await atomic(
-    { operation: "Adding receipt", revisedBy: addedBy },
+    { operation: "Adding receipt", revisedBy },
     async (tx, revisionId) => {
       const [{ receiptId }] = await tx
         .insert(receipts)

@@ -1,7 +1,7 @@
 import protectedRoute from "@/lib/protectedRoute";
-import { truncateDb } from "@/lib/db";
+import { populateDb } from "../(utils)";
 
 export const GET = protectedRoute(
   { requireSession: false, onlyDuringDevelopment: true },
-  truncateDb
+  async () => await populateDb()
 );

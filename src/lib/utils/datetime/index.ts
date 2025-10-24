@@ -6,8 +6,11 @@ export const DATETIME_OPTIONS: DateTimeJSOptions = {
   zone: process.env.TIMEZONE ?? "Europe/Helsinki",
 };
 
-const DATETIME_FORMAT = process.env.DATETIME_FORMAT ?? "yyyy-MM-dd HH:mm:ss";
-const DATE_FORMAT = process.env.DATE_FORMAT ?? "yyyy-MM-dd";
+const DAY = 24 * 60 * 60;
+const ISO_DATE_FMT = "yyyy-MM-dd";
+const DATETIME_FORMAT =
+  process.env.DATETIME_FORMAT ?? `${ISO_DATE_FMT} HH:mm:ss`;
+const DATE_FORMAT = process.env.DATE_FORMAT ?? ISO_DATE_FMT;
 
 abstract class AnchorMethods {
   static get anchor() {
@@ -73,15 +76,16 @@ abstract class TimeMethods extends AnchorMethods {
 
 export abstract class VDate extends TimeMethods {
   static toInt(val?: DateTime | string) {
-    return this.timeToInt(val, DATE_FORMAT);
+    return this.timeToInt(val, DATE_FORMAT) / DAY;
   }
 
-  static toStr(val?: number | DateTime) {
-    return this.timeToStr(val, DATE_FORMAT);
+  static toStr(val?: number | DateTime, fmt = DATE_FORMAT) {
+    if (typeof val === "number") val *= DAY;
+    return this.timeToStr(val, fmt);
   }
 
-  static asISO() {
-    return DateTime.local(DATETIME_OPTIONS).toISODate();
+  static toStrISO(val?: number | DateTime) {
+    return this.toStr(val, ISO_DATE_FMT);
   }
 
   static nMonthsAgo(months: number) {

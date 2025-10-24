@@ -1,8 +1,11 @@
 describe("pareto", () => {
   describe("while logged in", () => {
     beforeEach(() => {
+      cy.populateDb();
       cy.login({ page: "/pareto" });
     });
+
+    itIsAccessibleViaSidepanel("/pareto");
 
     it("can be accessed", () => {
       cy.contains("no data to show").should("exist");
