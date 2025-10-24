@@ -30,7 +30,15 @@ const RECEIPT_COLS_WITH = {
         createdBy: { columns: { name: true } },
       },
     },
-    items: { columns: { id: true, cost: true, notes: true, categoryId: true } },
+    items: {
+      columns: {
+        id: true,
+        cost: true,
+        notes: true,
+        categoryId: true,
+        flags: true,
+      },
+    },
     paidBy: { columns: { name: true } },
   },
 };
