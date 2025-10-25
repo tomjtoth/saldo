@@ -33,24 +33,28 @@ export async function addUser(
   );
 }
 
-export async function currentUser(
-  opts: { errorCode?: number; redirectTo?: string } = {}
-) {
-  const { errorCode, redirectTo } = opts;
-
+export async function currentUser({
+  errorCode,
+  redirectTo,
+  requireSession = true,
+}: {
+  errorCode?: number;
+  redirectTo?: string;
+  requireSession?: boolean;
+} = {}) {
   const session = await auth();
 
   if (!session) {
+    if (!requireSession) return;
     if (errorCode) err(errorCode);
-
     return await signIn("", { redirectTo });
   }
 
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const email = session?.user?.email!;
-  const name = session?.user?.name ?? `User #${(await db.$count(users)) + 1}`;
-  const image = session?.user?.image ?? null;
+  const email = session.user?.email!;
+  const name = session.user?.name ?? `User #${(await db.$count(users)) + 1}`;
+  const image = session.user?.image ?? null;
 
   let user = await db.query.users.findFirst({
     where: eq(users.email, email),
