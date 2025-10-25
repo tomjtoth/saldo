@@ -21,7 +21,7 @@ export default function Entry({
   const [showDetails, setShowDetails] = useState(preSelected ?? false);
   const dispatch = useAppDispatch();
   const isDefault = useAppSelector(
-    (s) => s.combined.defaultGroupId === group.id
+    (s) => s.combined.user?.defaultGroupId === group.id
   );
 
   return (

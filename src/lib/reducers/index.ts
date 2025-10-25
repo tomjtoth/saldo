@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TGroup } from "@/lib/db";
+import { TGroup, TUser } from "@/lib/db";
 import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
 import { TCliReceipt, rReceipts, tReceipts } from "./receipts";
@@ -9,21 +9,15 @@ import { TCliReceipt, rReceipts, tReceipts } from "./receipts";
 export * from "./receipts";
 
 export type CombinedState = {
-  user?: {
-    id: number;
-    flags: number;
-  };
+  user?: Pick<TUser, "id" | "flags" | "defaultGroupId">;
   groupId?: number;
   groups: TGroup[];
-  defaultGroupId?: number;
   newReceipts: {
     [key: number]: TCliReceipt;
   };
 };
 
-export type Initializer = Pick<CombinedState, "groups" | "defaultGroupId"> & {
-  user?: { id: number; flags: number };
-};
+export type Initializer = Pick<CombinedState, "groups" | "user">;
 
 const slice = createSlice({
   name: "combined",
@@ -31,16 +25,13 @@ const slice = createSlice({
 
   reducers: {
     init: (rs, { payload }: PayloadAction<Initializer>) => {
+      if (payload.user !== undefined) rs.user = payload.user;
+
       if (rs.groupId === undefined) {
-        rs.groupId = payload.defaultGroupId ?? payload.groups.at(0)?.id;
+        rs.groupId = payload.user?.defaultGroupId ?? payload.groups.at(0)?.id;
       }
 
-      if (payload.defaultGroupId !== undefined)
-        rs.defaultGroupId = payload.defaultGroupId;
-
       rs.groups = payload.groups;
-
-      if (payload.user !== undefined) rs.user = payload.user;
     },
 
     ...rGroups,
