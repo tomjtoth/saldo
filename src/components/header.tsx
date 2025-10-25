@@ -30,14 +30,14 @@ export default function Header({
         {!!user ? (
           <div
             id="sidepanel-opener"
-            className="relative"
+            className="relative w-12 h-12 cursor-pointer"
             onClick={() => setVisible(true)}
           >
             <UserAvatar {...user} />
 
             <div
               className={
-                "absolute -bottom-1 -right-2 bg-background h-6 w-6 " +
+                "absolute -bottom-2 -right-2 bg-background h-11/2 w-6 " +
                 "rounded-[35%] border text-center cursor-pointer"
               }
             >
