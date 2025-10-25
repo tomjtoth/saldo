@@ -1,9 +1,9 @@
 import { getReceipts } from "@/lib/services/receipts";
 
-import protectedPage from "@/lib/protectedPage";
+import wrapPage from "@/lib/wrapPage";
 import CliReceiptsPage from "@/components/receipts";
 
-export default protectedPage({
+export default wrapPage({
   getData: getReceipts,
   children: <CliReceiptsPage />,
   rewritePath: "/receipts",
