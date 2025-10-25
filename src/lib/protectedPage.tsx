@@ -49,8 +49,8 @@ function protectedPage<T = object>({
       params
     );
 
-    const { id, flags, defaultGroupId } = await currentUser({ redirectTo });
-    const groups = await getData(id);
+    const user = await currentUser({ redirectTo });
+    const groups = await getData(user.id);
 
     const children =
       "children" in rest ? rest.children : rest.genChildren(params);
@@ -60,8 +60,7 @@ function protectedPage<T = object>({
     return (
       <RootDiv
         {...{
-          user: { id, flags },
-          defaultGroupId: defaultGroupId ?? undefined,
+          user,
           groupId: isNaN(gidAsNum) ? undefined : gidAsNum,
           groups,
           rewritePath,
