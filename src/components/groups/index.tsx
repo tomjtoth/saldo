@@ -2,7 +2,7 @@
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { useRootDivCx } from "../rootDiv/clientSide";
+import { useRootDivCx } from "../rootDiv";
 
 import Entry from "./entry";
 import NameDescrAdder from "../nameDescrAdder";

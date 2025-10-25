@@ -17,7 +17,7 @@ export type CombinedState = {
   };
 };
 
-export type Initializer = Pick<CombinedState, "groups" | "user">;
+type Initializer = Pick<CombinedState, "groups" | "user">;
 
 const slice = createSlice({
   name: "combined",

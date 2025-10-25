@@ -12,17 +12,16 @@ import {
 } from "react";
 
 import { useAppDispatch } from "@/lib/hooks";
-import { TGroup } from "@/lib/db";
-import { Initializer, rCombined } from "@/lib/reducers";
+import { TGroup, TUser } from "@/lib/db";
+import { rCombined } from "@/lib/reducers";
 
-export type TRootDiv = {
+type TRootDiv = {
   children: ReactNode;
 
   rewritePath?: string;
-  user?: { id: number; flags: number };
+  user?: TUser;
 
   groupId?: number;
-  defaultGroupId?: number;
   groups?: TGroup[];
 };
 
@@ -31,16 +30,15 @@ type TNamedScrollHandler = {
   handler: UIEventHandler<HTMLDivElement>;
 };
 
-export default function CliRootDiv({
+export default function RootDiv({
   children,
-  sidepanel,
   rewritePath,
 
   groupId,
-  ...srv
-}: TRootDiv & {
-  sidepanel: ReactNode;
-}) {
+  user,
+  groups,
+}: TRootDiv) {
+  if (groups === undefined) groups = [];
   const handlers = useRef<TNamedScrollHandler[]>([]);
 
   const addOnScroll = useCallback(
@@ -59,9 +57,8 @@ export default function CliRootDiv({
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (srv.groups)
-      // rendered on protectedPages
-      dispatch(rCombined.init(srv as Initializer));
+    // rendered on protectedPages
+    if (groups || user) dispatch(rCombined.init({ groups, user }));
 
     if (groupId) {
       if (rewritePath) window.history.replaceState(null, "", rewritePath);
@@ -74,11 +71,10 @@ export default function CliRootDiv({
       value={{
         addOnScroll,
         rmOnScroll,
-        sidepanel,
         rootDivRef,
-        groups: srv.groups ?? [],
+        groups,
         groupId,
-        user: srv.user,
+        user,
       }}
     >
       <div
@@ -97,15 +93,13 @@ export default function CliRootDiv({
 const RootDivCx = createContext<{
   addOnScroll: (name: string, handler: UIEventHandler<HTMLDivElement>) => void;
   rmOnScroll: (name: string) => void;
-  sidepanel: ReactNode;
   groups: TGroup[];
   groupId?: number;
-  user?: { id: number; flags: number };
+  user?: TUser;
   rootDivRef?: RefObject<HTMLDivElement | null>;
 }>({
   addOnScroll: () => {},
   rmOnScroll: () => {},
-  sidepanel: null,
   groups: [],
 });
 
