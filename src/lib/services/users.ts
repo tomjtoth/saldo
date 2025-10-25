@@ -21,14 +21,7 @@ export async function addUser(
           ...userData,
           revisionId,
         })
-        .returning({
-          id: users.id,
-          flags: users.flags,
-          name: users.name,
-          email: users.email,
-          image: users.image,
-          defaultGroupId: users.defaultGroupId,
-        });
+        .returning();
 
       await tx
         .update(revisions)
@@ -60,14 +53,6 @@ export async function currentUser(
   const image = session?.user?.image ?? null;
 
   let user = await db.query.users.findFirst({
-    columns: {
-      id: true,
-      flags: true,
-      name: true,
-      email: true,
-      image: true,
-      defaultGroupId: true,
-    },
     where: eq(users.email, email),
   });
 
