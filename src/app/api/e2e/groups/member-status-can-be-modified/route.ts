@@ -1,8 +1,8 @@
-import protectedRoute from "@/lib/protectedRoute";
+import wrapRoute from "@/lib/wrapRoute";
 import { addMember } from "@/lib/services/groups";
 import { addUser } from "@/lib/services/users";
 
-export const GET = protectedRoute(
+export const GET = wrapRoute(
   { requireSession: false, onlyDuringDevelopment: true },
   async () => {
     const otherUser = await addUser({

@@ -47,7 +47,8 @@ type Overloads = {
   >;
 };
 
-const protectedRoute: Overloads =
+// TODO: rename to `fb wrapRoute`
+const wrapRoute: Overloads =
   <P>(
     optsOrHandler: Options<P> | HandlerWithUser<P>,
     maybeHandler?: Handler<P> | HandlerWithUser<P>
@@ -92,4 +93,4 @@ const protectedRoute: Overloads =
     }
   };
 
-export default protectedRoute;
+export default wrapRoute;
