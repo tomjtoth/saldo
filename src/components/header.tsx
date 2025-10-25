@@ -37,7 +37,7 @@ export default function Header({
 
             <div
               className={
-                "absolute -bottom-2 -right-2 bg-background h-11/2 w-6 " +
+                "absolute -bottom-2 -right-2 bg-background h-6 w-6 " +
                 "rounded-[35%] border text-center cursor-pointer"
               }
             >
