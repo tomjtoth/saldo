@@ -33,21 +33,36 @@ export async function addUser(
   );
 }
 
-export async function currentUser({
-  errorCode,
-  redirectTo,
-  requireSession = true,
-}: {
+interface ArgsWithSession {
   errorCode?: number;
   redirectTo?: string;
-  requireSession?: boolean;
-} = {}) {
+}
+
+interface ArgsWithoutSession {
+  requireSession: false;
+}
+
+type AddUserRetVal = Awaited<ReturnType<typeof addUser>>;
+
+export function currentUser(
+  args: ArgsWithoutSession
+): Promise<void | AddUserRetVal>;
+
+export function currentUser(args?: ArgsWithSession): Promise<AddUserRetVal>;
+
+// Implementation
+export async function currentUser(
+  args: ArgsWithoutSession | ArgsWithSession = {}
+): Promise<void | AddUserRetVal> {
   const session = await auth();
 
   if (!session) {
-    if (!requireSession) return;
-    if (errorCode) err(errorCode);
-    return await signIn("", { redirectTo });
+    if ("requireSession" in args) return;
+    else {
+      const { errorCode, redirectTo } = args;
+      if (errorCode) err(errorCode);
+      return await signIn("", { redirectTo });
+    }
   }
 
   // OAuth profiles without an email are disallowed in @/auth.ts
