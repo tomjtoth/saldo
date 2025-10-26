@@ -67,11 +67,8 @@ export default function ItemShareAvatar({
   return (
     <div className="flex flex-col gap-2 items-center">
       <div className={"relative " + (onChange ? "w-25 h-25" : "w-8 h-8")}>
-        <img
-          src={user.image ?? "TODO: merge this with the svg genration stuff"}
-          alt={`avatar of ${user.name}`}
-          className="object-cover border-2 rounded-full"
-        />
+        <UserAvatar {...user} />
+
         {onChange ? (
           <input
             ref={ref}
