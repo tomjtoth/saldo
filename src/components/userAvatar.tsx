@@ -1,6 +1,10 @@
 import { TUser } from "@/lib/db";
 
-export default function UserAvatar({ name, image }: TUser) {
+export default function UserAvatar({
+  name,
+  image,
+  className = "",
+}: TUser & { className?: string }) {
   const names = (name ?? "").split(" ")!;
   const svgName =
     names.length > 1
@@ -8,12 +12,13 @@ export default function UserAvatar({ name, image }: TUser) {
       : names[0].slice(0, 2).toUpperCase();
 
   const classes =
-    "overflow-hidden shrink-0 object-cover " +
+    className +
+    " overflow-hidden shrink-0 object-cover " +
     "rounded-full border-2 inline-block aspect-square";
 
   return image ? (
     <img
-      className={classes + " h-full"}
+      className={classes}
       height={96}
       width={96}
       src={image}
