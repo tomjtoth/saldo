@@ -98,10 +98,10 @@ export default function ItemRow({
         €
         <input
           ref={costRef}
-          type="text"
+          type="number"
           placeholder="cost"
           className={
-            "w-15 " +
+            "w-15 no-spinner " +
             (isNaN(Number(item.cost)) ? " border-2! border-red-500" : "")
           }
           value={cost}
