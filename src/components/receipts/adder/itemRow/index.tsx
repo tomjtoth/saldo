@@ -9,8 +9,6 @@ import { useModal } from "..";
 import Options from "./options";
 import Modal from "./modal";
 
-const RE_ANY_LETTER = /^\p{Letter}$/u;
-
 export default function ItemRow({
   itemId,
   autoFocus,
@@ -117,7 +115,7 @@ export default function ItemRow({
             if (currReceipt.focusedIdx !== -1) dispatch(red.setFocusedRow(-1));
           }}
           onKeyDown={(ev) => {
-            if (RE_ANY_LETTER.test(ev.key) || ev.shiftKey) {
+            if (ev.shiftKey) {
               ev.preventDefault();
               catRef.current?.focus();
             } else adderKeyDownHandler(ev);
