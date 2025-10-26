@@ -27,7 +27,7 @@ const RECEIPT_COLS_WITH = {
         createdAt: true,
       },
       with: {
-        createdBy: { columns: { name: true } },
+        createdBy: { columns: { id: true, image: true, name: true } },
       },
     },
     items: {
@@ -39,7 +39,7 @@ const RECEIPT_COLS_WITH = {
         flags: true,
       },
     },
-    paidBy: { columns: { name: true } },
+    paidBy: { columns: { id: true, image: true, name: true } },
   },
 };
 
@@ -150,7 +150,7 @@ export async function svcGetReceipts(knownIds: number[]) {
 }
 
 export async function getReceipts(userId: number, knownIds: number[] = []) {
-  const res = (await db.query.groups.findMany({
+  const res: TGroup[] = await db.query.groups.findMany({
     columns: {
       id: true,
       name: true,
@@ -191,7 +191,7 @@ export async function getReceipts(userId: number, knownIds: number[] = []) {
         )
     ),
     orderBy: orderByLowerName,
-  })) as TGroup[];
+  });
 
   const populateArchives = await getArchivePopulator<TReceipt>(
     "receipts",
