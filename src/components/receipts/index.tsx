@@ -9,6 +9,7 @@ import Header from "../header";
 import Adder from "./adder";
 import GroupSelector from "../groups/selector";
 import Scrollers from "./scrollers";
+import Individual from "./individual";
 
 export default function CliReceiptsPage() {
   const rs = useGroupSelector();
@@ -31,48 +32,11 @@ export default function CliReceiptsPage() {
         </p>
       )}
 
-      <div className="p-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 justify-evenly items-center gap-2">
-        {rs.groups.length === 0 ? null : (
-          <>
-            {rs.group?.receipts?.map((rcpt) => (
-              <div
-                key={rcpt.id}
-                className="p-2 shrink-0 border rounded flex gap-2 cursor-pointer select-none justify-between"
-              >
-                <span>
-                  🗓️
-                  <sub>{rcpt.paidOn}</sub>
-                </span>
-
-                <span>
-                  🛍️ <sub>{rcpt.items?.length}</sub>
-                </span>
-
-                <span>
-                  €{" "}
-                  <sub>
-                    {rcpt.items
-                      ?.reduce((sub, { cost }) => sub + cost!, 0)
-                      .toFixed(2)}
-                  </sub>
-                </span>
-
-                <span className="hidden lg:block">
-                  🪪{" "}
-                  <sub>
-                    {rcpt.archives!.length > 0
-                      ? rcpt.archives?.at(0)?.revision?.createdBy?.name
-                      : rcpt.revision?.createdBy?.name}
-                  </sub>
-                </span>
-
-                <span className="hidden lg:block">
-                  💸 <sub>{rcpt.paidBy?.name}</sub>
-                </span>
-              </div>
-            ))}
-          </>
-        )}
+      <div className="p-2 flex flex-wrap justify-center items-center gap-2">
+        {rs.groups.length > 0 &&
+          rs.group!.receipts?.map((rcpt) => (
+            <Individual key={rcpt.id} {...rcpt} />
+          ))}
       </div>
 
       <Scrollers />
