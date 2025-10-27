@@ -46,14 +46,14 @@ type AddUserRetVal = Awaited<ReturnType<typeof addUser>>;
 
 export function currentUser(
   args: ArgsWithoutSession
-): Promise<void | AddUserRetVal>;
+): Promise<undefined | AddUserRetVal>;
 
 export function currentUser(args?: ArgsWithSession): Promise<AddUserRetVal>;
 
 // Implementation
 export async function currentUser(
   args: ArgsWithoutSession | ArgsWithSession = {}
-): Promise<void | AddUserRetVal> {
+): Promise<undefined | AddUserRetVal> {
   const session = await auth();
 
   if (!session) {
