@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import { TGroup, TUser } from "./db";
+import { TGroup } from "./db";
 import { currentUser } from "@/lib/services/users";
 
 import RootDiv from "@/components/rootDiv";
@@ -47,7 +47,9 @@ function wrapPage<T = object>({
     const { groupId: resolvedGroupId } = resolver(params);
     const gidAsNum = Number(resolvedGroupId);
 
-    const user = await currentUser({ requireSession });
+    const user = requireSession
+      ? await currentUser()
+      : await currentUser({ requireSession });
 
     const groups =
       user && "getData" in rest && rest.getData
