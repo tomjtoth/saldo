@@ -29,7 +29,7 @@ export default function Individual(rcpt: TReceipt) {
         </Canceler>
       )}
 
-      <div
+      <li
         key={rcpt.id}
         onClick={() => setShowUpdater(true)}
         className="p-2 shrink-0 border rounded flex w-fit flex-col gap-2 cursor-pointer select-none"
@@ -73,7 +73,7 @@ export default function Individual(rcpt: TReceipt) {
             </div>
           )}
         </div>
-      </div>
+      </li>
     </>
   );
 }

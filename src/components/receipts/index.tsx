@@ -32,12 +32,12 @@ export default function CliReceiptsPage() {
         </p>
       )}
 
-      <div className="p-2 flex flex-wrap justify-center items-center gap-2">
+      <ul className="p-2 flex flex-wrap justify-center items-center gap-2">
         {rs.groups.length > 0 &&
           rs.group!.receipts?.map((rcpt) =>
             rcpt.id === -1 ? null : <Individual key={rcpt.id} {...rcpt} />
           )}
-      </div>
+      </ul>
 
       <Scrollers />
     </>
