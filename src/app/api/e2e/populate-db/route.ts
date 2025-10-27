@@ -1,7 +1,7 @@
-import protectedRoute from "@/lib/protectedRoute";
+import wrapRoute from "@/lib/wrapRoute";
 import { populateDb } from "../(utils)";
 
-export const GET = protectedRoute(
+export const GET = wrapRoute(
   { requireSession: false, onlyDuringDevelopment: true },
   async () => await populateDb()
 );

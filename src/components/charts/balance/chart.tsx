@@ -72,6 +72,15 @@ export default function BalanceChart({
         data={data}
         dot={false}
         connectNulls
+        activeDot={({ cx, cy, value }) => (
+          <circle
+            cx={cx}
+            cy={cy}
+            r={4}
+            strokeWidth={2}
+            fill={value > 0 ? u2.color : u1.color}
+          />
+        )}
         name={[u1.name, u2.name].toSorted().join(" vs ")}
         stroke={`url(#${defId})`}
       />

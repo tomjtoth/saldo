@@ -1,11 +1,11 @@
 "use server";
 
-import * as auth from "@/auth";
+import { signIn, signOut } from "@/auth";
 
 export const svcSignIn = async () => {
-  await auth.signIn();
+  await signIn();
 };
 
 export const svcSignOut = async () => {
-  await auth.signOut({ redirectTo: "/" });
+  await signOut({ redirectTo: "/" });
 };

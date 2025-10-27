@@ -21,14 +21,7 @@ export async function addUser(
           ...userData,
           revisionId,
         })
-        .returning({
-          id: users.id,
-          flags: users.flags,
-          name: users.name,
-          email: users.email,
-          image: users.image,
-          defaultGroupId: users.defaultGroupId,
-        });
+        .returning();
 
       await tx
         .update(revisions)
@@ -40,34 +33,45 @@ export async function addUser(
   );
 }
 
-export async function currentUser(
-  opts: { errorCode?: number; redirectTo?: string } = {}
-) {
-  const { errorCode, redirectTo } = opts;
+interface ArgsWithSession {
+  errorCode?: number;
+  redirectTo?: string;
+}
 
+interface ArgsWithoutSession {
+  requireSession: false;
+}
+
+type AddUserRetVal = Awaited<ReturnType<typeof addUser>>;
+
+export function currentUser(
+  args: ArgsWithoutSession
+): Promise<undefined | AddUserRetVal>;
+
+export function currentUser(args?: ArgsWithSession): Promise<AddUserRetVal>;
+
+// Implementation
+export async function currentUser(
+  args: ArgsWithoutSession | ArgsWithSession = {}
+): Promise<undefined | AddUserRetVal> {
   const session = await auth();
 
   if (!session) {
-    if (errorCode) err(errorCode);
-
-    return await signIn("", { redirectTo });
+    if ("requireSession" in args) return;
+    else {
+      const { errorCode, redirectTo } = args;
+      if (errorCode) err(errorCode);
+      return await signIn("", { redirectTo });
+    }
   }
 
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const email = session?.user?.email!;
-  const name = session?.user?.name ?? `User #${(await db.$count(users)) + 1}`;
-  const image = session?.user?.image ?? null;
+  const email = session.user?.email!;
+  const name = session.user?.name ?? `User #${(await db.$count(users)) + 1}`;
+  const image = session.user?.image ?? null;
 
   let user = await db.query.users.findFirst({
-    columns: {
-      id: true,
-      flags: true,
-      name: true,
-      email: true,
-      image: true,
-      defaultGroupId: true,
-    },
     where: eq(users.email, email),
   });
 

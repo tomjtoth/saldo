@@ -1,4 +1,4 @@
-import { useRootDivCx } from "@/components/rootDiv/clientSide";
+import { useRootDivCx } from "@/components/rootDiv";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 

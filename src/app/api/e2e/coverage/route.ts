@@ -1,6 +1,6 @@
-import protectedRoute from "@/lib/protectedRoute";
+import wrapRoute from "@/lib/wrapRoute";
 
-export const GET = protectedRoute(
+export const GET = wrapRoute(
   { onlyDuringDevelopment: true, requireSession: false },
   async () =>
     Response.json({

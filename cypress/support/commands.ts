@@ -133,6 +133,13 @@ function loginShouldBeVisible() {
 
 function logout() {
   cy.get("#sidepanel-opener").click();
+
+  Cypress.once("uncaught:exception", (err) => {
+    if (err.message.includes("NEXT_REDIRECT")) {
+      return false; // prevent Cypress from failing the test
+    }
+  });
+
   cy.get("#sign-out-button").click();
   cy.location("pathname", { timeout: 10000 }).should("eq", "/");
 }

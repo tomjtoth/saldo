@@ -34,7 +34,7 @@ export const rGroups = {
   },
 
   setDefaultGroupId: (rs: CS, { payload }: PayloadAction<number>) => {
-    rs.defaultGroupId = payload;
+    rs.user!.defaultGroupId = payload;
   },
 
   updateMembership: (rs: CS, { payload }: PayloadAction<TMembership>) => {

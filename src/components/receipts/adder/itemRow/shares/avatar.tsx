@@ -7,6 +7,8 @@ import { useAppSelector, useGroupSelector } from "@/lib/hooks";
 import { TCliItem } from "@/lib/reducers";
 import { costToFixed } from ".";
 
+import UserAvatar from "@/components/userAvatar";
+
 export default function ItemShareAvatar({
   user,
   value,
@@ -67,11 +69,8 @@ export default function ItemShareAvatar({
   return (
     <div className="flex flex-col gap-2 items-center">
       <div className={"relative " + (onChange ? "w-25 h-25" : "w-8 h-8")}>
-        <img
-          src={user.image ?? "TODO: merge this with the svg genration stuff"}
-          alt={`avatar of ${user.name}`}
-          className="object-cover border-2 rounded-full"
-        />
+        <UserAvatar {...user} />
+
         {onChange ? (
           <input
             ref={ref}
@@ -80,7 +79,10 @@ export default function ItemShareAvatar({
             min={0}
             value={value === 0 ? "" : value}
             onChange={onChange}
-            className="no-spinner absolute -bottom-2 -right-2 w-10 h-10 rounded-full! text-center bg-background border"
+            className={
+              "no-spinner absolute -bottom-2 -right-6 w-14 h-10 rounded-full! " +
+              "text-center bg-background "
+            }
           />
         ) : (
           <div className="absolute -bottom-2 -right-2 w-5 h-5 rounded-full text-center text-xs bg-background border">
@@ -88,6 +90,7 @@ export default function ItemShareAvatar({
           </div>
         )}
       </div>
+
       {onChange && (
         <>
           <div className="text-center">{user.name}</div>

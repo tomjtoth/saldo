@@ -1,7 +1,7 @@
-import protectedRoute from "@/lib/protectedRoute";
+import wrapRoute from "@/lib/wrapRoute";
 import { truncateDb } from "@/lib/db";
 
-export const GET = protectedRoute(
+export const GET = wrapRoute(
   { requireSession: false, onlyDuringDevelopment: true },
   truncateDb
 );

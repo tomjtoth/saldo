@@ -1,9 +1,9 @@
 import { getGroups } from "@/lib/services/groups";
 
-import protectedPage from "@/lib/protectedPage";
+import wrapPage from "@/lib/wrapPage";
 import CliGroupsPage from "@/components/groups";
 
-export default protectedPage({
+export default wrapPage({
   resolveParams: ({ groupId }) => ({
     redirectTo: groupId ? `/groups/${groupId}` : "/groups",
     groupId,
