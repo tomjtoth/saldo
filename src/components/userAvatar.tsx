@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { TUser } from "@/lib/db";
 
 export default function UserAvatar({
@@ -14,15 +16,16 @@ export default function UserAvatar({
   const classes =
     className +
     " overflow-hidden shrink-0 object-cover " +
-    "rounded-full border-2 inline-block aspect-square";
+    "rounded-full border-2 border-foreground inline-block aspect-square";
 
   return image ? (
-    <img
+    <Image
+      unoptimized
       className={classes}
       height={96}
       width={96}
       src={image}
-      alt="User Avatar"
+      alt={`avatar of ${name ?? "someone"}`}
       draggable={false}
     />
   ) : (
