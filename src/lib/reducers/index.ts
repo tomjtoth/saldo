@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TGroup, TUser } from "@/lib/db";
+import { TGroup, TItem, TUser } from "@/lib/db";
 import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
 import {
@@ -13,10 +13,18 @@ import {
 
 export * from "./receipts";
 
+export type TCliGroup = Omit<TGroup, "items"> & {
+  items?: (Omit<TItem, "cost"> & { cost: number | string })[];
+  activeReceipt?: {
+    id: number;
+    focusedIdx?: number;
+  };
+};
+
 export type CombinedState = {
-  user?: Pick<TUser, "id" | "flags" | "defaultGroupId">;
+  user?: TUser;
   groupId?: number;
-  groups: TGroup[];
+  groups: TCliGroup[];
   newReceipts: {
     [key: number]: TCliReceipt;
   };
