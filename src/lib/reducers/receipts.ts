@@ -1,7 +1,7 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { combinedSA as csa, CombinedState as CS } from ".";
+import { combinedSA as csa, CombinedState as CS, Initializer } from ".";
 import { TReceipt, TGroup } from "@/lib/db";
 import { VDate } from "../utils";
 
@@ -51,7 +51,18 @@ function currentReceipt(rs: CS) {
   return current;
 }
 
-export const sortReceipts = (groups: TGroup[]) =>
+export function addEmptyReceipts(data: Initializer) {
+  data.groups?.forEach((group) => {
+    group.receipts?.push({
+      id: -1,
+      paidOn: VDate.toStrISO(),
+      paidById: data.user!.id,
+      items: [],
+    });
+  });
+}
+
+const sortReceipts = (groups: TGroup[]) =>
   groups.forEach((group) =>
     group.receipts?.sort(({ paidOn: a }, { paidOn: b }) =>
       b! < a! ? -1 : b! > a! ? 1 : 0

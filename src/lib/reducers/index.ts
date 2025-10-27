@@ -4,7 +4,12 @@ import { AppDispatch } from "../store";
 import { TGroup, TUser } from "@/lib/db";
 import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
-import { TCliReceipt, rReceipts, tReceipts } from "./receipts";
+import {
+  TCliReceipt,
+  addEmptyReceipts,
+  rReceipts,
+  tReceipts,
+} from "./receipts";
 
 export * from "./receipts";
 
@@ -44,6 +49,7 @@ export const combinedSA = slice.actions;
 
 export const rCombined = {
   init: (data: Initializer) => (dispatch: AppDispatch) => {
+    addEmptyReceipts(data);
     return dispatch(combinedSA.init(data));
   },
 

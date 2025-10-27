@@ -34,9 +34,9 @@ export default function CliReceiptsPage() {
 
       <div className="p-2 flex flex-wrap justify-center items-center gap-2">
         {rs.groups.length > 0 &&
-          rs.group!.receipts?.map((rcpt) => (
-            <Individual key={rcpt.id} {...rcpt} />
-          ))}
+          rs.group!.receipts?.map((rcpt) =>
+            rcpt.id === -1 ? null : <Individual key={rcpt.id} {...rcpt} />
+          )}
       </div>
 
       <Scrollers />
