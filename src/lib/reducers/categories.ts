@@ -17,7 +17,7 @@ import {
 import { toast } from "react-toastify";
 
 export const rCategories = {
-  updateCategory: (rs: CS, { payload }: PayloadAction<TCategory>) => {
+  updateCategory(rs: CS, { payload }: PayloadAction<TCategory>) {
     const cats = rs.groups.find((g) => g.id === payload.groupId)!.categories!;
 
     const popFrom = cats.findIndex(({ id }) => id === payload.id)!;
@@ -25,17 +25,17 @@ export const rCategories = {
     insertAlphabetically(payload, cats);
   },
 
-  addCategory: (rs: CS, { payload }: PayloadAction<TCategory>) => {
+  addCategory(rs: CS, { payload }: PayloadAction<TCategory>) {
     const group = rs.groups.find((g) => g.id === payload.groupId)!;
     const cats = group.categories!;
 
     insertAlphabetically(payload, cats);
   },
 
-  updateDefaultCategoryId: (
+  updateDefaultCategoryId(
     rs: CS,
     { payload }: PayloadAction<{ groupId: number; categoryId: number }>
-  ) => {
+  ) {
     const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
     const ms = group.memberships?.at(0);
 

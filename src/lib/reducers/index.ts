@@ -37,7 +37,7 @@ const slice = createSlice({
   initialState: { groups: [], newReceipts: {} } as CombinedState,
 
   reducers: {
-    init: (rs, { payload }: PayloadAction<Initializer>) => {
+    init(rs, { payload }: PayloadAction<Initializer>) {
       if (payload.user !== undefined) rs.user = payload.user;
 
       if (rs.groupId === undefined) {

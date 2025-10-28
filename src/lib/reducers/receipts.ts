@@ -70,17 +70,17 @@ const sortReceipts = (groups: TGroup[]) =>
   );
 
 export const rReceipts = {
-  setPaidOn: (rs: CS, { payload }: PayloadAction<string>) => {
+  setPaidOn(rs: CS, { payload }: PayloadAction<string>) {
     const curr = currentReceipt(rs);
     curr.paidOn = payload;
   },
 
-  setPaidBy: (rs: CS, { payload }: PayloadAction<number>) => {
+  setPaidBy(rs: CS, { payload }: PayloadAction<number>) {
     const curr = currentReceipt(rs);
     curr.paidBy = payload;
   },
 
-  addRow: (rs: CS, { payload }: PayloadAction<number | undefined>) => {
+  addRow(rs: CS, { payload }: PayloadAction<number | undefined>) {
     const curr = currentReceipt(rs);
 
     if (payload !== undefined) {
@@ -102,19 +102,19 @@ export const rReceipts = {
     }
   },
 
-  rmRow: (rs: CS, { payload }: PayloadAction<number>) => {
+  rmRow(rs: CS, { payload }: PayloadAction<number>) {
     const curr = currentReceipt(rs);
     const idx = curr.items.findIndex((i) => i.id === payload);
 
     curr.items.splice(idx, 1);
   },
 
-  setFocusedRow: (rs: CS, { payload }: PayloadAction<number>) => {
+  setFocusedRow(rs: CS, { payload }: PayloadAction<number>) {
     const curr = currentReceipt(rs);
     curr.focusedIdx = payload;
   },
 
-  updateItem: (rs: CS, { payload }: PayloadAction<TItemUpdater>) => {
+  updateItem(rs: CS, { payload }: PayloadAction<TItemUpdater>) {
     const curr = currentReceipt(rs);
 
     const item = curr.items.find((i) => i.id === payload.id)!;
@@ -124,7 +124,7 @@ export const rReceipts = {
     if (payload.shares !== undefined) item.shares = payload.shares;
   },
 
-  addReceipt: (rs: CS, { payload }: PayloadAction<TReceipt>) => {
+  addReceipt(rs: CS, { payload }: PayloadAction<TReceipt>) {
     const receipts = rs.groups.find((group) => group.id === payload.groupId)!
       .receipts!;
 
@@ -135,7 +135,7 @@ export const rReceipts = {
     delete rs.newReceipts[payload.groupId!];
   },
 
-  addFetchedReceipts: (rs: CS, { payload }: PayloadAction<TGroup[]>) => {
+  addFetchedReceipts(rs: CS, { payload }: PayloadAction<TGroup[]>) {
     payload.forEach((grp) => {
       rs.groups
         .find((group) => group.id === grp.id)
