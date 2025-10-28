@@ -145,10 +145,18 @@ export const rReceipts = {
     sortReceipts(rs.groups);
   },
 
-  setActiveReceiptId(rs: CS, { payload }: PayloadAction<number>) {
+  setActiveReceipt(rs: CS, { payload }: PayloadAction<number | null>) {
     const group = rs.groups.find((g) => g.id === rs.groupId)!;
 
-    group.activeReceipt = { id: payload };
+    if (typeof payload === "number") {
+      const activeReceipt = group.receipts!.find(
+        (rcpt) => rcpt.id === payload
+      )!;
+
+      group.receipts!.active = activeReceipt;
+    } else {
+      delete group.receipts!["active"];
+    }
   },
 };
 
@@ -185,7 +193,7 @@ export const tReceipts = {
     return (dispatch: AppDispatch) => dispatch(csa.addFetchedReceipts(groups));
   },
 
-  setActiveReceiptId: (id: number) => {
-    return (dispatch: AppDispatch) => dispatch(csa.setActiveReceiptId(id));
+  setActiveReceipt: (id: number | null) => {
+    return (dispatch: AppDispatch) => dispatch(csa.setActiveReceipt(id));
   },
 };
