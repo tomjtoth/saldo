@@ -144,6 +144,12 @@ export const rReceipts = {
 
     sortReceipts(rs.groups);
   },
+
+  setActiveReceiptId(rs: CS, { payload }: PayloadAction<number>) {
+    const group = rs.groups.find((g) => g.id === rs.groupId)!;
+
+    group.activeReceipt = { id: payload };
+  },
 };
 
 export const tReceipts = {
@@ -177,5 +183,9 @@ export const tReceipts = {
 
   addFetchedReceipts: (groups: TGroup[]) => {
     return (dispatch: AppDispatch) => dispatch(csa.addFetchedReceipts(groups));
+  },
+
+  setActiveReceiptId: (id: number) => {
+    return (dispatch: AppDispatch) => dispatch(csa.setActiveReceiptId(id));
   },
 };
