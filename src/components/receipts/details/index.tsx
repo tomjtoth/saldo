@@ -23,10 +23,10 @@ export default function Details() {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
   const nodes = useBodyNodes();
-  const currReceipt = rs.group?.activeReceipt!;
+  const receipt = rs.group?.activeReceipt!;
 
   const submitReceipt = () => {
-    const nanItem = currReceipt!.items!.findIndex(
+    const nanItem = receipt!.items!.findIndex(
       (item) => item.cost === "" || isNaN(Number(item.cost))
     );
 
@@ -35,13 +35,19 @@ export default function Details() {
       return toast.error("Invalid item cost", appToast.theme());
     }
 
+    if (receipt.id !== -1)
+      return toast.error(
+        "Updating receipts is not yet implemented",
+        appToast.theme()
+      );
+
     const groupId = rs.groupId!;
 
     appToast.promise(
       svcAddReceipt({
-        ...currReceipt,
+        ...receipt,
         groupId,
-        items: currReceipt.items!.map((i) => ({
+        items: receipt.items!.map((i) => ({
           ...i,
           cost: parseFloat(i.cost as string),
         })),
@@ -57,7 +63,7 @@ export default function Details() {
   const users = rs.users;
   const isMultiUser = users.length > 1;
 
-  const paidBy = users.find((u) => u.id === currReceipt.paidBy?.id);
+  const paidBy = users.find((u) => u.id === receipt.paidBy?.id);
 
   return (
     <Canceler
@@ -78,7 +84,7 @@ export default function Details() {
               required
               id="paid-on"
               type="date"
-              value={currReceipt.paidOn}
+              value={receipt.paidOn}
               onChange={(ev) => dispatch(red.setPaidOn(ev.target.value))}
             />
             <label className="hidden sm:inline-block" htmlFor="paid-on">
@@ -102,13 +108,13 @@ export default function Details() {
               : "sm:grid-cols-[min-content_auto_min-content_min-content_min-content]")
           }
         >
-          {currReceipt?.items!.map((item, rowIdx) => (
+          {receipt?.items!.map((item, rowIdx) => (
             <ItemRow
               key={item.id}
-              autoFocus={rowIdx === currReceipt.focusedIdx}
+              autoFocus={rowIdx === receipt.focusedIdx}
               {...item}
               onKeyDown={(ev) => {
-                const lastIdx = currReceipt.items!.length - 1;
+                const lastIdx = receipt.items!.length - 1;
 
                 if (
                   ((ev.key === "ArrowUp" || ev.key === "PageUp") &&
@@ -148,7 +154,7 @@ export default function Details() {
               type="text"
               className="rounded border p-1 w-15 border-none!"
               readOnly
-              value={currReceipt
+              value={receipt
                 .items!.reduce((sub, { cost }) => {
                   const asNum = Number(cost);
                   return sub + (isNaN(asNum) ? 0 : asNum);
