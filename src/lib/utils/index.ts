@@ -1,4 +1,4 @@
-import { Draft, WritableDraft } from "immer";
+import { current, Draft, isDraft, WritableDraft } from "immer";
 import { toast, ToastPromiseParams } from "react-toastify";
 
 import { TCategory } from "@/lib/db";
@@ -52,6 +52,14 @@ function opsDone<T extends Pick<TCategory, "name" | "description" | "flags">>(
 
   return ops[0].toUpperCase() + ops.slice(1);
 }
+
+export const deepClone = <T>(obj: T) => {
+  try {
+    return structuredClone(isDraft(obj) ? current(obj) : obj);
+  } catch {
+    return JSON.parse(JSON.stringify(obj)) as T;
+  }
+};
 
 export const appToast = {
   messages: (operation: string) =>
