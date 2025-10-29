@@ -23,7 +23,7 @@ export default function Details() {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
   const nodes = useBodyNodes();
-  const receipt = rs.group?.activeReceipt!;
+  const receipt = rs.group!.activeReceipt!;
 
   const submitReceipt = () => {
     const nanItem = receipt!.items!.findIndex(

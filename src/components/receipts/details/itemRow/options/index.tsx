@@ -17,7 +17,7 @@ export default function Options({
 }) {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
-  const currReceipt = rs.group?.activeReceipt!;
+  const currReceipt = rs.group!.activeReceipt!;
 
   const nodes = useBodyNodes();
   const showSetter = () => {

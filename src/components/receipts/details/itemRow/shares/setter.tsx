@@ -13,7 +13,7 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
   const [verbose, setVerbose] = useState(false);
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
-  const currReceipt = rs.group?.activeReceipt!;
+  const currReceipt = rs.group!.activeReceipt!;
 
   const item = currReceipt.items!.find((item) => item.id === itemId)!;
   const users = rs.users;
