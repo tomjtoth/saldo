@@ -9,10 +9,10 @@ import {
   isActive,
   orderByLowerName,
   TGroup,
+  TItemShare,
   TReceipt,
 } from "@/lib/db";
 import { groups, items, itemShares, memberships, receipts } from "../db/schema";
-import { TCliReceipt } from "../reducers";
 import { err, nulledEmptyStrings, sortByName } from "../utils";
 import { currentUser } from "./users";
 
@@ -20,6 +20,7 @@ const RECEIPT_COLS_WITH = {
   columns: {
     id: true,
     paidOn: true,
+    paidById: true,
   },
   with: {
     revision: {
@@ -38,59 +39,64 @@ const RECEIPT_COLS_WITH = {
         categoryId: true,
         flags: true,
       },
+      with: {
+        itemShares: true as const,
+      },
     },
     paidBy: { columns: { id: true, image: true, name: true } },
   },
 };
 
-export type TReceiptInput = TCliReceipt & { groupId: number };
-
 export async function svcAddReceipt({
   groupId,
   paidOn,
-  paidBy,
+  paidById,
   items,
-}: TReceiptInput) {
+}: Parameters<typeof createReceipt>[1]) {
   const { id: addedBy } = await currentUser();
 
   if (
     typeof groupId !== "number" ||
     typeof paidOn !== "string" ||
-    typeof paidBy !== "number" ||
+    typeof paidById !== "number" ||
     !Array.isArray(items) ||
     items.length === 0
   )
-    err();
+    err(400);
 
   return await createReceipt(addedBy, {
     groupId,
     paidOn,
-    paidBy,
+    paidById,
     items,
   });
 }
 
 export async function createReceipt(
   revisedBy: number,
-  { groupId, paidOn, paidBy, items: itemsCli }: TReceiptInput
+  {
+    groupId,
+    paidOn,
+    paidById,
+    items: itemsCli,
+  }: Required<Pick<TReceipt, "groupId" | "paidOn" | "paidById" | "items">>
 ) {
   return await atomic(
     { operation: "Adding receipt", revisedBy },
     async (tx, revisionId) => {
       const [{ receiptId }] = await tx
         .insert(receipts)
-        .values({ groupId, revisionId, paidOn, paidById: paidBy })
+        .values({ groupId, revisionId, paidOn, paidById })
         .returning({ receiptId: receipts.id });
 
       const itemIds = await tx
         .insert(items)
         .values(
-          itemsCli.map(({ cost: strCost, categoryId, notes }) => {
+          itemsCli.map(({ cost, categoryId, notes }) => {
             if (typeof categoryId !== "number")
               err(`categoryId "${categoryId}" is NaN`);
 
-            const cost = parseFloat(strCost);
-            if (isNaN(cost)) err(`cost "${strCost}" is NaN`);
+            if (typeof cost !== "number") err(`cost "${cost}" is NaN`);
 
             if (notes !== null && typeof notes !== "string")
               err(`note "${notes}" is not a string`);
@@ -106,22 +112,30 @@ export async function createReceipt(
         )
         .returning({ id: items.id });
 
-      const parsedItemShares = itemsCli.flatMap((i, idx) =>
-        Object.entries(i.shares)
-          .filter(([, share]) => share !== 0)
-          .map(([uidStr, share]) => {
-            if (typeof share !== "number") err(`share ${share} is NaN`);
+      const parsedItemShares = itemsCli.reduce(
+        (shares, { itemShares }, idx) => {
+          const filteredItemShares = itemShares!.filter(
+            ({ share }) => (share ?? 0) > 0
+          );
+          if (
+            filteredItemShares.length !== 1 ||
+            filteredItemShares[0].userId !== paidById
+          ) {
+            shares.push(
+              ...filteredItemShares.map((sh) => ({
+                userId: sh.userId!,
+                share: sh.share!,
+                revisionId,
+                itemId: itemIds[idx].id,
+              }))
+            );
+          }
 
-            const userId = Number(uidStr);
-            if (isNaN(userId)) err(`userId ${uidStr} is NaN`);
-
-            return {
-              itemId: itemIds[idx].id,
-              userId,
-              revisionId,
-              share,
-            };
-          })
+          return shares;
+        },
+        [] as Required<
+          Pick<TItemShare, "revisionId" | "itemId" | "userId" | "share">
+        >[]
       );
 
       if (parsedItemShares.length) {
