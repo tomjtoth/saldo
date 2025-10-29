@@ -2,30 +2,25 @@
 
 import { KeyboardEventHandler, useEffect, useRef } from "react";
 
-import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
-import { rCombined as red } from "@/lib/reducers";
-import { useModal } from "..";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
+import { rCombined as red, TCliItem } from "@/lib/reducers";
+import { useBodyNodes } from "@/components/bodyNodes";
 
 import Options from "./options";
-import Modal from "./modal";
+import OptionsAsModal from "./options/modal";
 
 export default function ItemRow({
-  itemId,
   autoFocus,
   onKeyDown: adderKeyDownHandler,
-}: {
-  itemId: number;
+  ...item
+}: TCliItem & {
   autoFocus: boolean;
   onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 }) {
   const dispatch = useAppDispatch();
+  const nodes = useBodyNodes();
   const rs = useGroupSelector();
-  const currReceipt = useAppSelector((s) =>
-    rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
-  );
   const isMultiUser = rs.users.length > 1;
-
-  const { setModal } = useModal();
 
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
@@ -34,13 +29,9 @@ export default function ItemRow({
     if (autoFocus) costRef.current?.focus();
   }, [autoFocus]);
 
-  if (!currReceipt) return null;
-
-  const item = currReceipt.items.find((item) => item.id === itemId)!;
   // TODO: buggy, unable to edit numbers properly...
   // const costAsNum = Number(i.cost);
   // const cost = isNaN(costAsNum) ? i.cost : costAsNum.toFixed(2);
-  const cost = item.cost;
 
   return (
     <>
@@ -51,7 +42,7 @@ export default function ItemRow({
         onChange={(ev) =>
           dispatch(
             red.updateItem({
-              id: item.id,
+              id: item.id!,
               categoryId: Number(ev.target.value),
             })
           )
@@ -72,7 +63,11 @@ export default function ItemRow({
 
       <button
         className="sm:hidden"
-        onClick={() => setModal(<Modal {...{ itemId }} />)}
+        onClick={() =>
+          nodes.push(
+            <OptionsAsModal key="options-as-modal" {...{ itemId: item.id! }} />
+          )
+        }
       >
         ⚙️
       </button>
@@ -83,7 +78,7 @@ export default function ItemRow({
           (isMultiUser ? "col-span-4" : "col-span-3")
         }
       >
-        <Options {...{ itemId }} />
+        <Options {...{ itemId: item.id! }} />
       </div>
 
       <form
@@ -99,21 +94,19 @@ export default function ItemRow({
           type="number"
           placeholder="cost"
           className={
-            "w-15 no-spinner " +
+            "w-15 no-spinner" +
             (isNaN(Number(item.cost)) ? " border-2! border-red-500" : "")
           }
-          value={cost}
+          value={item.cost}
           onChange={(ev) =>
             dispatch(
               red.updateItem({
-                id: item.id,
+                id: item.id!,
                 cost: ev.target.value.replace(",", "."),
               })
             )
           }
-          onFocus={() => {
-            if (currReceipt.focusedIdx !== -1) dispatch(red.setFocusedRow(-1));
-          }}
+          onFocus={() => dispatch(red.setFocusedRow(-1))}
           onKeyDown={(ev) => {
             if (ev.shiftKey) {
               ev.preventDefault();

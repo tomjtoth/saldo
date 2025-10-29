@@ -1,12 +1,12 @@
 "use client";
 
-import { useAppDispatch, useAppSelector, useGroupSelector } from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { useModal } from "..";
 
 import Canceler from "@/components/canceler";
-import ItemShareSetter from "./shares/setter";
-import ItemShareAvatar from "./shares/avatar";
+import ItemShareSetter from "../shares/setter";
+import ItemShareAvatar from "../shares/avatar";
+import { useBodyNodes } from "@/components/bodyNodes";
 
 export default function Options({
   itemId,
@@ -17,29 +17,30 @@ export default function Options({
 }) {
   const dispatch = useAppDispatch();
   const rs = useGroupSelector();
-  const currReceipt = useAppSelector((s) =>
-    rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
-  )!;
+  const currReceipt = rs.group?.activeReceipt!;
 
-  const { setModal } = useModal();
+  const nodes = useBodyNodes();
   const showSetter = () => {
-    setModal(
+    nodes.push(
       <Canceler
+        key="options"
         className={
           "z-2" + (hideModal ? " backdrop-opacity-100 bg-background/50" : "")
         }
-        onClick={() => setModal(null)}
+        onClick={nodes.pop}
       >
         <ItemShareSetter {...{ itemId }} />
       </Canceler>
     );
   };
 
-  const item = currReceipt.items.find((item) => item.id === itemId)!;
+  const item = currReceipt.items!.find((item) => item.id === itemId);
+
+  if (!item) return null;
 
   const users = rs.users;
   const isMultiUser = users.length > 1;
-  const shares = Object.entries(item.shares).filter(([, val]) => !!val);
+  const shares = item.itemShares;
 
   return (
     <>
@@ -47,11 +48,11 @@ export default function Options({
         rows={1}
         placeholder="Optional comments..."
         className="resize-none grow bg-background"
-        value={item.notes}
+        value={item.notes ?? ""}
         onChange={(ev) =>
           dispatch(
             red.updateItem({
-              id: item.id,
+              id: item.id!,
               notes: ev.target.value,
             })
           )
@@ -59,17 +60,18 @@ export default function Options({
       />
 
       {isMultiUser &&
-        (shares.length > 0 ? (
+        ((shares?.reduce((sum, { share }) => sum + (share ?? 0), 0) ?? 0) >
+        0 ? (
           <div
             className="flex gap-2 cursor-pointer mr-2 mb-2 sm:mb-0 items-center justify-evenly"
             onClick={showSetter}
           >
-            {shares.map(([userId, share]) =>
+            {shares!.map(({ userId, share }) =>
               share === 0 ? null : (
                 <ItemShareAvatar
                   key={`${item.id}-${userId}`}
                   user={users.find((user) => user.id === Number(userId))!}
-                  value={share}
+                  value={share!}
                 />
               )
             )}
@@ -88,11 +90,11 @@ export default function Options({
           </button>
         ))}
 
-      {currReceipt.items.length > 1 && (
+      {currReceipt.items!.length > 1 && (
         <button
           className="inline-flex items-center gap-2 bg-background"
           onClick={() => {
-            dispatch(red.rmRow(item.id));
+            dispatch(red.rmRow(item.id!));
             if (hideModal) hideModal();
           }}
         >
