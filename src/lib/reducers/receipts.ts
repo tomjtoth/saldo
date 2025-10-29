@@ -1,28 +1,14 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { combinedSA as csa, CombinedState as CS, Initializer } from ".";
-import { TReceipt, TGroup } from "@/lib/db";
-import { VDate } from "../utils";
-
-export type TCliReceipt = {
-  paidOn: string;
-  paidBy: number;
-  items: TCliItem[];
-  focusedIdx?: number;
-};
-
-export type TCliItem = {
-  id: number;
-  categoryId: number;
-  cost: string;
-  notes: string;
-  shares: {
-    [key: number]: number;
-  };
-};
-
-type TItemUpdater = Pick<TCliItem, "id"> & Partial<Omit<TCliItem, "id">>;
+import {
+  combinedSA as csa,
+  CombinedState as CS,
+  Initializer,
+  TCliItem,
+} from ".";
+import { TReceipt, TGroup, TItem } from "@/lib/db";
+import { deepClone, VDate } from "../utils";
 
 // this provides the key prop to React during `items.map( ... )`
 // TODO: enable drag n drop re-arrangement of items in adder
@@ -32,24 +18,24 @@ const addItem = (categoryId: number) => ({
   categoryId,
   cost: "",
   notes: "",
-  shares: {},
+  itemShares: [],
 });
 
-function currentReceipt(rs: CS) {
-  let current = rs.newReceipts[rs.groupId!];
+const getActiveGroup = (rs: CS, groupId?: number) =>
+  rs.groups.find((grp) => grp.id === (groupId ?? rs.groupId))!;
 
-  if (!current) {
-    current = {
-      paidOn: VDate.toStrISO(),
-      paidBy: rs.user!.id!,
-      items: [],
-    };
+const getDefaultCategory = (rs: CS, groupId?: number) => {
+  const group = getActiveGroup(rs, groupId);
 
-    rs.newReceipts[rs.groupId!] = current;
-  }
+  return (
+    group.memberships?.at(0)?.defaultCategoryId ?? group.categories!.at(0)!.id!
+  );
+};
 
-  return current;
-}
+const getActiveUsers = (rs: CS) =>
+  getActiveGroup(rs).memberships?.map(({ user }) => user!);
+
+const getActiveReceipt = (rs: CS) => getActiveGroup(rs).activeReceipt!;
 
 export function addEmptyReceipts(data: Initializer) {
   data.groups?.forEach((group) => {
@@ -57,7 +43,11 @@ export function addEmptyReceipts(data: Initializer) {
       id: -1,
       paidOn: VDate.toStrISO(),
       paidById: data.user!.id,
-      items: [],
+      paidBy: data.user,
+      items: [
+        // cost is of type string on the client side, big deal! :'D
+        addItem(getDefaultCategory(data as CS, group.id!)) as unknown as TItem,
+      ],
     });
   });
 }
@@ -71,68 +61,73 @@ const sortReceipts = (groups: TGroup[]) =>
 
 export const rReceipts = {
   setPaidOn(rs: CS, { payload }: PayloadAction<string>) {
-    const curr = currentReceipt(rs);
-    curr.paidOn = payload;
+    const receipt = getActiveReceipt(rs);
+    receipt.paidOn = payload;
   },
 
   setPaidBy(rs: CS, { payload }: PayloadAction<number>) {
-    const curr = currentReceipt(rs);
-    curr.paidBy = payload;
+    const receipt = getActiveReceipt(rs);
+    const users = getActiveUsers(rs);
+    const user = users?.find((u) => u.id === payload);
+
+    receipt.paidBy = user;
+    receipt.paidById = payload;
   },
 
   addRow(rs: CS, { payload }: PayloadAction<number | undefined>) {
-    const curr = currentReceipt(rs);
+    const receipt = getActiveReceipt(rs);
 
     if (payload !== undefined) {
-      const idx = curr.items.findIndex((i) => i.id === payload);
-      curr.focusedIdx = idx + 1;
-      curr.items.splice(
+      const idx = receipt.items!.findIndex((i) => i.id === payload);
+      receipt.focusedIdx = idx + 1;
+      receipt.items!.splice(
         idx + 1,
         0,
         // inherit categoryId from the row above
-        addItem(curr.items[idx].categoryId)
+        addItem(receipt.items![idx].categoryId!)
       );
     } else {
-      const group = rs.groups.find((group) => group.id === rs.groupId)!;
-      const defCat =
-        group.memberships?.at(0)?.defaultCategoryId ??
-        group.categories!.at(0)!.id!;
+      const group = getActiveGroup(rs);
 
-      curr.items.push(addItem(defCat));
+      if (group) {
+        const defCat = getDefaultCategory(rs, group.id);
+        receipt.items!.push(addItem(defCat));
+      }
     }
   },
 
   rmRow(rs: CS, { payload }: PayloadAction<number>) {
-    const curr = currentReceipt(rs);
-    const idx = curr.items.findIndex((i) => i.id === payload);
+    const receipt = getActiveReceipt(rs);
+    const idx = receipt.items!.findIndex((i) => i.id === payload);
 
-    curr.items.splice(idx, 1);
+    receipt.items!.splice(idx, 1);
   },
 
   setFocusedRow(rs: CS, { payload }: PayloadAction<number>) {
-    const curr = currentReceipt(rs);
-    curr.focusedIdx = payload;
+    const receipt = getActiveReceipt(rs);
+    receipt.focusedIdx = payload;
   },
 
-  updateItem(rs: CS, { payload }: PayloadAction<TItemUpdater>) {
-    const curr = currentReceipt(rs);
+  updateItem(rs: CS, { payload }: PayloadAction<TCliItem>) {
+    const receipt = getActiveReceipt(rs);
 
-    const item = curr.items.find((i) => i.id === payload.id)!;
+    const item = receipt.items!.find((i) => i.id === payload.id)!;
     if (payload.categoryId !== undefined) item.categoryId = payload.categoryId;
     if (payload.cost !== undefined) item.cost = payload.cost;
     if (payload.notes !== undefined) item.notes = payload.notes;
-    if (payload.shares !== undefined) item.shares = payload.shares;
+    if (payload.itemShares !== undefined) item.itemShares = payload.itemShares;
   },
 
   addReceipt(rs: CS, { payload }: PayloadAction<TReceipt>) {
-    const receipts = rs.groups.find((group) => group.id === payload.groupId)!
-      .receipts!;
+    const group = getActiveGroup(rs, payload.groupId);
 
-    const insertAt = receipts.findIndex((r) => r.paidOn! < payload.paidOn!);
+    const insertAt = group.receipts!.findIndex(
+      (r) => r.paidOn! < payload.paidOn!
+    );
 
-    receipts.splice(insertAt < 0 ? 0 : insertAt, 0, payload);
+    group.receipts!.splice(insertAt < 0 ? 0 : insertAt, 0, payload);
 
-    delete rs.newReceipts[payload.groupId!];
+    delete group["activeReceipt"];
   },
 
   addFetchedReceipts(rs: CS, { payload }: PayloadAction<TGroup[]>) {
@@ -145,17 +140,18 @@ export const rReceipts = {
     sortReceipts(rs.groups);
   },
 
-  setActiveReceipt(rs: CS, { payload }: PayloadAction<number | null>) {
-    const group = rs.groups.find((g) => g.id === rs.groupId)!;
+  setActiveReceipt(rs: CS, { payload }: PayloadAction<number | undefined>) {
+    const group = getActiveGroup(rs);
 
     if (typeof payload === "number") {
       const activeReceipt = group.receipts!.find(
         (rcpt) => rcpt.id === payload
       )!;
 
-      group.receipts!.active = activeReceipt;
+      const detachedClone = deepClone(activeReceipt);
+      group.activeReceipt = detachedClone;
     } else {
-      delete group.receipts!["active"];
+      delete group["activeReceipt"];
     }
   },
 };
@@ -165,8 +161,8 @@ export const tReceipts = {
     return dispatch(csa.setPaidOn(date));
   },
 
-  setPaidBy: (strUserId: string) => (dispatch: AppDispatch) => {
-    return dispatch(csa.setPaidBy(Number(strUserId)));
+  setPaidBy: (userId: number) => (dispatch: AppDispatch) => {
+    return dispatch(csa.setPaidBy(userId));
   },
 
   addRow: (afterId?: number) => (dispatch: AppDispatch) => {
@@ -181,7 +177,7 @@ export const tReceipts = {
     return dispatch(csa.setFocusedRow(index));
   },
 
-  updateItem: (updater: TItemUpdater) => {
+  updateItem: (updater: TCliItem) => {
     return (dispatch: AppDispatch) => dispatch(csa.updateItem(updater));
   },
 
@@ -193,7 +189,7 @@ export const tReceipts = {
     return (dispatch: AppDispatch) => dispatch(csa.addFetchedReceipts(groups));
   },
 
-  setActiveReceipt: (id: number | null) => {
+  setActiveReceipt: (id?: number) => {
     return (dispatch: AppDispatch) => dispatch(csa.setActiveReceipt(id));
   },
 };

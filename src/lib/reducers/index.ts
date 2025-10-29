@@ -4,38 +4,32 @@ import { AppDispatch } from "../store";
 import { TGroup, TItem, TReceipt, TUser } from "@/lib/db";
 import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
-import {
-  TCliReceipt,
-  addEmptyReceipts,
-  rReceipts,
-  tReceipts,
-} from "./receipts";
+import { addEmptyReceipts, rReceipts, tReceipts } from "./receipts";
 
 export * from "./receipts";
 
-export type TCliGroup = Omit<TGroup, "receipts"> & {
-  receipts?: TReceipt[] & {
-    active?: Omit<TReceipt, "items"> & {
-      focusedIdx?: number;
-      items?: (Omit<TItem, "cost"> & { cost?: number | string })[];
-    };
+export interface TCliItem extends Omit<TItem, "cost"> {
+  cost?: number | string;
+}
+
+export interface TCliGroup extends TGroup {
+  activeReceipt?: Omit<TReceipt, "items"> & {
+    focusedIdx?: number;
+    items?: TCliItem[];
   };
-};
+}
 
 export type CombinedState = {
   user?: TUser;
   groupId?: number;
   groups: TCliGroup[];
-  newReceipts: {
-    [key: number]: TCliReceipt;
-  };
 };
 
 export type Initializer = Pick<CombinedState, "groups" | "user">;
 
 const slice = createSlice({
   name: "combined",
-  initialState: { groups: [], newReceipts: {} } as CombinedState,
+  initialState: { groups: [] } as CombinedState,
 
   reducers: {
     init(rs, { payload }: PayloadAction<Initializer>) {
