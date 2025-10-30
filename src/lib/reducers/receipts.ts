@@ -41,7 +41,7 @@ const getActiveUsers = (rs: CS) =>
 const getActiveReceipt = (rs: CS) => getActiveGroup(rs).activeReceipt!;
 
 export function addEmptyReceipts(data: Initializer) {
-  data.groups?.forEach((group) => {
+  for (const group of data.groups) {
     group.receipts?.push({
       id: -1,
       paidOn: VDate.toStrISO(),
@@ -52,7 +52,7 @@ export function addEmptyReceipts(data: Initializer) {
         addItem(getDefaultCategory(data as CS, group.id!)) as unknown as TItem,
       ],
     });
-  });
+  }
 }
 
 const sortReceipts = (groups: TGroup[]) =>

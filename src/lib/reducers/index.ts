@@ -5,6 +5,7 @@ import { TGroup, TItem, TReceipt, TUser } from "@/lib/db";
 import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
 import { addEmptyReceipts, rReceipts, tReceipts } from "./receipts";
+import { deepClone } from "../utils";
 
 export * from "./receipts";
 
@@ -52,8 +53,12 @@ export const combinedSA = slice.actions;
 
 export const rCombined = {
   init: (data: Initializer) => (dispatch: AppDispatch) => {
-    addEmptyReceipts(data);
-    return dispatch(combinedSA.init(data));
+    // must clone here, because Redux freezes the object async(?)
+    // and by the 2nd iteration in the next fn it threw errors...
+    const clone = deepClone(data);
+    addEmptyReceipts(clone);
+
+    return dispatch(combinedSA.init(clone));
   },
 
   ...tGroups,
