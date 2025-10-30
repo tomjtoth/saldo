@@ -34,13 +34,18 @@ export default function CliReceiptsPage() {
 
       {rs.groups.length > 0 ? (
         <div className="p-2 text-center">
-          <button
-            className="inline-block"
-            onClick={() => dispatch(rCombined.setActiveReceipt(-1))}
-          >
-            ➕ Add new...
-          </button>{" "}
-          receipt for group: <GroupSelector />
+          {(rs.group?.categories?.length ?? 0) > 0 && (
+            <>
+              <button
+                className="inline-block"
+                onClick={() => dispatch(rCombined.setActiveReceipt(-1))}
+              >
+                ➕ Add new...
+              </button>{" "}
+              receipt for group:{" "}
+            </>
+          )}
+          <GroupSelector />
         </div>
       ) : (
         <p>

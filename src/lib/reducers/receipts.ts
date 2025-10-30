@@ -28,7 +28,10 @@ const getDefaultCategory = (rs: CS, groupId?: number) => {
   const group = getActiveGroup(rs, groupId);
 
   return (
-    group.memberships?.at(0)?.defaultCategoryId ?? group.categories!.at(0)!.id!
+    group.memberships?.at(0)?.defaultCategoryId ??
+    group.categories?.at(0)?.id ??
+    // in case we have no categories
+    -1
   );
 };
 
