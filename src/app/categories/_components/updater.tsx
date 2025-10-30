@@ -7,7 +7,7 @@ import { useAppDispatch } from "@/lib/hooks";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
-import Slider from "../slider";
+import Slider from "@/components/slider";
 
 export default function Updater({ cat }: { cat: TCategory }) {
   const dispatch = useAppDispatch();

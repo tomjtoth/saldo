@@ -1,7 +1,7 @@
 import { getCategories } from "@/lib/services/categories";
 
 import wrapPage from "@/lib/wrapPage";
-import CliCategoriesPage from "@/components/categories";
+import CliCategoriesPage from "./_components";
 
 export default wrapPage<{ catId?: string }>({
   resolveParams: ({ groupId, catId }) => ({
