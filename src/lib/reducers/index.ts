@@ -1,30 +1,39 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TGroup, TUser } from "@/lib/db";
+import { TGroup, TItem, TReceipt, TUser } from "@/lib/db";
 import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
-import { TCliReceipt, rReceipts, tReceipts } from "./receipts";
+import { addEmptyReceipts, rReceipts, tReceipts } from "./receipts";
+import { deepClone } from "../utils";
 
 export * from "./receipts";
 
-export type CombinedState = {
-  user?: Pick<TUser, "id" | "flags" | "defaultGroupId">;
-  groupId?: number;
-  groups: TGroup[];
-  newReceipts: {
-    [key: number]: TCliReceipt;
+export interface TCliItem extends Omit<TItem, "cost"> {
+  cost?: number | string;
+}
+
+export interface TCliGroup extends TGroup {
+  activeReceipt?: Omit<TReceipt, "items"> & {
+    focusedIdx?: number;
+    items?: TCliItem[];
   };
+}
+
+export type CombinedState = {
+  user?: TUser;
+  groupId?: number;
+  groups: TCliGroup[];
 };
 
-type Initializer = Pick<CombinedState, "groups" | "user">;
+export type Initializer = Pick<CombinedState, "groups" | "user">;
 
 const slice = createSlice({
   name: "combined",
-  initialState: { groups: [], newReceipts: {} } as CombinedState,
+  initialState: { groups: [] } as CombinedState,
 
   reducers: {
-    init: (rs, { payload }: PayloadAction<Initializer>) => {
+    init(rs, { payload }: PayloadAction<Initializer>) {
       if (payload.user !== undefined) rs.user = payload.user;
 
       if (rs.groupId === undefined) {
@@ -44,7 +53,12 @@ export const combinedSA = slice.actions;
 
 export const rCombined = {
   init: (data: Initializer) => (dispatch: AppDispatch) => {
-    return dispatch(combinedSA.init(data));
+    // must clone here, because Redux freezes the object async(?)
+    // and by the 2nd iteration in the next fn it threw errors...
+    const clone = deepClone(data);
+    addEmptyReceipts(clone);
+
+    return dispatch(combinedSA.init(clone));
   },
 
   ...tGroups,

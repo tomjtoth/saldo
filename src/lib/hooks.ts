@@ -2,7 +2,7 @@ import { useCallback, useRef, useEffect } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
 import type { RootState, AppDispatch, AppStore } from "./store";
-import { rCombined } from "./reducers";
+import { rCombined, TCliGroup } from "./reducers";
 import { useRootDivCx } from "@/components/rootDiv";
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
@@ -39,7 +39,7 @@ export const useGroupSelector = () => {
   const fallback = useRootDivCx();
   const groups = useAppSelector((s) => {
     const local = s.combined.groups;
-    return local.length > 0 ? local : fallback.groups;
+    return (local.length > 0 ? local : fallback.groups) as TCliGroup[];
   });
 
   const groupId = useAppSelector(

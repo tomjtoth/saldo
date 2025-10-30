@@ -3,7 +3,7 @@
 import { ChangeEventHandler, useEffect, useRef } from "react";
 
 import { TUser } from "@/lib/db";
-import { useAppSelector, useGroupSelector } from "@/lib/hooks";
+import { useGroupSelector } from "@/lib/hooks";
 import { TCliItem } from "@/lib/reducers";
 import { costToFixed } from ".";
 
@@ -24,9 +24,7 @@ export default function ItemShareAvatar({
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const rs = useGroupSelector();
-  const currReceipt = useAppSelector((s) =>
-    rs.groupId ? s.combined.newReceipts[rs.groupId] : undefined
-  );
+  const currReceipt = rs.group?.activeReceipt;
 
   useEffect(() => {
     if (!!onChange && focused) ref.current?.focus();
@@ -38,26 +36,27 @@ export default function ItemShareAvatar({
   let calculations = null;
 
   if (itemId !== undefined) {
-    item = currReceipt!.items.find((item) => item.id === itemId)!;
-    denominator = Object.values(item.shares).reduce(
-      (sub, share) => sub + share,
+    item = currReceipt!.items!.find((item) => item.id === itemId)!;
+    denominator = item.itemShares!.reduce(
+      (sub, { share }) => sub + (share ?? 0),
       0
     );
 
     const costAsNum = Number(item.cost);
-    share =
-      ((isNaN(costAsNum) ? 0 : costAsNum) * item.shares[user.id!]) /
-      denominator;
+    const shareOfUser =
+      item.itemShares?.find((sh) => sh.userId === user.id)?.share ?? 0;
+
+    share = ((isNaN(costAsNum) ? 0 : costAsNum) * shareOfUser) / denominator;
 
     calculations = (
       <span>
         💸{" "}
         {denominator > 0 ? (
           <span>
-            {costToFixed(item, costAsNum)} * {item?.shares[user.id!] ?? 0} /{" "}
-            {denominator} = {share.toFixed(2)}
+            {costToFixed(item, costAsNum)} * {shareOfUser} / {denominator} ={" "}
+            {share.toFixed(2)}
           </span>
-        ) : user.id === currReceipt?.paidBy ? (
+        ) : user.id === currReceipt?.paidBy?.id ? (
           <span>{costToFixed(item, costAsNum)}</span>
         ) : (
           <span>{(0).toFixed(2)}</span>

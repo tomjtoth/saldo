@@ -1,19 +1,30 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 
-import { useGroupSelector } from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import useInfiniteScroll from "./hook";
+import { rCombined } from "@/lib/reducers";
+import { useBodyNodes } from "../bodyNodes";
 
 import Header from "../header";
-import Adder from "./adder";
 import GroupSelector from "../groups/selector";
 import Scrollers from "./scrollers";
 import Individual from "./individual";
+import Details from "./details";
 
 export default function CliReceiptsPage() {
+  const dispatch = useAppDispatch();
+  const nodes = useBodyNodes();
   const rs = useGroupSelector();
   useInfiniteScroll();
+
+  const receipt = rs.group?.activeReceipt;
+
+  useEffect(() => {
+    if (typeof receipt?.id === "number") nodes.push(<Details key="details" />);
+  }, [receipt?.id]);
 
   return (
     <>
@@ -23,7 +34,18 @@ export default function CliReceiptsPage() {
 
       {rs.groups.length > 0 ? (
         <div className="p-2 text-center">
-          <Adder /> receipt for group: <GroupSelector />
+          {(rs.group?.categories?.length ?? 0) > 0 && (
+            <>
+              <button
+                className="inline-block"
+                onClick={() => dispatch(rCombined.setActiveReceipt(-1))}
+              >
+                ➕ Add new...
+              </button>{" "}
+              receipt for group:{" "}
+            </>
+          )}
+          <GroupSelector />
         </div>
       ) : (
         <p>
@@ -32,12 +54,12 @@ export default function CliReceiptsPage() {
         </p>
       )}
 
-      <div className="p-2 flex flex-wrap justify-center items-center gap-2">
+      <ul className="p-2 flex flex-wrap justify-center items-center gap-2">
         {rs.groups.length > 0 &&
-          rs.group!.receipts?.map((rcpt) => (
-            <Individual key={rcpt.id} {...rcpt} />
-          ))}
-      </div>
+          rs.group!.receipts?.map((rcpt) =>
+            rcpt.id === -1 ? null : <Individual key={rcpt.id} {...rcpt} />
+          )}
+      </ul>
 
       <Scrollers />
     </>

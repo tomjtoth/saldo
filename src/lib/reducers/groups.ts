@@ -19,35 +19,35 @@ import {
 } from "../services/groups";
 
 export const rGroups = {
-  updateGroup: (rs: CS, { payload }: PayloadAction<TGroup>) => {
+  updateGroup(rs: CS, { payload }: PayloadAction<TGroup>) {
     const popFrom = rs.groups.findIndex(({ id }) => id === payload.id)!;
     rs.groups.splice(popFrom, 1);
     insertAlphabetically(payload, rs.groups);
   },
 
-  addGroup: (rs: CS, { payload }: PayloadAction<TGroup>) => {
+  addGroup(rs: CS, { payload }: PayloadAction<TGroup>) {
     insertAlphabetically(payload, rs.groups);
   },
 
-  setGroupId: (rs: CS, { payload }: PayloadAction<number>) => {
+  setGroupId(rs: CS, { payload }: PayloadAction<number>) {
     rs.groupId = payload;
   },
 
-  setDefaultGroupId: (rs: CS, { payload }: PayloadAction<number>) => {
+  setDefaultGroupId(rs: CS, { payload }: PayloadAction<number>) {
     rs.user!.defaultGroupId = payload;
   },
 
-  updateMembership: (rs: CS, { payload }: PayloadAction<TMembership>) => {
+  updateMembership(rs: CS, { payload }: PayloadAction<TMembership>) {
     const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
     const ms = group.memberships!.find((x) => x.user!.id === payload.userId!)!;
 
     ms.flags = payload.flags;
   },
 
-  setUserColor: (
+  setUserColor(
     rs: CS,
     { payload: { color, uid } }: PayloadAction<{ color: string; uid?: number }>
-  ) => {
+  ) {
     const group = rs.groups.find((grp) => grp.id === rs.groupId)!;
     const user = (group.pareto ?? group.balance)!.users.find(
       (u) => u.id === uid
