@@ -3,7 +3,7 @@ import { DefaultLegendContentProps } from "recharts";
 
 import { CtxBalanceChart } from "./chart";
 
-import Entry from "@/components/charts/legendEntry";
+import Entry from "@/app/(charts)/_components/legendEntry";
 
 export default function BalanceLegend(x: DefaultLegendContentProps) {
   const users = useContext(CtxBalanceChart);

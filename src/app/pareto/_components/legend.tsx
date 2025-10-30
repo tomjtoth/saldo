@@ -1,5 +1,5 @@
 import { DefaultLegendContentProps } from "recharts";
-import Entry from "../legendEntry";
+import Entry from "@/app/(charts)/_components/legendEntry";
 
 export default function ParetoLegend(x: DefaultLegendContentProps) {
   return (

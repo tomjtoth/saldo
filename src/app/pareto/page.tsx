@@ -3,7 +3,7 @@ import { getPareto } from "@/lib/services/pareto";
 import { VDate } from "@/lib/utils";
 import wrapPage from "@/lib/wrapPage";
 
-import CliParetoPage from "@/components/charts/pareto";
+import CliParetoPage from "./_components";
 
 let from: string;
 
