@@ -7,9 +7,9 @@ import { virt } from "@/lib/utils";
 import { TCategory } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
-import Canceler from "@/components/canceler";
+import Canceler from "@/app/_components/canceler";
 import Details from "./details";
-import SvgStar from "@/components/star";
+import SvgStar from "@/app/_components/star";
 
 export default function Entry({
   cat,

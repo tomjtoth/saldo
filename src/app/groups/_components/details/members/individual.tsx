@@ -7,7 +7,7 @@ import { TMembership } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 import { virt } from "@/lib/utils";
 
-import Slider from "@/components/slider";
+import Slider from "@/app/_components/slider";
 
 export default function Individual({
   clientIsAdmin,

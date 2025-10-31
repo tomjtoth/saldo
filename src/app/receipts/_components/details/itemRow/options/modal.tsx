@@ -1,8 +1,8 @@
 "use client";
 
-import Canceler from "@/components/canceler";
+import Canceler from "@/app/_components/canceler";
 import Options from ".";
-import { useBodyNodes } from "@/components/bodyNodes";
+import { useBodyNodes } from "@/app/_components/bodyNodes";
 
 export default function OptionsAsModal({ itemId }: { itemId: number }) {
   const nodes = useBodyNodes();

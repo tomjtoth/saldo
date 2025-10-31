@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 
-import SvgLink from "@/components/svgLink";
+import SvgLink from "@/app/_components/svgLink";
 
 export default function GroupSelector() {
   const dispatch = useAppDispatch();

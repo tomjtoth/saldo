@@ -7,7 +7,7 @@ import { virt } from "@/lib/utils";
 import { TGroup } from "@/lib/db";
 import { rCombined as red } from "@/lib/reducers";
 
-import Slider from "@/components/slider";
+import Slider from "@/app/_components/slider";
 
 export default function Title({
   flags,

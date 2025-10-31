@@ -4,7 +4,7 @@ import { TCategory } from "@/lib/db";
 import { virt } from "@/lib/utils";
 
 import Updater from "./updater";
-import Slider from "@/components/slider";
+import Slider from "@/app/_components/slider";
 
 export default function Details({
   cat,

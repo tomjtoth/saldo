@@ -6,9 +6,9 @@ import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined, rCombined as red } from "@/lib/reducers";
 import { appToast } from "@/lib/utils";
 import { svcAddReceipt } from "@/lib/services/receipts";
-import { useBodyNodes } from "@/components/bodyNodes";
+import { useBodyNodes } from "@/app/_components/bodyNodes";
 
-import Canceler from "@/components/canceler";
+import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
 import PaidByUserWithAvatar from "../paidByUserWithAvatar";
 

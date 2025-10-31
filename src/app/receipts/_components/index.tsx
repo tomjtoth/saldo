@@ -6,9 +6,9 @@ import Link from "next/link";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import useInfiniteScroll from "./hook";
 import { rCombined } from "@/lib/reducers";
-import { useBodyNodes } from "@/components/bodyNodes";
+import { useBodyNodes } from "@/app/_components/bodyNodes";
 
-import Header from "@/components/header";
+import Header from "@/app/_components/header";
 import GroupSelector from "@/app/_components/groupSelector";
 import Scrollers from "./scrollers";
 import Individual from "./individual";

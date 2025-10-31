@@ -7,7 +7,7 @@ import { useGroupSelector } from "@/lib/hooks";
 import { TCliItem } from "@/lib/reducers";
 import { costToFixed } from ".";
 
-import UserAvatar from "@/components/userAvatar";
+import UserAvatar from "@/app/_components/userAvatar";
 
 export default function ItemShareAvatar({
   user,

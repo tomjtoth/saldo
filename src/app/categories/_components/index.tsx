@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 
-import NameDescrAdder from "@/components/nameDescrAdder";
+import NameDescrAdder from "@/app/_components/nameDescrAdder";
 import Entry from "./entry";
 import GroupSelector from "@/app/_components/groupSelector";
-import Header from "@/components/header";
+import Header from "@/app/_components/header";
 
 export default function CliCategoriesPage(srv: { catId?: number }) {
   const dispatch = useAppDispatch();

@@ -1,5 +1,5 @@
-import Header from "@/components/header";
-import HashParagraph from "@/components/hashParagraph";
+import Header from "@/app/_components/header";
+import HashParagraph from "@/app/_components/hashParagraph";
 import ImportSection from "./_components/import";
 import wrapPage from "@/lib/wrapPage";
 

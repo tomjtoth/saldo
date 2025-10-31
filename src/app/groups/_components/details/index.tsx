@@ -8,7 +8,7 @@ import { virt } from "@/lib/utils";
 import Invitation from "./invitation";
 import Title from "./title";
 import Members from "./members";
-import SvgLink from "@/components/svgLink";
+import SvgLink from "@/app/_components/svgLink";
 import { useGroupSelector } from "@/lib/hooks";
 
 export default function Details({ group }: { group: TGroup }) {

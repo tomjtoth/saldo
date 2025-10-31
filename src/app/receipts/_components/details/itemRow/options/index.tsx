@@ -3,10 +3,10 @@
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 
-import Canceler from "@/components/canceler";
+import Canceler from "@/app/_components/canceler";
 import ItemShareSetter from "../shares/setter";
 import ItemShareAvatar from "../shares/avatar";
-import { useBodyNodes } from "@/components/bodyNodes";
+import { useBodyNodes } from "@/app/_components/bodyNodes";
 
 export default function Options({
   itemId,

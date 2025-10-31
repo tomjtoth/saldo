@@ -8,7 +8,7 @@ import { rCombined as red } from "@/lib/reducers";
 import { svcGetParetoData } from "@/lib/services/pareto";
 
 import ParetoChart from "./chart";
-import Header from "@/components/header";
+import Header from "@/app/_components/header";
 import GroupSelector from "@/app/_components/groupSelector";
 
 export default function CliParetoPage(srv: { from?: string; to?: string }) {

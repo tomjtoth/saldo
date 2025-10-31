@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import { TGroup } from "./db";
 import { currentUser } from "@/lib/services/users";
 
-import RootDiv from "@/components/rootDiv";
+import RootDiv from "@/app/_components/rootDiv";
 
 type WithGID<T = object> = T & { groupId?: string };
 

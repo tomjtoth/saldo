@@ -6,7 +6,7 @@ import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 import { costToFixed } from ".";
 
-import Slider from "@/components/slider";
+import Slider from "@/app/_components/slider";
 import ItemShareAvatar from "./avatar";
 
 export default function ItemShareSetter({ itemId }: { itemId: number }) {

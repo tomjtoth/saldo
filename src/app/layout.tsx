@@ -5,8 +5,8 @@ import { ToastContainer } from "react-toastify";
 import { VDate } from "@/lib/utils";
 
 import "./globals.css";
-import StoreProvider from "../components/storeProvider";
-import { BodyNodeProvider } from "@/components/bodyNodes";
+import StoreProvider from "./_components/storeProvider";
+import { BodyNodeProvider } from "@/app/_components/bodyNodes";
 
 /* istanbul ignore next */
 const geistSans = Geist({
