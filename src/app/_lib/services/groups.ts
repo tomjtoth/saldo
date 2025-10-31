@@ -30,17 +30,22 @@ const COLS_WITH = {
   },
 };
 
-function validateCreateGroupData(
-  data: Required<Pick<TGroup, "name">> & Pick<TGroup, "description">
-) {
+function validateCreateGroupData({
+  name,
+  description,
+}: Required<Pick<TGroup, "name">> & Pick<TGroup, "description">) {
   if (
-    typeof data.name !== "string" ||
-    (data.description !== null &&
-      !["string", "undefined"].includes(typeof data.description))
+    typeof name !== "string" ||
+    (description !== null &&
+      !["string", "undefined"].includes(typeof description))
   )
     err();
 
+  const data = { name, description };
+
   nullEmptyStrings(data);
+
+  return data;
 }
 
 export const svcCreateGroup = wrapService(createGroup, validateCreateGroupData);
