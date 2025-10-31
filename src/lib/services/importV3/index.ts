@@ -6,7 +6,7 @@ import { db, inChunks } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { err } from "@/lib/utils";
 import { parseCSV, parseData, TDBData } from "./parsers";
-import { FromDB } from "@/components/import/clientSide";
+import { FromDB } from "@/app/_components/import/clientSide";
 
 export const alreadyInProd = async () => {
   const user = await db.query.users.findFirst({

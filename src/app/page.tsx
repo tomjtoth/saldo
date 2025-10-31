@@ -1,6 +1,6 @@
 import Header from "@/components/header";
 import HashParagraph from "@/components/hashParagraph";
-import ImportSection from "@/components/import";
+import ImportSection from "./_components/import";
 import wrapPage from "@/lib/wrapPage";
 
 export default wrapPage({
