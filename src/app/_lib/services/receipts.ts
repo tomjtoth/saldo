@@ -14,6 +14,7 @@ import {
 } from "@/app/_lib/db";
 import { groups, items, itemShares, memberships, receipts } from "../db/schema";
 import { err, nulledEmptyStrings, sortByName } from "../utils";
+import wrapService from "../wrapService";
 import { currentUser } from "./users";
 
 const RECEIPT_COLS_WITH = {
@@ -47,14 +48,12 @@ const RECEIPT_COLS_WITH = {
   },
 };
 
-export async function svcAddReceipt({
+const validateReceiptData = ({
   groupId,
   paidOn,
   paidById,
   items,
-}: Parameters<typeof createReceipt>[1]) {
-  const { id: addedBy } = await currentUser();
-
+}: Parameters<typeof createReceipt>[1]) => {
   if (
     typeof groupId !== "number" ||
     typeof paidOn !== "string" ||
@@ -64,13 +63,15 @@ export async function svcAddReceipt({
   )
     err(400);
 
-  return await createReceipt(addedBy, {
+  return {
     groupId,
     paidOn,
     paidById,
     items,
-  });
-}
+  };
+};
+
+export const svcAddReceipt = wrapService(createReceipt, validateReceiptData);
 
 export async function createReceipt(
   revisedBy: number,
