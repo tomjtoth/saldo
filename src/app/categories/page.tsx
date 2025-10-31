@@ -1,6 +1,6 @@
-import { getCategories } from "@/lib/services/categories";
+import { getCategories } from "@/app/_lib/services/categories";
 
-import wrapPage from "@/lib/wrapPage";
+import wrapPage from "@/app/_lib/wrapPage";
 import CliCategoriesPage from "./_components";
 
 export default wrapPage<{ catId?: string }>({

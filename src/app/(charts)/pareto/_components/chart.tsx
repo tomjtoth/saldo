@@ -11,7 +11,7 @@ import {
   Legend,
 } from "recharts";
 
-import { TParetoChartData } from "@/lib/db";
+import { TParetoChartData } from "@/app/_lib/db";
 
 import ParetoTooltip from "./tooltip";
 import ParetoLegend from "./legend";

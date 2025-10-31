@@ -1,4 +1,4 @@
-import wrapRoute from "@/lib/wrapRoute";
+import wrapRoute from "@/app/_lib/wrapRoute";
 import { populateDb } from "../(utils)";
 
 export const GET = wrapRoute(

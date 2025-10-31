@@ -7,7 +7,7 @@ import {
   Initializer,
   TCliItem,
 } from ".";
-import { TReceipt, TGroup, TItem } from "@/lib/db";
+import { TReceipt, TGroup, TItem } from "@/app/_lib/db";
 import { deepClone, VDate } from "../utils";
 
 // this provides the key prop to React during `items.map( ... )`

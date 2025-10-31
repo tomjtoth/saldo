@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 
-import { db, groupsWithUsersCTE, TGroup } from "@/lib/db";
+import { db, groupsWithUsersCTE, TGroup } from "@/app/_lib/db";
 
 export async function getBalance(userId: number) {
   const data = await db.get<{ json: string } | null>(

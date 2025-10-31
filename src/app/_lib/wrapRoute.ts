@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-import { currentUser } from "@/lib/services/users";
+import { currentUser } from "@/app/_lib/services/users";
 import { err, ErrorWithStatus } from "./utils";
 
 type RouteHandler<P, R> = (req: NextRequest, ctx: RequestContext<P>) => R;

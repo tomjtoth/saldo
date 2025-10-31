@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { joinGroup } from "@/lib/services/groups";
-import wrapRoute from "@/lib/wrapRoute";
+import { joinGroup } from "@/app/_lib/services/groups";
+import wrapRoute from "@/app/_lib/wrapRoute";
 
 export const GET = wrapRoute<{ id: string }>(
   { redirectAs: ({ params }) => `/join/${params.id}` },

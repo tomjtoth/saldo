@@ -1,4 +1,4 @@
-import { TCliItem } from "@/lib/reducers";
+import { TCliItem } from "@/app/_lib/reducers";
 
 export const costToFixed = (item: TCliItem, costAsNum?: number) => {
   if (costAsNum === undefined) costAsNum = Number(item.cost);

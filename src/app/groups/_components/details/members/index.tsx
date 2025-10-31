@@ -1,6 +1,6 @@
 "use client";
 
-import { TGroup } from "@/lib/db";
+import { TGroup } from "@/app/_lib/db";
 import Individual from "./individual";
 
 export default function Members({

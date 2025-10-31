@@ -1,8 +1,8 @@
-import { createCategory } from "@/lib/services/categories";
-import { addMember, createGroup } from "@/lib/services/groups";
-import { createReceipt } from "@/lib/services/receipts";
-import { addUser } from "@/lib/services/users";
-import { truncateDb } from "@/lib/db";
+import { createCategory } from "@/app/_lib/services/categories";
+import { addMember, createGroup } from "@/app/_lib/services/groups";
+import { createReceipt } from "@/app/_lib/services/receipts";
+import { addUser } from "@/app/_lib/services/users";
+import { truncateDb } from "@/app/_lib/db";
 
 type UserParams = Parameters<typeof addUser>[0];
 type GroupParams = Parameters<typeof createGroup>;

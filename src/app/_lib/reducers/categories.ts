@@ -1,7 +1,7 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TCategory } from "@/lib/db";
+import { TCategory } from "@/app/_lib/db";
 import {
   appToast,
   has3ConsecutiveLetters,

@@ -1,6 +1,6 @@
-import { getGroups } from "@/lib/services/groups";
+import { getGroups } from "@/app/_lib/services/groups";
 
-import wrapPage from "@/lib/wrapPage";
+import wrapPage from "@/app/_lib/wrapPage";
 import CliGroupsPage from "./_components";
 
 export default wrapPage({

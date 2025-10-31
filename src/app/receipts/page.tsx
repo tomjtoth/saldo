@@ -1,6 +1,6 @@
-import { getReceipts } from "@/lib/services/receipts";
+import { getReceipts } from "@/app/_lib/services/receipts";
 
-import wrapPage from "@/lib/wrapPage";
+import wrapPage from "@/app/_lib/wrapPage";
 import CliReceiptsPage from "./_components";
 
 export default wrapPage({

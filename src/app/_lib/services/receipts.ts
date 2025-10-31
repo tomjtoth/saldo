@@ -11,7 +11,7 @@ import {
   TGroup,
   TItemShare,
   TReceipt,
-} from "@/lib/db";
+} from "@/app/_lib/db";
 import { groups, items, itemShares, memberships, receipts } from "../db/schema";
 import { err, nulledEmptyStrings, sortByName } from "../utils";
 import { currentUser } from "./users";

@@ -1,6 +1,6 @@
-import { useAppDispatch, useDebounce } from "@/lib/hooks";
-import { rCombined } from "@/lib/reducers";
-import { TUserChartData } from "@/lib/db";
+import { useAppDispatch, useDebounce } from "@/app/_lib/hooks";
+import { rCombined } from "@/app/_lib/reducers";
+import { TUserChartData } from "@/app/_lib/db";
 
 export default function Entry({
   id,

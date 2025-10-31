@@ -2,7 +2,7 @@
 
 import { sql } from "drizzle-orm";
 
-import { db, groupsWithUsersCTE, TGroup } from "@/lib/db";
+import { db, groupsWithUsersCTE, TGroup } from "@/app/_lib/db";
 import { VDate } from "../utils";
 import { currentUser } from "./users";
 

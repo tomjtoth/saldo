@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { appToast } from "@/lib/utils";
-import { rCombined as red } from "@/lib/reducers";
-import { svcGetParetoData } from "@/lib/services/pareto";
+import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { appToast } from "@/app/_lib/utils";
+import { rCombined as red } from "@/app/_lib/reducers";
+import { svcGetParetoData } from "@/app/_lib/services/pareto";
 
 import ParetoChart from "./chart";
 import Header from "@/app/_components/header";

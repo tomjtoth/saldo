@@ -1,7 +1,7 @@
-import { getPareto } from "@/lib/services/pareto";
+import { getPareto } from "@/app/_lib/services/pareto";
 
-import { VDate } from "@/lib/utils";
-import wrapPage from "@/lib/wrapPage";
+import { VDate } from "@/app/_lib/utils";
+import wrapPage from "@/app/_lib/wrapPage";
 
 import CliParetoPage from "./_components";
 

@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 import Link from "next/link";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
 import useInfiniteScroll from "./hook";
-import { rCombined } from "@/lib/reducers";
+import { rCombined } from "@/app/_lib/reducers";
 import { useBodyNodes } from "@/app/_components/bodyNodes";
 
 import Header from "@/app/_components/header";

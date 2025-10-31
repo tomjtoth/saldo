@@ -1,7 +1,7 @@
 import { current, Draft, isDraft, WritableDraft } from "immer";
 import { toast, ToastPromiseParams } from "react-toastify";
 
-import { TCategory } from "@/lib/db";
+import { TCategory } from "@/app/_lib/db";
 import { virt } from "./virt";
 
 export * from "./datetime";

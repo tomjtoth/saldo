@@ -1,9 +1,9 @@
 import pluralize from "pluralize";
 
-import { TReceipt } from "@/lib/db";
-import { virt } from "@/lib/utils";
-import { useAppDispatch } from "@/lib/hooks";
-import { rCombined } from "@/lib/reducers";
+import { TReceipt } from "@/app/_lib/db";
+import { virt } from "@/app/_lib/utils";
+import { useAppDispatch } from "@/app/_lib/hooks";
+import { rCombined } from "@/app/_lib/reducers";
 
 import UserAvatar from "@/app/_components/userAvatar";
 import PaidByUserWithAvatar from "./paidByUserWithAvatar";

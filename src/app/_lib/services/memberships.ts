@@ -1,6 +1,6 @@
 "use server";
 
-import { atomic, db, TCrMembership, TMembership, updater } from "@/lib/db";
+import { atomic, db, TCrMembership, TMembership, updater } from "@/app/_lib/db";
 import { err } from "../utils";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { chartColors, memberships } from "../db/schema";

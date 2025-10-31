@@ -10,10 +10,10 @@ import {
   TCategory,
   TGroup,
   updater,
-} from "@/lib/db";
-import { categories, groups, memberships } from "@/lib/db/schema";
-import { updateMembership } from "@/lib/services/memberships";
-import { currentUser } from "@/lib/services/users";
+} from "@/app/_lib/db";
+import { categories, groups, memberships } from "@/app/_lib/db/schema";
+import { updateMembership } from "@/app/_lib/services/memberships";
+import { currentUser } from "@/app/_lib/services/users";
 import {
   err,
   has3ConsecutiveLetters,

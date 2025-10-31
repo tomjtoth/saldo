@@ -1,7 +1,7 @@
 "use client";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { rCombined as red } from "@/lib/reducers";
+import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { rCombined as red } from "@/app/_lib/reducers";
 
 import Canceler from "@/app/_components/canceler";
 import ItemShareSetter from "../shares/setter";

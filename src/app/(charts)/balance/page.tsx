@@ -1,6 +1,6 @@
-import { getBalance } from "@/lib/services/balance";
+import { getBalance } from "@/app/_lib/services/balance";
 
-import wrapPage from "@/lib/wrapPage";
+import wrapPage from "@/app/_lib/wrapPage";
 import CliBalancePage from "@/app/(charts)/balance/_components";
 
 export default wrapPage({

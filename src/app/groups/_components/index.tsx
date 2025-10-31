@@ -1,7 +1,7 @@
 "use client";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { rCombined as red } from "@/lib/reducers";
+import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { rCombined as red } from "@/app/_lib/reducers";
 import { useRootDivCx } from "@/app/_components/rootDiv";
 
 import NameDescrAdder from "@/app/_components/nameDescrAdder";

@@ -1,6 +1,6 @@
-import wrapRoute from "@/lib/wrapRoute";
-import { createGroup, updateGroup } from "@/lib/services/groups";
-import { addUser } from "@/lib/services/users";
+import wrapRoute from "@/app/_lib/wrapRoute";
+import { createGroup, updateGroup } from "@/app/_lib/services/groups";
+import { addUser } from "@/app/_lib/services/users";
 
 export const GET = wrapRoute(
   { requireSession: false, onlyDuringDevelopment: true },

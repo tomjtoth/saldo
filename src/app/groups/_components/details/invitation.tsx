@@ -2,10 +2,10 @@
 
 import { toast } from "react-toastify";
 
-import { useAppDispatch } from "@/lib/hooks";
-import { TGroup } from "@/lib/db";
-import { appToast } from "@/lib/utils";
-import { rCombined as red } from "@/lib/reducers";
+import { useAppDispatch } from "@/app/_lib/hooks";
+import { TGroup } from "@/app/_lib/db";
+import { appToast } from "@/app/_lib/utils";
+import { rCombined as red } from "@/app/_lib/reducers";
 
 export default function Invitation({
   group,

@@ -1,6 +1,6 @@
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { rCombined } from "@/lib/reducers";
-import { TUser } from "@/lib/db";
+import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { rCombined } from "@/app/_lib/reducers";
+import { TUser } from "@/app/_lib/db";
 import { useBodyNodes } from "@/app/_components/bodyNodes";
 
 import UserAvatar from "@/app/_components/userAvatar";

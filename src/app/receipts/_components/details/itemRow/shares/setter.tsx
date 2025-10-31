@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { rCombined as red } from "@/lib/reducers";
+import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { rCombined as red } from "@/app/_lib/reducers";
 import { costToFixed } from ".";
 
 import Slider from "@/app/_components/slider";

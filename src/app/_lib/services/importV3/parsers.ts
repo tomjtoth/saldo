@@ -14,7 +14,7 @@ import {
   TCrMembership,
   TCrReceipt,
   TCrUser,
-} from "@/lib/db";
+} from "@/app/_lib/db";
 
 export type TCsvRow = { [key: string]: string };
 

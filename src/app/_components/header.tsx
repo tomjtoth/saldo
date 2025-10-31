@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from "react";
 
-import { svcSignIn } from "@/lib/services/auth";
+import { svcSignIn } from "@/app/_lib/services/auth";
 import { useRootDivCx } from "./rootDiv";
 
 import Sidepanel from "./sidepanel";

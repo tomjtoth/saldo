@@ -2,9 +2,9 @@
 
 import { ChangeEventHandler, useEffect, useRef } from "react";
 
-import { TUser } from "@/lib/db";
-import { useGroupSelector } from "@/lib/hooks";
-import { TCliItem } from "@/lib/reducers";
+import { TUser } from "@/app/_lib/db";
+import { useGroupSelector } from "@/app/_lib/hooks";
+import { TCliItem } from "@/app/_lib/reducers";
 import { costToFixed } from ".";
 
 import UserAvatar from "@/app/_components/userAvatar";

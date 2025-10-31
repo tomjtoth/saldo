@@ -1,7 +1,7 @@
 "use client";
 
-import { TCategory } from "@/lib/db";
-import { virt } from "@/lib/utils";
+import { TCategory } from "@/app/_lib/db";
+import { virt } from "@/app/_lib/utils";
 
 import Updater from "./updater";
 import Slider from "@/app/_components/slider";

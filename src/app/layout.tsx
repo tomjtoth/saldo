@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 
-import { VDate } from "@/lib/utils";
+import { VDate } from "@/app/_lib/utils";
 
 import "./globals.css";
 import StoreProvider from "./_components/storeProvider";

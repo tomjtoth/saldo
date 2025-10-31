@@ -2,10 +2,10 @@
 
 import { Dispatch, SetStateAction, useState } from "react";
 
-import { useAppDispatch } from "@/lib/hooks";
-import { virt } from "@/lib/utils";
-import { TGroup } from "@/lib/db";
-import { rCombined as red } from "@/lib/reducers";
+import { useAppDispatch } from "@/app/_lib/hooks";
+import { virt } from "@/app/_lib/utils";
+import { TGroup } from "@/app/_lib/db";
+import { rCombined as red } from "@/app/_lib/reducers";
 
 import Slider from "@/app/_components/slider";
 

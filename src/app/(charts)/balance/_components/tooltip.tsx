@@ -8,7 +8,7 @@ import {
 } from "recharts/types/component/DefaultTooltipContent";
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
-import { VDate } from "@/lib/utils";
+import { VDate } from "@/app/_lib/utils";
 import { CtxBalanceChart } from "./chart";
 
 export default function BalanceTooltip({

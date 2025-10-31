@@ -1,6 +1,6 @@
 "use client";
 
-import { useGroupSelector } from "@/lib/hooks";
+import { useGroupSelector } from "@/app/_lib/hooks";
 
 import BalanceChart from "./chart";
 import Header from "@/app/_components/header";

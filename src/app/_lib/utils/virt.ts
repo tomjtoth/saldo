@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
-import { TUser } from "@/lib/db";
+import { TUser } from "@/app/_lib/db";
 
 export function virt(
   entity: Pick<TUser, "flags">,

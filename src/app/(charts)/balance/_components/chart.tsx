@@ -15,7 +15,7 @@ import {
   Label,
 } from "recharts";
 
-import { TBalanceChartData, TUserChartData } from "@/lib/db";
+import { TBalanceChartData, TUserChartData } from "@/app/_lib/db";
 
 import useLogic from "./logic";
 import BalanceTick from "./tick";

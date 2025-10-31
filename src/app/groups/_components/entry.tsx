@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-import { TGroup } from "@/lib/db";
-import { virt } from "@/lib/utils";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { rCombined as red } from "@/lib/reducers";
+import { TGroup } from "@/app/_lib/db";
+import { virt } from "@/app/_lib/utils";
+import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
+import { rCombined as red } from "@/app/_lib/reducers";
 
 import Canceler from "@/app/_components/canceler";
 import SvgStar from "@/app/_components/star";

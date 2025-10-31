@@ -1,8 +1,8 @@
 "use server";
 
-import { db } from "@/lib/db";
-import * as schema from "@/lib/db/schema";
-import { alreadyInProd } from "@/lib/services/importV3";
+import { db } from "@/app/_lib/db";
+import * as schema from "@/app/_lib/db/schema";
+import { alreadyInProd } from "@/app/_lib/services/importV3";
 
 import CliImportSection from "./clientSide";
 

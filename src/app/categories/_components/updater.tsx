@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-import { virt } from "@/lib/utils";
-import { useAppDispatch } from "@/lib/hooks";
-import { TCategory } from "@/lib/db";
-import { rCombined as red } from "@/lib/reducers";
+import { virt } from "@/app/_lib/utils";
+import { useAppDispatch } from "@/app/_lib/hooks";
+import { TCategory } from "@/app/_lib/db";
+import { rCombined as red } from "@/app/_lib/reducers";
 
 import Slider from "@/app/_components/slider";
 

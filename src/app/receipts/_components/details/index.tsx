@@ -2,10 +2,10 @@
 
 import { toast } from "react-toastify";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { rCombined, rCombined as red } from "@/lib/reducers";
-import { appToast } from "@/lib/utils";
-import { svcAddReceipt } from "@/lib/services/receipts";
+import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { rCombined, rCombined as red } from "@/app/_lib/reducers";
+import { appToast } from "@/app/_lib/utils";
+import { svcAddReceipt } from "@/app/_lib/services/receipts";
 import { useBodyNodes } from "@/app/_components/bodyNodes";
 
 import Canceler from "@/app/_components/canceler";

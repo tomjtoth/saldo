@@ -2,9 +2,9 @@
 
 import { and, eq, ne } from "drizzle-orm";
 
-import { db, inChunks } from "@/lib/db";
-import * as schema from "@/lib/db/schema";
-import { err } from "@/lib/utils";
+import { db, inChunks } from "@/app/_lib/db";
+import * as schema from "@/app/_lib/db/schema";
+import { err } from "@/app/_lib/utils";
 import { parseCSV, parseData, TDBData } from "./parsers";
 import { FromDB } from "@/app/_components/import/clientSide";
 

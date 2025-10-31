@@ -1,7 +1,7 @@
 "use client";
 
-import { svcImportV3 } from "@/lib/services/importV3";
-import { appToast } from "@/lib/utils";
+import { svcImportV3 } from "@/app/_lib/services/importV3";
+import { appToast } from "@/app/_lib/utils";
 import { useEffect, useState } from "react";
 
 export type FromDB = {

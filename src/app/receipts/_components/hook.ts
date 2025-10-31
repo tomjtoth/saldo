@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
+import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
 import { useRootDivCx } from "@/app/_components/rootDiv";
-import { rCombined as red } from "@/lib/reducers";
-import { svcGetReceipts } from "@/lib/services/receipts";
+import { rCombined as red } from "@/app/_lib/reducers";
+import { svcGetReceipts } from "@/app/_lib/services/receipts";
 
 const INFINITE_SCROLL = `INFINITE_SCROLL-${uuid()}`;
 

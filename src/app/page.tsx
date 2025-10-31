@@ -1,7 +1,7 @@
 import Header from "@/app/_components/header";
 import HashParagraph from "@/app/_components/hashParagraph";
 import ImportSection from "./_components/import";
-import wrapPage from "@/lib/wrapPage";
+import wrapPage from "@/app/_lib/wrapPage";
 
 export default wrapPage({
   requireSession: false,

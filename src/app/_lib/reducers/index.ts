@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { AppDispatch } from "../store";
-import { TGroup, TItem, TReceipt, TUser } from "@/lib/db";
+import { TGroup, TItem, TReceipt, TUser } from "@/app/_lib/db";
 import { rCategories, tCategories } from "./categories";
 import { rGroups, tGroups } from "./groups";
 import { addEmptyReceipts, rReceipts, tReceipts } from "./receipts";

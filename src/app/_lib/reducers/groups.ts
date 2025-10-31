@@ -2,7 +2,7 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
 import { AppDispatch, RootState } from "../store";
-import { TGroup, TMembership } from "@/lib/db";
+import { TGroup, TMembership } from "@/app/_lib/db";
 import {
   appToast,
   has3ConsecutiveLetters,

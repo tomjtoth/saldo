@@ -11,9 +11,9 @@ import {
   useRef,
 } from "react";
 
-import { useAppDispatch } from "@/lib/hooks";
-import { TGroup, TUser } from "@/lib/db";
-import { rCombined } from "@/lib/reducers";
+import { useAppDispatch } from "@/app/_lib/hooks";
+import { TGroup, TUser } from "@/app/_lib/db";
+import { rCombined } from "@/app/_lib/reducers";
 
 type TRootDiv = {
   children: ReactNode;

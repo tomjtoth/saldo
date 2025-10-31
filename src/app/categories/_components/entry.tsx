@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
-import { virt } from "@/lib/utils";
-import { TCategory } from "@/lib/db";
-import { rCombined as red } from "@/lib/reducers";
+import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { virt } from "@/app/_lib/utils";
+import { TCategory } from "@/app/_lib/db";
+import { rCombined as red } from "@/app/_lib/reducers";
 
 import Canceler from "@/app/_components/canceler";
 import Details from "./details";

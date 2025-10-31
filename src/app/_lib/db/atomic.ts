@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 
 import { db, DrizzleTx } from ".";
-import * as schema from "@/lib/db/schema";
+import * as schema from "@/app/_lib/db/schema";
 
 import { VDate } from "../utils";
 

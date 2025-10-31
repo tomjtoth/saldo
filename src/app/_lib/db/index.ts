@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/libsql";
 import { ExtractTablesWithRelations, sql } from "drizzle-orm";
 import { SQLiteColumn, SQLiteTransaction } from "drizzle-orm/sqlite-core";
 
-import * as schema from "@/lib/db/schema";
+import * as schema from "@/app/_lib/db/schema";
 import { ResultSet } from "@libsql/client";
 
 export * from "./types";

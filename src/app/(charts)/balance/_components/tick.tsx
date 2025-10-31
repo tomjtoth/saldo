@@ -2,7 +2,7 @@
 
 import { TickItemTextProps } from "recharts/types/polar/PolarAngleAxis";
 
-import { VDate } from "@/lib/utils";
+import { VDate } from "@/app/_lib/utils";
 
 export default function BalanceTick({ x, y, payload }: TickItemTextProps) {
   return (

@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { TUser } from "@/lib/db";
+import { TUser } from "@/app/_lib/db";
 
 export default function UserAvatar({
   name,
