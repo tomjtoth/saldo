@@ -5,7 +5,7 @@ import { virt } from "@/lib/utils";
 import { useAppDispatch } from "@/lib/hooks";
 import { rCombined } from "@/lib/reducers";
 
-import UserAvatar from "../userAvatar";
+import UserAvatar from "@/components/userAvatar";
 import PaidByUserWithAvatar from "./paidByUserWithAvatar";
 
 export default function Individual(rcpt: TReceipt) {

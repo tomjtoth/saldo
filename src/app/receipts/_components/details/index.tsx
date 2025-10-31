@@ -8,7 +8,7 @@ import { appToast } from "@/lib/utils";
 import { svcAddReceipt } from "@/lib/services/receipts";
 import { useBodyNodes } from "@/components/bodyNodes";
 
-import Canceler from "../../canceler";
+import Canceler from "@/components/canceler";
 import ItemRow from "./itemRow";
 import PaidByUserWithAvatar from "../paidByUserWithAvatar";
 

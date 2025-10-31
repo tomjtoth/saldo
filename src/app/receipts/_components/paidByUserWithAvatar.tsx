@@ -1,10 +1,10 @@
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined } from "@/lib/reducers";
 import { TUser } from "@/lib/db";
-import { useBodyNodes } from "../bodyNodes";
+import { useBodyNodes } from "@/components/bodyNodes";
 
-import UserAvatar from "../userAvatar";
-import Canceler from "../canceler";
+import UserAvatar from "@/components/userAvatar";
+import Canceler from "@/components/canceler";
 
 export default function PaidByUserWithAvatar({
   listOnClick,
