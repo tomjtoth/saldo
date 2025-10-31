@@ -8,6 +8,7 @@ import { updater } from "../db/updater";
 import { atomic, db, isActive, TCrGroup, TGroup } from "../db";
 import { groups, memberships, users } from "../db/schema";
 import { currentUser } from "./users";
+import wrapService from "../wrapService";
 
 const COLS_WITH = {
   columns: {
@@ -29,21 +30,20 @@ const COLS_WITH = {
   },
 };
 
-export async function svcCreateGroup(name: string, description?: string) {
-  const { id } = await currentUser();
-
+function validateCreateGroupData(
+  data: Required<Pick<TGroup, "name">> & Pick<TGroup, "description">
+) {
   if (
-    typeof name !== "string" ||
-    (description !== null &&
-      !["string", "undefined"].includes(typeof description))
+    typeof data.name !== "string" ||
+    (data.description !== null &&
+      !["string", "undefined"].includes(typeof data.description))
   )
     err();
 
-  const data = { name, description };
   nullEmptyStrings(data);
-
-  return createGroup(id, data);
 }
+
+export const svcCreateGroup = wrapService(createGroup, validateCreateGroupData);
 
 type GroupUpdater = Pick<TGroup, "name" | "description" | "flags">;
 
@@ -174,7 +174,7 @@ export async function joinGroup(uuid: string, userId: number) {
 }
 
 export async function getGroups(userId: number) {
-  const res = (await db.query.groups.findMany({
+  const res: TGroup[] = await db.query.groups.findMany({
     ...COLS_WITH,
     where: exists(
       db
@@ -188,7 +188,7 @@ export async function getGroups(userId: number) {
           )
         )
     ),
-  })) as TGroup[];
+  });
 
   res.sort(sortByName);
   res.forEach((grp) =>

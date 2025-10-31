@@ -89,9 +89,11 @@ export const tGroups = {
         toast.error((err as Error).message as string, appToast.theme());
       }
 
-      const crudOp = svcCreateGroup(name!, description!).then((res) => {
-        dispatch(csa.addGroup(res));
-      });
+      const crudOp = svcCreateGroup({ name: name!, description }).then(
+        (res) => {
+          dispatch(csa.addGroup(res));
+        }
+      );
       appToast.promise(crudOp, `Saving "${name}" to db`);
 
       return crudOp;
