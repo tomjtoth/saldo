@@ -1,7 +1,7 @@
 import { getGroups } from "@/lib/services/groups";
 
 import wrapPage from "@/lib/wrapPage";
-import CliGroupsPage from "@/components/groups";
+import CliGroupsPage from "./_components";
 
 export default wrapPage({
   resolveParams: ({ groupId }) => ({

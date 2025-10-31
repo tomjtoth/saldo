@@ -7,7 +7,7 @@ import { rCombined as red } from "@/lib/reducers";
 
 import NameDescrAdder from "@/components/nameDescrAdder";
 import Entry from "./entry";
-import GroupSelector from "@/components/groups/selector";
+import GroupSelector from "@/app/_components/groupSelector";
 import Header from "@/components/header";
 
 export default function CliCategoriesPage(srv: { catId?: number }) {

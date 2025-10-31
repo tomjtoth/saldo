@@ -2,11 +2,11 @@
 
 import { useAppDispatch, useGroupSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
-import { useRootDivCx } from "../rootDiv";
+import { useRootDivCx } from "@/components/rootDiv";
 
 import Entry from "./entry";
-import NameDescrAdder from "../nameDescrAdder";
-import Header from "../header";
+import NameDescrAdder from "@/components/nameDescrAdder";
+import Header from "@/components/header";
 
 export default function CliGroupsPage() {
   const rs = useGroupSelector();

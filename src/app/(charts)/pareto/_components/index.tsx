@@ -9,7 +9,7 @@ import { svcGetParetoData } from "@/lib/services/pareto";
 
 import ParetoChart from "./chart";
 import Header from "@/components/header";
-import GroupSelector from "@/components/groups/selector";
+import GroupSelector from "@/app/_components/groupSelector";
 
 export default function CliParetoPage(srv: { from?: string; to?: string }) {
   const dispatch = useAppDispatch();

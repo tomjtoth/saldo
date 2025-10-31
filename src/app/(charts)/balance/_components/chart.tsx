@@ -21,7 +21,7 @@ import useLogic from "./logic";
 import BalanceTick from "./tick";
 import BalanceTooltip from "./tooltip";
 import BalanceLegend from "./legend";
-import GroupSelector from "@/components/groups/selector";
+import GroupSelector from "@/app/_components/groupSelector";
 
 export const CtxBalanceChart = createContext<TUserChartData[]>([]);
 

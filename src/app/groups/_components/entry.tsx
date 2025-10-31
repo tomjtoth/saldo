@@ -7,9 +7,9 @@ import { virt } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { rCombined as red } from "@/lib/reducers";
 
-import Canceler from "../canceler";
+import Canceler from "@/components/canceler";
 import Details from "./details";
-import SvgStar from "../star";
+import SvgStar from "@/components/star";
 
 export default function Entry({
   group,

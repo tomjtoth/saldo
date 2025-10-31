@@ -9,7 +9,7 @@ import { rCombined } from "@/lib/reducers";
 import { useBodyNodes } from "@/components/bodyNodes";
 
 import Header from "@/components/header";
-import GroupSelector from "@/components/groups/selector";
+import GroupSelector from "@/app/_components/groupSelector";
 import Scrollers from "./scrollers";
 import Individual from "./individual";
 import Details from "./details";
