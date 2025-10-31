@@ -4,18 +4,14 @@ import { sql } from "drizzle-orm";
 
 import { db, groupsWithUsersCTE, TGroup } from "@/app/_lib/db";
 import { VDate } from "../utils";
-import { currentUser } from "./users";
+import wrapService from "../wrapService";
 
 type ParetoOpts = {
   from?: string;
   to?: string;
 };
 
-export async function svcGetParetoData(opts: ParetoOpts) {
-  const { id } = await currentUser();
-
-  return getPareto(id, opts);
-}
+export const svcGetParetoData = wrapService(getPareto);
 
 export async function getPareto(userId: number, opts: ParetoOpts = {}) {
   const paidOnCrit: string[] = [];
