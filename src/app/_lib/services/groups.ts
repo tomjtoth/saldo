@@ -45,16 +45,15 @@ function validateCreateGroupData(
 
 export const svcCreateGroup = wrapService(createGroup, validateCreateGroupData);
 
-type GroupUpdater = Pick<TGroup, "name" | "description" | "flags">;
-
-export async function svcUpdateGroup(
-  groupId: number,
-  { flags, name, description }: GroupUpdater
-) {
-  const { id: userId } = await currentUser();
-
+function validateUpdateGroupData({
+  id,
+  flags,
+  name,
+  description,
+}: Pick<TGroup, "name" | "description" | "flags"> &
+  Required<Pick<TGroup, "id">>) {
   if (
-    typeof groupId !== "number" ||
+    typeof id !== "number" ||
     !["number", "undefined"].includes(typeof flags) ||
     !["string", "undefined"].includes(typeof name) ||
     (description !== null &&
@@ -70,12 +69,10 @@ export async function svcUpdateGroup(
 
   nullEmptyStrings(data);
 
-  const group = await updateGroup(userId, groupId, data);
-
-  if (!group) err(404);
-
-  return group;
+  return { id, ...data };
 }
+
+export const svcUpdateGroup = wrapService(updateGroup, validateUpdateGroupData);
 
 export async function svcSetDefaultGroup(id: number) {
   const { id: userId } = await currentUser();
@@ -91,8 +88,7 @@ export async function svcRemoveInviteLink(groupId: number) {
   const { id: userId } = await currentUser();
   if (typeof groupId !== "number") err();
 
-  const group = await updateGroup(userId, groupId, { uuid: null });
-  if (!group) err(404);
+  const group = await updateGroup(userId, { id: groupId, uuid: null });
 
   return group;
 }
@@ -101,8 +97,7 @@ export async function svcGenerateInviteLink(groupId: number) {
   const { id: userId } = await currentUser();
   if (typeof groupId !== "number") err();
 
-  const group = await updateGroup(userId, groupId, { uuid: uuidv4() });
-  if (!group) err(404);
+  const group = await updateGroup(userId, { id: groupId, uuid: uuidv4() });
 
   return group;
 }
@@ -200,21 +195,25 @@ export async function getGroups(userId: number) {
 
 export async function updateGroup(
   adminId: number,
-  groupId: number,
-  modifier: Pick<TGroup, "name" | "description" | "flags" | "uuid">
+  {
+    id,
+    ...modifier
+  }: Pick<TGroup, "name" | "description" | "flags" | "uuid"> &
+    Required<Pick<TGroup, "id">>
 ) {
   return await atomic(
     { operation: "Updating group", revisedBy: adminId },
     async (tx, revisionId) => {
       const group = await tx.query.groups.findFirst({
-        where: eq(groups.id, groupId),
+        where: eq(groups.id, id),
       });
-      if (!group) return null;
+
+      if (!group) err(404);
 
       const saving = await updater(group, modifier, {
         tx,
         tableName: "groups",
-        entityPk1: groupId,
+        entityPk1: id,
         revisionId,
         skipArchivalOf: ["uuid"],
       });
@@ -224,7 +223,7 @@ export async function updateGroup(
 
         const res = (await tx.query.groups.findFirst({
           ...COLS_WITH,
-          where: eq(groups.id, groupId),
+          where: eq(groups.id, id),
         })) as TGroup;
 
         res.memberships!.sort((a, b) => sortByName(a.user!, b.user!));

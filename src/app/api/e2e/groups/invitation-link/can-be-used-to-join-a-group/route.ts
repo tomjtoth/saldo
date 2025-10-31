@@ -9,6 +9,6 @@ export const GET = wrapRoute(
 
     const group = await createGroup(user.id, { name: "you and me" });
 
-    await updateGroup(user.id, group.id!, { uuid: "some-uuid" });
+    await updateGroup(user.id, { id: group.id!, uuid: "some-uuid" });
   }
 );
