@@ -155,14 +155,12 @@ export async function createReceipt(
   );
 }
 
-export async function svcGetReceipts(knownIds: number[]) {
-  const user = await currentUser();
-
+function validateKnownIds(knownIds?: number[]) {
   if (!Array.isArray(knownIds) || knownIds.some(isNaN))
     err("known ids contain NaN");
-
-  return await getReceipts(user.id, knownIds);
 }
+
+export const svcGetReceipts = wrapService(getReceipts, validateKnownIds);
 
 export async function getReceipts(userId: number, knownIds: number[] = []) {
   const res: TGroup[] = await db.query.groups.findMany({
