@@ -50,7 +50,7 @@ function validateCreateGroupData({
 
 export const svcCreateGroup = wrapService(createGroup, validateCreateGroupData);
 
-function validateUpdateGroupData({
+function prepUpdateGroupData({
   id,
   flags,
   name,
@@ -67,6 +67,7 @@ function validateUpdateGroupData({
     err();
 
   const data = {
+    id,
     flags,
     name,
     description,
@@ -74,10 +75,10 @@ function validateUpdateGroupData({
 
   nullEmptyStrings(data);
 
-  return { id, ...data };
+  return data;
 }
 
-export const svcUpdateGroup = wrapService(updateGroup, validateUpdateGroupData);
+export const svcUpdateGroup = wrapService(updateGroup, prepUpdateGroupData);
 
 export async function svcSetDefaultGroup(id: number) {
   const { id: userId } = await currentUser();
