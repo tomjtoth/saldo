@@ -2,9 +2,12 @@
 
 import { KeyboardEventHandler, useEffect, useRef } from "react";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import {
+  useAppDispatch,
+  useGroupSelector,
+  useBodyNodes,
+} from "@/app/_lib/hooks";
 import { rCombined as red, TCliItem } from "@/app/_lib/reducers";
-import { useBodyNodes } from "@/app/_components/bodyNodes";
 
 import Options from "./options";
 import OptionsAsModal from "./options/modal";

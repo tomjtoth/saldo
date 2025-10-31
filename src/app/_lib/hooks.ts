@@ -1,9 +1,10 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useContext } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
 import type { RootState, AppDispatch, AppStore } from "./store";
 import { rCombined, TCliGroup } from "./reducers";
 import { useRootDivCx } from "@/app/_components/rootDiv";
+import { BodyNodeCx } from "../_components/bodyNodes";
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
@@ -70,3 +71,5 @@ export const useGroupSelector = () => {
     user,
   };
 };
+
+export const useBodyNodes = () => useContext(BodyNodeCx);

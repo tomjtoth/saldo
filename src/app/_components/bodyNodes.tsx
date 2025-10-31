@@ -5,11 +5,10 @@ import {
   Dispatch,
   ReactNode,
   SetStateAction,
-  useContext,
   useState,
 } from "react";
 
-const NodeCx = createContext<{
+export const BodyNodeCx = createContext<{
   setNodes: Dispatch<SetStateAction<ReactNode[]>>;
   push: (node: ReactNode) => void;
   pop: () => void;
@@ -19,13 +18,11 @@ const NodeCx = createContext<{
   pop() {},
 });
 
-export const useBodyNodes = () => useContext(NodeCx);
-
 export function BodyNodeProvider({ children }: { children: ReactNode }) {
   const [nodes, setNodes] = useState<ReactNode[]>([]);
 
   return (
-    <NodeCx.Provider
+    <BodyNodeCx.Provider
       value={{
         setNodes,
 
@@ -43,6 +40,6 @@ export function BodyNodeProvider({ children }: { children: ReactNode }) {
     >
       {nodes}
       {children}
-    </NodeCx.Provider>
+    </BodyNodeCx.Provider>
   );
 }

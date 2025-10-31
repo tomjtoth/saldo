@@ -1,8 +1,9 @@
 "use client";
 
+import { useBodyNodes } from "@/app/_lib/hooks";
+
 import Canceler from "@/app/_components/canceler";
 import Options from ".";
-import { useBodyNodes } from "@/app/_components/bodyNodes";
 
 export default function OptionsAsModal({ itemId }: { itemId: number }) {
   const nodes = useBodyNodes();
