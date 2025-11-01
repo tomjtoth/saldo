@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { joinGroup } from "@/app/_lib/services/groups";
+import { joinGroup } from "@/app/_lib/services";
 import wrapRoute from "@/app/_lib/wrapRoute";
 
 export const GET = wrapRoute<{ id: string }>(

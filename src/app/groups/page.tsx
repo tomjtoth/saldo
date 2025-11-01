@@ -1,4 +1,4 @@
-import { getGroups } from "@/app/_lib/services/groups";
+import { getGroups } from "@/app/_lib/services";
 
 import wrapPage from "@/app/_lib/wrapPage";
 import CliGroupsPage from "./_components";

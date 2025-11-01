@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 
 import { auth, signIn } from "@/auth";
 
-import { createGroup } from "./groups";
+import { createGroup } from "@/app/_lib/services";
 import { atomic, db, TCrUser, TUser, updater } from "../db";
 import { revisions, users } from "../db/schema";
 import { err } from "../utils";

@@ -1,5 +1,5 @@
 import wrapRoute from "@/app/_lib/wrapRoute";
-import { addMember } from "@/app/_lib/services/groups";
+import { addMember } from "@/app/_lib/services";
 import { addUser } from "@/app/_lib/services/users";
 
 export const GET = wrapRoute(

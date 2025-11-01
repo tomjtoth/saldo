@@ -16,7 +16,7 @@ import {
   svcRemoveInviteLink,
   svcSetDefaultGroup,
   svcUpdateGroup,
-} from "../services/groups";
+} from "@/app/_lib/services";
 
 export const rGroups = {
   updateGroup(rs: CS, { payload }: PayloadAction<TGroup>) {

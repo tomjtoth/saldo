@@ -1,5 +1,5 @@
 import { createCategory } from "@/app/_lib/services/categories";
-import { addMember, createGroup } from "@/app/_lib/services/groups";
+import { addMember, createGroup } from "@/app/_lib/services";
 import { createReceipt } from "@/app/_lib/services/receipts";
 import { addUser } from "@/app/_lib/services/users";
 import { truncateDb } from "@/app/_lib/db";
