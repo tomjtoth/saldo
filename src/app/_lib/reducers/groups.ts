@@ -68,12 +68,14 @@ export const tGroups = {
         throw err;
       }
 
-      const crudOps = svcUpdateGroup(groupId, modifiers).then((res) => {
-        const ops = appToast.opsDone(original, res);
-        dispatch(csa.updateGroup(res));
+      const crudOps = svcUpdateGroup({ id: groupId, ...modifiers }).then(
+        (res) => {
+          const ops = appToast.opsDone(original, res);
+          dispatch(csa.updateGroup(res));
 
-        return `${ops} "${original.name}" succeeded!`;
-      });
+          return `${ops} "${original.name}" succeeded!`;
+        }
+      );
 
       appToast.promise(crudOps, `Updating "${original.name}"`);
 
@@ -100,7 +102,7 @@ export const tGroups = {
     },
 
   generateInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = svcGenerateInviteLink(groupId).then((res) => {
+    const crudOp = svcGenerateInviteLink({ id: groupId }).then((res) => {
       dispatch(csa.updateGroup(res));
     });
 
@@ -108,7 +110,7 @@ export const tGroups = {
   },
 
   removeInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = svcRemoveInviteLink(groupId).then((res) => {
+    const crudOp = svcRemoveInviteLink({ id: groupId }).then((res) => {
       dispatch(csa.updateGroup(res));
     });
 
