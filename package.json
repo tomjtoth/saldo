@@ -73,7 +73,7 @@
     "cypress": "^14.4.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
-    "jsdom": "^26.1.0",
+    "jsdom": "^27.1.0",
     "nyc": "^17.1.0",
     "start-server-and-test": "^2.0.12",
     "swc-plugin-coverage-instrument": "^0.0.31",
