@@ -34,10 +34,13 @@ function validateCreateGroupData({
   name,
   description,
 }: Required<Pick<TGroup, "name">> & Pick<TGroup, "description">) {
+  const typeDescr = typeof description;
+
   if (
     typeof name !== "string" ||
     (description !== null &&
-      !["string", "undefined"].includes(typeof description))
+      typeDescr !== "string" &&
+      typeDescr !== "undefined")
   )
     err();
 
@@ -49,64 +52,6 @@ function validateCreateGroupData({
 }
 
 export const svcCreateGroup = wrapService(createGroup, validateCreateGroupData);
-
-function prepUpdateGroupData({
-  id,
-  flags,
-  name,
-  description,
-}: Pick<TGroup, "name" | "description" | "flags"> &
-  Required<Pick<TGroup, "id">>) {
-  if (
-    typeof id !== "number" ||
-    !["number", "undefined"].includes(typeof flags) ||
-    !["string", "undefined"].includes(typeof name) ||
-    (description !== null &&
-      !["string", "undefined"].includes(typeof description))
-  )
-    err();
-
-  const data = {
-    id,
-    flags,
-    name,
-    description,
-  };
-
-  nullEmptyStrings(data);
-
-  return data;
-}
-
-export const svcUpdateGroup = wrapService(updateGroup, prepUpdateGroupData);
-
-export async function svcSetDefaultGroup(id: number) {
-  const { id: userId } = await currentUser();
-  if (typeof id !== "number") err();
-
-  await db
-    .update(users)
-    .set({ defaultGroupId: id })
-    .where(eq(users.id, userId));
-}
-
-export async function svcRemoveInviteLink(groupId: number) {
-  const { id: userId } = await currentUser();
-  if (typeof groupId !== "number") err();
-
-  const group = await updateGroup(userId, { id: groupId, uuid: null });
-
-  return group;
-}
-
-export async function svcGenerateInviteLink(groupId: number) {
-  const { id: userId } = await currentUser();
-  if (typeof groupId !== "number") err();
-
-  const group = await updateGroup(userId, { id: groupId, uuid: uuidv4() });
-
-  return group;
-}
 
 export async function createGroup(
   ownerId: number,
@@ -199,16 +144,83 @@ export async function getGroups(userId: number) {
   return res;
 }
 
-export async function updateGroup(
-  adminId: number,
-  {
+export type GroupUpdater = Required<Pick<TGroup, "id">> &
+  Pick<TGroup, "name" | "description" | "flags" | "uuid">;
+
+function validateUpdateGroupData({
+  id,
+  flags,
+  name,
+  description,
+}: Omit<GroupUpdater, "uuid">) {
+  const typeDescr = typeof description;
+  const typeFlags = typeof flags;
+  const typeName = typeof name;
+
+  if (
+    typeof id !== "number" ||
+    (typeFlags !== "number" && typeFlags !== "undefined") ||
+    (typeName !== "string" && typeName !== "undefined") ||
+    (description !== null &&
+      typeDescr !== "string" &&
+      typeDescr !== "undefined")
+  )
+    err();
+
+  const data = {
     id,
-    ...modifier
-  }: Pick<TGroup, "name" | "description" | "flags" | "uuid"> &
-    Required<Pick<TGroup, "id">>
+    flags,
+    name,
+    description,
+  };
+
+  nullEmptyStrings(data);
+
+  return data;
+}
+
+export const svcUpdateGroup = wrapService(updateGroup, validateUpdateGroupData);
+
+export async function svcSetDefaultGroup(id: number) {
+  const { id: userId } = await currentUser();
+  if (typeof id !== "number") err();
+
+  await db
+    .update(users)
+    .set({ defaultGroupId: id })
+    .where(eq(users.id, userId));
+}
+
+function validateInvitationLinkRemovalRequest({
+  id,
+}: Pick<GroupUpdater, "id">) {
+  if (typeof id !== "number") err();
+  return { id, uuid: null };
+}
+
+export const svcRemoveInviteLink = wrapService(
+  updateGroup,
+  validateInvitationLinkRemovalRequest
+);
+
+function validateInvitationLinkGenerateRequest({
+  id,
+}: Pick<GroupUpdater, "id">) {
+  if (typeof id !== "number") err();
+  return { id, uuid: uuidv4() };
+}
+
+export const svcGenerateInviteLink = wrapService(
+  updateGroup,
+  validateInvitationLinkGenerateRequest
+);
+
+export async function updateGroup(
+  revisedBy: number,
+  { id, ...modifier }: GroupUpdater
 ) {
   return await atomic(
-    { operation: "Updating group", revisedBy: adminId },
+    { operation: "Updating group", revisedBy },
     async (tx, revisionId) => {
       const group = await tx.query.groups.findFirst({
         where: eq(groups.id, id),
