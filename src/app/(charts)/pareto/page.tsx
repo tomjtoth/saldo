@@ -1,4 +1,4 @@
-import { getPareto } from "@/app/_lib/services/pareto";
+import { getPareto } from "@/app/_lib/services";
 
 import { VDate } from "@/app/_lib/utils";
 import wrapPage from "@/app/_lib/wrapPage";

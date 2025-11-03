@@ -3,8 +3,8 @@
 import { sql } from "drizzle-orm";
 
 import { db, groupsWithUsersCTE, TGroup } from "@/app/_lib/db";
-import { VDate } from "../utils";
-import wrapService from "../wrapService";
+import { VDate } from "@/app/_lib/utils";
+import wrapService from "@/app/_lib/wrapService";
 
 type ParetoOpts = {
   from?: string;
