@@ -3,12 +3,12 @@
 import { eq, exists, and, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
-import { err, nullEmptyStrings, sortByName } from "../../_lib/utils";
-import { updater } from "../../_lib/db/updater";
-import { atomic, db, isActive, TCrGroup, TGroup } from "../../_lib/db";
-import { groups, memberships, users } from "../../_lib/db/schema";
-import { currentUser } from "../../_lib/services/users";
-import wrapService from "../../_lib/wrapService";
+import { err, nullEmptyStrings, sortByName } from "@/app/_lib/utils";
+import { updater } from "@/app/_lib/db/updater";
+import { atomic, db, isActive, TCrGroup, TGroup } from "@/app/_lib/db";
+import { groups, memberships, users } from "@/app/_lib/db/schema";
+import { currentUser } from "@/app/_lib/services";
+import wrapService from "@/app/_lib/wrapService";
 
 const COLS_WITH = {
   columns: {

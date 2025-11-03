@@ -3,9 +3,9 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 
 import { atomic, db, TCrMembership, TMembership, updater } from "@/app/_lib/db";
-import { err } from "../_lib/utils";
-import { chartColors, memberships } from "../_lib/db/schema";
-import { currentUser } from "../_lib/services/users";
+import { err } from "@/app/_lib/utils";
+import { chartColors, memberships } from "@/app/_lib/db/schema";
+import { currentUser } from "@/app/_lib/services";
 
 export async function svcUpdateMembership({
   groupId,

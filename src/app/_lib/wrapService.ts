@@ -1,4 +1,6 @@
-import { currentUser } from "./services/users";
+"use server";
+
+import { currentUser } from "@/app/_lib/services";
 
 type ServerFn<D, R> = (userId: number, data: D) => Promise<R>;
 type ValidatorFn<RawD, D> = (rawData: D | RawD) => D | void;

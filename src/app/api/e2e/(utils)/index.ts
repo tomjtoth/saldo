@@ -1,10 +1,10 @@
 import {
   addMember,
+  addUser,
   createCategory,
   createGroup,
   createReceipt,
 } from "@/app/_lib/services";
-import { addUser } from "@/app/_lib/services/users";
 import { truncateDb } from "@/app/_lib/db";
 
 type UserParams = Parameters<typeof addUser>[0];

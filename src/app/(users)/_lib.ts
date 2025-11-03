@@ -5,9 +5,9 @@ import { eq } from "drizzle-orm";
 import { auth, signIn } from "@/auth";
 
 import { createGroup } from "@/app/_lib/services";
-import { atomic, db, TCrUser, TUser, updater } from "../db";
-import { revisions, users } from "../db/schema";
-import { err } from "../utils";
+import { atomic, db, TCrUser, TUser, updater } from "../_lib/db";
+import { revisions, users } from "../_lib/db/schema";
+import { err } from "../_lib/utils";
 
 export async function addUser(
   userData: Pick<TCrUser, "email" | "image" | "name">
