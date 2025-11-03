@@ -30,12 +30,12 @@ export async function svcCreateCategory(uncheckedData: RequiredCategoryFields) {
   const { id: revisedBy } = await currentUser();
 
   const { groupId, name, description } = uncheckedData;
-  const typeDescription = typeof description;
+  const typeDescr = typeof description;
 
   if (
     typeof name !== "string" ||
     typeof groupId !== "number" ||
-    (typeDescription !== "string" && typeDescription !== "undefined")
+    (typeDescr !== "string" && typeDescr !== "undefined")
   )
     err();
 
@@ -194,7 +194,7 @@ export async function userAccessToCat(userId: number, catId: number) {
 }
 
 export async function getCategories(userId: number) {
-  const res = (await db.query.groups.findMany({
+  const res: TGroup[] = await db.query.groups.findMany({
     columns: {
       id: true,
       name: true,
@@ -234,7 +234,7 @@ export async function getCategories(userId: number) {
           )
       )
     ),
-  })) as TGroup[];
+  });
 
   const populateArchives = await getArchivePopulator<TCategory>(
     "categories",
