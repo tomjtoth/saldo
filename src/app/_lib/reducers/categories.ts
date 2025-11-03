@@ -1,4 +1,5 @@
 import { PayloadAction } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 
 import { AppDispatch } from "../store";
 import { TCategory } from "@/app/_lib/db";
@@ -13,8 +14,7 @@ import {
   svcCreateCategory,
   svcSetDefaultCategory,
   svcUpdateCategory,
-} from "../services/categories";
-import { toast } from "react-toastify";
+} from "../services";
 
 export const rCategories = {
   updateCategory(rs: CS, { payload }: PayloadAction<TCategory>) {

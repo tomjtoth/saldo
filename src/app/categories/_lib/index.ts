@@ -20,7 +20,7 @@ import {
   nullEmptyStrings,
   nulledEmptyStrings,
   sortByName,
-} from "../utils";
+} from "@/app/_lib/utils";
 
 type RequiredCategoryFields = Required<
   Pick<TCategory, "groupId" | "name" | "description">
@@ -30,11 +30,12 @@ export async function svcCreateCategory(uncheckedData: RequiredCategoryFields) {
   const { id: revisedBy } = await currentUser();
 
   const { groupId, name, description } = uncheckedData;
+  const typeDescription = typeof description;
 
   if (
     typeof name !== "string" ||
     typeof groupId !== "number" ||
-    !["string", "undefined"].includes(typeof description)
+    (typeDescription !== "string" && typeDescription !== "undefined")
   )
     err();
 

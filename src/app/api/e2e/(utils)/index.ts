@@ -1,4 +1,4 @@
-import { createCategory } from "@/app/_lib/services/categories";
+import { createCategory } from "@/app/_lib/services";
 import { addMember, createGroup } from "@/app/_lib/services";
 import { createReceipt } from "@/app/_lib/services/receipts";
 import { addUser } from "@/app/_lib/services/users";
