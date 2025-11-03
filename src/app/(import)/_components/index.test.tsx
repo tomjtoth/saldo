@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { it, expect } from "vitest";
 
-import CliImportSection from "./clientSide";
+import CliImportSection from ".";
 
 it("Page renders correctly", () => {
   render(
@@ -18,6 +18,8 @@ it("Page renders correctly", () => {
       }}
     />
   );
+
   const btn = screen.getByText("re-import V3");
+
   expect(btn).toBeDefined();
 });

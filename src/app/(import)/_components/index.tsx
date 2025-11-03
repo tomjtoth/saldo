@@ -1,21 +1,11 @@
 "use client";
 
-import { svcImportV3 } from "@/app/_lib/services/importV3";
-import { appToast } from "@/app/_lib/utils";
 import { useEffect, useState } from "react";
 
-export type FromDB = {
-  revisions: number;
-  users: number;
-  groups: number;
-  memberships: number;
-  categories: number;
-  receipts: number;
-  items: number;
-  itemShares: number;
-};
+import { svcImportV3, TEntriesInDbOfEachTable } from "@/app/_lib/services";
+import { appToast } from "@/app/_lib/utils";
 
-export default function CliImportSection(fromDB: FromDB) {
+export default function CliImportSection(fromDB: TEntriesInDbOfEachTable) {
   const [data, setData] = useState(fromDB);
 
   useEffect(() => {

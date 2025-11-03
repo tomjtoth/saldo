@@ -3,8 +3,6 @@ import { Readable } from "stream";
 
 import csv from "csv-parser";
 
-import { approxFloat } from "../../utils";
-
 import {
   TCrRevision,
   TCrCategory,
@@ -15,6 +13,8 @@ import {
   TCrReceipt,
   TCrUser,
 } from "@/app/_lib/db";
+
+import { approxFloat } from "@/app/_lib/utils";
 
 export type TCsvRow = { [key: string]: string };
 

@@ -6,7 +6,17 @@ import { db, inChunks } from "@/app/_lib/db";
 import * as schema from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
 import { parseCSV, parseData, TDBData } from "./parsers";
-import { FromDB } from "@/app/_components/import/clientSide";
+
+export type TEntriesInDbOfEachTable = {
+  revisions: number;
+  users: number;
+  groups: number;
+  memberships: number;
+  categories: number;
+  receipts: number;
+  items: number;
+  itemShares: number;
+};
 
 export const alreadyInProd = async () => {
   const user = await db.query.users.findFirst({
@@ -56,5 +66,5 @@ export async function insertData(data: TDBData) {
 
   return Object.fromEntries(
     Object.entries(data).map(([key, arr]) => [key, arr.length])
-  ) as FromDB;
+  ) as TEntriesInDbOfEachTable;
 }
