@@ -1,3 +1,5 @@
+"use server";
+
 import { sql } from "drizzle-orm";
 
 import { db, groupsWithUsersCTE, TGroup } from "@/app/_lib/db";
