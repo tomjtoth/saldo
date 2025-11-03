@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
-import { useRootDivCx } from "@/app/_components/rootDiv";
+import {
+  useAppDispatch,
+  useGroupSelector,
+  useRootDivCx,
+} from "@/app/_lib/hooks";
 import { rCombined as red } from "@/app/_lib/reducers";
 import { svcGetReceipts } from "@/app/_lib/services/receipts";
 

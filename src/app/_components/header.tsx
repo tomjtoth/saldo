@@ -3,7 +3,7 @@
 import { ReactNode, useState } from "react";
 
 import { svcSignIn } from "@/app/_lib/services/auth";
-import { useRootDivCx } from "./rootDiv";
+import { useRootDivCx } from "@/app/_lib/hooks";
 
 import Sidepanel from "./sidepanel";
 import UserAvatar from "./userAvatar";

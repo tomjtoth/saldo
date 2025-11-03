@@ -1,6 +1,7 @@
-import { useRootDivCx } from "@/app/_components/rootDiv";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
+
+import { useRootDivCx } from "@/app/_lib/hooks";
 
 const SCROLLERS = `SCROLLERS-${uuid()}`;
 

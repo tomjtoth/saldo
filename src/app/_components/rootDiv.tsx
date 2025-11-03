@@ -6,7 +6,6 @@ import {
   RefObject,
   UIEventHandler,
   useCallback,
-  useContext,
   useEffect,
   useRef,
 } from "react";
@@ -29,6 +28,19 @@ type TNamedScrollHandler = {
   name: string;
   handler: UIEventHandler<HTMLDivElement>;
 };
+
+export const RootDivCx = createContext<{
+  addOnScroll: (name: string, handler: UIEventHandler<HTMLDivElement>) => void;
+  rmOnScroll: (name: string) => void;
+  groups: TGroup[];
+  groupId?: number;
+  user?: TUser;
+  rootDivRef?: RefObject<HTMLDivElement | null>;
+}>({
+  addOnScroll: () => {},
+  rmOnScroll: () => {},
+  groups: [],
+});
 
 export default function RootDiv({
   children,
@@ -88,21 +100,4 @@ export default function RootDiv({
       </div>
     </RootDivCx.Provider>
   );
-}
-
-const RootDivCx = createContext<{
-  addOnScroll: (name: string, handler: UIEventHandler<HTMLDivElement>) => void;
-  rmOnScroll: (name: string) => void;
-  groups: TGroup[];
-  groupId?: number;
-  user?: TUser;
-  rootDivRef?: RefObject<HTMLDivElement | null>;
-}>({
-  addOnScroll: () => {},
-  rmOnScroll: () => {},
-  groups: [],
-});
-
-export function useRootDivCx() {
-  return useContext(RootDivCx);
 }

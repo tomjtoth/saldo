@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { svcSignOut } from "@/app/_lib/services/auth";
-import { useRootDivCx } from "./rootDiv";
+import { useRootDivCx } from "@/app/_lib/hooks";
 
 import Canceler from "./canceler";
 
