@@ -1,10 +1,11 @@
 "use server";
 
-import { atomic, db, TCrMembership, TMembership, updater } from "@/app/_lib/db";
-import { err } from "../utils";
 import { and, eq, isNull, sql } from "drizzle-orm";
-import { chartColors, memberships } from "../db/schema";
-import { currentUser } from "./users";
+
+import { atomic, db, TCrMembership, TMembership, updater } from "@/app/_lib/db";
+import { err } from "../_lib/utils";
+import { chartColors, memberships } from "../_lib/db/schema";
+import { currentUser } from "../_lib/services/users";
 
 export async function svcUpdateMembership({
   groupId,

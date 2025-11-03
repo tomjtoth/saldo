@@ -9,13 +9,14 @@ import {
   insertAlphabetically,
 } from "../utils";
 import { combinedSA as csa, CombinedState as CS } from ".";
-import { svcSetUserColor, svcUpdateMembership } from "../services/memberships";
 import {
   svcCreateGroup,
   svcGenerateInviteLink,
   svcRemoveInviteLink,
   svcSetDefaultGroup,
+  svcSetUserColor,
   svcUpdateGroup,
+  svcUpdateMembership,
 } from "@/app/_lib/services";
 
 export const rGroups = {

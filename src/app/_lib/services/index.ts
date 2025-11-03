@@ -5,4 +5,5 @@ export * from "@/app/(import)/_lib";
 
 export * from "@/app/categories/_lib";
 export * from "@/app/groups/_lib";
+export * from "@/app/(memberships)/_lib";
 export * from "@/app/receipts/_lib";
