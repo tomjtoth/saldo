@@ -17,11 +17,11 @@ import {
 
 import { TBalanceChartData, TUserChartData } from "@/app/_lib/db";
 
+import GroupSelector from "@/app/_components/groupSelector";
 import useLogic from "./logic";
 import BalanceTick from "./tick";
 import BalanceTooltip from "./tooltip";
 import BalanceLegend from "./legend";
-import GroupSelector from "@/app/_components/groupSelector";
 
 export const CtxBalanceChart = createContext<TUserChartData[]>([]);
 

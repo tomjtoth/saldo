@@ -3,8 +3,8 @@
 import { TCategory } from "@/app/_lib/db";
 import { virt } from "@/app/_lib/utils";
 
-import Updater from "./updater";
 import Slider from "@/app/_components/slider";
+import Updater from "./updater";
 
 export default function Details({
   cat,

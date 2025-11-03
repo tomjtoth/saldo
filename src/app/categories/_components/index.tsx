@@ -6,9 +6,9 @@ import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
 import { rCombined as red } from "@/app/_lib/reducers";
 
 import NameDescrAdder from "@/app/_components/nameDescrAdder";
-import Entry from "./entry";
 import GroupSelector from "@/app/_components/groupSelector";
 import Header from "@/app/_components/header";
+import Entry from "./entry";
 
 export default function CliCategoriesPage(srv: { catId?: number }) {
   const dispatch = useAppDispatch();

@@ -8,8 +8,8 @@ import { TCategory } from "@/app/_lib/db";
 import { rCombined as red } from "@/app/_lib/reducers";
 
 import Canceler from "@/app/_components/canceler";
-import Details from "./details";
 import SvgStar from "@/app/_components/star";
+import Details from "./details";
 
 export default function Entry({
   cat,

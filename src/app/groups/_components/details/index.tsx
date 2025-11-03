@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 
 import { TGroup } from "@/app/_lib/db";
 import { virt } from "@/app/_lib/utils";
+import { useGroupSelector } from "@/app/_lib/hooks";
 
+import SvgLink from "@/app/_components/svgLink";
 import Invitation from "./invitation";
 import Title from "./title";
 import Members from "./members";
-import SvgLink from "@/app/_components/svgLink";
-import { useGroupSelector } from "@/app/_lib/hooks";
 
 export default function Details({ group }: { group: TGroup }) {
   const [flags, setFlags] = useState(group.flags!);

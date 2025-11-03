@@ -7,9 +7,9 @@ import { appToast } from "@/app/_lib/utils";
 import { rCombined as red } from "@/app/_lib/reducers";
 import { svcGetParetoData } from "@/app/_lib/services";
 
-import ParetoChart from "./chart";
 import Header from "@/app/_components/header";
 import GroupSelector from "@/app/_components/groupSelector";
+import ParetoChart from "./chart";
 
 export default function CliParetoPage(srv: { from?: string; to?: string }) {
   const dispatch = useAppDispatch();

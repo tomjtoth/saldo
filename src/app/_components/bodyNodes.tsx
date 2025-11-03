@@ -18,7 +18,11 @@ export const BodyNodeCx = createContext<{
   pop() {},
 });
 
-export function BodyNodeProvider({ children }: { children: ReactNode }) {
+export default function BodyNodeProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [nodes, setNodes] = useState<ReactNode[]>([]);
 
   return (

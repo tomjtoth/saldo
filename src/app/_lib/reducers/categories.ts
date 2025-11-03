@@ -1,20 +1,20 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
-import { AppDispatch } from "../store";
+import { AppDispatch } from "@/app/_lib/store";
 import { TCategory } from "@/app/_lib/db";
 import {
   appToast,
   has3ConsecutiveLetters,
   insertAlphabetically,
   nulledEmptyStrings,
-} from "../utils";
+} from "@/app/_lib/utils";
 import { CombinedState as CS, combinedSA as csa } from ".";
 import {
   svcCreateCategory,
   svcSetDefaultCategory,
   svcUpdateCategory,
-} from "../services";
+} from "@/app/_lib/services";
 
 export const rCategories = {
   updateCategory(rs: CS, { payload }: PayloadAction<TCategory>) {

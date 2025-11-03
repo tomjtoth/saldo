@@ -18,9 +18,9 @@ import {
   itemShares,
   memberships,
   receipts,
-} from "../../_lib/db/schema";
-import { err, nulledEmptyStrings, sortByName } from "../../_lib/utils";
-import wrapService from "../../_lib/wrapService";
+} from "@/app/_lib/db/schema";
+import { err, nulledEmptyStrings, sortByName } from "@/app/_lib/utils";
+import wrapService from "@/app/_lib/wrapService";
 
 const RECEIPT_COLS_WITH = {
   columns: {
