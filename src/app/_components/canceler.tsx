@@ -21,6 +21,7 @@ export default function Canceler({
   const [classes, setClasses] = useState(clsBase);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (clsBlurred) setClasses(`${clsBase} ${clsBlurred}`);
   }, []);
 

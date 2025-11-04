@@ -1,16 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { svcImportV3, TEntriesInDbOfEachTable } from "@/app/_lib/services";
 import { appToast } from "@/app/_lib/utils";
 
 export default function CliImportSection(fromDB: TEntriesInDbOfEachTable) {
   const [data, setData] = useState(fromDB);
-
-  useEffect(() => {
-    setData(fromDB);
-  }, []);
 
   return (
     <div className="rounded border p-2 max-w-fit flex flex-col items-center">

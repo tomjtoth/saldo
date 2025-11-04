@@ -19,6 +19,7 @@ export default function Details({ group }: { group: TGroup }) {
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFlags(group.flags!);
   }, [group.flags]);
 

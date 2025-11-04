@@ -29,6 +29,7 @@ export default function useInfiniteScroll() {
       !fetching &&
       (rootDivH < window.innerHeight || debounce === 1)
     ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFetching(true);
       const fetchedGroupId = rs.groupId;
 

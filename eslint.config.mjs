@@ -16,6 +16,7 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      "**/pwa/index.tsx",
     ],
   },
 ];
