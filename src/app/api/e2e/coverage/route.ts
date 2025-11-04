@@ -1,4 +1,4 @@
-import wrapRoute from "@/lib/wrapRoute";
+import wrapRoute from "@/app/_lib/wrapRoute";
 
 export const GET = wrapRoute(
   { onlyDuringDevelopment: true, requireSession: false },

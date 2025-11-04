@@ -1,6 +1,5 @@
-import wrapRoute from "@/lib/wrapRoute";
-import { createGroup, updateGroup } from "@/lib/services/groups";
-import { addUser } from "@/lib/services/users";
+import wrapRoute from "@/app/_lib/wrapRoute";
+import { addUser, createGroup, updateGroup } from "@/app/_lib/services";
 
 export const GET = wrapRoute(
   { requireSession: false, onlyDuringDevelopment: true },
@@ -9,6 +8,6 @@ export const GET = wrapRoute(
 
     const group = await createGroup(user.id, { name: "you and me" });
 
-    await updateGroup(user.id, group.id!, { uuid: "some-uuid" });
+    await updateGroup(user.id, { id: group.id!, uuid: "some-uuid" });
   }
 );

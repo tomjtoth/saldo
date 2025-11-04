@@ -1,1 +1,1 @@
-export { default } from "@/app/balance/page";
+export { default } from "@/app/(charts)/balance/page";

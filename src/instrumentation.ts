@@ -4,11 +4,11 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     if (process.env.NODE_ENV === "production" || process.env.MIGRATE) {
-      const { migrator } = await import("@/lib/db");
+      const { migrator } = await import("@/app/_lib/db");
       await migrator.up();
     }
 
-    const { VDate } = await import("./lib/utils");
+    const { VDate } = await import("@/app/_lib/utils");
 
     await VDate.initAnchor();
   }
