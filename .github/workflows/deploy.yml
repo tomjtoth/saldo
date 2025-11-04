@@ -19,7 +19,11 @@ jobs:
   lint-build-test:
     name: Lint, Build and Test
     env:
-      SKIP_CI: ${{ contains(github.event.head_commit.message, '#skip-ci') }}
+      SKIP_CI: |
+        ${{ (
+          (github.event_name == 'push' && contains(github.event.head_commit.message, '#skip-ci')) ||
+          (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '#skip-ci'))
+        ) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
