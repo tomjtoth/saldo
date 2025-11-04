@@ -20,11 +20,7 @@ export default function PaidByUserWithAvatar({
   return (
     <div
       className={listOnClick && "cursor-pointer"}
-      onClick={
-        listOnClick
-          ? () => nodes.push(<Listing key="paid-by-listing" />)
-          : undefined
-      }
+      onClick={listOnClick ? () => nodes.push(Listing) : undefined}
     >
       <span className="hidden sm:inline-block mr-2">paid by</span>
       <span className="hidden lg:inline-block mr-2">{user.name}</span>

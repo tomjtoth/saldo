@@ -26,7 +26,7 @@ export default function CliReceiptsPage() {
   const receipt = rs.group?.activeReceipt;
 
   useEffect(() => {
-    if (typeof receipt?.id === "number") nodes.push(<Details key="details" />);
+    if (typeof receipt?.id === "number") nodes.push(Details);
   }, [receipt?.id]);
 
   return (
