@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:instrumented": "INSTRUMENT_E2E=1 next dev",
-    "lint": "next lint",
+    "lint": "eslint .",
     "test": "vitest",
     "coverage:unit": "vitest run --coverage",
     "postcoverage:unit": "mkdir -p .nyc_output; cp coverage/coverage-final.json .nyc_output/unit-tests.json",
@@ -57,7 +57,6 @@
   },
   "devDependencies": {
     "@cypress/code-coverage": "^3.14.7",
-    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.0",

@@ -17,6 +17,8 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
       "**/pwa/index.tsx",
+      "coverage",
+      "cypress",
     ],
   },
 ];
