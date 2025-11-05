@@ -24,7 +24,7 @@ export default function PaidByUserWithAvatar({
     >
       <span className="hidden sm:inline-block mr-2">paid by</span>
       <span className="hidden lg:inline-block mr-2">{user.name}</span>
-      <UserAvatar {...user} className="w-10" />
+      <UserAvatar user={user} className="w-10" />
     </div>
   );
 }
@@ -51,7 +51,7 @@ function Listing() {
               nodes.pop();
             }}
           >
-            <UserAvatar {...u} className="mr-2 w-10" />
+            <UserAvatar user={u} className="mr-2 w-10" />
             {u.email}
           </li>
         ))}
