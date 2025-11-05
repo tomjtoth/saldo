@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 
-import { DrizzleTx } from ".";
+import { DrizzleTx } from "./types";
 import { has3ConsecutiveLetters } from "../utils";
 
 export async function updater<T extends { revisionId: number }>(

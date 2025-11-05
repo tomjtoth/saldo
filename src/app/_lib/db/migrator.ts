@@ -1,9 +1,8 @@
 import fs from "fs";
-
 import { sql } from "drizzle-orm";
 
 import { err } from "../utils";
-import { db } from ".";
+import { db } from "./instance";
 
 const TAB = "\t";
 const LF = "\n\n";

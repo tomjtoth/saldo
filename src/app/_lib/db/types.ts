@@ -3,6 +3,8 @@ import type {
   Many,
   InferSelectModel,
 } from "drizzle-orm";
+import { SQLiteTransaction } from "drizzle-orm/sqlite-core";
+import { ResultSet } from "@libsql/client";
 
 import * as schema from "./schema";
 
@@ -40,6 +42,13 @@ type TModelWithRelations<TTableName extends keyof TSchema> = Partial<
           : never // Could not extract referencedTableName (dbName)
         : never; // Could not infer TRelation
     }
+>;
+
+export type DrizzleTx = SQLiteTransaction<
+  "async",
+  ResultSet,
+  Schema,
+  ExtractTablesWithRelations<Schema>
 >;
 
 export type TParetoChartData = {
