@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, ReactNode, useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -15,15 +15,12 @@ import {
   Label,
 } from "recharts";
 
-import { TBalanceChartData, TUserChartData } from "@/app/_lib/db";
+import { TBalanceChartData } from "@/app/_lib/db";
 
-import GroupSelector from "@/app/_components/groupSelector";
-import useLogic from "./logic";
+import useLogic, { CtxBalanceChart } from "./logic";
 import BalanceTick from "./tick";
 import BalanceTooltip from "./tooltip";
 import BalanceLegend from "./legend";
-
-export const CtxBalanceChart = createContext<TUserChartData[]>([]);
 
 export default function BalanceChart({
   data,
@@ -34,7 +31,6 @@ export default function BalanceChart({
     state: { refAreaLeft, refAreaRight, left, right, bottom, top },
     zoomIn,
     zoomOut,
-    isZoomedIn,
     startHighlight,
     dragHighlight,
     findMinMax,
@@ -93,13 +89,6 @@ export default function BalanceChart({
 
   return (
     <CtxBalanceChart.Provider value={users}>
-      <div className="flex flex-wrap gap-2 items-center justify-center">
-        <label>
-          group: <GroupSelector />
-        </label>
-        {isZoomedIn() && <button onClick={zoomOut}>zoom out</button>}
-      </div>
-
       <div className="h-full w-full">
         <ResponsiveContainer>
           <LineChart

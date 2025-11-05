@@ -1,12 +1,11 @@
-import { useContext } from "react";
 import { DefaultLegendContentProps } from "recharts";
 
-import { CtxBalanceChart } from "./chart";
+import { useBalanceChartCx } from "./logic";
 
 import Entry from "@/app/(charts)/_components/legendEntry";
 
 export default function BalanceLegend(x: DefaultLegendContentProps) {
-  const users = useContext(CtxBalanceChart);
+  const users = useBalanceChartCx();
 
   return (
     <div className="flex gap-2 items-center justify-center">
