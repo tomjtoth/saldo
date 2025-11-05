@@ -4,7 +4,7 @@ import { ChangeEventHandler, useEffect, useRef } from "react";
 
 import { TUser } from "@/app/_lib/db";
 import { useGroupSelector } from "@/app/_lib/hooks";
-import { TCliItem } from "@/app/_lib/reducers";
+import { TCliItem } from "@/app/_lib/reducers/types";
 import { costToFixed } from ".";
 
 import UserAvatar from "@/app/_components/userAvatar";

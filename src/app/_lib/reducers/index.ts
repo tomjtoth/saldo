@@ -1,55 +1,11 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
 import { AppDispatch } from "../store";
-import { TGroup, TItem, TReceipt, TUser } from "@/app/_lib/db";
-import { rCategories, tCategories } from "./categories";
-import { rGroups, tGroups } from "./groups";
-import { addEmptyReceipts, rReceipts, tReceipts } from "./receipts";
+import { thunksCategories } from "@/app/categories/_lib/reducers";
+import { thunksGroups } from "@/app/groups/_lib/reducers";
+import { thunksReceipts } from "@/app/receipts/_lib/reducers";
+import { addEmptyReceipts } from "@/app/receipts/_lib/reducers/helpers";
 import { deepClone } from "../utils";
-
-export * from "./receipts";
-
-export interface TCliItem extends Omit<TItem, "cost"> {
-  cost?: number | string;
-}
-
-export interface TCliGroup extends TGroup {
-  activeReceipt?: Omit<TReceipt, "items"> & {
-    focusedIdx?: number;
-    items?: TCliItem[];
-  };
-}
-
-export type CombinedState = {
-  user?: TUser;
-  groupId?: number;
-  groups: TCliGroup[];
-};
-
-export type Initializer = Pick<CombinedState, "groups" | "user">;
-
-const slice = createSlice({
-  name: "combined",
-  initialState: { groups: [] } as CombinedState,
-
-  reducers: {
-    init(rs, { payload }: PayloadAction<Initializer>) {
-      if (payload.user !== undefined) rs.user = payload.user;
-
-      if (rs.groupId === undefined) {
-        rs.groupId = payload.user?.defaultGroupId ?? payload.groups.at(0)?.id;
-      }
-
-      rs.groups = payload.groups;
-    },
-
-    ...rGroups,
-    ...rCategories,
-    ...rReceipts,
-  },
-});
-
-export const combinedSA = slice.actions;
+import { slice } from "./slice";
+import { Initializer } from "./types";
 
 export const rCombined = {
   init: (data: Initializer) => (dispatch: AppDispatch) => {
@@ -58,12 +14,12 @@ export const rCombined = {
     const clone = deepClone(data);
     addEmptyReceipts(clone);
 
-    return dispatch(combinedSA.init(clone));
+    return dispatch(slice.actions.init(clone));
   },
 
-  ...tGroups,
-  ...tCategories,
-  ...tReceipts,
+  ...thunksGroups,
+  ...thunksCategories,
+  ...thunksReceipts,
 };
 
 export default slice.reducer;

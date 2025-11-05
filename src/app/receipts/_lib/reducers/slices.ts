@@ -1,68 +1,18 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 
-import { AppDispatch } from "../store";
+import { TReceipt, TGroup } from "@/app/_lib/db";
+import { deepClone } from "@/app/_lib/utils";
+import { CombinedState as CS, TCliItem } from "@/app/_lib/reducers/types";
 import {
-  combinedSA as csa,
-  CombinedState as CS,
-  Initializer,
-  TCliItem,
-} from ".";
-import { TReceipt, TGroup, TItem } from "@/app/_lib/db";
-import { deepClone, VDate } from "../utils";
+  addItem,
+  getActiveGroup,
+  getActiveReceipt,
+  getActiveUsers,
+  getDefaultCategory,
+  sortReceipts,
+} from "./helpers";
 
-// this provides the key prop to React during `items.map( ... )`
-// TODO: enable drag n drop re-arrangement of items in adder
-let rowId = 0;
-const addItem = (categoryId: number) => ({
-  id: rowId++,
-  categoryId,
-  cost: "",
-  notes: "",
-  itemShares: [],
-});
-
-const getActiveGroup = (rs: CS, groupId?: number) =>
-  rs.groups.find((grp) => grp.id === (groupId ?? rs.groupId))!;
-
-const getDefaultCategory = (rs: CS, groupId?: number) => {
-  const group = getActiveGroup(rs, groupId);
-
-  return (
-    group.memberships?.at(0)?.defaultCategoryId ??
-    group.categories?.at(0)?.id ??
-    // in case we have no categories
-    -1
-  );
-};
-
-const getActiveUsers = (rs: CS) =>
-  getActiveGroup(rs).memberships?.map(({ user }) => user!);
-
-const getActiveReceipt = (rs: CS) => getActiveGroup(rs).activeReceipt!;
-
-export function addEmptyReceipts(data: Initializer) {
-  for (const group of data.groups) {
-    group.receipts?.push({
-      id: -1,
-      paidOn: VDate.toStrISO(),
-      paidById: data.user!.id,
-      paidBy: data.user,
-      items: [
-        // cost is of type string on the client side, big deal! :'D
-        addItem(getDefaultCategory(data as CS, group.id!)) as unknown as TItem,
-      ],
-    });
-  }
-}
-
-const sortReceipts = (groups: TGroup[]) =>
-  groups.forEach((group) =>
-    group.receipts?.sort(({ paidOn: a }, { paidOn: b }) =>
-      b! < a! ? -1 : b! > a! ? 1 : 0
-    )
-  );
-
-export const rReceipts = {
+export const sliceReceipts = {
   setPaidOn(rs: CS, { payload }: PayloadAction<string>) {
     const receipt = getActiveReceipt(rs);
     receipt.paidOn = payload;
@@ -156,43 +106,5 @@ export const rReceipts = {
     } else {
       delete group["activeReceipt"];
     }
-  },
-};
-
-export const tReceipts = {
-  setPaidOn: (date: string) => (dispatch: AppDispatch) => {
-    return dispatch(csa.setPaidOn(date));
-  },
-
-  setPaidBy: (userId: number) => (dispatch: AppDispatch) => {
-    return dispatch(csa.setPaidBy(userId));
-  },
-
-  addRow: (afterId?: number) => (dispatch: AppDispatch) => {
-    return dispatch(csa.addRow(afterId));
-  },
-
-  rmRow: (rowId: number) => (dispatch: AppDispatch) => {
-    return dispatch(csa.rmRow(rowId));
-  },
-
-  setFocusedRow: (index: number) => (dispatch: AppDispatch) => {
-    return dispatch(csa.setFocusedRow(index));
-  },
-
-  updateItem: (updater: TCliItem) => {
-    return (dispatch: AppDispatch) => dispatch(csa.updateItem(updater));
-  },
-
-  addReceipt: (rcpt: TReceipt) => {
-    return (dispatch: AppDispatch) => dispatch(csa.addReceipt(rcpt));
-  },
-
-  addFetchedReceipts: (groups: TGroup[]) => {
-    return (dispatch: AppDispatch) => dispatch(csa.addFetchedReceipts(groups));
-  },
-
-  setActiveReceipt: (id?: number) => {
-    return (dispatch: AppDispatch) => dispatch(csa.setActiveReceipt(id));
   },
 };

@@ -7,7 +7,8 @@ import {
   useGroupSelector,
   useBodyNodes,
 } from "@/app/_lib/hooks";
-import { rCombined as red, TCliItem } from "@/app/_lib/reducers";
+import { rCombined as red } from "@/app/_lib/reducers";
+import { TCliItem } from "@/app/_lib/reducers/types";
 
 import Options from "./options";
 import OptionsAsModal from "./options/modal";

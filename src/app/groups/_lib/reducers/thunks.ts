@@ -1,14 +1,8 @@
-import { PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
-import { AppDispatch, RootState } from "../store";
-import { TGroup, TMembership } from "@/app/_lib/db";
-import {
-  appToast,
-  has3ConsecutiveLetters,
-  insertAlphabetically,
-} from "../utils";
-import { combinedSA as csa, CombinedState as CS } from ".";
+import { AppDispatch, RootState } from "@/app/_lib/store";
+import { TGroup } from "@/app/_lib/db";
+import { appToast, has3ConsecutiveLetters } from "@/app/_lib/utils";
 import {
   svcCreateGroup,
   svcGenerateInviteLink,
@@ -18,47 +12,9 @@ import {
   svcUpdateGroup,
   svcUpdateMembership,
 } from "@/app/_lib/services";
+import { csa } from "@/app/_lib/reducers/slice";
 
-export const rGroups = {
-  updateGroup(rs: CS, { payload }: PayloadAction<TGroup>) {
-    const popFrom = rs.groups.findIndex(({ id }) => id === payload.id)!;
-    rs.groups.splice(popFrom, 1);
-    insertAlphabetically(payload, rs.groups);
-  },
-
-  addGroup(rs: CS, { payload }: PayloadAction<TGroup>) {
-    insertAlphabetically(payload, rs.groups);
-  },
-
-  setGroupId(rs: CS, { payload }: PayloadAction<number>) {
-    rs.groupId = payload;
-  },
-
-  setDefaultGroupId(rs: CS, { payload }: PayloadAction<number>) {
-    rs.user!.defaultGroupId = payload;
-  },
-
-  updateMembership(rs: CS, { payload }: PayloadAction<TMembership>) {
-    const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
-    const ms = group.memberships!.find((x) => x.user!.id === payload.userId!)!;
-
-    ms.flags = payload.flags;
-  },
-
-  setUserColor(
-    rs: CS,
-    { payload: { color, uid } }: PayloadAction<{ color: string; uid?: number }>
-  ) {
-    const group = rs.groups.find((grp) => grp.id === rs.groupId)!;
-    const user = (group.pareto ?? group.balance)!.users.find(
-      (u) => u.id === uid
-    )!;
-
-    user.color = color;
-  },
-};
-
-export const tGroups = {
+export const thunksGroups = {
   updateGroup:
     (groupId: number, modifiers: TGroup, original: TGroup) =>
     (dispatch: AppDispatch) => {
