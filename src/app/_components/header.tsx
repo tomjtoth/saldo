@@ -33,7 +33,7 @@ export default function Header({
             <UserAvatar
               {...{
                 user,
-                id: "sidepanel-opener",
+                id: "usermenu-opener",
                 className: "w-12 h-12 cursor-pointer",
                 onClick: () => nodes.push(UserMenu),
               }}

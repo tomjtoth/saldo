@@ -136,7 +136,7 @@ function loginShouldBeVisible() {
 }
 
 function logout() {
-  cy.get("#sidepanel-opener").click();
+  cy.get("#usermenu-opener").click();
 
   Cypress.once("uncaught:exception", (err) => {
     if (err.message.includes("NEXT_REDIRECT")) {
