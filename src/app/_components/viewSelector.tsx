@@ -46,7 +46,7 @@ export default function ViewSelector() {
         id="view-selector"
         ref={selectRef}
         defaultValue={pathname}
-        className="no-spinner focus:outline-hidden cursor-pointer"
+        className="no-spinner focus:outline-hidden cursor-pointer text-center"
         onChange={(ev) => router.push(ev.target.value)}
       >
         {links.map((a) => (

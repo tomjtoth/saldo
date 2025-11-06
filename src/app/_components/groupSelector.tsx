@@ -36,7 +36,7 @@ export default function GroupSelector() {
       </span>
       <select
         id="group-selector"
-        className="no-spinner focus:outline-hidden cursor-pointer truncate"
+        className="no-spinner focus:outline-hidden cursor-pointer truncate text-center"
         ref={selectRef}
         value={rs.group?.id ?? -1}
         onChange={(ev) =>
