@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { CategoricalChartFunc } from "recharts/types/chart/types";
 
-import { TBalanceChartData } from "@/app/_lib/db";
+import { TBalanceChartData, TUserChartData } from "@/app/_lib/db";
+
+export const CtxBalanceChart = createContext<TUserChartData[]>([]);
+export const useBalanceChartCx = () => useContext(CtxBalanceChart);
 
 export default function useLogic(data: TBalanceChartData["data"]) {
   const initialState: {

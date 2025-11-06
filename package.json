@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:instrumented": "INSTRUMENT_E2E=1 next dev",
+    "prelint": "npx madge --circular --extensions ts,tsx ./",
     "lint": "eslint .",
     "test": "vitest",
     "coverage:unit": "vitest run --coverage",
@@ -73,6 +74,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
     "jsdom": "^27.1.0",
+    "madge": "^8.0.0",
     "nyc": "^17.1.0",
     "start-server-and-test": "^2.1.2",
     "swc-plugin-coverage-instrument": "^0.0.31",

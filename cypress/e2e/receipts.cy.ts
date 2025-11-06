@@ -5,11 +5,7 @@ describe("receipts", () => {
       cy.login({ page: "/receipts" });
     });
 
-    it("can be accessed", () => {
-      cy.contains("receipt for group").should("exist");
-    });
-
-    itIsAccessibleViaSidepanel("/receipts");
+    itIsAccessibleViaViewSelector("/receipts");
 
     it("can be added", () => {
       cy.contains("Add new...").click();

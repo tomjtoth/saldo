@@ -4,7 +4,7 @@ import { ChangeEventHandler, useEffect, useRef } from "react";
 
 import { TUser } from "@/app/_lib/db";
 import { useGroupSelector } from "@/app/_lib/hooks";
-import { TCliItem } from "@/app/_lib/reducers";
+import { TCliItem } from "@/app/_lib/reducers/types";
 import { costToFixed } from ".";
 
 import UserAvatar from "@/app/_components/userAvatar";
@@ -68,7 +68,7 @@ export default function ItemShareAvatar({
   return (
     <div className="flex flex-col gap-2 items-center">
       <div className={"relative " + (onChange ? "w-25 h-25" : "w-8 h-8")}>
-        <UserAvatar {...user} />
+        <UserAvatar user={user} />
 
         {onChange ? (
           <input

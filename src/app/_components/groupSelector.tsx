@@ -1,45 +1,55 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
-
-import SvgLink from "@/app/_components/svgLink";
+import { rCombined } from "@/app/_lib/reducers";
 
 export default function GroupSelector() {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
+  const pathname = usePathname();
 
   const spanRef = useRef<HTMLSpanElement>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
 
+  const rs = useGroupSelector();
+
   useEffect(() => {
     if (spanRef.current && selectRef.current) {
-      const width = spanRef.current.offsetWidth;
-      selectRef.current.style.width = `${width + 20}px`;
+      const width = spanRef.current.clientWidth;
+
+      // TODO: fit perfectly
+      // "demo" vs "some very long as name"
+      selectRef.current.style.maxWidth = `${width + 20}px`;
+
+      // cannot control this via Tailwind as the <select> has
+      // options of different widths
+      selectRef.current.style.minWidth = `${Math.min(60, width)}px`;
     }
   }, [rs.groupId]);
 
-  return rs.groups.length === 0 ? null : (
-    <div className="inline-block rounded border">
-      <span ref={spanRef} className="invisible absolute px-2">
+  return !rs.groups.length || pathname === "/groups" ? null : (
+    <>
+      <span ref={spanRef} className="absolute invisible">
         {rs.group?.name}
       </span>
       <select
-        ref={selectRef}
-        className="cursor-pointer p-2"
         id="group-selector"
-        value={rs.groupId}
-        onChange={(ev) => dispatch(red.setGroupId(Number(ev.target.value)))}
+        className="no-spinner focus:outline-hidden cursor-pointer truncate"
+        ref={selectRef}
+        value={rs.group?.id ?? -1}
+        onChange={(ev) =>
+          dispatch(rCombined.setGroupId(Number(ev.target.value)))
+        }
       >
-        {rs.groups.map((group) => (
-          <option key={group.id} value={group.id}>
-            {group.name}
+        {rs.groups.map((grp) => (
+          <option key={grp.id} value={grp.id}>
+            {grp.name}
           </option>
         ))}
-      </select>
-      <SvgLink href={`/groups/${rs.groupId}`} className="mx-1" />
-    </div>
+      </select>{" "}
+      /{" "}
+    </>
   );
 }

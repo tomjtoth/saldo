@@ -1,6 +1,5 @@
 "use client";
 
-import { useContext } from "react";
 import { TooltipContentProps } from "recharts";
 import {
   NameType,
@@ -9,15 +8,14 @@ import {
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
 import { VDate } from "@/app/_lib/utils";
-
-import { CtxBalanceChart } from "./chart";
+import { useBalanceChartCx } from "./logic";
 
 export default function BalanceTooltip({
   payload,
   label,
   active,
 }: TooltipContentProps<ValueType, NameType>) {
-  const users = useContext(CtxBalanceChart);
+  const users = useBalanceChartCx();
 
   if (!active || !payload) return null;
 

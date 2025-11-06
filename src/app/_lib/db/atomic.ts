@@ -1,8 +1,9 @@
 import { sql } from "drizzle-orm";
 
-import { db, DrizzleTx } from ".";
-import * as schema from "@/app/_lib/db/schema";
-import { VDate } from "@/app/_lib/utils";
+import { VDate } from "../utils";
+import { db } from "./instance";
+import * as schema from "./schema";
+import { DrizzleTx } from "./types";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 

@@ -1,4 +1,3 @@
-import { PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
 import { AppDispatch } from "@/app/_lib/store";
@@ -6,44 +5,16 @@ import { TCategory } from "@/app/_lib/db";
 import {
   appToast,
   has3ConsecutiveLetters,
-  insertAlphabetically,
   nulledEmptyStrings,
 } from "@/app/_lib/utils";
-import { CombinedState as CS, combinedSA as csa } from ".";
+import { csa } from "@/app/_lib/reducers/slice";
 import {
   svcCreateCategory,
   svcSetDefaultCategory,
   svcUpdateCategory,
 } from "@/app/_lib/services";
 
-export const rCategories = {
-  updateCategory(rs: CS, { payload }: PayloadAction<TCategory>) {
-    const cats = rs.groups.find((g) => g.id === payload.groupId)!.categories!;
-
-    const popFrom = cats.findIndex(({ id }) => id === payload.id)!;
-    cats.splice(popFrom, 1);
-    insertAlphabetically(payload, cats);
-  },
-
-  addCategory(rs: CS, { payload }: PayloadAction<TCategory>) {
-    const group = rs.groups.find((g) => g.id === payload.groupId)!;
-    const cats = group.categories!;
-
-    insertAlphabetically(payload, cats);
-  },
-
-  updateDefaultCategoryId(
-    rs: CS,
-    { payload }: PayloadAction<{ groupId: number; categoryId: number }>
-  ) {
-    const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
-    const ms = group.memberships?.at(0);
-
-    ms!.defaultCategoryId = payload.categoryId;
-  },
-};
-
-export const tCategories = {
+export const thunksCategories = {
   updateCategory:
     (original: TCategory, modifiers: TCategory) => (dispatch: AppDispatch) => {
       try {

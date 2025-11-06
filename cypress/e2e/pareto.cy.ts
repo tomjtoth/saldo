@@ -5,7 +5,7 @@ describe("pareto", () => {
       cy.login({ page: "/pareto" });
     });
 
-    itIsAccessibleViaSidepanel("/pareto");
+    itIsAccessibleViaViewSelector("/pareto");
 
     it("can be accessed", () => {
       cy.contains("no data to show").should("exist");

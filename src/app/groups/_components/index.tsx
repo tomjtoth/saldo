@@ -7,7 +7,7 @@ import {
 } from "@/app/_lib/hooks";
 import { rCombined as red } from "@/app/_lib/reducers";
 
-import NameDescrAdder from "@/app/_components/nameDescrAdder";
+import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
 import Entry from "./entry";
 
@@ -19,7 +19,10 @@ export default function CliGroupsPage() {
   return (
     <>
       <Header>
-        <h2>Groups</h2>
+        <EntityAdderButton
+          placeholder="Group"
+          handler={(data) => dispatch(red.addGroup(data))}
+        />
       </Header>
 
       {/* TODO: refactor to FnComponent({txt: string}) */}
@@ -30,11 +33,6 @@ export default function CliGroupsPage() {
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        <NameDescrAdder
-          placeholder="Group"
-          handler={async (data) => dispatch(red.addGroup(data))}
-        />
-
         {rs.groups.map((group) => (
           <Entry
             key={group.id}

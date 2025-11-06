@@ -20,7 +20,7 @@ abstract class AnchorMethods {
   static async initAnchor(anchor?: string) {
     if (!anchor) {
       const { sql } = await import("drizzle-orm");
-      const { db } = await import("../../db");
+      const { db } = await import("../../db/instance");
 
       const res: { payload: string } = await db.get(sql`
         SELECT payload FROM metadata WHERE "name" = 'datetime anchor'

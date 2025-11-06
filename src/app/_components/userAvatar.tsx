@@ -3,10 +3,16 @@ import Image from "next/image";
 import { TUser } from "@/app/_lib/db";
 
 export default function UserAvatar({
-  name,
-  image,
+  user: { name, image },
+  id,
   className = "",
-}: TUser & { className?: string }) {
+  onClick,
+}: {
+  user: TUser;
+  id?: string;
+  className?: string;
+  onClick?: () => void;
+}) {
   const names = (name ?? "").split(" ")!;
   const svgName =
     names.length > 1
@@ -20,6 +26,7 @@ export default function UserAvatar({
 
   return image ? (
     <Image
+      {...{ id, onClick }}
       unoptimized
       className={classes}
       height={96}
@@ -29,7 +36,7 @@ export default function UserAvatar({
       draggable={false}
     />
   ) : (
-    <svg xmlns="" className={classes}>
+    <svg xmlns="" className={classes} {...{ onClick, id }}>
       <rect width={96} height={96} fill="red" />
 
       <text

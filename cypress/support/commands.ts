@@ -1,5 +1,5 @@
 declare global {
-  const itIsAccessibleViaSidepanel: typeof fnAccessibleViaSidepanel;
+  const itIsAccessibleViaViewSelector: typeof fnAccessibleViaViewSelector;
 
   namespace Cypress {
     type MappedCommands<AC = typeof allCommands> = {
@@ -13,15 +13,14 @@ declare global {
   }
 }
 
-const fnAccessibleViaSidepanel = (url: string) =>
-  it("are accessible via the sidepanel", () => {
+const fnAccessibleViaViewSelector = (text: string) =>
+  it("are accessible via the view selector", () => {
     cy.wait(500);
-    cy.get("#sidepanel-opener").click();
-    cy.get(`a[href='${url}']`).click();
-    cy.location("pathname").should("equal", url);
+    cy.get("#view-selector").select(text);
+    cy.location("pathname").should("equal", text);
   });
 
-(globalThis as any).itIsAccessibleViaSidepanel = fnAccessibleViaSidepanel;
+(globalThis as any).itIsAccessibleViaViewSelector = fnAccessibleViaViewSelector;
 
 function toast(
   text?: string,
@@ -132,7 +131,7 @@ function loginShouldBeVisible() {
 }
 
 function logout() {
-  cy.get("#sidepanel-opener").click();
+  cy.get("#usermenu-opener").click();
 
   Cypress.once("uncaught:exception", (err) => {
     if (err.message.includes("NEXT_REDIRECT")) {

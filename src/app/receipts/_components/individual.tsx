@@ -48,8 +48,8 @@ export default function Individual(rcpt: TReceipt) {
 
         {addedBy!.id !== rcpt.paidBy!.id && (
           <div>
-            <UserAvatar {...addedBy} className="w-8" />
-            <span className="hidden xl:inline-block ml-2">{addedBy?.name}</span>
+            <UserAvatar user={addedBy!} className="w-8" />
+            <span className="hidden xl:inline-block ml-2">{addedBy!.name}</span>
             <span className="hidden lg:inline-block ml-2">added</span>
           </div>
         )}
