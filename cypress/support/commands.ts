@@ -101,13 +101,8 @@ function entityShouldBeFavorit(name: string) {
     .should("exist");
 }
 
-function selectGroup(url: string, label?: string) {
-  cy.get("#group-selector").then(($selector) => {
-    if ($selector.text() !== (label ?? url)) {
-      $selector.trigger("click");
-      cy.contains(label ?? url.slice(1)).click();
-    }
-  });
+function selectGroup(group: string) {
+  cy.get("#group-selector").select(group);
 }
 
 function login({
