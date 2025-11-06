@@ -27,7 +27,7 @@ export default function Header({
 
   return (
     <>
-      <header className="flex gap-2 p-2 items-center sm:text-xl lg:text-2xl">
+      <header className="flex gap-2 p-2 items-center">
         {!!user ? (
           <>
             <UserAvatar

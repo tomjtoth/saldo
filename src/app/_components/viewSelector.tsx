@@ -1,7 +1,16 @@
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { hrefToLabel, LINKS } from "./listing";
+const LINKS = [
+  { href: "/", label: "about" },
+  { href: "/groups" },
+  { href: "/categories" },
+  { href: "/receipts" },
+  { href: "/pareto" },
+  { href: "/balance" },
+];
+
+const hrefToLabel = (href: string) => href.replaceAll(/\W+/g, "");
 
 export default function ViewSelector() {
   const pathname = usePathname();
@@ -15,7 +24,7 @@ export default function ViewSelector() {
       const width = spanRef.current.offsetWidth;
       selectRef.current.style.width = `${width + 20}px`;
     }
-  }, []);
+  }, [pathname]);
 
   const links = LINKS.map((a) => ({
     ...a,
