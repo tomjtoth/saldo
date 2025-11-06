@@ -16,7 +16,7 @@ export default function Invitation({
 }) {
   const dispatch = useAppDispatch();
   const invitationLink = group.uuid
-    ? `${location.origin}/join/${group.uuid}`
+    ? `${window.location.origin}/join/${group.uuid}`
     : null;
 
   const copyToClipboard = () =>
