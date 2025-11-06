@@ -53,10 +53,15 @@ textarea {
   @apply border rounded p-1;
 }
 
+select.no-spinner,
 input.no-spinner {
+  appearance: textfield;
   -moz-appearance: textfield;
+  -webkit-appearance: none;
 }
 
+select.no-spinner::-webkit-outer-spin-button,
+select.no-spinner::-webkit-inner-spin-button,
 input.no-spinner::-webkit-outer-spin-button,
 input.no-spinner::-webkit-inner-spin-button {
   -webkit-appearance: none;
