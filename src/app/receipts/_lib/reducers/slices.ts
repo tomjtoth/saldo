@@ -97,9 +97,7 @@ export const sliceReceipts = {
     const group = getActiveGroup(rs);
 
     if (typeof payload === "number") {
-      const activeReceipt = group.receipts!.find(
-        (rcpt) => rcpt.id === payload
-      )!;
+      const activeReceipt = group.receipts?.find((rcpt) => rcpt.id === payload);
 
       const detachedClone = deepClone(activeReceipt);
       group.activeReceipt = detachedClone;
