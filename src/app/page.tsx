@@ -9,9 +9,8 @@ export default wrapPage({
   children() {
     return (
       <>
-        <Header>
-          <h2>Saldo</h2>
-        </Header>
+        <Header />
+
         <div className="p-2">
           <p>
             This is a multi-user expense tracker app. Most revisions of records
