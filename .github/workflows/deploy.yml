@@ -34,7 +34,7 @@ jobs:
       - name: Install node_modules, lint and build
         if: env.SKIP_CI != 'true'
         run: |
-          npm install
+          npm ci
           npm run lint
           npm run build
 
