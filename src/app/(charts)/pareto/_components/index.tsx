@@ -8,7 +8,6 @@ import { rCombined as red } from "@/app/_lib/reducers";
 import { svcGetParetoData } from "@/app/_lib/services";
 
 import Header from "@/app/_components/header";
-import GroupSelector from "@/app/_components/groupSelector";
 import ParetoChart from "./chart";
 
 export default function CliParetoPage(srv: { from?: string; to?: string }) {
@@ -23,11 +22,8 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
   return (
     <>
       <Header>
-        <h2>Pareto</h2>
-      </Header>
-      <div className="p-2 h-full flex flex-col gap-2 items-center">
         <form
-          className="flex flex-wrap gap-2 items-center justify-center"
+          className="flex flex-wrap gap-2 items-center justify-left"
           onSubmit={(ev) => {
             ev.preventDefault();
 
@@ -47,9 +43,6 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
           }}
         >
           <label>
-            group: <GroupSelector />
-          </label>
-          <label>
             from:{" "}
             <input
               type="date"
@@ -67,7 +60,9 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
           </label>
           <button>fetch</button>
         </form>
+      </Header>
 
+      <div className="p-2 h-full flex flex-col gap-2 items-center">
         {!!group && (group.pareto?.categories.length ?? 0) > 0 ? (
           <ParetoChart {...group.pareto!} />
         ) : (
