@@ -43,7 +43,7 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
           }}
         >
           <label>
-            from:{" "}
+            <span className="hidden sm:inline-block sm:pr-2">from: </span>
             <input
               type="date"
               value={from}
@@ -51,14 +51,14 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
             />
           </label>
           <label>
-            to:{" "}
+            <span className="hidden sm:inline-block sm:pr-2">to: </span>
             <input
               type="date"
               value={to}
               onChange={(ev) => setTo(ev.target.value)}
             />
           </label>
-          <button>fetch</button>
+          <button className="py-1!">fetch</button>
         </form>
       </Header>
 
