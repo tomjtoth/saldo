@@ -1,57 +1,64 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 import { svcSignIn } from "@/app/_lib/services/auth";
-import { useRootDivCx } from "@/app/_lib/hooks";
+import { useBodyNodes, useGroupSelector, useRootDivCx } from "@/app/_lib/hooks";
 
-import Sidepanel from "./sidepanel";
 import UserAvatar from "./userAvatar";
+import UserMenu from "./userMenu";
+import GroupSelector from "./groupSelector";
+import ViewSelector from "./viewSelector";
 
 export default function Header({
   children,
   className: cn = "",
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
 }) {
-  const [visible, setVisible] = useState(false);
+  const nodes = useBodyNodes();
   const { user } = useRootDivCx();
+  const rs = useGroupSelector();
 
-  function hide() {
-    setVisible(false);
-  }
+  const pathname = usePathname();
 
   return (
     <>
-      <Sidepanel {...{ visible, hide }} />
-
-      <header className="flex gap-2 p-2 items-center">
+      <header className="flex gap-2 p-2 items-center sm:text-xl lg:text-2xl">
         {!!user ? (
-          <div
-            id="sidepanel-opener"
-            className="relative w-12 h-12 cursor-pointer"
-            onClick={() => setVisible(true)}
-          >
-            <UserAvatar {...user} />
-
-            <div
-              className={
-                "absolute -bottom-2 -right-2 bg-background h-6 w-6 " +
-                "rounded-[35%] border text-center cursor-pointer"
-              }
-            >
-              ☰
-            </div>
-          </div>
+          <>
+            <UserAvatar
+              {...{
+                user,
+                id: "sidepanel-opener",
+                className: "w-12 h-12 cursor-pointer",
+                onClick: () => nodes.push(UserMenu),
+              }}
+            />
+            <GroupSelector />
+            <ViewSelector />
+          </>
         ) : (
-          <button id="sign-in-button" onClick={svcSignIn}>
-            Sign In To
-          </button>
+          <>
+            <button id="sign-in-button" onClick={svcSignIn}>
+              Sign In To
+            </button>
+            Saldo
+          </>
         )}
 
         <div className={`grow ${cn}`}>{children}</div>
       </header>
+
+      {pathname !== "/" && rs.groups.length === 0 && (
+        <p>
+          You have no access to active groups currently,{" "}
+          <Link href="/groups">create or enable one</Link>!
+        </p>
+      )}
     </>
   );
 }
