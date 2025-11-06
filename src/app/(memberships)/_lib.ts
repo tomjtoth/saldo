@@ -2,18 +2,15 @@
 
 import { and, eq, isNull, sql } from "drizzle-orm";
 
-import { atomic, db, TCrMembership, TMembership, updater } from "@/app/_lib/db";
+import { atomic, db, TMembership, updater } from "@/app/_lib/db";
 import { err } from "@/app/_lib/utils";
 import { chartColors, memberships } from "@/app/_lib/db/schema";
-import { currentUser } from "@/app/_lib/services";
 import wrapService from "../_lib/wrapService";
 
-export async function svcUpdateMembership({
-  groupId,
-  userId,
-  flags,
-}: TMembership) {
-  const { id: revisedBy } = await currentUser();
+async function validateUpdateMembershipData(
+  { groupId, userId, flags }: TMembership,
+  revisedBy: number
+) {
   if (
     typeof groupId !== "number" ||
     typeof userId !== "number" ||
@@ -23,18 +20,15 @@ export async function svcUpdateMembership({
 
   if (!(await isAdmin(revisedBy, groupId))) err(403);
 
-  const ms = await updateMembership(revisedBy, {
-    groupId,
-    userId,
-    flags,
-  });
-
-  if (!ms) err(404);
-
-  return ms;
+  return { groupId, userId, flags };
 }
 
-type MembershipUpdater = Pick<TCrMembership, "groupId" | "userId"> &
+export const svcUpdateMembership = wrapService(
+  updateMembership,
+  validateUpdateMembershipData
+);
+
+type MembershipUpdater = Required<Pick<TMembership, "groupId" | "userId">> &
   Pick<TMembership, "flags" | "defaultCategoryId">;
 
 export async function updateMembership(
@@ -51,7 +45,7 @@ export async function updateMembership(
         ),
       });
 
-      if (!ms) return null;
+      if (!ms) err(404);
 
       const saving = await updater(ms, modifier, {
         tx,
