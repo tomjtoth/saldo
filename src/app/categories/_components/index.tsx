@@ -1,12 +1,9 @@
 "use client";
 
-import Link from "next/link";
-
 import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
 import { rCombined as red } from "@/app/_lib/reducers";
 
-import NameDescrAdder from "@/app/_components/nameDescrAdder";
-import GroupSelector from "@/app/_components/groupSelector";
+import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
 import Entry from "./entry";
 
@@ -17,27 +14,15 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
   return (
     <>
       <Header>
-        <h2>Categories</h2>
-      </Header>
-
-      <div className="p-2 text-center">
-        {rs.groups.length > 0 ? (
-          <>
-            <NameDescrAdder
-              placeholder="Category"
-              handler={({ name, description }) =>
-                dispatch(red.addCategory(rs.groupId!, name, description))
-              }
-            />{" "}
-            category for group: <GroupSelector />
-          </>
-        ) : (
-          <p>
-            You have no access to active groups currently,{" "}
-            <Link href="/groups">create or enable one</Link>!
-          </p>
+        {rs.groups.length > 0 && (
+          <EntityAdderButton
+            placeholder="Category"
+            handler={({ name, description }) =>
+              dispatch(red.addCategory(rs.groupId!, name, description))
+            }
+          />
         )}
-      </div>
+      </Header>
 
       <p className="p-2 text-center">
         <span className="p-1 rounded border-2 border-red-500">INACTIVE</span>{" "}
