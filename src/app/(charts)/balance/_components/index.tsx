@@ -10,9 +10,8 @@ export default function CliBalancePage() {
 
   return (
     <>
-      <Header>
-        <h2>Balance</h2>
-      </Header>
+      <Header />
+
       <div className="p-2 h-full flex flex-col gap-2 items-center">
         {!!rs.group ? (
           <BalanceChart {...rs.group.balance!} />
