@@ -119,7 +119,11 @@ export const thunksGroups = {
 
       if (uid) {
         appToast.promise(
-          svcSetUserColor(color, rs.groupId, uid).catch((err) => {
+          svcSetUserColor({
+            color,
+            groupId: rs.groupId,
+            memberId: uid,
+          }).catch((err) => {
             dispatch(csa.setUserColor({ color: prevState, uid }));
             throw err;
           }),

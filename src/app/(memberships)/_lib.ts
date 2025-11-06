@@ -6,6 +6,7 @@ import { atomic, db, TCrMembership, TMembership, updater } from "@/app/_lib/db";
 import { err } from "@/app/_lib/utils";
 import { chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/_lib/services";
+import wrapService from "../_lib/wrapService";
 
 export async function svcUpdateMembership({
   groupId,
@@ -94,16 +95,38 @@ export async function isAdmin(userId: number, groupId: number) {
   return !!ms;
 }
 
-export async function svcSetUserColor(
-  color: string,
-  groupId?: number | null,
-  memberId?: number | null
-) {
-  const { id: userId } = await currentUser();
+type TSetUsercolor = {
+  color: string;
+  groupId?: number | null;
+  memberId?: number | null;
+};
+
+function validateSetUserColorData({ color, groupId, memberId }: TSetUsercolor) {
+  if (typeof color !== "string") err(400, "color should be string");
+
+  const typeGID = typeof groupId;
+  if (groupId !== null && typeGID !== "number" && typeGID !== "undefined")
+    err(400, "groupId should be an optional number");
+
+  const typeMID = typeof memberId;
+  if (memberId !== null && typeMID !== "number" && typeMID !== "undefined")
+    err(400, "memberId should be an optional number");
 
   groupId = groupId ?? null;
   memberId = memberId ?? null;
 
+  return { color, groupId, memberId };
+}
+
+export const svcSetUserColor = wrapService(
+  setUserColor,
+  validateSetUserColorData
+);
+
+async function setUserColor(
+  userId: number,
+  { color, groupId, memberId }: Required<TSetUsercolor>
+) {
   const conditions = and(
     eq(chartColors.userId, userId),
     groupId ? eq(chartColors.groupId, groupId) : isNull(chartColors.groupId),
