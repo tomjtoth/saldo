@@ -21,5 +21,3 @@ export const rCombined = {
   ...thunksCategories,
   ...thunksReceipts,
 };
-
-export default slice.reducer;

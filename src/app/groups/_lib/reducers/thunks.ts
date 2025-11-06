@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 
-import { AppDispatch, RootState } from "@/app/_lib/store";
+import { AppDispatch, RootStateGetter } from "@/app/_lib/store";
 import { TGroup } from "@/app/_lib/db";
 import { appToast, has3ConsecutiveLetters } from "@/app/_lib/utils";
 import {
@@ -110,7 +110,7 @@ export const thunksGroups = {
 
   setUserColor:
     (color: string, uid?: number) =>
-    async (dispatch: AppDispatch, getState: () => RootState) => {
+    async (dispatch: AppDispatch, getState: RootStateGetter) => {
       const rs = getState().combined;
       const group = rs.groups.find((g) => g.id === rs.groupId)!;
       const prevState = (group.pareto ?? group.balance)!.users.find(
