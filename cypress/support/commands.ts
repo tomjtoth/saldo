@@ -1,5 +1,5 @@
 declare global {
-  const itIsAccessibleViaSidepanel: typeof fnAccessibleViaSidepanel;
+  const itIsAccessibleViaViewSelector: typeof fnAccessibleViaViewSelector;
 
   namespace Cypress {
     type MappedCommands<AC = typeof allCommands> = {
@@ -13,15 +13,14 @@ declare global {
   }
 }
 
-const fnAccessibleViaSidepanel = (url: string) =>
-  it("are accessible via the sidepanel", () => {
+const fnAccessibleViaViewSelector = (text: string) =>
+  it("are accessible via the view selector", () => {
     cy.wait(500);
-    cy.get("#sidepanel-opener").click();
-    cy.get(`a[href='${url}']`).click();
-    cy.location("pathname").should("equal", url);
+    cy.get("#view-selector").select(text);
+    cy.location("pathname").should("equal", text);
   });
 
-(globalThis as any).itIsAccessibleViaSidepanel = fnAccessibleViaSidepanel;
+(globalThis as any).itIsAccessibleViaViewSelector = fnAccessibleViaViewSelector;
 
 function toast(
   text?: string,
@@ -102,8 +101,13 @@ function entityShouldBeFavorit(name: string) {
     .should("exist");
 }
 
-function selectGroup(group: string) {
-  cy.get("#group-selector").select(group);
+function selectGroup(url: string, label?: string) {
+  cy.get("#group-selector").then(($selector) => {
+    if ($selector.text() !== (label ?? url)) {
+      $selector.trigger("click");
+      cy.contains(label ?? url.slice(1)).click();
+    }
+  });
 }
 
 function login({

@@ -19,7 +19,7 @@ describe("groups", () => {
       cy.login({ page: "/groups" });
     });
 
-    itIsAccessibleViaSidepanel("/groups");
+    itIsAccessibleViaViewSelector("/groups");
 
     it("can be added", () => {
       cy.addEntity(TEST_GROUP);

@@ -9,7 +9,7 @@ describe("balance", () => {
       cy.contains("shared group of user #1").should("exist");
     });
 
-    itIsAccessibleViaSidepanel("/balance");
+    itIsAccessibleViaViewSelector("/balance");
   });
 
   describe("while *NOT* logged in", () => {
