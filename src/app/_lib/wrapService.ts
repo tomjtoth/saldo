@@ -3,7 +3,7 @@
 import { currentUser } from "@/app/_lib/services";
 
 type ServerFn<D, R> = (userId: number, data: D) => Promise<R>;
-type ValidatorFn<RawD, D> = (rawData: D | RawD) => D | void;
+type ValidatorFn<RawD, D> = (rawData: D | RawD, userId: number) => D | void;
 
 function wrapService<RawD, D, R>(
   serverFn: ServerFn<D, R>,
@@ -20,10 +20,11 @@ function wrapService<RawD, D, R>(
     const { id } = await currentUser();
 
     const validatedData = validatorFn
-      ? validatorFn(data) ?? (data as D)
+      ? validatorFn(data, id) ?? (data as D)
       : (data as D);
 
     return serverFn(id, validatedData);
   };
 }
+
 export default wrapService;
