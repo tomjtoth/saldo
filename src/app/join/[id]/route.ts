@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 
-import { joinGroup } from "@/lib/services/groups";
-import protectedRoute from "@/lib/protectedRoute";
+import { joinGroup } from "@/app/_lib/services";
+import wrapRoute from "@/app/_lib/wrapRoute";
 
-export const GET = protectedRoute<{ id: string }>(
+export const GET = wrapRoute<{ id: string }>(
   { redirectAs: ({ params }) => `/join/${params.id}` },
 
   async ({ params, user }) => {

@@ -1,9 +1,9 @@
-import { getCategories } from "@/lib/services/categories";
+import { getCategories } from "@/app/_lib/services";
 
-import protectedPage from "@/lib/protectedPage";
-import CliCategoriesPage from "@/components/categories";
+import wrapPage from "@/app/_lib/wrapPage";
+import CliCategoriesPage from "./_components";
 
-export default protectedPage<{ catId?: string }>({
+export default wrapPage<{ catId?: string }>({
   resolveParams: ({ groupId, catId }) => ({
     redirectTo: `${groupId ? `/groups/${groupId}` : ""}/categories${
       catId ? `/${catId}` : ""
@@ -12,7 +12,7 @@ export default protectedPage<{ catId?: string }>({
   }),
 
   getData: getCategories,
-  genChildren({ catId }) {
+  children({ catId }) {
     const cidAsNum = Number(catId);
     return <CliCategoriesPage catId={isNaN(cidAsNum) ? undefined : cidAsNum} />;
   },

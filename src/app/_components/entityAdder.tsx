@@ -1,0 +1,76 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+import Canceler from "./canceler";
+import { useBodyNodes } from "../_lib/hooks";
+
+type TEntityAdder = {
+  placeholder?: string;
+  handler: (data: { name: string; description: string }) => Promise<void>;
+};
+
+export default function EntityAdderButton(args: TEntityAdder) {
+  const nodes = useBodyNodes();
+
+  return (
+    <button
+      id="entity-adder-button"
+      onClick={() => nodes.push(EntityAdder.bind(null, args))}
+    >
+      ➕ <span className="hidden sm:inline-block">Add new...</span>
+    </button>
+  );
+}
+
+function EntityAdder({ placeholder, handler }: TEntityAdder) {
+  const nodes = useBodyNodes();
+  const [name, setName] = useState("");
+  const [description, setDescr] = useState("");
+
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    nameRef.current!.focus();
+  }, []);
+
+  return (
+    <Canceler onClick={nodes.pop}>
+      <form
+        id="entity-adder-form"
+        className={
+          "absolute top-1/2 left-1/2 -translate-1/2 p-2 " +
+          "rounded border bg-background " +
+          "grid gap-2 grid-cols-[min-width_min-width]"
+        }
+        onSubmit={(ev) => {
+          ev.preventDefault();
+
+          handler({ name, description }).then(() => {
+            setName("");
+            setDescr("");
+            nodes.pop();
+          });
+        }}
+      >
+        <input
+          type="text"
+          className="w-full min-w-25"
+          placeholder={placeholder ?? "Name"}
+          value={name}
+          onChange={(ev) => setName(ev.target.value)}
+          ref={nameRef}
+        />
+
+        <button className="rounded border">💾</button>
+
+        <textarea
+          className="col-span-2 resize-none border rounded "
+          placeholder="Optional description..."
+          value={description}
+          onChange={(ev) => setDescr(ev.target.value)}
+        />
+      </form>
+    </Canceler>
+  );
+}

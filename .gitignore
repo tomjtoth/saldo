@@ -16,6 +16,10 @@
 # testing
 /coverage
 /cypress/screenshots/
+/instrumented/
+/.nyc_output/
+/.babelrc.json
+e2e.db
 
 # next.js
 /.next/

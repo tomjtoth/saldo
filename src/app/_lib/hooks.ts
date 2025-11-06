@@ -1,0 +1,79 @@
+import { useCallback, useRef, useEffect, useContext } from "react";
+import { useDispatch, useSelector, useStore } from "react-redux";
+
+import type { RootState, AppDispatch, AppStore } from "./store";
+import { rCombined } from "./reducers";
+
+import { RootDivCx } from "@/app/_components/rootDiv";
+import { BodyNodeCx } from "@/app/_components/bodyNodes";
+import { TCliGroup } from "./reducers/types";
+
+// Use throughout your app instead of plain `useDispatch` and `useSelector`
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
+export const useAppSelector = useSelector.withTypes<RootState>();
+export const useAppStore = useStore.withTypes<AppStore>();
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useDebounce<T extends (...args: any[]) => void>(
+  callback: T,
+  delay: number
+) {
+  const timeoutRef = useRef<number>(-1);
+
+  useEffect(() => {
+    return () => window.clearTimeout(timeoutRef.current);
+  }, []);
+
+  return useCallback(
+    (...args: Parameters<T>) => {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = window.setTimeout(() => {
+        callback(...args);
+      }, delay);
+    },
+    [callback, delay]
+  );
+}
+
+// TODO: rename to useClientState
+export const useGroupSelector = () => {
+  const dispatch = useAppDispatch();
+
+  const fallback = useRootDivCx();
+  const groups = useAppSelector((s) => {
+    const local = s.combined.groups;
+    return (local.length > 0 ? local : fallback.groups) as TCliGroup[];
+  });
+
+  const groupId = useAppSelector(
+    (s) => s.combined.groupId ?? fallback.groupId ?? groups.at(0)?.id
+  );
+
+  const user = useAppSelector((s) => s.combined.user ?? fallback.user);
+
+  // leave it as a function as it get's called from useEffect, too
+  const getGroup = () => groups.find((group) => group.id === groupId);
+  const group = getGroup();
+  const users = group?.memberships?.map(({ user }) => user!) ?? [];
+
+  // TODO: performance improvement
+  // console.debug("useGroupSelector being called");
+
+  useEffect(() => {
+    if (groups.length > 0 && !getGroup())
+      dispatch(rCombined.setGroupId(groups[0].id!));
+  }, [groups]);
+
+  return {
+    groups,
+    group,
+    groupId,
+
+    users,
+    user,
+  };
+};
+
+export const useBodyNodes = () => useContext(BodyNodeCx);
+
+export const useRootDivCx = () => useContext(RootDivCx);

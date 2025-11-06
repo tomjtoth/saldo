@@ -19,14 +19,14 @@ jobs:
   lint-build-test:
     name: Lint, Build and Test
     env:
-      SKIP_CI: ${{ contains(github.event.head_commit.message, '#skip-ci') }}
+      SKIP_CI: ${{ contains(github.event.head_commit.message, '#skip-ci') || contains(github.event.pull_request.title, '#skip-ci') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         if: env.SKIP_CI != 'true'
         uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         if: env.SKIP_CI != 'true'
         with:
           node-version: latest
@@ -34,7 +34,7 @@ jobs:
       - name: Install node_modules, lint and build
         if: env.SKIP_CI != 'true'
         run: |
-          npm install
+          npm ci
           npm run lint
           npm run build
 
@@ -42,8 +42,9 @@ jobs:
         if: env.SKIP_CI != 'true'
         run: |
           export AUTH_SECRET=$(uuidgen)
-          npm run coverage
-          DATABASE_URL=file:e2e.db npm run e2e:headless
+          npm run coverage:unit
+          npm run e2e:headless
+          npm run coverage:report
 
       - name: Upload results to Codecov
         if: env.SKIP_CI != 'true'
