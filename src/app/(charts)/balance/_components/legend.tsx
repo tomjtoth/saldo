@@ -2,14 +2,14 @@ import { DefaultLegendContentProps } from "recharts";
 
 import { useBalanceChartCx } from "./logic";
 
-import Entry from "@/app/(charts)/_components/legendEntry";
+import LegendEntry from "@/app/(charts)/_components/legendEntry";
 
-export default function BalanceLegend(x: DefaultLegendContentProps) {
+export default function BalanceLegend({ payload }: DefaultLegendContentProps) {
   const users = useBalanceChartCx();
 
   return (
     <div className="flex gap-2 items-center justify-center">
-      {x.payload?.map(({ dataKey }) => {
+      {payload?.map(({ dataKey }) => {
         const uids = (dataKey as string).split(" vs ").map(Number);
         const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
@@ -19,12 +19,12 @@ export default function BalanceLegend(x: DefaultLegendContentProps) {
             className="px-2"
             style={{
               backgroundImage: `linear-gradient(
-                  to right,
-                  ${u1.color} 0%,
-                  ${u1.color} 30%,
-                  ${u2.color} 70%,
-                  ${u2.color} 100%
-                )`,
+                to right,
+                ${u1.color} 0%,
+                ${u1.color} 30%,
+                ${u2.color} 70%,
+                ${u2.color} 100%
+              )`,
               backgroundClip: "text",
               WebkitBackgroundClip: "text",
               color: "transparent",
@@ -32,8 +32,8 @@ export default function BalanceLegend(x: DefaultLegendContentProps) {
               display: "inline-block",
             }}
           >
-            <Entry {...u1} invisible={true} /> vs{" "}
-            <Entry {...u2} invisible={true} />
+            <LegendEntry {...u1} invisible /> vs{" "}
+            <LegendEntry {...u2} invisible />
           </div>
         ) : null;
       })}
