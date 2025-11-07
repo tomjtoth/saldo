@@ -11,7 +11,7 @@ import { csa } from "@/app/_lib/reducers/slice";
 import {
   svcCreateCategory,
   apiSetDefaultCategory,
-  svcUpdateCategory,
+  apiUpdateCategory,
 } from "..";
 
 export const thunksCategories = {
@@ -24,7 +24,7 @@ export const thunksCategories = {
         throw err;
       }
 
-      const crudOp = svcUpdateCategory({ ...modifiers, id: original.id! }).then(
+      const crudOp = apiUpdateCategory({ ...modifiers, id: original.id! }).then(
         (res) => {
           dispatch(csa.updateCategory(res));
 

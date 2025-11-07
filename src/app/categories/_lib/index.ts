@@ -21,7 +21,6 @@ import {
   nulledEmptyStrings,
   sortByName,
 } from "@/app/_lib/utils";
-import wrapService from "@/app/_lib/wrapService";
 
 type RequiredCategoryFields = Required<
   Pick<TCategory, "groupId" | "name" | "description">
@@ -86,10 +85,12 @@ export async function createCategory(
 export type TCategoryUpdater = Required<Pick<TCategory, "id">> &
   Pick<TCategory, "name" | "description" | "flags">;
 
-async function validateUpdateCategoryData(
-  { id, flags, name, description }: TCategoryUpdater,
-  userId: number
-) {
+export async function apiUpdateCategory({
+  id,
+  flags,
+  name,
+  description,
+}: TCategoryUpdater) {
   if (
     typeof id !== "number" ||
     (typeof name !== "string" &&
@@ -98,22 +99,21 @@ async function validateUpdateCategoryData(
   )
     err();
 
-  if (!(await userHasAccessToCategory(userId, id))) err(403);
-
-  return nulledEmptyStrings({
+  const data = nulledEmptyStrings({
     id,
     name,
     description,
     flags,
   });
+
+  const user = await currentUser();
+
+  if (!(await userHasAccessToCategory(user.id, id))) err(403);
+
+  return await svcUpdateCategory(user.id, data);
 }
 
-export const svcUpdateCategory = wrapService(
-  updateCategory,
-  validateUpdateCategoryData
-);
-
-async function updateCategory(
+async function svcUpdateCategory(
   revisedBy: number,
   { id, ...modifier }: TCategoryUpdater
 ) {
