@@ -13,7 +13,7 @@ import {
 } from "@/app/_lib/db";
 import { categories, groups, memberships } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/(users)/_lib";
-import { updateMembership } from "@/app/(memberships)/_lib";
+import { svcUpdateMembership } from "@/app/(memberships)/_lib";
 import {
   err,
   has3ConsecutiveLetters,
@@ -172,7 +172,7 @@ export async function apiSetDefaultCategory(categoryId: number) {
     where: eq(categories.id, categoryId),
   });
 
-  await updateMembership(userId, {
+  await svcUpdateMembership(userId, {
     userId,
     groupId: cat!.groupId!,
     defaultCategoryId: categoryId,

@@ -6,11 +6,13 @@ import { atomic, db, TMembership, updater } from "@/app/_lib/db";
 import { err } from "@/app/_lib/utils";
 import { chartColors, memberships } from "@/app/_lib/db/schema";
 import wrapService from "../_lib/wrapService";
+import { currentUser } from "../(users)/_lib";
 
-async function validateUpdateMembershipData(
-  { groupId, userId, flags }: TMembership,
-  revisedBy: number
-) {
+export async function apiUpdateMembership({
+  groupId,
+  userId,
+  flags,
+}: TMembership) {
   if (
     typeof groupId !== "number" ||
     typeof userId !== "number" ||
@@ -18,20 +20,17 @@ async function validateUpdateMembershipData(
   )
     err();
 
-  if (!(await isAdmin(revisedBy, groupId))) err(403);
+  const user = await currentUser();
 
-  return { groupId, userId, flags };
+  if (!(await isAdmin(user.id, groupId))) err(403);
+
+  return await svcUpdateMembership(user.id, { groupId, userId, flags });
 }
-
-export const svcUpdateMembership = wrapService(
-  updateMembership,
-  validateUpdateMembershipData
-);
 
 type MembershipUpdater = Required<Pick<TMembership, "groupId" | "userId">> &
   Pick<TMembership, "flags" | "defaultCategoryId">;
 
-export async function updateMembership(
+export async function svcUpdateMembership(
   revisedBy: number,
   { userId, groupId, ...modifier }: MembershipUpdater
 ) {

@@ -10,7 +10,7 @@ import {
   svcSetDefaultGroup,
   apiUpdateGroup,
 } from "..";
-import { svcSetUserColor, svcUpdateMembership } from "@/app/(memberships)/_lib";
+import { svcSetUserColor, apiUpdateMembership } from "@/app/(memberships)/_lib";
 import { csa } from "@/app/_lib/reducers/slice";
 
 export const thunksGroups = {
@@ -76,7 +76,7 @@ export const thunksGroups = {
   updateMembership:
     (groupId: number, userId: number, flags: number, toastMessage: string) =>
     (dispatch: AppDispatch) => {
-      const crudOp = svcUpdateMembership({ groupId, userId, flags }).then(
+      const crudOp = apiUpdateMembership({ groupId, userId, flags }).then(
         ({ flags }) => {
           dispatch(
             csa.updateMembership({
