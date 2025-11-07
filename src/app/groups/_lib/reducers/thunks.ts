@@ -10,7 +10,7 @@ import {
   svcSetDefaultGroup,
   apiUpdateGroup,
 } from "..";
-import { svcSetUserColor, apiUpdateMembership } from "@/app/(memberships)/_lib";
+import { apiSetUserColor, apiUpdateMembership } from "@/app/(memberships)/_lib";
 import { csa } from "@/app/_lib/reducers/slice";
 
 export const thunksGroups = {
@@ -118,7 +118,7 @@ export const thunksGroups = {
 
       if (uid) {
         appToast.promise(
-          svcSetUserColor({
+          apiSetUserColor({
             color,
             groupId: rs.groupId,
             memberId: uid,

@@ -5,7 +5,6 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 import { atomic, db, TMembership, updater } from "@/app/_lib/db";
 import { err } from "@/app/_lib/utils";
 import { chartColors, memberships } from "@/app/_lib/db/schema";
-import wrapService from "../_lib/wrapService";
 import { currentUser } from "../(users)/_lib";
 
 export async function apiUpdateMembership({
@@ -94,7 +93,11 @@ type TSetUsercolor = {
   memberId?: number | null;
 };
 
-function validateSetUserColorData({ color, groupId, memberId }: TSetUsercolor) {
+export async function apiSetUserColor({
+  color,
+  groupId,
+  memberId,
+}: TSetUsercolor) {
   if (typeof color !== "string") err(400, "color should be string");
 
   const typeGID = typeof groupId;
@@ -108,15 +111,12 @@ function validateSetUserColorData({ color, groupId, memberId }: TSetUsercolor) {
   groupId = groupId ?? null;
   memberId = memberId ?? null;
 
-  return { color, groupId, memberId };
+  const user = await currentUser();
+
+  return await svcSetUserColor(user.id, { color, groupId, memberId });
 }
 
-export const svcSetUserColor = wrapService(
-  setUserColor,
-  validateSetUserColorData
-);
-
-async function setUserColor(
+async function svcSetUserColor(
   userId: number,
   { color, groupId, memberId }: Required<TSetUsercolor>
 ) {
