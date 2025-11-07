@@ -8,7 +8,7 @@ import {
   svcGenerateInviteLink,
   svcRemoveInviteLink,
   svcSetDefaultGroup,
-  svcUpdateGroup,
+  apiUpdateGroup,
 } from "..";
 import { svcSetUserColor, svcUpdateMembership } from "@/app/(memberships)/_lib";
 import { csa } from "@/app/_lib/reducers/slice";
@@ -24,7 +24,7 @@ export const thunksGroups = {
         throw err;
       }
 
-      const crudOps = svcUpdateGroup({ id: groupId, ...modifiers }).then(
+      const crudOps = apiUpdateGroup({ id: groupId, ...modifiers }).then(
         (res) => {
           const ops = appToast.opsDone(original, res);
           dispatch(csa.updateGroup(res));

@@ -147,7 +147,7 @@ export async function getGroups(userId: number) {
 export type GroupUpdater = Required<Pick<TGroup, "id">> &
   Pick<TGroup, "name" | "description" | "flags" | "uuid">;
 
-function validateUpdateGroupData({
+export async function apiUpdateGroup({
   id,
   flags,
   name,
@@ -167,6 +167,8 @@ function validateUpdateGroupData({
   )
     err();
 
+  const user = await currentUser();
+
   const data = {
     id,
     flags,
@@ -176,10 +178,8 @@ function validateUpdateGroupData({
 
   nullEmptyStrings(data);
 
-  return data;
+  return await svcUpdateGroup(user.id, data);
 }
-
-export const svcUpdateGroup = wrapService(updateGroup, validateUpdateGroupData);
 
 export async function svcSetDefaultGroup(id: number) {
   const { id: userId } = await currentUser();
@@ -199,7 +199,7 @@ function validateInvitationLinkRemovalRequest({
 }
 
 export const svcRemoveInviteLink = wrapService(
-  updateGroup,
+  svcUpdateGroup,
   validateInvitationLinkRemovalRequest
 );
 
@@ -215,7 +215,7 @@ export const svcGenerateInviteLink = wrapService(
   validateInvitationLinkGenerateRequest
 );
 
-export async function updateGroup(
+export async function svcUpdateGroup(
   revisedBy: number,
   { id, ...modifier }: GroupUpdater
 ) {
