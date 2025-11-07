@@ -7,7 +7,7 @@ import {
   useRootDivCx,
 } from "@/app/_lib/hooks";
 import { rCombined as red } from "@/app/_lib/reducers";
-import { svcGetReceipts } from "../_lib";
+import { apiGetReceiptsData } from "../_lib";
 
 const INFINITE_SCROLL = `INFINITE_SCROLL-${uuid()}`;
 
@@ -33,7 +33,7 @@ export default function useInfiniteScroll() {
       setFetching(true);
       const fetchedGroupId = rs.groupId;
 
-      svcGetReceipts(
+      apiGetReceiptsData(
         rs.groups.flatMap((grp) => grp.receipts?.map((r) => r.id!) ?? [])
       ).then((groups) => {
         let updating = false;

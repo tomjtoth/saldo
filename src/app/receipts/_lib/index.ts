@@ -21,6 +21,7 @@ import {
 } from "@/app/_lib/db/schema";
 import { err, nulledEmptyStrings, sortByName } from "@/app/_lib/utils";
 import wrapService from "@/app/_lib/wrapService";
+import { currentUser } from "@/app/(users)/_lib";
 
 const RECEIPT_COLS_WITH = {
   columns: {
@@ -160,14 +161,18 @@ export async function createReceipt(
   );
 }
 
-function validateKnownIds(knownIds?: number[]) {
+export async function apiGetReceiptsData(knownIds?: number[]) {
   if (!Array.isArray(knownIds) || knownIds.some(isNaN))
     err("known ids contain NaN");
+
+  const { id } = await currentUser();
+  return await svcGetReceiptsData(id, knownIds);
 }
 
-export const svcGetReceipts = wrapService(getReceipts, validateKnownIds);
-
-export async function getReceipts(userId: number, knownIds: number[] = []) {
+export async function svcGetReceiptsData(
+  userId: number,
+  knownIds: number[] = []
+) {
   const res: TGroup[] = await db.query.groups.findMany({
     columns: {
       id: true,
