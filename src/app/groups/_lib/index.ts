@@ -191,17 +191,13 @@ export async function svcSetDefaultGroup(id: number) {
     .where(eq(users.id, userId));
 }
 
-function validateInvitationLinkRemovalRequest({
-  id,
-}: Pick<GroupUpdater, "id">) {
-  if (typeof id !== "number") err();
-  return { id, uuid: null };
-}
+export async function apiRemoveInviteLink({ id }: Pick<GroupUpdater, "id">) {
+  if (typeof id !== "number") err(400);
 
-export const svcRemoveInviteLink = wrapService(
-  svcUpdateGroup,
-  validateInvitationLinkRemovalRequest
-);
+  const user = await currentUser();
+
+  return svcUpdateGroup(user.id, { id, uuid: null });
+}
 
 export async function apiGenerateInviteLink({ id }: Pick<GroupUpdater, "id">) {
   if (typeof id !== "number") err();

@@ -6,7 +6,7 @@ import { appToast, has3ConsecutiveLetters } from "@/app/_lib/utils";
 import {
   svcCreateGroup,
   apiGenerateInviteLink,
-  svcRemoveInviteLink,
+  apiRemoveInviteLink,
   svcSetDefaultGroup,
   apiUpdateGroup,
 } from "..";
@@ -66,7 +66,7 @@ export const thunksGroups = {
   },
 
   removeInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = svcRemoveInviteLink({ id: groupId }).then((res) => {
+    const crudOp = apiRemoveInviteLink({ id: groupId }).then((res) => {
       dispatch(csa.updateGroup(res));
     });
 
