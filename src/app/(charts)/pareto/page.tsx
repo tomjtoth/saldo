@@ -8,7 +8,7 @@ import CliParetoPage from "./_components";
 let from: string;
 
 export default wrapPage({
-  getData: (userId) => {
+  getData(userId) {
     from = VDate.nMonthsAgo(3);
     return svcGetParetoData(userId, { from });
   },

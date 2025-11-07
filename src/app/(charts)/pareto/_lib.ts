@@ -13,7 +13,7 @@ type ParetoOpts = {
 
 export async function apiGetParetoData(opts: ParetoOpts) {
   const { id } = await currentUser();
-  return svcGetParetoData(id, opts);
+  return await svcGetParetoData(id, opts);
 }
 
 export async function svcGetParetoData(userId: number, opts: ParetoOpts = {}) {
