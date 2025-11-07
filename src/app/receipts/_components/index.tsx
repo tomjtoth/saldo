@@ -8,7 +8,7 @@ import {
   useGroupSelector,
   useBodyNodes,
 } from "@/app/_lib/hooks";
-import useInfiniteScroll from "./hook";
+import useInfiniteScroll from "../_lib/hook";
 import { rCombined } from "@/app/_lib/reducers";
 
 import Header from "@/app/_components/header";
