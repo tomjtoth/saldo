@@ -20,6 +20,7 @@ import {
   nulledEmptyStrings,
   sortByName,
 } from "@/app/_lib/utils";
+import wrapService from "@/app/_lib/wrapService";
 
 type RequiredCategoryFields = Required<
   Pick<TCategory, "groupId" | "name" | "description">
@@ -151,22 +152,29 @@ export async function svcUpdateCategory(
   );
 }
 
-export async function svcSetDefaultCategory(id: number) {
-  const { id: userId } = await currentUser();
+export const svcSetDefaultCategory = wrapService(
+  updateMembership,
+  validateSetDefaultCategoryData
+);
 
-  if (typeof id !== "number") err();
+async function validateSetDefaultCategoryData(
+  categoryId: number | Parameters<typeof updateMembership>[1],
+  userId: number
+) {
+  if (typeof categoryId !== "number") err();
 
-  if (!(await userAccessToCat(userId, id))) err(403);
+  if (!(await userAccessToCat(userId, categoryId))) err(403);
 
   const { groupId } = (await db.query.categories.findFirst({
     columns: { groupId: true },
+    where: eq(categories.id, categoryId),
   }))!;
 
-  await updateMembership(userId, {
+  return {
     userId,
     groupId,
-    defaultCategoryId: id,
-  });
+    defaultCategoryId: categoryId,
+  };
 }
 
 export async function userAccessToCat(userId: number, catId: number) {
