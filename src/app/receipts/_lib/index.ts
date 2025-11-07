@@ -20,7 +20,6 @@ import {
   receipts,
 } from "@/app/_lib/db/schema";
 import { err, nulledEmptyStrings, sortByName } from "@/app/_lib/utils";
-import wrapService from "@/app/_lib/wrapService";
 import { currentUser } from "@/app/(users)/_lib";
 
 const RECEIPT_COLS_WITH = {
