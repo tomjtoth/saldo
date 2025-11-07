@@ -1,6 +1,6 @@
 import wrapRoute from "@/app/_lib/wrapRoute";
 import { svcAddUser } from "@/app/(users)/_lib";
-import { svcAddGroup, svcUpdateGroup } from "@/app/groups/_lib";
+import { svcAddGroup, svcModGroup } from "@/app/groups/_lib";
 
 export const GET = wrapRoute(
   { requireSession: false, onlyDuringDevelopment: true },
@@ -9,6 +9,6 @@ export const GET = wrapRoute(
 
     const group = await svcAddGroup(user.id, { name: "you and me" });
 
-    await svcUpdateGroup(user.id, { id: group.id!, uuid: "some-uuid" });
+    await svcModGroup(user.id, { id: group.id!, uuid: "some-uuid" });
   }
 );

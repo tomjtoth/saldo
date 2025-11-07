@@ -5,12 +5,12 @@ import { TGroup } from "@/app/_lib/db";
 import { appToast, has3ConsecutiveLetters } from "@/app/_lib/utils";
 import {
   apiAddGroup,
-  apiGenerateInviteLink,
-  apiRemoveInviteLink,
+  apiGenInviteLink,
+  apiRmInviteLink,
   apiSetDefaultGroup,
-  apiUpdateGroup,
+  apiModGroup,
 } from "..";
-import { apiSetUserColor, apiUpdateMembership } from "@/app/(memberships)/_lib";
+import { apiSetUserColor, apiModMembership } from "@/app/(memberships)/_lib";
 import { csa } from "@/app/_lib/reducers/slice";
 
 export const thunksGroups = {
@@ -24,14 +24,12 @@ export const thunksGroups = {
         throw err;
       }
 
-      const crudOps = apiUpdateGroup({ id: groupId, ...modifiers }).then(
-        (res) => {
-          const ops = appToast.opsDone(original, res);
-          dispatch(csa.updateGroup(res));
+      const crudOps = apiModGroup({ id: groupId, ...modifiers }).then((res) => {
+        const ops = appToast.opsDone(original, res);
+        dispatch(csa.updateGroup(res));
 
-          return `${ops} "${original.name}" succeeded!`;
-        }
-      );
+        return `${ops} "${original.name}" succeeded!`;
+      });
 
       appToast.promise(crudOps, `Updating "${original.name}"`);
 
@@ -56,7 +54,7 @@ export const thunksGroups = {
     },
 
   generateInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = apiGenerateInviteLink({ id: groupId }).then((res) => {
+    const crudOp = apiGenInviteLink({ id: groupId }).then((res) => {
       dispatch(csa.updateGroup(res));
     });
 
@@ -64,7 +62,7 @@ export const thunksGroups = {
   },
 
   removeInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = apiRemoveInviteLink({ id: groupId }).then((res) => {
+    const crudOp = apiRmInviteLink({ id: groupId }).then((res) => {
       dispatch(csa.updateGroup(res));
     });
 
@@ -74,7 +72,7 @@ export const thunksGroups = {
   updateMembership:
     (groupId: number, userId: number, flags: number, toastMessage: string) =>
     (dispatch: AppDispatch) => {
-      const crudOp = apiUpdateMembership({ groupId, userId, flags }).then(
+      const crudOp = apiModMembership({ groupId, userId, flags }).then(
         ({ flags }) => {
           dispatch(
             csa.updateMembership({

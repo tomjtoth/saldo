@@ -143,15 +143,15 @@ export async function getGroups(userId: number) {
   return res;
 }
 
-export type GroupUpdater = Required<Pick<TGroup, "id">> &
+type GroupModifier = Required<Pick<TGroup, "id">> &
   Pick<TGroup, "name" | "description" | "flags" | "uuid">;
 
-export async function apiUpdateGroup({
+export async function apiModGroup({
   id,
   flags,
   name,
   description,
-}: Omit<GroupUpdater, "uuid">) {
+}: Omit<GroupModifier, "uuid">) {
   const typeDescr = typeof description;
   const typeFlags = typeof flags;
   const typeName = typeof name;
@@ -177,7 +177,7 @@ export async function apiUpdateGroup({
 
   nullEmptyStrings(data);
 
-  return await svcUpdateGroup(user.id, data);
+  return await svcModGroup(user.id, data);
 }
 
 export async function apiSetDefaultGroup(id: number) {
@@ -191,25 +191,25 @@ export async function apiSetDefaultGroup(id: number) {
     .where(eq(users.id, userId));
 }
 
-export async function apiRemoveInviteLink({ id }: Pick<GroupUpdater, "id">) {
+export async function apiRmInviteLink({ id }: Pick<GroupModifier, "id">) {
   if (typeof id !== "number") err(400);
 
   const user = await currentUser();
 
-  return svcUpdateGroup(user.id, { id, uuid: null });
+  return svcModGroup(user.id, { id, uuid: null });
 }
 
-export async function apiGenerateInviteLink({ id }: Pick<GroupUpdater, "id">) {
+export async function apiGenInviteLink({ id }: Pick<GroupModifier, "id">) {
   if (typeof id !== "number") err(400);
 
   const user = await currentUser();
 
-  return await svcUpdateGroup(user.id, { id, uuid: uuidv4() });
+  return await svcModGroup(user.id, { id, uuid: uuidv4() });
 }
 
-export async function svcUpdateGroup(
+export async function svcModGroup(
   revisedBy: number,
-  { id, ...modifier }: GroupUpdater
+  { id, ...modifier }: GroupModifier
 ) {
   return await atomic(
     { operation: "Updating group", revisedBy },

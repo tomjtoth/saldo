@@ -13,7 +13,7 @@ import {
 } from "@/app/_lib/db";
 import { categories, groups, memberships } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/(users)/_lib";
-import { svcUpdateMembership } from "@/app/(memberships)/_lib";
+import { svcModMembership } from "@/app/(memberships)/_lib";
 import {
   err,
   has3ConsecutiveLetters,
@@ -82,15 +82,15 @@ export async function svcAddCategory(
   );
 }
 
-export type TCategoryUpdater = Required<Pick<TCategory, "id">> &
+type CategoryModifier = Required<Pick<TCategory, "id">> &
   Pick<TCategory, "name" | "description" | "flags">;
 
-export async function apiUpdateCategory({
+export async function apiModCategory({
   id,
   flags,
   name,
   description,
-}: TCategoryUpdater) {
+}: CategoryModifier) {
   if (
     typeof id !== "number" ||
     (typeof name !== "string" &&
@@ -110,12 +110,12 @@ export async function apiUpdateCategory({
 
   if (!(await userHasAccessToCategory(user.id, id))) err(403);
 
-  return await svcUpdateCategory(user.id, data);
+  return await svcModCategory(user.id, data);
 }
 
-async function svcUpdateCategory(
+async function svcModCategory(
   revisedBy: number,
-  { id, ...modifier }: TCategoryUpdater
+  { id, ...modifier }: CategoryModifier
 ) {
   return await atomic(
     { operation: "Updating category", revisedBy },
@@ -172,7 +172,7 @@ export async function apiSetDefaultCategory(categoryId: number) {
     where: eq(categories.id, categoryId),
   });
 
-  await svcUpdateMembership(userId, {
+  await svcModMembership(userId, {
     userId,
     groupId: cat!.groupId!,
     defaultCategoryId: categoryId,

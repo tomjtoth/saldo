@@ -8,7 +8,7 @@ import {
   nulledEmptyStrings,
 } from "@/app/_lib/utils";
 import { csa } from "@/app/_lib/reducers/slice";
-import { apiAddCategory, apiSetDefaultCategory, apiUpdateCategory } from "..";
+import { apiAddCategory, apiModCategory, apiSetDefaultCategory } from "..";
 
 export const thunksCategories = {
   updateCategory:
@@ -20,7 +20,7 @@ export const thunksCategories = {
         throw err;
       }
 
-      const crudOp = apiUpdateCategory({ ...modifiers, id: original.id! }).then(
+      const crudOp = apiModCategory({ ...modifiers, id: original.id! }).then(
         (res) => {
           dispatch(csa.updateCategory(res));
 

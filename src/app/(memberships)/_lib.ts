@@ -7,7 +7,7 @@ import { err } from "@/app/_lib/utils";
 import { chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser } from "../(users)/_lib";
 
-export async function apiUpdateMembership({
+export async function apiModMembership({
   groupId,
   userId,
   flags,
@@ -23,15 +23,15 @@ export async function apiUpdateMembership({
 
   if (!(await isAdmin(user.id, groupId))) err(403);
 
-  return await svcUpdateMembership(user.id, { groupId, userId, flags });
+  return await svcModMembership(user.id, { groupId, userId, flags });
 }
 
-type MembershipUpdater = Required<Pick<TMembership, "groupId" | "userId">> &
+type MembershipModifier = Required<Pick<TMembership, "groupId" | "userId">> &
   Pick<TMembership, "flags" | "defaultCategoryId">;
 
-export async function svcUpdateMembership(
+export async function svcModMembership(
   revisedBy: number,
-  { userId, groupId, ...modifier }: MembershipUpdater
+  { userId, groupId, ...modifier }: MembershipModifier
 ) {
   return await atomic(
     { operation: "Updating membership", revisedBy },
