@@ -7,7 +7,7 @@ import { auth, signIn } from "@/auth";
 import { atomic, db, TCrUser, TUser, updater } from "@/app/_lib/db";
 import { revisions, users } from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
-import { createGroup } from "../groups/_lib";
+import { svcAddGroup } from "../groups/_lib";
 
 export async function addUser(
   userData: Pick<TCrUser, "email" | "image" | "name">
@@ -82,7 +82,7 @@ export async function currentUser(
       image,
     })!;
 
-    await createGroup(user.id!, { name: "just you" });
+    await svcAddGroup(user.id!, { name: "just you" });
   }
 
   const updater: TUser = {};

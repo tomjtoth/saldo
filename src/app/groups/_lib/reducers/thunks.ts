@@ -4,7 +4,7 @@ import { AppDispatch, RootStateGetter } from "@/app/_lib/store";
 import { TGroup } from "@/app/_lib/db";
 import { appToast, has3ConsecutiveLetters } from "@/app/_lib/utils";
 import {
-  svcCreateGroup,
+  apiAddGroup,
   apiGenerateInviteLink,
   apiRemoveInviteLink,
   svcSetDefaultGroup,
@@ -47,11 +47,9 @@ export const thunksGroups = {
         toast.error((err as Error).message as string, appToast.theme());
       }
 
-      const crudOp = svcCreateGroup({ name: name!, description }).then(
-        (res) => {
-          dispatch(csa.addGroup(res));
-        }
-      );
+      const crudOp = apiAddGroup({ name: name!, description }).then((res) => {
+        dispatch(csa.addGroup(res));
+      });
       appToast.promise(crudOp, `Saving "${name}" to db`);
 
       return crudOp;

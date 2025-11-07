@@ -8,7 +8,6 @@ import { updater } from "@/app/_lib/db/updater";
 import { atomic, db, isActive, TCrGroup, TGroup } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/(users)/_lib";
-import wrapService from "@/app/_lib/wrapService";
 
 const COLS_WITH = {
   columns: {
@@ -30,7 +29,7 @@ const COLS_WITH = {
   },
 };
 
-function validateCreateGroupData({
+export async function apiAddGroup({
   name,
   description,
 }: Required<Pick<TGroup, "name">> & Pick<TGroup, "description">) {
@@ -48,12 +47,12 @@ function validateCreateGroupData({
 
   nullEmptyStrings(data);
 
-  return data;
+  const user = await currentUser();
+
+  return await svcAddGroup(user.id, data);
 }
 
-export const svcCreateGroup = wrapService(createGroup, validateCreateGroupData);
-
-export async function createGroup(
+export async function svcAddGroup(
   ownerId: number,
   data: Pick<TCrGroup, "name" | "description">
 ) {

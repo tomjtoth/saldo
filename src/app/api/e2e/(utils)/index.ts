@@ -1,11 +1,11 @@
 import { truncateDb } from "@/app/_lib/db";
 import { addUser } from "@/app/(users)/_lib";
 import { createCategory } from "@/app/categories/_lib";
-import { addMember, createGroup } from "@/app/groups/_lib";
+import { addMember, svcAddGroup } from "@/app/groups/_lib";
 import { svcAddReceipt } from "@/app/receipts/_lib";
 
 type UserParams = Parameters<typeof addUser>[0];
-type GroupParams = Parameters<typeof createGroup>;
+type GroupParams = Parameters<typeof svcAddGroup>;
 type CategoryParams = Parameters<typeof createCategory>;
 type ReceiptParams = Parameters<typeof svcAddReceipt>;
 
@@ -171,7 +171,7 @@ export async function populateDb(args?: Args) {
   for (const user of args?.users ?? FALLBACK_USERS) {
     const { id: uid } = await addUser(user);
 
-    await createGroup(uid, {
+    await svcAddGroup(uid, {
       name: uid === 1 ? "shared group of user #1" : "just you",
     });
 
