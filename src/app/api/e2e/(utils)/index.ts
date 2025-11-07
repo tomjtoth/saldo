@@ -2,12 +2,12 @@ import { truncateDb } from "@/app/_lib/db";
 import { addUser } from "@/app/(users)/_lib";
 import { createCategory } from "@/app/categories/_lib";
 import { addMember, createGroup } from "@/app/groups/_lib";
-import { createReceipt } from "@/app/receipts/_lib";
+import { svcAddReceipt } from "@/app/receipts/_lib";
 
 type UserParams = Parameters<typeof addUser>[0];
 type GroupParams = Parameters<typeof createGroup>;
 type CategoryParams = Parameters<typeof createCategory>;
-type ReceiptParams = Parameters<typeof createReceipt>;
+type ReceiptParams = Parameters<typeof svcAddReceipt>;
 
 type Args = Partial<{
   users: UserParams[];
@@ -184,6 +184,6 @@ export async function populateDb(args?: Args) {
   }
 
   for (const { addedBy, ...data } of args?.receipts ?? FALLBACK_RECEIPTS) {
-    await createReceipt(addedBy, data);
+    await svcAddReceipt(addedBy, data);
   }
 }

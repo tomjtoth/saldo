@@ -54,12 +54,16 @@ const RECEIPT_COLS_WITH = {
   },
 };
 
-const validateReceiptData = ({
+export type TAddReceipt = Required<
+  Pick<TReceipt, "groupId" | "paidOn" | "paidById" | "items">
+>;
+
+export async function apiAddReceipt({
   groupId,
   paidOn,
   paidById,
   items,
-}: Parameters<typeof createReceipt>[1]) => {
+}: TAddReceipt) {
   if (
     typeof groupId !== "number" ||
     typeof paidOn !== "string" ||
@@ -69,24 +73,19 @@ const validateReceiptData = ({
   )
     err(400);
 
-  return {
+  const { id } = await currentUser();
+
+  return await svcAddReceipt(id, {
     groupId,
     paidOn,
     paidById,
     items,
-  };
-};
+  });
+}
 
-export const svcAddReceipt = wrapService(createReceipt, validateReceiptData);
-
-export async function createReceipt(
+export async function svcAddReceipt(
   revisedBy: number,
-  {
-    groupId,
-    paidOn,
-    paidById,
-    items: itemsCli,
-  }: Required<Pick<TReceipt, "groupId" | "paidOn" | "paidById" | "items">>
+  { groupId, paidOn, paidById, items: itemsCli }: TAddReceipt
 ) {
   return await atomic(
     { operation: "Adding receipt", revisedBy },

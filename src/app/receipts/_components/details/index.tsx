@@ -9,7 +9,7 @@ import {
 } from "@/app/_lib/hooks";
 import { rCombined, rCombined as red } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
-import { svcAddReceipt } from "../../_lib";
+import { apiAddReceipt, TAddReceipt } from "../../_lib";
 
 import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
@@ -47,14 +47,14 @@ export default function Details() {
     const groupId = rs.groupId!;
 
     appToast.promise(
-      svcAddReceipt({
+      apiAddReceipt({
         ...receipt,
         groupId,
         items: receipt.items!.map((i) => ({
           ...i,
           cost: parseFloat(i.cost as string),
         })),
-      } as unknown as Parameters<typeof svcAddReceipt>[0]).then((res) => {
+      } as unknown as TAddReceipt).then((res) => {
         nodes.pop();
         dispatch(red.setActiveReceipt());
         dispatch(red.addReceipt({ ...res, groupId }));
