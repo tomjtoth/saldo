@@ -4,16 +4,19 @@ import { sql } from "drizzle-orm";
 
 import { db, groupsWithUsersCTE, TGroup } from "@/app/_lib/db";
 import { VDate } from "@/app/_lib/utils";
-import wrapService from "@/app/_lib/wrapService";
+import { currentUser } from "@/app/(users)/_lib";
 
 type ParetoOpts = {
   from?: string;
   to?: string;
 };
 
-export const svcGetParetoData = wrapService(getPareto);
+export async function cliGetParetoData(opts: ParetoOpts) {
+  const { id } = await currentUser();
+  return srvGetParetoData(id, opts);
+}
 
-export async function getPareto(userId: number, opts: ParetoOpts = {}) {
+export async function srvGetParetoData(userId: number, opts: ParetoOpts = {}) {
   const paidOnCrit: string[] = [];
 
   // SQL injection prevented here
