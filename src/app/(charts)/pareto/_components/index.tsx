@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
 import { appToast } from "@/app/_lib/utils";
 import { rCombined as red } from "@/app/_lib/reducers";
-import { cliGetParetoData } from "../_lib";
+import { apiGetParetoData } from "../_lib";
 
 import Header from "@/app/_components/header";
 import ParetoChart from "./chart";
@@ -28,7 +28,7 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
             ev.preventDefault();
 
             appToast.promise(
-              cliGetParetoData({ from, to })
+              apiGetParetoData({ from, to })
                 .then((groups) => {
                   dispatch(red.init({ groups }));
                 })
