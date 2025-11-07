@@ -7,7 +7,7 @@ import { err, nullEmptyStrings, sortByName } from "@/app/_lib/utils";
 import { updater } from "@/app/_lib/db/updater";
 import { atomic, db, isActive, TCrGroup, TGroup } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
-import { currentUser } from "@/app/_lib/services";
+import { currentUser } from "@/app/(users)/_lib";
 import wrapService from "@/app/_lib/wrapService";
 
 const COLS_WITH = {

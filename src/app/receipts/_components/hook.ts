@@ -7,7 +7,7 @@ import {
   useRootDivCx,
 } from "@/app/_lib/hooks";
 import { rCombined as red } from "@/app/_lib/reducers";
-import { svcGetReceipts } from "@/app/_lib/services";
+import { svcGetReceipts } from "../_lib";
 
 const INFINITE_SCROLL = `INFINITE_SCROLL-${uuid()}`;
 

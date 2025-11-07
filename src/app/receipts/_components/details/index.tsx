@@ -9,7 +9,7 @@ import {
 } from "@/app/_lib/hooks";
 import { rCombined, rCombined as red } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
-import { svcAddReceipt } from "@/app/_lib/services";
+import { svcAddReceipt } from "../../_lib";
 
 import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";

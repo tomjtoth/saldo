@@ -12,7 +12,8 @@ import {
   updater,
 } from "@/app/_lib/db";
 import { categories, groups, memberships } from "@/app/_lib/db/schema";
-import { currentUser, updateMembership } from "@/app/_lib/services";
+import { currentUser } from "@/app/(users)/_lib";
+import { updateMembership } from "@/app/(memberships)/_lib";
 import {
   err,
   has3ConsecutiveLetters,

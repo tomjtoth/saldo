@@ -8,10 +8,9 @@ import {
   svcGenerateInviteLink,
   svcRemoveInviteLink,
   svcSetDefaultGroup,
-  svcSetUserColor,
   svcUpdateGroup,
-  svcUpdateMembership,
-} from "@/app/_lib/services";
+} from "..";
+import { svcSetUserColor, svcUpdateMembership } from "@/app/(memberships)/_lib";
 import { csa } from "@/app/_lib/reducers/slice";
 
 export const thunksGroups = {

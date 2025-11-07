@@ -1,4 +1,4 @@
-import { getCategories } from "@/app/_lib/services";
+import { getCategories } from "./_lib";
 
 import wrapPage from "@/app/_lib/wrapPage";
 import CliCategoriesPage from "./_components";

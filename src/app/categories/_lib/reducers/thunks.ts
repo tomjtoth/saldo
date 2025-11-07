@@ -12,7 +12,7 @@ import {
   svcCreateCategory,
   svcSetDefaultCategory,
   svcUpdateCategory,
-} from "@/app/_lib/services";
+} from "..";
 
 export const thunksCategories = {
   updateCategory:
