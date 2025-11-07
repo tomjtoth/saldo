@@ -203,17 +203,13 @@ export const svcRemoveInviteLink = wrapService(
   validateInvitationLinkRemovalRequest
 );
 
-function validateInvitationLinkGenerateRequest({
-  id,
-}: Pick<GroupUpdater, "id">) {
+export async function apiGenerateInviteLink({ id }: Pick<GroupUpdater, "id">) {
   if (typeof id !== "number") err();
-  return { id, uuid: uuidv4() };
-}
 
-export const svcGenerateInviteLink = wrapService(
-  updateGroup,
-  validateInvitationLinkGenerateRequest
-);
+  const user = await currentUser();
+
+  return await svcUpdateGroup(user.id, { id, uuid: uuidv4() });
+}
 
 export async function svcUpdateGroup(
   revisedBy: number,
