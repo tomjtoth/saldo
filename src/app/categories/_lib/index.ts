@@ -83,17 +83,13 @@ export async function createCategory(
   );
 }
 
-export type TCategoryUpdater = Pick<
-  TCategory,
-  "name" | "description" | "flags"
->;
+export type TCategoryUpdater = Required<Pick<TCategory, "id">> &
+  Pick<TCategory, "name" | "description" | "flags">;
 
-export async function svcUpdateCategory(
-  id: number,
-  { flags, name, description }: TCategoryUpdater
+async function validateUpdateCategoryData(
+  { id, flags, name, description }: TCategoryUpdater,
+  userId: number
 ) {
-  const { id: userId } = await currentUser();
-
   if (
     typeof id !== "number" ||
     (typeof name !== "string" &&
@@ -102,16 +98,27 @@ export async function svcUpdateCategory(
   )
     err();
 
-  if (!(await userAccessToCat(userId, id))) err(403);
+  if (!(await userHasAccessToCategory(userId, id))) err(403);
 
-  const modifier = nulledEmptyStrings({
+  return nulledEmptyStrings({
+    id,
     name,
     description,
     flags,
   });
+}
 
+export const svcUpdateCategory = wrapService(
+  updateCategory,
+  validateUpdateCategoryData
+);
+
+async function updateCategory(
+  revisedBy: number,
+  { id, ...modifier }: TCategoryUpdater
+) {
   return await atomic(
-    { operation: "Updating category", revisedBy: userId },
+    { operation: "Updating category", revisedBy },
     async (tx, revisionId) => {
       const cat = (await tx.query.categories.findFirst({
         where: eq(categories.id, id),

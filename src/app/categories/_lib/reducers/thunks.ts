@@ -24,13 +24,16 @@ export const thunksCategories = {
         throw err;
       }
 
-      const crudOp = svcUpdateCategory(original.id!, modifiers).then((res) => {
-        dispatch(csa.updateCategory(res));
+      const crudOp = svcUpdateCategory({ ...modifiers, id: original.id! }).then(
+        (res) => {
+          dispatch(csa.updateCategory(res));
 
-        return `${appToast.opsDone(original, nulledEmptyStrings(modifiers))} "${
-          original.name
-        }" succeeded!`;
-      });
+          return `${appToast.opsDone(
+            original,
+            nulledEmptyStrings(modifiers)
+          )} "${original.name}" succeeded!`;
+        }
+      );
 
       appToast.promise(crudOp, `Updating "${modifiers.name}"`);
 
