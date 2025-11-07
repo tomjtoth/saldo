@@ -160,32 +160,26 @@ async function updateCategory(
   );
 }
 
-export const svcSetDefaultCategory = wrapService(
-  updateMembership,
-  validateSetDefaultCategoryData
-);
-
-async function validateSetDefaultCategoryData(
-  categoryId: number | Parameters<typeof updateMembership>[1],
-  userId: number
-) {
+export async function apiSetDefaultCategory(categoryId: number) {
   if (typeof categoryId !== "number") err();
 
-  if (!(await userAccessToCat(userId, categoryId))) err(403);
+  const { id: userId } = await currentUser();
 
-  const { groupId } = (await db.query.categories.findFirst({
+  if (!(await userHasAccessToCategory(userId, categoryId))) err(403);
+
+  const cat = await db.query.categories.findFirst({
     columns: { groupId: true },
     where: eq(categories.id, categoryId),
-  }))!;
+  });
 
-  return {
+  await updateMembership(userId, {
     userId,
-    groupId,
+    groupId: cat!.groupId!,
     defaultCategoryId: categoryId,
-  };
+  });
 }
 
-export async function userAccessToCat(userId: number, catId: number) {
+async function userHasAccessToCategory(userId: number, catId: number) {
   const res = await db.query.categories.findFirst({
     columns: { id: true },
     where: and(

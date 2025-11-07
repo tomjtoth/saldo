@@ -10,7 +10,7 @@ import {
 import { csa } from "@/app/_lib/reducers/slice";
 import {
   svcCreateCategory,
-  svcSetDefaultCategory,
+  apiSetDefaultCategory,
   svcUpdateCategory,
 } from "..";
 
@@ -71,7 +71,7 @@ export const thunksCategories = {
         })
       );
 
-      const op = svcSetDefaultCategory(categoryId!).catch((err) => {
+      const op = apiSetDefaultCategory(categoryId!).catch((err) => {
         dispatch(
           csa.updateDefaultCategoryId({
             categoryId: fallback,
