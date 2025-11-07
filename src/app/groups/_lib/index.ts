@@ -180,9 +180,10 @@ export async function apiUpdateGroup({
   return await svcUpdateGroup(user.id, data);
 }
 
-export async function svcSetDefaultGroup(id: number) {
-  const { id: userId } = await currentUser();
+export async function apiSetDefaultGroup(id: number) {
   if (typeof id !== "number") err();
+
+  const { id: userId } = await currentUser();
 
   await db
     .update(users)
@@ -199,7 +200,7 @@ export async function apiRemoveInviteLink({ id }: Pick<GroupUpdater, "id">) {
 }
 
 export async function apiGenerateInviteLink({ id }: Pick<GroupUpdater, "id">) {
-  if (typeof id !== "number") err();
+  if (typeof id !== "number") err(400);
 
   const user = await currentUser();
 

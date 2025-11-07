@@ -8,11 +8,7 @@ import {
   nulledEmptyStrings,
 } from "@/app/_lib/utils";
 import { csa } from "@/app/_lib/reducers/slice";
-import {
-  svcCreateCategory,
-  apiSetDefaultCategory,
-  apiUpdateCategory,
-} from "..";
+import { apiAddCategory, apiSetDefaultCategory, apiUpdateCategory } from "..";
 
 export const thunksCategories = {
   updateCategory:
@@ -50,11 +46,9 @@ export const thunksCategories = {
         throw err;
       }
 
-      const op = svcCreateCategory({ groupId, name, description }).then(
-        (res) => {
-          dispatch(csa.addCategory(res));
-        }
-      );
+      const op = apiAddCategory({ groupId, name, description }).then((res) => {
+        dispatch(csa.addCategory(res));
+      });
 
       appToast.promise(op, `Saving "${name}" to db`);
 

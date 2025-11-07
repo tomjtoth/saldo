@@ -7,7 +7,7 @@ import {
   apiAddGroup,
   apiGenerateInviteLink,
   apiRemoveInviteLink,
-  svcSetDefaultGroup,
+  apiSetDefaultGroup,
   apiUpdateGroup,
 } from "..";
 import { apiSetUserColor, apiUpdateMembership } from "@/app/(memberships)/_lib";
@@ -96,7 +96,7 @@ export const thunksGroups = {
   },
 
   setDefaultGroupId: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = svcSetDefaultGroup(groupId).then(() => {
+    const crudOp = apiSetDefaultGroup(groupId).then(() => {
       dispatch(csa.setDefaultGroupId(groupId));
     });
 

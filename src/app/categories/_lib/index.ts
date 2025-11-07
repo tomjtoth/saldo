@@ -26,8 +26,8 @@ type RequiredCategoryFields = Required<
   Pick<TCategory, "groupId" | "name" | "description">
 >;
 
-export async function svcCreateCategory(uncheckedData: RequiredCategoryFields) {
-  const { id: revisedBy } = await currentUser();
+export async function apiAddCategory(uncheckedData: RequiredCategoryFields) {
+  const user = await currentUser();
 
   const { groupId, name, description } = uncheckedData;
   const typeDescr = typeof description;
@@ -45,10 +45,10 @@ export async function svcCreateCategory(uncheckedData: RequiredCategoryFields) {
 
   nullEmptyStrings(data);
 
-  return await createCategory(revisedBy, data);
+  return await svcAddCategory(user.id, data);
 }
 
-export async function createCategory(
+export async function svcAddCategory(
   revisedBy: number,
   data: RequiredCategoryFields
 ) {

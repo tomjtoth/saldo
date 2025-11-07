@@ -9,7 +9,7 @@ import { revisions, users } from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
 import { svcAddGroup } from "../groups/_lib";
 
-export async function addUser(
+export async function svcAddUser(
   userData: Pick<TCrUser, "email" | "image" | "name">
 ) {
   return await atomic(
@@ -42,7 +42,7 @@ interface ArgsWithoutSession {
   requireSession: false;
 }
 
-type AddUserRetVal = Awaited<ReturnType<typeof addUser>>;
+type AddUserRetVal = Awaited<ReturnType<typeof svcAddUser>>;
 
 export function currentUser(
   args: ArgsWithoutSession
@@ -76,7 +76,7 @@ export async function currentUser(
   });
 
   if (!user) {
-    user = await addUser({
+    user = await svcAddUser({
       name,
       email,
       image,

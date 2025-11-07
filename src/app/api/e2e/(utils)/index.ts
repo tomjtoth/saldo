@@ -1,12 +1,12 @@
 import { truncateDb } from "@/app/_lib/db";
-import { addUser } from "@/app/(users)/_lib";
-import { createCategory } from "@/app/categories/_lib";
+import { svcAddUser } from "@/app/(users)/_lib";
+import { svcAddCategory } from "@/app/categories/_lib";
 import { addMember, svcAddGroup } from "@/app/groups/_lib";
 import { svcAddReceipt } from "@/app/receipts/_lib";
 
-type UserParams = Parameters<typeof addUser>[0];
+type UserParams = Parameters<typeof svcAddUser>[0];
 type GroupParams = Parameters<typeof svcAddGroup>;
-type CategoryParams = Parameters<typeof createCategory>;
+type CategoryParams = Parameters<typeof svcAddCategory>;
 type ReceiptParams = Parameters<typeof svcAddReceipt>;
 
 type Args = Partial<{
@@ -169,7 +169,7 @@ export async function populateDb(args?: Args) {
   await truncateDb();
 
   for (const user of args?.users ?? FALLBACK_USERS) {
-    const { id: uid } = await addUser(user);
+    const { id: uid } = await svcAddUser(user);
 
     await svcAddGroup(uid, {
       name: uid === 1 ? "shared group of user #1" : "just you",
@@ -180,7 +180,7 @@ export async function populateDb(args?: Args) {
   }
 
   for (const { addedBy, ...data } of args?.categories ?? FALLBACK_CATEGORIES) {
-    await createCategory(addedBy, data);
+    await svcAddCategory(addedBy, data);
   }
 
   for (const { addedBy, ...data } of args?.receipts ?? FALLBACK_RECEIPTS) {
