@@ -35,8 +35,7 @@ export function useDebounce<T extends (...args: any[]) => void>(
   );
 }
 
-// TODO: rename to useClientState
-export const useGroupSelector = () => {
+export function useClientState() {
   const dispatch = useAppDispatch();
 
   const fallback = useRootDivCx();
@@ -72,7 +71,7 @@ export const useGroupSelector = () => {
     users,
     user,
   };
-};
+}
 
 export const useBodyNodes = () => useContext(BodyNodeCx);
 

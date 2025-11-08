@@ -1,8 +1,4 @@
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useBodyNodes,
-} from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
 import { rCombined } from "@/app/_lib/reducers";
 import { TUser } from "@/app/_lib/db";
 
@@ -31,7 +27,7 @@ export default function PaidByUserWithAvatar({
 
 function Listing() {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
+  const cs = useClientState();
   const nodes = useBodyNodes();
 
   return (
@@ -42,7 +38,7 @@ function Listing() {
           "flex flex-col gap-4"
         }
       >
-        {rs.users?.map((u) => (
+        {cs.users?.map((u) => (
           <li
             key={u.id}
             className="cursor-pointer"

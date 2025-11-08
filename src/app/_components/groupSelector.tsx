@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { rCombined } from "@/app/_lib/reducers";
 
 export default function GroupSelector() {
@@ -13,7 +13,7 @@ export default function GroupSelector() {
   const spanRef = useRef<HTMLSpanElement>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
 
-  const rs = useGroupSelector();
+  const cs = useClientState();
 
   useEffect(() => {
     if (spanRef.current && selectRef.current) {
@@ -27,23 +27,23 @@ export default function GroupSelector() {
       // options of different widths
       selectRef.current.style.minWidth = `${Math.min(60, width)}px`;
     }
-  }, [rs.groupId]);
+  }, [cs.groupId]);
 
-  return !rs.groups.length || pathname === "/groups" ? null : (
+  return !cs.groups.length || pathname === "/groups" ? null : (
     <>
       <span ref={spanRef} className="absolute invisible">
-        {rs.group?.name}
+        {cs.group?.name}
       </span>
       <select
         id="group-selector"
         className="no-spinner focus:outline-hidden cursor-pointer truncate text-center"
         ref={selectRef}
-        value={rs.group?.id ?? -1}
+        value={cs.group?.id ?? -1}
         onChange={(ev) =>
           dispatch(rCombined.setGroupId(Number(ev.target.value)))
         }
       >
-        {rs.groups.map((grp) => (
+        {cs.groups.map((grp) => (
           <option key={grp.id} value={grp.id}>
             {grp.name}
           </option>

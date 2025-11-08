@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { svcSignIn } from "@/app/_lib/services/auth";
-import { useBodyNodes, useGroupSelector, useRootDivCx } from "@/app/_lib/hooks";
+import { useBodyNodes, useClientState, useRootDivCx } from "@/app/_lib/hooks";
 
 import UserAvatar from "./userAvatar";
 import UserMenu from "./userMenu";
@@ -21,7 +21,7 @@ export default function Header({
 }) {
   const nodes = useBodyNodes();
   const { user } = useRootDivCx();
-  const rs = useGroupSelector();
+  const cs = useClientState();
 
   const pathname = usePathname();
 
@@ -53,7 +53,7 @@ export default function Header({
         <div className={`grow ${cn}`}>{children}</div>
       </header>
 
-      {pathname !== "/" && rs.groups.length === 0 && (
+      {pathname !== "/" && cs.groups.length === 0 && (
         <p>
           You have no access to active groups currently,{" "}
           <Link href="/groups">create or enable one</Link>!

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { TGroup } from "@/app/_lib/db";
 import { virt } from "@/app/_lib/utils";
-import { useGroupSelector } from "@/app/_lib/hooks";
+import { useClientState } from "@/app/_lib/hooks";
 
 import SvgLink from "@/app/_components/svgLink";
 import Invitation from "./invitation";
@@ -13,9 +13,9 @@ import Members from "./members";
 
 export default function Details({ group }: { group: TGroup }) {
   const [flags, setFlags] = useState(group.flags!);
-  const rs = useGroupSelector();
+  const cs = useClientState();
   const clientIsAdmin = group.memberships!.some(
-    (ms) => ms.user!.id === rs.user?.id && virt(ms).admin
+    (ms) => ms.user!.id === cs.user?.id && virt(ms).admin
   );
 
   useEffect(() => {

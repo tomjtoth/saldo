@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { appToast } from "@/app/_lib/utils";
 import { rCombined as red } from "@/app/_lib/reducers";
 import { apiGetParetoData } from "../_lib";
@@ -12,12 +12,12 @@ import ParetoChart from "./chart";
 
 export default function CliParetoPage(srv: { from?: string; to?: string }) {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
+  const cs = useClientState();
 
   const [from, setFrom] = useState(srv.from ?? "");
   const [to, setTo] = useState(srv.to ?? "");
 
-  const group = rs.group;
+  const group = cs.group;
 
   return (
     <>

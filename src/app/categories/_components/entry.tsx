@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
 import { TCategory } from "@/app/_lib/db";
 import { rCombined as red } from "@/app/_lib/reducers";
@@ -21,8 +21,8 @@ export default function Entry({
   const [showDetails, setShowDetails] = useState(preSelected);
   const hideDetails = () => setShowDetails(false);
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
-  const currentdefaultId = rs.group?.memberships?.at(0)?.defaultCategoryId;
+  const cs = useClientState();
+  const currentdefaultId = cs.group?.memberships?.at(0)?.defaultCategoryId;
   const isDefault = currentdefaultId === cat.id;
 
   return (

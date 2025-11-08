@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useRootDivCx,
-} from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState, useRootDivCx } from "@/app/_lib/hooks";
 import { rCombined as red } from "@/app/_lib/reducers";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
@@ -12,7 +8,7 @@ import Header from "@/app/_components/header";
 import Entry from "./entry";
 
 export default function CliGroupsPage() {
-  const rs = useGroupSelector();
+  const cs = useClientState();
   const dispatch = useAppDispatch();
   const preSelectedId = useRootDivCx().groupId;
 
@@ -33,7 +29,7 @@ export default function CliGroupsPage() {
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {rs.groups.map((group) => (
+        {cs.groups.map((group) => (
           <Entry
             key={group.id}
             group={group}

@@ -2,11 +2,7 @@
 
 import { toast } from "react-toastify";
 
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useBodyNodes,
-} from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
 import { rCombined, rCombined as red } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
 import { apiAddReceipt, TAddReceipt } from "../../_lib";
@@ -24,9 +20,9 @@ const DIFFS = {
 
 export default function Details() {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
+  const cs = useClientState();
   const nodes = useBodyNodes();
-  const receipt = rs.group!.activeReceipt!;
+  const receipt = cs.group!.activeReceipt!;
 
   const submitReceipt = () => {
     const nanItem = receipt!.items!.findIndex(
@@ -44,7 +40,7 @@ export default function Details() {
         appToast.theme()
       );
 
-    const groupId = rs.groupId!;
+    const groupId = cs.groupId!;
 
     appToast.promise(
       apiAddReceipt({
@@ -63,7 +59,7 @@ export default function Details() {
     );
   };
 
-  const users = rs.users;
+  const users = cs.users;
   const isMultiUser = users.length > 1;
 
   const paidBy = users.find((u) => u.id === receipt.paidBy?.id);

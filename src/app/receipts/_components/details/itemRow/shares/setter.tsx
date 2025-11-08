@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { rCombined as red } from "@/app/_lib/reducers";
 import { costToFixed } from ".";
 
@@ -12,11 +12,11 @@ import ItemShareAvatar from "./avatar";
 export default function ItemShareSetter({ itemId }: { itemId: number }) {
   const [verbose, setVerbose] = useState(false);
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
-  const currReceipt = rs.group!.activeReceipt!;
+  const cs = useClientState();
+  const currReceipt = cs.group!.activeReceipt!;
 
   const item = currReceipt.items!.find((item) => item.id === itemId)!;
-  const users = rs.users;
+  const users = cs.users;
   const notPayer = users.find((user) => user.id !== currReceipt.paidBy);
 
   return (

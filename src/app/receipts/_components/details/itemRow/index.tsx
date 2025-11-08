@@ -2,11 +2,7 @@
 
 import { KeyboardEventHandler, useEffect, useRef } from "react";
 
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useBodyNodes,
-} from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
 import { rCombined as red } from "@/app/_lib/reducers";
 import { TCliItem } from "@/app/_lib/reducers/types";
 
@@ -23,8 +19,8 @@ export default function ItemRow({
 }) {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
-  const rs = useGroupSelector();
-  const isMultiUser = rs.users.length > 1;
+  const cs = useClientState();
+  const isMultiUser = cs.users.length > 1;
 
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
@@ -58,7 +54,7 @@ export default function ItemRow({
           }
         }}
       >
-        {rs.group?.categories?.map((cat) => (
+        {cs.group?.categories?.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name}
           </option>

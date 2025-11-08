@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useBodyNodes,
-} from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
 import { rCombined as red } from "@/app/_lib/reducers";
 
 import Canceler from "@/app/_components/canceler";
@@ -19,8 +15,8 @@ export default function Options({
   hideModal?: () => void;
 }) {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
-  const currReceipt = rs.group!.activeReceipt!;
+  const cs = useClientState();
+  const currReceipt = cs.group!.activeReceipt!;
 
   const nodes = useBodyNodes();
   const showSetter = () => {
@@ -41,7 +37,7 @@ export default function Options({
 
   if (!item) return null;
 
-  const users = rs.users;
+  const users = cs.users;
   const isMultiUser = users.length > 1;
   const shares = item.itemShares;
 
