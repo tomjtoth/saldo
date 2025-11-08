@@ -159,18 +159,15 @@ export async function svcAddReceipt(
   );
 }
 
-export async function apiGetReceiptsData(knownIds?: number[]) {
+export async function apiGetReceipts(knownIds?: number[]) {
   if (!Array.isArray(knownIds) || knownIds.some(isNaN))
     err("known ids contain NaN");
 
   const { id } = await currentUser();
-  return await svcGetReceiptsData(id, knownIds);
+  return await svcGetReceipts(id, knownIds);
 }
 
-export async function svcGetReceiptsData(
-  userId: number,
-  knownIds: number[] = []
-) {
+export async function svcGetReceipts(userId: number, knownIds: number[] = []) {
   const res: TGroup[] = await db.query.groups.findMany({
     columns: {
       id: true,

@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 
 import { useAppDispatch, useClientState, useRootDivCx } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { apiGetReceiptsData } from "../_lib";
+import { apiGetReceipts } from "../_lib";
 
 const INFINITE_SCROLL = `INFINITE_SCROLL-${uuid()}`;
 
@@ -29,7 +29,7 @@ export default function useInfiniteScroll() {
       setFetching(true);
       const fetchedGroupId = cs.groupId;
 
-      apiGetReceiptsData(
+      apiGetReceipts(
         cs.groups.flatMap((grp) => grp.receipts?.map((r) => r.id!) ?? [])
       ).then((groups) => {
         let updating = false;

@@ -11,12 +11,12 @@ type ParetoOpts = {
   to?: string;
 };
 
-export async function apiGetParetoData(opts: ParetoOpts) {
+export async function apiGetPareto(opts: ParetoOpts) {
   const { id } = await currentUser();
-  return await svcGetParetoData(id, opts);
+  return await svcGetPareto(id, opts);
 }
 
-export async function svcGetParetoData(userId: number, opts: ParetoOpts = {}) {
+export async function svcGetPareto(userId: number, opts: ParetoOpts = {}) {
   const paidOnCrit: string[] = [];
 
   // SQL injection prevented here

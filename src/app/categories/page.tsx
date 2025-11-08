@@ -1,4 +1,4 @@
-import { getCategories } from "./_lib";
+import { svcGetCategories } from "./_lib";
 
 import wrapPage from "@/app/_lib/wrapPage";
 import CliCategoriesPage from "./_components";
@@ -11,7 +11,7 @@ export default wrapPage<{ catId?: string }>({
     groupId,
   }),
 
-  getData: getCategories,
+  getData: svcGetCategories,
   children({ catId }) {
     const cidAsNum = Number(catId);
     return <CliCategoriesPage catId={isNaN(cidAsNum) ? undefined : cidAsNum} />;

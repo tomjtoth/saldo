@@ -1,4 +1,4 @@
-import { svcGetParetoData } from "./_lib";
+import { svcGetPareto } from "./_lib";
 
 import { VDate } from "@/app/_lib/utils";
 import wrapPage from "@/app/_lib/wrapPage";
@@ -10,7 +10,7 @@ let from: string;
 export default wrapPage({
   getData(userId) {
     from = VDate.nMonthsAgo(3);
-    return svcGetParetoData(userId, { from });
+    return svcGetPareto(userId, { from });
   },
   children: () => <CliParetoPage {...{ from }} />,
   rewritePath: "/pareto",

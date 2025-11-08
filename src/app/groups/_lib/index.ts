@@ -118,7 +118,7 @@ export async function joinGroup(uuid: string, userId: number) {
   return await addMember(group.id, userId);
 }
 
-export async function getGroups(userId: number) {
+export async function svcGetGroups(userId: number) {
   const res: TGroup[] = await db.query.groups.findMany({
     ...COLS_WITH,
     where: exists(

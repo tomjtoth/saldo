@@ -202,7 +202,7 @@ async function userHasAccessToCategory(userId: number, catId: number) {
   return !!res;
 }
 
-export async function getCategories(userId: number) {
+export async function svcGetCategories(userId: number) {
   const res: TGroup[] = await db.query.groups.findMany({
     columns: {
       id: true,

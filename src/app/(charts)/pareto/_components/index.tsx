@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { appToast } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
-import { apiGetParetoData } from "../_lib";
+import { apiGetPareto } from "../_lib";
 
 import Header from "@/app/_components/header";
 import ParetoChart from "./chart";
@@ -28,7 +28,7 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
             ev.preventDefault();
 
             appToast.promise(
-              apiGetParetoData({ from, to })
+              apiGetPareto({ from, to })
                 .then((groups) => {
                   dispatch(thunks.init({ groups }));
                 })
