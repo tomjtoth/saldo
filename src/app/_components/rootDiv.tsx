@@ -14,6 +14,8 @@ import { useAppDispatch } from "@/app/_lib/hooks";
 import { TGroup, TUser } from "@/app/_lib/db";
 import { rCombined } from "@/app/_lib/reducers";
 
+import BodyNodeProvider from "./bodyNodes";
+
 type TRootDiv = {
   children: ReactNode;
 
@@ -96,7 +98,7 @@ export default function RootDiv({
         }}
         ref={rootDivRef}
       >
-        {children}
+        <BodyNodeProvider>{children}</BodyNodeProvider>
       </div>
     </RootDivCx.Provider>
   );
