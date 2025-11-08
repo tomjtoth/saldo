@@ -47,7 +47,6 @@ type Overloads = {
   >;
 };
 
-// TODO: rename to `fb wrapRoute`
 const wrapRoute: Overloads =
   <P>(
     optsOrHandler: Options<P> | HandlerWithUser<P>,
