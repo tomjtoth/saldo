@@ -104,28 +104,34 @@ export const thunksGroups = {
   },
 
   setUserColor:
-    (color: string, uid?: number) =>
+    (color: string | null, uid?: number) =>
     async (dispatch: AppDispatch, getState: RootStateGetter) => {
       const rs = getState().combined;
       const group = rs.groups.find((g) => g.id === rs.groupId)!;
-      const prevState = (group.pareto ?? group.balance)!.users.find(
-        (u) => u.id === uid
-      )!.color;
+      const prevState = uid
+        ? (group.pareto ?? group.balance)!.users.find((u) => u.id === uid)!
+            .color
+        : rs.user!.color;
 
-      if (uid) {
-        appToast.promise(
-          apiSetUserColor({
-            color,
-            groupId: rs.groupId,
-            memberId: uid,
-          }).catch((err) => {
-            dispatch(csa.setUserColor({ color: prevState, uid }));
-            throw err;
-          }),
-          "updating color of member"
-        );
-      }
+      appToast.promise(
+        apiSetUserColor({
+          color,
+          ...(uid
+            ? {
+                groupId: rs.groupId,
+                memberId: uid,
+              }
+            : {}),
+        }).catch((err) => {
+          dispatch(csa.setUserColor({ color: prevState!, uid }));
+          throw err;
+        }),
 
-      return dispatch(csa.setUserColor({ color, uid }));
+        `${color ? "updating" : "resetting"} ${
+          uid ? "color of member" : "chart color"
+        }`
+      );
+
+      if (color) return dispatch(csa.setUserColor({ color, uid }));
     },
 };
