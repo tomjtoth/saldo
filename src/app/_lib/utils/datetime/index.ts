@@ -76,7 +76,8 @@ abstract class TimeMethods extends AnchorMethods {
 
 export abstract class VDate extends TimeMethods {
   static toInt(val?: DateTime | string) {
-    return this.timeToInt(val, DATE_FORMAT) / DAY;
+    const asTime = this.timeToInt(val, DATE_FORMAT);
+    return Math.ceil(asTime / DAY);
   }
 
   static toStr(val?: number | DateTime, fmt = DATE_FORMAT) {
