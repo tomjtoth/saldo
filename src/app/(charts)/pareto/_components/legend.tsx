@@ -1,18 +1,18 @@
 import { DefaultLegendContentProps } from "recharts";
 
-import LegendEntry from "@/app/(charts)/_components/legendEntry";
+import UserColorPicker from "@/app/_components/userColorPicker";
 
 export default function ParetoLegend({ payload }: DefaultLegendContentProps) {
   return (
     <div className="flex gap-2 items-center justify-center">
       {payload?.map(({ color, value, dataKey }) => {
         return (
-          <LegendEntry
+          <UserColorPicker
             key={dataKey as number}
             id={dataKey as number}
             name={value as string}
             color={color as string}
-            invisible
+            hideInput
             setLabelColor
           />
         );

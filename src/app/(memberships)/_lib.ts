@@ -88,7 +88,7 @@ export async function isAdmin(userId: number, groupId: number) {
 }
 
 type TSetUsercolor = {
-  color: string;
+  color: string | null;
   groupId?: number | null;
   memberId?: number | null;
 };
@@ -98,7 +98,8 @@ export async function apiSetUserColor({
   groupId,
   memberId,
 }: TSetUsercolor) {
-  if (typeof color !== "string") err(400, "color should be string");
+  if (color !== null && typeof color !== "string")
+    err(400, "color should be string");
 
   const typeGID = typeof groupId;
   if (groupId !== null && typeGID !== "number" && typeGID !== "undefined")
@@ -131,9 +132,13 @@ async function svcSetUserColor(
     .from(chartColors)
     .where(conditions);
 
-  if (exists.length) {
-    await db.update(chartColors).set({ color }).where(conditions);
+  if (color) {
+    if (exists.length) {
+      await db.update(chartColors).set({ color }).where(conditions);
+    } else {
+      await db.insert(chartColors).values({ userId, groupId, memberId, color });
+    }
   } else {
-    await db.insert(chartColors).values({ userId, groupId, memberId, color });
+    await db.delete(chartColors).where(conditions);
   }
 }

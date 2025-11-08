@@ -2,7 +2,7 @@ import { DefaultLegendContentProps } from "recharts";
 
 import { useBalanceChartCx } from "./logic";
 
-import LegendEntry from "@/app/(charts)/_components/legendEntry";
+import UserColorPicker from "@/app/_components/userColorPicker";
 
 export default function BalanceLegend({ payload }: DefaultLegendContentProps) {
   const users = useBalanceChartCx();
@@ -32,8 +32,8 @@ export default function BalanceLegend({ payload }: DefaultLegendContentProps) {
               display: "inline-block",
             }}
           >
-            <LegendEntry {...u1} invisible /> vs{" "}
-            <LegendEntry {...u2} invisible />
+            <UserColorPicker {...u1} hideInput /> vs{" "}
+            <UserColorPicker {...u2} hideInput />
           </div>
         ) : null;
       })}
