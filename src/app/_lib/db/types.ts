@@ -23,6 +23,7 @@ type FindTsNameByDbName<DbNameToFind extends string> = {
  */
 type TModelWithRelations<TTableName extends keyof TSchema> = Partial<
   InferSelectModel<Schema[TTableName]> &
+    (TTableName extends "users" ? { color?: string } : object) &
     (TTableName extends "revisions" | "archive"
       ? object
       : { archives: TModelWithRelations<TTableName>[] }) &

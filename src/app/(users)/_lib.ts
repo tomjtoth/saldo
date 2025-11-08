@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { auth, signIn } from "@/auth";
 
@@ -98,6 +98,23 @@ export async function currentUser(
   if (Object.keys(updater).length > 0) {
     await db.update(users).set(updater).where(eq(users.id, user.id!));
   }
+
+  const { color }: { color: string } = await db.get(sql`
+    SELECT printf(
+      '#%06x', 
+      coalesce(
+        (
+          SELECT color FROM chart_colors
+          WHERE user_id = ${user.id}
+          AND group_id IS NULL
+          AND member_id IS NULL
+        ),
+        abs(random()) % 0x1000000
+      )
+    ) AS color
+  `);
+
+  (user as TUser).color = color;
 
   return user;
 }
