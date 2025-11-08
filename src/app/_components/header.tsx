@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import { svcSignIn } from "@/app/_lib/services/auth";
+import { apiSignIn } from "@/app/api/auth/_lib";
 import { useBodyNodes, useClientState, useRootDivCx } from "@/app/_lib/hooks";
 
 import UserAvatar from "./userAvatar";
@@ -43,7 +43,7 @@ export default function Header({
           </>
         ) : (
           <>
-            <button id="sign-in-button" onClick={svcSignIn}>
+            <button id="sign-in-button" onClick={apiSignIn}>
               Sign In To
             </button>
             Saldo

@@ -2,10 +2,10 @@
 
 import { signIn, signOut } from "@/auth";
 
-export const svcSignIn = async () => {
+export async function apiSignIn() {
   await signIn();
-};
+}
 
-export const svcSignOut = async () => {
+export async function apiSignOut() {
   await signOut({ redirectTo: "/" });
-};
+}

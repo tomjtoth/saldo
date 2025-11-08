@@ -1,6 +1,6 @@
 "use client";
 
-import { svcSignOut } from "@/app/_lib/services/auth";
+import { apiSignOut } from "@/app/api/auth/_lib";
 import { useBodyNodes, useRootDivCx } from "@/app/_lib/hooks";
 
 import Canceler from "./canceler";
@@ -25,7 +25,7 @@ export default function UserMenu() {
           id="sign-out-button"
           onClick={() => {
             nodes.pop();
-            svcSignOut();
+            apiSignOut();
           }}
         >
           Sign Out
