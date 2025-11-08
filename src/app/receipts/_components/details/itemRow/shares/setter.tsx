@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 import { costToFixed } from ".";
 
 import Slider from "@/app/_components/slider";
@@ -55,7 +55,7 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
                       )
                     : item.itemShares?.concat({ userId: user.id, share });
 
-                dispatch(red.updateItem({ id: itemId, itemShares }));
+                dispatch(thunks.updateItem({ id: itemId, itemShares }));
               }}
               {...(verbose && {
                 itemId,

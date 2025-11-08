@@ -3,7 +3,7 @@
 import { toast } from "react-toastify";
 
 import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
-import { rCombined, rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
 import { apiAddReceipt, TAddReceipt } from "../../_lib";
 
@@ -30,7 +30,7 @@ export default function Details() {
     );
 
     if (nanItem > -1) {
-      dispatch(red.setFocusedRow(nanItem));
+      dispatch(thunks.setFocusedRow(nanItem));
       return toast.error("Invalid item cost", appToast.theme());
     }
 
@@ -52,8 +52,8 @@ export default function Details() {
         })),
       } as unknown as TAddReceipt).then((res) => {
         nodes.pop();
-        dispatch(red.setActiveReceipt());
-        dispatch(red.addReceipt({ ...res, groupId }));
+        dispatch(thunks.setActiveReceipt());
+        dispatch(thunks.addReceipt({ ...res, groupId }));
       }),
       "Submitting new receipt"
     );
@@ -68,7 +68,7 @@ export default function Details() {
     <Canceler
       onClick={() => {
         nodes.setNodes([]);
-        dispatch(rCombined.setActiveReceipt());
+        dispatch(thunks.setActiveReceipt());
       }}
     >
       <div
@@ -84,7 +84,7 @@ export default function Details() {
               id="paid-on"
               type="date"
               value={receipt.paidOn}
-              onChange={(ev) => dispatch(red.setPaidOn(ev.target.value))}
+              onChange={(ev) => dispatch(thunks.setPaidOn(ev.target.value))}
             />
             <label className="hidden sm:inline-block" htmlFor="paid-on">
               paid on
@@ -125,7 +125,7 @@ export default function Details() {
                   const newIdx = rowIdx + DIFFS[ev.key];
 
                   dispatch(
-                    red.setFocusedRow(
+                    thunks.setFocusedRow(
                       newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
                     )
                   );

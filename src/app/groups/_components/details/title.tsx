@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { useAppDispatch } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
 import { TGroup } from "@/app/_lib/db";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 import Slider from "@/app/_components/slider";
 
@@ -38,7 +38,7 @@ export default function Title({
         ev.preventDefault();
 
         dispatch(
-          red.updateGroup(group.id!, { name, description, flags }, group)
+          thunks.updateGroup(group.id!, { name, description, flags }, group)
         ).catch(restoreOriginals);
       }}
     >

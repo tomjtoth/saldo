@@ -2,7 +2,7 @@ import { useCallback, useRef, useEffect, useContext } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
 import type { RootState, AppDispatch, AppStore } from "./store";
-import { rCombined } from "./reducers";
+import { thunks } from "./reducers";
 
 import { RootDivCx } from "@/app/_components/rootDiv";
 import { BodyNodeCx } from "@/app/_components/bodyNodes";
@@ -60,7 +60,7 @@ export function useClientState() {
 
   useEffect(() => {
     if (groups.length > 0 && !getGroup())
-      dispatch(rCombined.setGroupId(groups[0].id!));
+      dispatch(thunks.setGroupId(groups[0].id!));
   }, [groups]);
 
   return {

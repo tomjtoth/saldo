@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useAppDispatch } from "@/app/_lib/hooks";
 import { TMembership } from "@/app/_lib/db";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 import { virt } from "@/app/_lib/utils";
 
 import Slider from "@/app/_components/slider";
@@ -34,7 +34,7 @@ export default function Individual({
               const nextState = virt({ flags }, setFlags).toggle("active");
 
               dispatch(
-                red.updateMembership(
+                thunks.updateMembership(
                   ms.groupId!,
                   ms.user!.id!,
                   nextState,

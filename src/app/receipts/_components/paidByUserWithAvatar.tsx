@@ -1,5 +1,5 @@
 import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
-import { rCombined } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 import { TUser } from "@/app/_lib/db";
 
 import UserAvatar from "@/app/_components/userAvatar";
@@ -43,7 +43,7 @@ function Listing() {
             key={u.id}
             className="cursor-pointer"
             onClick={() => {
-              dispatch(rCombined.setPaidBy(u.id!));
+              dispatch(thunks.setPaidBy(u.id!));
               nodes.pop();
             }}
           >

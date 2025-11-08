@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
-import { rCombined } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 export default function GroupSelector() {
   const dispatch = useAppDispatch();
@@ -39,9 +39,7 @@ export default function GroupSelector() {
         className="no-spinner focus:outline-hidden cursor-pointer truncate text-center"
         ref={selectRef}
         value={cs.group?.id ?? -1}
-        onChange={(ev) =>
-          dispatch(rCombined.setGroupId(Number(ev.target.value)))
-        }
+        onChange={(ev) => dispatch(thunks.setGroupId(Number(ev.target.value)))}
       >
         {cs.groups.map((grp) => (
           <option key={grp.id} value={grp.id}>

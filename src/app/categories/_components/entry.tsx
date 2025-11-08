@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
 import { TCategory } from "@/app/_lib/db";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 import Canceler from "@/app/_components/canceler";
 import SvgStar from "@/app/_components/star";
@@ -46,7 +46,7 @@ export default function Entry({
             ev.stopPropagation();
             if (!isDefault)
               dispatch(
-                red.updateDefaultCategoryId(
+                thunks.updateDefaultCategoryId(
                   cat.id!,
                   cat.groupId!,
                   currentdefaultId!

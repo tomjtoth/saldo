@@ -3,7 +3,7 @@
 import { KeyboardEventHandler, useEffect, useRef } from "react";
 
 import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 import { TCliItem } from "@/app/_lib/reducers/types";
 
 import Options from "./options";
@@ -41,7 +41,7 @@ export default function ItemRow({
         value={item.categoryId}
         onChange={(ev) =>
           dispatch(
-            red.updateItem({
+            thunks.updateItem({
               id: item.id!,
               categoryId: Number(ev.target.value),
             })
@@ -85,7 +85,7 @@ export default function ItemRow({
         className="inline-flex items-center gap-2"
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (!isNaN(Number(item.cost))) dispatch(red.addRow(item.id));
+          if (!isNaN(Number(item.cost))) dispatch(thunks.addRow(item.id));
         }}
       >
         €
@@ -100,13 +100,13 @@ export default function ItemRow({
           value={item.cost}
           onChange={(ev) =>
             dispatch(
-              red.updateItem({
+              thunks.updateItem({
                 id: item.id!,
                 cost: ev.target.value.replace(",", "."),
               })
             )
           }
-          onFocus={() => dispatch(red.setFocusedRow(-1))}
+          onFocus={() => dispatch(thunks.setFocusedRow(-1))}
           onKeyDown={(ev) => {
             if (ev.shiftKey) {
               ev.preventDefault();

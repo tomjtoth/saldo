@@ -1,5 +1,5 @@
 import { useAppDispatch, useDebounce } from "@/app/_lib/hooks";
-import { rCombined } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 import { TUserChartData } from "@/app/_lib/db";
 
 export default function LegendEntry({
@@ -12,7 +12,7 @@ export default function LegendEntry({
   const dispatch = useAppDispatch();
 
   const debouncedSetter = useDebounce(
-    (color: string) => dispatch(rCombined.setUserColor(color, id)),
+    (color: string) => dispatch(thunks.setUserColor(color, id)),
     500
   );
 

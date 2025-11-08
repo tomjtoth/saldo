@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
 import useInfiniteScroll from "../_lib/hook";
-import { rCombined } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 import Header from "@/app/_components/header";
 import Scrollers from "./scrollers";
@@ -30,7 +30,7 @@ export default function CliReceiptsPage() {
         {(cs.group?.categories?.length ?? 0) > 0 ? (
           <button
             className="inline-block"
-            onClick={() => dispatch(rCombined.setActiveReceipt(-1))}
+            onClick={() => dispatch(thunks.setActiveReceipt(-1))}
           >
             ➕ <span className="hidden sm:inline-block">Add new...</span>
           </button>

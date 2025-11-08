@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 
 import { useAppDispatch, useClientState, useRootDivCx } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 import { apiGetReceiptsData } from "../_lib";
 
 const INFINITE_SCROLL = `INFINITE_SCROLL-${uuid()}`;
@@ -52,7 +52,7 @@ export default function useInfiniteScroll() {
           })
           .some(Boolean);
 
-        if (storing) dispatch(red.addFetchedReceipts(groups));
+        if (storing) dispatch(thunks.addFetchedReceipts(groups));
 
         if (updating) setHasMore(limits);
         setFetching(false);

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { appToast } from "@/app/_lib/utils";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 import { apiGetParetoData } from "../_lib";
 
 import Header from "@/app/_components/header";
@@ -30,7 +30,7 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
             appToast.promise(
               apiGetParetoData({ from, to })
                 .then((groups) => {
-                  dispatch(red.init({ groups }));
+                  dispatch(thunks.init({ groups }));
                 })
                 .catch((err) => {
                   setFrom("");

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { TGroup } from "@/app/_lib/db";
 import { virt } from "@/app/_lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 import Canceler from "@/app/_components/canceler";
 import SvgStar from "@/app/_components/star";
@@ -44,7 +44,7 @@ export default function Entry({
           onClick={(ev) => {
             ev.stopPropagation();
 
-            if (!isDefault) dispatch(red.setDefaultGroupId(group.id!));
+            if (!isDefault) dispatch(thunks.setDefaultGroupId(group.id!));
           }}
         />{" "}
         {group.name}

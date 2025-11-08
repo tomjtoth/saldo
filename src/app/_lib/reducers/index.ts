@@ -7,7 +7,7 @@ import { deepClone } from "../utils";
 import { slice } from "./slice";
 import { Initializer } from "./types";
 
-export const rCombined = {
+export const thunks = {
   init: (data: Initializer) => (dispatch: AppDispatch) => {
     // must clone here, because Redux freezes the object async(?)
     // and by the 2nd iteration in the next fn it threw errors...

@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
@@ -18,7 +18,7 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
           <EntityAdderButton
             placeholder="Category"
             handler={({ name, description }) =>
-              dispatch(red.addCategory(cs.groupId!, name, description))
+              dispatch(thunks.addCategory(cs.groupId!, name, description))
             }
           />
         )}

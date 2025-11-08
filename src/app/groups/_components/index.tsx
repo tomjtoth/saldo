@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppDispatch, useClientState, useRootDivCx } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
@@ -17,7 +17,7 @@ export default function CliGroupsPage() {
       <Header>
         <EntityAdderButton
           placeholder="Group"
-          handler={(data) => dispatch(red.addGroup(data))}
+          handler={(data) => dispatch(thunks.addGroup(data))}
         />
       </Header>
 
