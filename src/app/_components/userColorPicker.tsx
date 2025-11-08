@@ -27,14 +27,14 @@ export default function UserColorPicker({
         <input
           type="color"
           className={
-            "border-0! " + (hideInput ? "w-0 px-px! invisible" : "w-8")
+            "border-0! align-middle " +
+            (hideInput ? "w-0 px-px! invisible" : "w-8")
           }
           value={color}
           onChange={(ev) => debouncedSetter(ev.target.value)}
         />
         {name}
       </label>
-
       {canReset && (
         <span
           className="cursor-pointer ml-2"
