@@ -17,7 +17,8 @@ import {
 
 import { TBalanceChartData } from "@/app/_lib/db";
 
-import useLogic, { CtxBalanceChart } from "./logic";
+import { useBalanceChartCx } from "../_lib/hook";
+
 import BalanceTick from "./tick";
 import BalanceTooltip from "./tooltip";
 import BalanceLegend from "./legend";
@@ -27,15 +28,7 @@ export default function BalanceChart({
   relations,
   users,
 }: TBalanceChartData) {
-  const {
-    state: { refAreaLeft, refAreaRight, left, right, bottom, top },
-    zoomIn,
-    zoomOut,
-    startHighlight,
-    dragHighlight,
-    findMinMax,
-    cancelHighlight,
-  } = useLogic(data);
+  const cx = useBalanceChartCx()!;
 
   const gradientDefinitions: ReactNode[] = [];
 
@@ -45,7 +38,7 @@ export default function BalanceChart({
 
     const defId = `${u1.id}-${u2.id}-chart-colors`;
 
-    const { min, max } = findMinMax();
+    const { min, max } = cx.hook!.findMinMax();
 
     const abs = [min, max].map(Math.abs);
     const height = abs[0] + abs[1];
@@ -88,57 +81,56 @@ export default function BalanceChart({
   }, [lines]);
 
   return (
-    <CtxBalanceChart.Provider value={users}>
-      <div className="h-full w-full">
-        <ResponsiveContainer>
-          <LineChart
-            className="select-none"
-            onMouseDown={startHighlight}
-            onMouseMove={dragHighlight}
-            onMouseUp={zoomIn}
-            onMouseLeave={cancelHighlight}
-            onDoubleClick={zoomOut}
+    <div className="h-full w-full">
+      <ResponsiveContainer>
+        <LineChart
+          className="select-none"
+          onMouseDown={cx.hook!.startHighlight}
+          onMouseMove={cx.hook!.dragHighlight}
+          onMouseUp={cx.hook!.zoomIn}
+          onMouseLeave={cx.hook!.cancelHighlight}
+          onDoubleClick={cx.hook!.zoomOut}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="date"
+            type="number"
+            height={100}
+            tick={BalanceTick}
+            padding={{ left: 10, right: 10 }}
+            allowDataOverflow
+            domain={[cx.hook!.state.left, cx.hook!.state.right]}
+          />
+          <YAxis
+            allowDataOverflow
+            domain={[cx.hook!.state.bottom, cx.hook!.state.top]}
+            tickFormatter={(v) => v.toFixed(2)}
+            padding={{ bottom: 10, top: 10 }}
+          />
+          <Tooltip content={BalanceTooltip} />
+          <Legend content={BalanceLegend} />
+
+          <defs>{gradientDefinitions}</defs>
+          <ReferenceLine
+            y={0}
+            offset={10}
+            strokeWidth={2}
+            strokeDasharray="10 5"
           >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="date"
-              type="number"
-              height={100}
-              tick={BalanceTick}
-              padding={{ left: 10, right: 10 }}
-              allowDataOverflow
-              domain={[left, right]}
-            />
-            <YAxis
-              allowDataOverflow
-              domain={[bottom, top]}
-              tickFormatter={(v) => v.toFixed(2)}
-              padding={{ bottom: 10, top: 10 }}
-            />
-            <Tooltip content={BalanceTooltip} />
-            <Legend content={BalanceLegend} />
+            <Label value="0.00" position="left" fontWeight="bold" />
+          </ReferenceLine>
+          {lines}
 
-            <defs>{gradientDefinitions}</defs>
-            <ReferenceLine
-              y={0}
-              offset={10}
-              strokeWidth={2}
-              strokeDasharray="10 5"
-            >
-              <Label value="0.00" position="left" fontWeight="bold" />
-            </ReferenceLine>
-            {lines}
-
-            {refAreaLeft !== undefined && refAreaRight !== undefined ? (
-              <ReferenceArea
-                x1={refAreaLeft}
-                x2={refAreaRight}
-                strokeOpacity={0.3}
-              />
-            ) : null}
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </CtxBalanceChart.Provider>
+          {cx.hook?.state.refAreaLeft !== undefined &&
+          cx.hook?.state.refAreaRight !== undefined ? (
+            <ReferenceArea
+              x1={cx.hook?.state.refAreaLeft}
+              x2={cx.hook?.state.refAreaRight}
+              strokeOpacity={0.3}
+            />
+          ) : null}
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

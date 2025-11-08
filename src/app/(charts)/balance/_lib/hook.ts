@@ -3,10 +3,14 @@ import { CategoricalChartFunc } from "recharts/types/chart/types";
 
 import { TBalanceChartData, TUserChartData } from "@/app/_lib/db";
 
-export const CtxBalanceChart = createContext<TUserChartData[]>([]);
-export const useBalanceChartCx = () => useContext(CtxBalanceChart);
+export const BalanceChartCx = createContext<{
+  users: TUserChartData[];
+  hook?: ReturnType<typeof useBalanceChartHook>;
+}>({ users: [] });
 
-export default function useLogic(data: TBalanceChartData["data"]) {
+export const useBalanceChartCx = () => useContext(BalanceChartCx);
+
+export function useBalanceChartHook(data: TBalanceChartData["data"]) {
   const initialState: {
     refAreaLeft?: string | number;
     refAreaRight?: string | number;
