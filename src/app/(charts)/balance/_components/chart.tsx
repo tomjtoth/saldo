@@ -41,7 +41,7 @@ export default function BalanceChart({
 
   const lines = relations?.map((rel) => {
     const uids = rel.split(" vs ").map(Number);
-    const [u1, u2] = users.filter((u) => uids.includes(u.id));
+    const [u1, u2] = users.filter((u) => uids.includes(u.id!));
 
     const defId = `${u1.id}-${u2.id}-chart-colors`;
 

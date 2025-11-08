@@ -72,11 +72,7 @@ export type TBalanceChartData = {
   }[];
 };
 
-export type TUserChartData = {
-  id: number;
-  name: string;
-  color: string;
-};
+export type TUserChartData = Pick<TUser, "id" | "name" | "color">;
 
 export type TCrRevision = typeof schema.revisions.$inferInsert;
 export type TCrUser = typeof schema.users.$inferInsert;

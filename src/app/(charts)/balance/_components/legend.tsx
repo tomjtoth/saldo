@@ -11,7 +11,7 @@ export default function BalanceLegend({ payload }: DefaultLegendContentProps) {
     <div className="flex gap-2 items-center justify-center">
       {payload?.map(({ dataKey }) => {
         const uids = (dataKey as string).split(" vs ").map(Number);
-        const [u1, u2] = users.filter((u) => uids.includes(u.id));
+        const [u1, u2] = users.filter((u) => uids.includes(u.id!));
 
         return u1 && u2 ? (
           <div
