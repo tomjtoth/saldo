@@ -13,12 +13,16 @@ export const hrefToLabel = (href: string) => href.replaceAll(/\W+/g, "");
 export default function ViewListing({
   prefix = "",
   decorate,
+  includeCurrentPath,
 }: {
   prefix?: string;
   decorate?: true;
+  includeCurrentPath?: boolean;
 }) {
   const pathname = usePathname();
-  const links = LINKS.filter((a) => a.href !== pathname);
+  const links = includeCurrentPath
+    ? LINKS
+    : LINKS.filter((a) => a.href !== pathname);
   const lastIdx = links.length - 1;
 
   return (
