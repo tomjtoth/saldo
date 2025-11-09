@@ -13,12 +13,13 @@ export default function GroupListing() {
       {cs.groups.map((group) => {
         const checked = group.id === cs.groupId;
 
+        // TODO: get `truncate` to work with the below label
         return (
           <li key={group.id}>
             <label className="text-xl cursor-pointer">
               <input
                 type="radio"
-                radioGroup="a"
+                name="group-selection"
                 className="mr-2 cursor-pointer"
                 checked={checked}
                 onChange={() => {
