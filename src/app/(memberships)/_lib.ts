@@ -2,17 +2,16 @@
 
 import { and, eq, isNull, sql } from "drizzle-orm";
 
-import { atomic, db, TCrMembership, TMembership, updater } from "@/app/_lib/db";
+import { atomic, db, TMembership, updater } from "@/app/_lib/db";
 import { err } from "@/app/_lib/utils";
 import { chartColors, memberships } from "@/app/_lib/db/schema";
-import { currentUser } from "@/app/_lib/services";
+import { currentUser } from "../(users)/_lib";
 
-export async function svcUpdateMembership({
+export async function apiModMembership({
   groupId,
   userId,
   flags,
 }: TMembership) {
-  const { id: revisedBy } = await currentUser();
   if (
     typeof groupId !== "number" ||
     typeof userId !== "number" ||
@@ -20,25 +19,19 @@ export async function svcUpdateMembership({
   )
     err();
 
-  if (!(await isAdmin(revisedBy, groupId))) err(403);
+  const user = await currentUser();
 
-  const ms = await updateMembership(revisedBy, {
-    groupId,
-    userId,
-    flags,
-  });
+  if (!(await isAdmin(user.id, groupId))) err(403);
 
-  if (!ms) err(404);
-
-  return ms;
+  return await svcModMembership(user.id, { groupId, userId, flags });
 }
 
-type MembershipUpdater = Pick<TCrMembership, "groupId" | "userId"> &
+type MembershipModifier = Required<Pick<TMembership, "groupId" | "userId">> &
   Pick<TMembership, "flags" | "defaultCategoryId">;
 
-export async function updateMembership(
+export async function svcModMembership(
   revisedBy: number,
-  { userId, groupId, ...modifier }: MembershipUpdater
+  { userId, groupId, ...modifier }: MembershipModifier
 ) {
   return await atomic(
     { operation: "Updating membership", revisedBy },
@@ -50,7 +43,7 @@ export async function updateMembership(
         ),
       });
 
-      if (!ms) return null;
+      if (!ms) err(404);
 
       const saving = await updater(ms, modifier, {
         tx,
@@ -94,16 +87,40 @@ export async function isAdmin(userId: number, groupId: number) {
   return !!ms;
 }
 
-export async function svcSetUserColor(
-  color: string,
-  groupId?: number | null,
-  memberId?: number | null
-) {
-  const { id: userId } = await currentUser();
+type TSetUsercolor = {
+  color: string | null;
+  groupId?: number | null;
+  memberId?: number | null;
+};
+
+export async function apiSetUserColor({
+  color,
+  groupId,
+  memberId,
+}: TSetUsercolor) {
+  if (color !== null && typeof color !== "string")
+    err(400, "color should be string");
+
+  const typeGID = typeof groupId;
+  if (groupId !== null && typeGID !== "number" && typeGID !== "undefined")
+    err(400, "groupId should be an optional number");
+
+  const typeMID = typeof memberId;
+  if (memberId !== null && typeMID !== "number" && typeMID !== "undefined")
+    err(400, "memberId should be an optional number");
 
   groupId = groupId ?? null;
   memberId = memberId ?? null;
 
+  const user = await currentUser();
+
+  return await svcSetUserColor(user.id, { color, groupId, memberId });
+}
+
+async function svcSetUserColor(
+  userId: number,
+  { color, groupId, memberId }: Required<TSetUsercolor>
+) {
   const conditions = and(
     eq(chartColors.userId, userId),
     groupId ? eq(chartColors.groupId, groupId) : isNull(chartColors.groupId),
@@ -115,9 +132,13 @@ export async function svcSetUserColor(
     .from(chartColors)
     .where(conditions);
 
-  if (exists.length) {
-    await db.update(chartColors).set({ color }).where(conditions);
+  if (color) {
+    if (exists.length) {
+      await db.update(chartColors).set({ color }).where(conditions);
+    } else {
+      await db.insert(chartColors).values({ userId, groupId, memberId, color });
+    }
   } else {
-    await db.insert(chartColors).values({ userId, groupId, memberId, color });
+    await db.delete(chartColors).where(conditions);
   }
 }

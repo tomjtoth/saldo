@@ -34,7 +34,7 @@ export default function ParetoChart({ users, categories }: TParetoChartData) {
           <Tooltip content={ParetoTooltip} />
           <Legend content={ParetoLegend} />
           {users.map(({ id, name, color }) => (
-            <Bar dataKey={id} name={name} key={id} stackId="a" fill={color} />
+            <Bar dataKey={id} name={name!} key={id} stackId="a" fill={color} />
           ))}
         </BarChart>
       </ResponsiveContainer>

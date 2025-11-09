@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
 import { TGroup } from "./db";
-import { currentUser } from "@/app/_lib/services";
+import { currentUser } from "../(users)/_lib";
 
 import RootDiv from "@/app/_components/rootDiv";
 

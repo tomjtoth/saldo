@@ -6,7 +6,6 @@ import { VDate } from "@/app/_lib/utils";
 
 import "./globals.css";
 import StoreProvider from "@/app/_components/storeProvider";
-import BodyNodeProvider from "@/app/_components/bodyNodes";
 
 /* istanbul ignore next */
 const geistSans = Geist({
@@ -44,9 +43,7 @@ export default function RootLayout({
           }}
         />
         <ToastContainer autoClose={2000} closeOnClick />
-        <StoreProvider>
-          <BodyNodeProvider>{children}</BodyNodeProvider>
-        </StoreProvider>
+        <StoreProvider>{children}</StoreProvider>
       </body>
     </html>
   );

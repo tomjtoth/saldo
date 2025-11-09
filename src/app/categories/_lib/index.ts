@@ -12,7 +12,8 @@ import {
   updater,
 } from "@/app/_lib/db";
 import { categories, groups, memberships } from "@/app/_lib/db/schema";
-import { currentUser, updateMembership } from "@/app/_lib/services";
+import { currentUser } from "@/app/(users)/_lib";
+import { svcModMembership } from "@/app/(memberships)/_lib";
 import {
   err,
   has3ConsecutiveLetters,
@@ -25,8 +26,8 @@ type RequiredCategoryFields = Required<
   Pick<TCategory, "groupId" | "name" | "description">
 >;
 
-export async function svcCreateCategory(uncheckedData: RequiredCategoryFields) {
-  const { id: revisedBy } = await currentUser();
+export async function apiAddCategory(uncheckedData: RequiredCategoryFields) {
+  const user = await currentUser();
 
   const { groupId, name, description } = uncheckedData;
   const typeDescr = typeof description;
@@ -44,10 +45,10 @@ export async function svcCreateCategory(uncheckedData: RequiredCategoryFields) {
 
   nullEmptyStrings(data);
 
-  return await createCategory(revisedBy, data);
+  return await svcAddCategory(user.id, data);
 }
 
-export async function createCategory(
+export async function svcAddCategory(
   revisedBy: number,
   data: RequiredCategoryFields
 ) {
@@ -81,17 +82,15 @@ export async function createCategory(
   );
 }
 
-export type TCategoryUpdater = Pick<
-  TCategory,
-  "name" | "description" | "flags"
->;
+type CategoryModifier = Required<Pick<TCategory, "id">> &
+  Pick<TCategory, "name" | "description" | "flags">;
 
-export async function svcUpdateCategory(
-  id: number,
-  { flags, name, description }: TCategoryUpdater
-) {
-  const { id: userId } = await currentUser();
-
+export async function apiModCategory({
+  id,
+  flags,
+  name,
+  description,
+}: CategoryModifier) {
   if (
     typeof id !== "number" ||
     (typeof name !== "string" &&
@@ -100,16 +99,26 @@ export async function svcUpdateCategory(
   )
     err();
 
-  if (!(await userAccessToCat(userId, id))) err(403);
-
-  const modifier = nulledEmptyStrings({
+  const data = nulledEmptyStrings({
+    id,
     name,
     description,
     flags,
   });
 
+  const user = await currentUser();
+
+  if (!(await userHasAccessToCategory(user.id, id))) err(403);
+
+  return await svcModCategory(user.id, data);
+}
+
+async function svcModCategory(
+  revisedBy: number,
+  { id, ...modifier }: CategoryModifier
+) {
   return await atomic(
-    { operation: "Updating category", revisedBy: userId },
+    { operation: "Updating category", revisedBy },
     async (tx, revisionId) => {
       const cat = (await tx.query.categories.findFirst({
         where: eq(categories.id, id),
@@ -151,25 +160,26 @@ export async function svcUpdateCategory(
   );
 }
 
-export async function svcSetDefaultCategory(id: number) {
+export async function apiSetDefaultCategory(categoryId: number) {
+  if (typeof categoryId !== "number") err();
+
   const { id: userId } = await currentUser();
 
-  if (typeof id !== "number") err();
+  if (!(await userHasAccessToCategory(userId, categoryId))) err(403);
 
-  if (!(await userAccessToCat(userId, id))) err(403);
-
-  const { groupId } = (await db.query.categories.findFirst({
+  const cat = await db.query.categories.findFirst({
     columns: { groupId: true },
-  }))!;
+    where: eq(categories.id, categoryId),
+  });
 
-  await updateMembership(userId, {
+  await svcModMembership(userId, {
     userId,
-    groupId,
-    defaultCategoryId: id,
+    groupId: cat!.groupId!,
+    defaultCategoryId: categoryId,
   });
 }
 
-export async function userAccessToCat(userId: number, catId: number) {
+async function userHasAccessToCategory(userId: number, catId: number) {
   const res = await db.query.categories.findFirst({
     columns: { id: true },
     where: and(
@@ -192,7 +202,7 @@ export async function userAccessToCat(userId: number, catId: number) {
   return !!res;
 }
 
-export async function getCategories(userId: number) {
+export async function svcGetCategories(userId: number) {
   const res: TGroup[] = await db.query.groups.findMany({
     columns: {
       id: true,

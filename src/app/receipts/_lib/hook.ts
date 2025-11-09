@@ -1,18 +1,14 @@
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useRootDivCx,
-} from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
-import { svcGetReceipts } from "@/app/_lib/services";
+import { useAppDispatch, useClientState, useRootDivCx } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
+import { apiGetReceipts } from "../_lib";
 
 const INFINITE_SCROLL = `INFINITE_SCROLL-${uuid()}`;
 
 export default function useInfiniteScroll() {
-  const rs = useGroupSelector();
+  const cs = useClientState();
   const { addOnScroll, rmOnScroll, rootDivRef } = useRootDivCx();
   const dispatch = useAppDispatch();
 
@@ -24,17 +20,17 @@ export default function useInfiniteScroll() {
     const rootDivH = rootDivRef?.current?.scrollHeight ?? 0;
 
     if (
-      !!rs.groupId &&
-      (hasMore[rs.groupId] ?? true) &&
+      !!cs.groupId &&
+      (hasMore[cs.groupId] ?? true) &&
       !fetching &&
       (rootDivH < window.innerHeight || debounce === 1)
     ) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFetching(true);
-      const fetchedGroupId = rs.groupId;
+      const fetchedGroupId = cs.groupId;
 
-      svcGetReceipts(
-        rs.groups.flatMap((grp) => grp.receipts?.map((r) => r.id!) ?? [])
+      apiGetReceipts(
+        cs.groups.flatMap((grp) => grp.receipts?.map((r) => r.id!) ?? [])
       ).then((groups) => {
         let updating = false;
         const limits = { ...hasMore };
@@ -56,7 +52,7 @@ export default function useInfiniteScroll() {
           })
           .some(Boolean);
 
-        if (storing) dispatch(red.addFetchedReceipts(groups));
+        if (storing) dispatch(thunks.addFetchedReceipts(groups));
 
         if (updating) setHasMore(limits);
         setFetching(false);

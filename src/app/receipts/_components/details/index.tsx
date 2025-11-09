@@ -2,14 +2,10 @@
 
 import { toast } from "react-toastify";
 
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useBodyNodes,
-} from "@/app/_lib/hooks";
-import { rCombined, rCombined as red } from "@/app/_lib/reducers";
+import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
-import { svcAddReceipt } from "@/app/_lib/services";
+import { apiAddReceipt, TAddReceipt } from "../../_lib";
 
 import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
@@ -24,9 +20,9 @@ const DIFFS = {
 
 export default function Details() {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
+  const cs = useClientState();
   const nodes = useBodyNodes();
-  const receipt = rs.group!.activeReceipt!;
+  const receipt = cs.group!.activeReceipt!;
 
   const submitReceipt = () => {
     const nanItem = receipt!.items!.findIndex(
@@ -34,7 +30,7 @@ export default function Details() {
     );
 
     if (nanItem > -1) {
-      dispatch(red.setFocusedRow(nanItem));
+      dispatch(thunks.setFocusedRow(nanItem));
       return toast.error("Invalid item cost", appToast.theme());
     }
 
@@ -44,26 +40,26 @@ export default function Details() {
         appToast.theme()
       );
 
-    const groupId = rs.groupId!;
+    const groupId = cs.groupId!;
 
     appToast.promise(
-      svcAddReceipt({
+      apiAddReceipt({
         ...receipt,
         groupId,
         items: receipt.items!.map((i) => ({
           ...i,
           cost: parseFloat(i.cost as string),
         })),
-      } as unknown as Parameters<typeof svcAddReceipt>[0]).then((res) => {
+      } as unknown as TAddReceipt).then((res) => {
         nodes.pop();
-        dispatch(red.setActiveReceipt());
-        dispatch(red.addReceipt({ ...res, groupId }));
+        dispatch(thunks.setActiveReceipt());
+        dispatch(thunks.addReceipt({ ...res, groupId }));
       }),
       "Submitting new receipt"
     );
   };
 
-  const users = rs.users;
+  const users = cs.users;
   const isMultiUser = users.length > 1;
 
   const paidBy = users.find((u) => u.id === receipt.paidBy?.id);
@@ -72,7 +68,7 @@ export default function Details() {
     <Canceler
       onClick={() => {
         nodes.setNodes([]);
-        dispatch(rCombined.setActiveReceipt());
+        dispatch(thunks.setActiveReceipt());
       }}
     >
       <div
@@ -88,7 +84,7 @@ export default function Details() {
               id="paid-on"
               type="date"
               value={receipt.paidOn}
-              onChange={(ev) => dispatch(red.setPaidOn(ev.target.value))}
+              onChange={(ev) => dispatch(thunks.setPaidOn(ev.target.value))}
             />
             <label className="hidden sm:inline-block" htmlFor="paid-on">
               paid on
@@ -129,7 +125,7 @@ export default function Details() {
                   const newIdx = rowIdx + DIFFS[ev.key];
 
                   dispatch(
-                    red.setFocusedRow(
+                    thunks.setFocusedRow(
                       newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
                     )
                   );

@@ -4,7 +4,7 @@ import { sql } from "drizzle-orm";
 
 import { db, groupsWithUsersCTE, TGroup } from "@/app/_lib/db";
 
-export async function getBalance(userId: number) {
+export async function svcGetBalance(userId: number) {
   const data = await db.get<{ json: string } | null>(
     sql`WITH ${groupsWithUsersCTE(userId)},
     

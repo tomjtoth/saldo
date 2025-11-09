@@ -7,8 +7,7 @@ import { err, nullEmptyStrings, sortByName } from "@/app/_lib/utils";
 import { updater } from "@/app/_lib/db/updater";
 import { atomic, db, isActive, TCrGroup, TGroup } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
-import { currentUser } from "@/app/_lib/services";
-import wrapService from "@/app/_lib/wrapService";
+import { currentUser } from "@/app/(users)/_lib";
 
 const COLS_WITH = {
   columns: {
@@ -30,7 +29,7 @@ const COLS_WITH = {
   },
 };
 
-function validateCreateGroupData({
+export async function apiAddGroup({
   name,
   description,
 }: Required<Pick<TGroup, "name">> & Pick<TGroup, "description">) {
@@ -48,12 +47,12 @@ function validateCreateGroupData({
 
   nullEmptyStrings(data);
 
-  return data;
+  const user = await currentUser();
+
+  return await svcAddGroup(user.id, data);
 }
 
-export const svcCreateGroup = wrapService(createGroup, validateCreateGroupData);
-
-export async function createGroup(
+export async function svcAddGroup(
   ownerId: number,
   data: Pick<TCrGroup, "name" | "description">
 ) {
@@ -119,7 +118,7 @@ export async function joinGroup(uuid: string, userId: number) {
   return await addMember(group.id, userId);
 }
 
-export async function getGroups(userId: number) {
+export async function svcGetGroups(userId: number) {
   const res: TGroup[] = await db.query.groups.findMany({
     ...COLS_WITH,
     where: exists(
@@ -144,15 +143,15 @@ export async function getGroups(userId: number) {
   return res;
 }
 
-export type GroupUpdater = Required<Pick<TGroup, "id">> &
+type GroupModifier = Required<Pick<TGroup, "id">> &
   Pick<TGroup, "name" | "description" | "flags" | "uuid">;
 
-function validateUpdateGroupData({
+export async function apiModGroup({
   id,
   flags,
   name,
   description,
-}: Omit<GroupUpdater, "uuid">) {
+}: Omit<GroupModifier, "uuid">) {
   const typeDescr = typeof description;
   const typeFlags = typeof flags;
   const typeName = typeof name;
@@ -167,6 +166,8 @@ function validateUpdateGroupData({
   )
     err();
 
+  const user = await currentUser();
+
   const data = {
     id,
     flags,
@@ -176,14 +177,13 @@ function validateUpdateGroupData({
 
   nullEmptyStrings(data);
 
-  return data;
+  return await svcModGroup(user.id, data);
 }
 
-export const svcUpdateGroup = wrapService(updateGroup, validateUpdateGroupData);
-
-export async function svcSetDefaultGroup(id: number) {
-  const { id: userId } = await currentUser();
+export async function apiSetDefaultGroup(id: number) {
   if (typeof id !== "number") err();
+
+  const { id: userId } = await currentUser();
 
   await db
     .update(users)
@@ -191,33 +191,25 @@ export async function svcSetDefaultGroup(id: number) {
     .where(eq(users.id, userId));
 }
 
-function validateInvitationLinkRemovalRequest({
-  id,
-}: Pick<GroupUpdater, "id">) {
-  if (typeof id !== "number") err();
-  return { id, uuid: null };
+export async function apiRmInviteLink({ id }: Pick<GroupModifier, "id">) {
+  if (typeof id !== "number") err(400);
+
+  const user = await currentUser();
+
+  return svcModGroup(user.id, { id, uuid: null });
 }
 
-export const svcRemoveInviteLink = wrapService(
-  updateGroup,
-  validateInvitationLinkRemovalRequest
-);
+export async function apiGenInviteLink({ id }: Pick<GroupModifier, "id">) {
+  if (typeof id !== "number") err(400);
 
-function validateInvitationLinkGenerateRequest({
-  id,
-}: Pick<GroupUpdater, "id">) {
-  if (typeof id !== "number") err();
-  return { id, uuid: uuidv4() };
+  const user = await currentUser();
+
+  return await svcModGroup(user.id, { id, uuid: uuidv4() });
 }
 
-export const svcGenerateInviteLink = wrapService(
-  updateGroup,
-  validateInvitationLinkGenerateRequest
-);
-
-export async function updateGroup(
+export async function svcModGroup(
   revisedBy: number,
-  { id, ...modifier }: GroupUpdater
+  { id, ...modifier }: GroupModifier
 ) {
   return await atomic(
     { operation: "Updating group", revisedBy },

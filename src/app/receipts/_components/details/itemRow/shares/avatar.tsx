@@ -3,7 +3,7 @@
 import { ChangeEventHandler, useEffect, useRef } from "react";
 
 import { TUser } from "@/app/_lib/db";
-import { useGroupSelector } from "@/app/_lib/hooks";
+import { useClientState } from "@/app/_lib/hooks";
 import { TCliItem } from "@/app/_lib/reducers/types";
 import { costToFixed } from ".";
 
@@ -23,8 +23,8 @@ export default function ItemShareAvatar({
   onChange?: ChangeEventHandler<HTMLInputElement>;
 }) {
   const ref = useRef<HTMLInputElement>(null);
-  const rs = useGroupSelector();
-  const currReceipt = rs.group?.activeReceipt;
+  const cs = useClientState();
+  const currReceipt = cs.group?.activeReceipt;
 
   useEffect(() => {
     if (!!onChange && focused) ref.current?.focus();

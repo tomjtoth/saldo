@@ -4,11 +4,11 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import { svcSignIn } from "@/app/_lib/services/auth";
-import { useBodyNodes, useGroupSelector, useRootDivCx } from "@/app/_lib/hooks";
+import { apiSignIn } from "@/app/api/auth/_lib";
+import { useBodyNodes, useClientState, useRootDivCx } from "@/app/_lib/hooks";
 
 import UserAvatar from "./userAvatar";
-import UserMenu from "./userMenu";
+import MainMenu from "./mainMenu";
 import GroupSelector from "./groupSelector";
 import ViewSelector from "./viewSelector";
 
@@ -21,7 +21,7 @@ export default function Header({
 }) {
   const nodes = useBodyNodes();
   const { user } = useRootDivCx();
-  const rs = useGroupSelector();
+  const cs = useClientState();
 
   const pathname = usePathname();
 
@@ -35,7 +35,8 @@ export default function Header({
                 user,
                 id: "usermenu-opener",
                 className: "w-12 h-12 cursor-pointer",
-                onClick: () => nodes.push(UserMenu),
+                onClick: () =>
+                  nodes.push(MainMenu.bind(null, { tab: "personal" })),
               }}
             />
             <GroupSelector />
@@ -43,7 +44,7 @@ export default function Header({
           </>
         ) : (
           <>
-            <button id="sign-in-button" onClick={svcSignIn}>
+            <button id="sign-in-button" onClick={apiSignIn}>
               Sign In To
             </button>
             Saldo
@@ -53,7 +54,7 @@ export default function Header({
         <div className={`grow ${cn}`}>{children}</div>
       </header>
 
-      {pathname !== "/" && rs.groups.length === 0 && (
+      {pathname !== "/" && cs.groups.length === 0 && (
         <p>
           You have no access to active groups currently,{" "}
           <Link href="/groups">create or enable one</Link>!

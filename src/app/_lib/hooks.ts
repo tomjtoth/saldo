@@ -2,7 +2,7 @@ import { useCallback, useRef, useEffect, useContext } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
 import type { RootState, AppDispatch, AppStore } from "./store";
-import { rCombined } from "./reducers";
+import { thunks } from "./reducers";
 
 import { RootDivCx } from "@/app/_components/rootDiv";
 import { BodyNodeCx } from "@/app/_components/bodyNodes";
@@ -35,8 +35,7 @@ export function useDebounce<T extends (...args: any[]) => void>(
   );
 }
 
-// TODO: rename to useClientState
-export const useGroupSelector = () => {
+export function useClientState() {
   const dispatch = useAppDispatch();
 
   const fallback = useRootDivCx();
@@ -61,7 +60,7 @@ export const useGroupSelector = () => {
 
   useEffect(() => {
     if (groups.length > 0 && !getGroup())
-      dispatch(rCombined.setGroupId(groups[0].id!));
+      dispatch(thunks.setGroupId(groups[0].id!));
   }, [groups]);
 
   return {
@@ -72,7 +71,7 @@ export const useGroupSelector = () => {
     users,
     user,
   };
-};
+}
 
 export const useBodyNodes = () => useContext(BodyNodeCx);
 

@@ -3,7 +3,7 @@ import pluralize from "pluralize";
 import { TReceipt } from "@/app/_lib/db";
 import { virt } from "@/app/_lib/utils";
 import { useAppDispatch } from "@/app/_lib/hooks";
-import { rCombined } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 import UserAvatar from "@/app/_components/userAvatar";
 import PaidByUserWithAvatar from "./paidByUserWithAvatar";
@@ -21,7 +21,7 @@ export default function Individual(rcpt: TReceipt) {
   return (
     <li
       key={rcpt.id}
-      onClick={() => dispatch(rCombined.setActiveReceipt(rcpt.id!))}
+      onClick={() => dispatch(thunks.setActiveReceipt(rcpt.id!))}
       className="p-2 shrink-0 border rounded flex w-fit flex-col gap-2 cursor-pointer select-none"
     >
       <div className="flex gap-5 justify-between items-center">

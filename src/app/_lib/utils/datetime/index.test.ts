@@ -16,6 +16,23 @@ describe("datetimeFunctions", () => {
     expect(base).toEqual(1);
   });
 
+  it("can convert 1000 random dates over 50 years back n forth", () => {
+    for (let i = 0; i < 1000; i++) {
+      const year = 2010 + Math.floor(50 * Math.random());
+      const month = Math.ceil(12 * Math.random());
+      const day = Math.ceil(28 * Math.random());
+
+      const dateStr = `${year}-${month.toString().padStart(2, "0")}-${day
+        .toString()
+        .padStart(2, "0")}`;
+
+      const asInt = VDate.toInt(dateStr);
+      const asStr = VDate.toStr(asInt);
+
+      expect(asStr).to.eq(dateStr);
+    }
+  });
+
   it("convertdate  '2020-01-01' properly to 0", () => {
     const base = VDate.toInt("2020-01-01");
     expect(base).toEqual(0);

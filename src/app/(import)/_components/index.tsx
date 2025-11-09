@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { svcImportV3, TEntriesInDbOfEachTable } from "@/app/_lib/services";
+import { svcImportV3, TEntriesInDbOfEachTable } from "../_lib";
 import { appToast } from "@/app/_lib/utils";
 
 export default function CliImportSection(fromDB: TEntriesInDbOfEachTable) {

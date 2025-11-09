@@ -4,14 +4,13 @@ import { AppDispatch, RootStateGetter } from "@/app/_lib/store";
 import { TGroup } from "@/app/_lib/db";
 import { appToast, has3ConsecutiveLetters } from "@/app/_lib/utils";
 import {
-  svcCreateGroup,
-  svcGenerateInviteLink,
-  svcRemoveInviteLink,
-  svcSetDefaultGroup,
-  svcSetUserColor,
-  svcUpdateGroup,
-  svcUpdateMembership,
-} from "@/app/_lib/services";
+  apiAddGroup,
+  apiGenInviteLink,
+  apiRmInviteLink,
+  apiSetDefaultGroup,
+  apiModGroup,
+} from "..";
+import { apiSetUserColor, apiModMembership } from "@/app/(memberships)/_lib";
 import { csa } from "@/app/_lib/reducers/slice";
 
 export const thunksGroups = {
@@ -25,14 +24,12 @@ export const thunksGroups = {
         throw err;
       }
 
-      const crudOps = svcUpdateGroup({ id: groupId, ...modifiers }).then(
-        (res) => {
-          const ops = appToast.opsDone(original, res);
-          dispatch(csa.updateGroup(res));
+      const crudOps = apiModGroup({ id: groupId, ...modifiers }).then((res) => {
+        const ops = appToast.opsDone(original, res);
+        dispatch(csa.updateGroup(res));
 
-          return `${ops} "${original.name}" succeeded!`;
-        }
-      );
+        return `${ops} "${original.name}" succeeded!`;
+      });
 
       appToast.promise(crudOps, `Updating "${original.name}"`);
 
@@ -48,18 +45,16 @@ export const thunksGroups = {
         toast.error((err as Error).message as string, appToast.theme());
       }
 
-      const crudOp = svcCreateGroup({ name: name!, description }).then(
-        (res) => {
-          dispatch(csa.addGroup(res));
-        }
-      );
+      const crudOp = apiAddGroup({ name: name!, description }).then((res) => {
+        dispatch(csa.addGroup(res));
+      });
       appToast.promise(crudOp, `Saving "${name}" to db`);
 
       return crudOp;
     },
 
   generateInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = svcGenerateInviteLink({ id: groupId }).then((res) => {
+    const crudOp = apiGenInviteLink({ id: groupId }).then((res) => {
       dispatch(csa.updateGroup(res));
     });
 
@@ -67,7 +62,7 @@ export const thunksGroups = {
   },
 
   removeInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = svcRemoveInviteLink({ id: groupId }).then((res) => {
+    const crudOp = apiRmInviteLink({ id: groupId }).then((res) => {
       dispatch(csa.updateGroup(res));
     });
 
@@ -77,7 +72,7 @@ export const thunksGroups = {
   updateMembership:
     (groupId: number, userId: number, flags: number, toastMessage: string) =>
     (dispatch: AppDispatch) => {
-      const crudOp = svcUpdateMembership({ groupId, userId, flags }).then(
+      const crudOp = apiModMembership({ groupId, userId, flags }).then(
         ({ flags }) => {
           dispatch(
             csa.updateMembership({
@@ -99,7 +94,7 @@ export const thunksGroups = {
   },
 
   setDefaultGroupId: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = svcSetDefaultGroup(groupId).then(() => {
+    const crudOp = apiSetDefaultGroup(groupId).then(() => {
       dispatch(csa.setDefaultGroupId(groupId));
     });
 
@@ -109,24 +104,34 @@ export const thunksGroups = {
   },
 
   setUserColor:
-    (color: string, uid?: number) =>
+    (color: string | null, uid?: number) =>
     async (dispatch: AppDispatch, getState: RootStateGetter) => {
       const rs = getState().combined;
       const group = rs.groups.find((g) => g.id === rs.groupId)!;
-      const prevState = (group.pareto ?? group.balance)!.users.find(
-        (u) => u.id === uid
-      )!.color;
+      const prevState = uid
+        ? (group.pareto ?? group.balance)!.users.find((u) => u.id === uid)!
+            .color
+        : rs.user!.color;
 
-      if (uid) {
-        appToast.promise(
-          svcSetUserColor(color, rs.groupId, uid).catch((err) => {
-            dispatch(csa.setUserColor({ color: prevState, uid }));
-            throw err;
-          }),
-          "updating color of member"
-        );
-      }
+      appToast.promise(
+        apiSetUserColor({
+          color,
+          ...(uid
+            ? {
+                groupId: rs.groupId,
+                memberId: uid,
+              }
+            : {}),
+        }).catch((err) => {
+          dispatch(csa.setUserColor({ color: prevState!, uid }));
+          throw err;
+        }),
 
-      return dispatch(csa.setUserColor({ color, uid }));
+        `${color ? "updating" : "resetting"} ${
+          uid ? "color of member" : "chart color"
+        }`
+      );
+
+      if (color) return dispatch(csa.setUserColor({ color, uid }));
     },
 };

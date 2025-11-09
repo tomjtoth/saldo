@@ -8,11 +8,7 @@ import {
   nulledEmptyStrings,
 } from "@/app/_lib/utils";
 import { csa } from "@/app/_lib/reducers/slice";
-import {
-  svcCreateCategory,
-  svcSetDefaultCategory,
-  svcUpdateCategory,
-} from "@/app/_lib/services";
+import { apiAddCategory, apiModCategory, apiSetDefaultCategory } from "..";
 
 export const thunksCategories = {
   updateCategory:
@@ -24,13 +20,16 @@ export const thunksCategories = {
         throw err;
       }
 
-      const crudOp = svcUpdateCategory(original.id!, modifiers).then((res) => {
-        dispatch(csa.updateCategory(res));
+      const crudOp = apiModCategory({ ...modifiers, id: original.id! }).then(
+        (res) => {
+          dispatch(csa.updateCategory(res));
 
-        return `${appToast.opsDone(original, nulledEmptyStrings(modifiers))} "${
-          original.name
-        }" succeeded!`;
-      });
+          return `${appToast.opsDone(
+            original,
+            nulledEmptyStrings(modifiers)
+          )} "${original.name}" succeeded!`;
+        }
+      );
 
       appToast.promise(crudOp, `Updating "${modifiers.name}"`);
 
@@ -47,11 +46,9 @@ export const thunksCategories = {
         throw err;
       }
 
-      const op = svcCreateCategory({ groupId, name, description }).then(
-        (res) => {
-          dispatch(csa.addCategory(res));
-        }
-      );
+      const op = apiAddCategory({ groupId, name, description }).then((res) => {
+        dispatch(csa.addCategory(res));
+      });
 
       appToast.promise(op, `Saving "${name}" to db`);
 
@@ -68,7 +65,7 @@ export const thunksCategories = {
         })
       );
 
-      const op = svcSetDefaultCategory(categoryId!).catch((err) => {
+      const op = apiSetDefaultCategory(categoryId!).catch((err) => {
         dispatch(
           csa.updateDefaultCategoryId({
             categoryId: fallback,

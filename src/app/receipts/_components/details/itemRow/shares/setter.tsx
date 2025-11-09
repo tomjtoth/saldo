@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
 import { costToFixed } from ".";
 
 import Slider from "@/app/_components/slider";
@@ -12,11 +12,11 @@ import ItemShareAvatar from "./avatar";
 export default function ItemShareSetter({ itemId }: { itemId: number }) {
   const [verbose, setVerbose] = useState(false);
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
-  const currReceipt = rs.group!.activeReceipt!;
+  const cs = useClientState();
+  const currReceipt = cs.group!.activeReceipt!;
 
   const item = currReceipt.items!.find((item) => item.id === itemId)!;
-  const users = rs.users;
+  const users = cs.users;
   const notPayer = users.find((user) => user.id !== currReceipt.paidBy);
 
   return (
@@ -55,7 +55,7 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
                       )
                     : item.itemShares?.concat({ userId: user.id, share });
 
-                dispatch(red.updateItem({ id: itemId, itemShares }));
+                dispatch(thunks.updateItem({ id: itemId, itemShares }));
               }}
               {...(verbose && {
                 itemId,

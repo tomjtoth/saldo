@@ -2,12 +2,8 @@
 
 import { KeyboardEventHandler, useEffect, useRef } from "react";
 
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useBodyNodes,
-} from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
 import { TCliItem } from "@/app/_lib/reducers/types";
 
 import Options from "./options";
@@ -23,8 +19,8 @@ export default function ItemRow({
 }) {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
-  const rs = useGroupSelector();
-  const isMultiUser = rs.users.length > 1;
+  const cs = useClientState();
+  const isMultiUser = cs.users.length > 1;
 
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
@@ -45,7 +41,7 @@ export default function ItemRow({
         value={item.categoryId}
         onChange={(ev) =>
           dispatch(
-            red.updateItem({
+            thunks.updateItem({
               id: item.id!,
               categoryId: Number(ev.target.value),
             })
@@ -58,7 +54,7 @@ export default function ItemRow({
           }
         }}
       >
-        {rs.group?.categories?.map((cat) => (
+        {cs.group?.categories?.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name}
           </option>
@@ -89,7 +85,7 @@ export default function ItemRow({
         className="inline-flex items-center gap-2"
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (!isNaN(Number(item.cost))) dispatch(red.addRow(item.id));
+          if (!isNaN(Number(item.cost))) dispatch(thunks.addRow(item.id));
         }}
       >
         €
@@ -104,13 +100,13 @@ export default function ItemRow({
           value={item.cost}
           onChange={(ev) =>
             dispatch(
-              red.updateItem({
+              thunks.updateItem({
                 id: item.id!,
                 cost: ev.target.value.replace(",", "."),
               })
             )
           }
-          onFocus={() => dispatch(red.setFocusedRow(-1))}
+          onFocus={() => dispatch(thunks.setFocusedRow(-1))}
           onKeyDown={(ev) => {
             if (ev.shiftKey) {
               ev.preventDefault();

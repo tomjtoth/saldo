@@ -1,15 +1,15 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { auth, signIn } from "@/auth";
 
-import { createGroup } from "@/app/_lib/services";
 import { atomic, db, TCrUser, TUser, updater } from "@/app/_lib/db";
 import { revisions, users } from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
+import { svcAddGroup } from "../groups/_lib";
 
-export async function addUser(
+export async function svcAddUser(
   userData: Pick<TCrUser, "email" | "image" | "name">
 ) {
   return await atomic(
@@ -42,7 +42,7 @@ interface ArgsWithoutSession {
   requireSession: false;
 }
 
-type AddUserRetVal = Awaited<ReturnType<typeof addUser>>;
+type AddUserRetVal = Awaited<ReturnType<typeof svcAddUser>>;
 
 export function currentUser(
   args: ArgsWithoutSession
@@ -76,13 +76,13 @@ export async function currentUser(
   });
 
   if (!user) {
-    user = await addUser({
+    user = await svcAddUser({
       name,
       email,
       image,
     })!;
 
-    await createGroup(user.id!, { name: "just you" });
+    await svcAddGroup(user.id!, { name: "just you" });
   }
 
   const updater: TUser = {};
@@ -98,6 +98,23 @@ export async function currentUser(
   if (Object.keys(updater).length > 0) {
     await db.update(users).set(updater).where(eq(users.id, user.id!));
   }
+
+  const { color }: { color: string } = await db.get(sql`
+    SELECT printf(
+      '#%06x', 
+      coalesce(
+        (
+          SELECT color FROM chart_colors
+          WHERE user_id = ${user.id}
+          AND group_id IS NULL
+          AND member_id IS NULL
+        ),
+        abs(random()) % 0x1000000
+      )
+    ) AS color
+  `);
+
+  (user as TUser).color = color;
 
   return user;
 }

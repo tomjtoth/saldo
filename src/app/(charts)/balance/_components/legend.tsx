@@ -1,17 +1,17 @@
 import { DefaultLegendContentProps } from "recharts";
 
-import { useBalanceChartCx } from "./logic";
+import { useBalanceChartCx } from "../_lib/hook";
 
-import Entry from "@/app/(charts)/_components/legendEntry";
+import UserColorPicker from "@/app/_components/userColorPicker";
 
-export default function BalanceLegend(x: DefaultLegendContentProps) {
-  const users = useBalanceChartCx();
+export default function BalanceLegend({ payload }: DefaultLegendContentProps) {
+  const cx = useBalanceChartCx();
 
   return (
     <div className="flex gap-2 items-center justify-center">
-      {x.payload?.map(({ dataKey }) => {
+      {payload?.map(({ dataKey }) => {
         const uids = (dataKey as string).split(" vs ").map(Number);
-        const [u1, u2] = users.filter((u) => uids.includes(u.id));
+        const [u1, u2] = cx.users.filter((u) => uids.includes(u.id!));
 
         return u1 && u2 ? (
           <div
@@ -19,12 +19,12 @@ export default function BalanceLegend(x: DefaultLegendContentProps) {
             className="px-2"
             style={{
               backgroundImage: `linear-gradient(
-                  to right,
-                  ${u1.color} 0%,
-                  ${u1.color} 30%,
-                  ${u2.color} 70%,
-                  ${u2.color} 100%
-                )`,
+                to right,
+                ${u1.color} 0%,
+                ${u1.color} 30%,
+                ${u2.color} 70%,
+                ${u2.color} 100%
+              )`,
               backgroundClip: "text",
               WebkitBackgroundClip: "text",
               color: "transparent",
@@ -32,8 +32,8 @@ export default function BalanceLegend(x: DefaultLegendContentProps) {
               display: "inline-block",
             }}
           >
-            <Entry {...u1} invisible={true} /> vs{" "}
-            <Entry {...u2} invisible={true} />
+            <UserColorPicker {...u1} hideInput /> vs{" "}
+            <UserColorPicker {...u2} hideInput />
           </div>
         ) : null;
       })}

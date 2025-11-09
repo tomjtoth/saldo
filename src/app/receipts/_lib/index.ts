@@ -20,7 +20,7 @@ import {
   receipts,
 } from "@/app/_lib/db/schema";
 import { err, nulledEmptyStrings, sortByName } from "@/app/_lib/utils";
-import wrapService from "@/app/_lib/wrapService";
+import { currentUser } from "@/app/(users)/_lib";
 
 const RECEIPT_COLS_WITH = {
   columns: {
@@ -53,12 +53,16 @@ const RECEIPT_COLS_WITH = {
   },
 };
 
-const validateReceiptData = ({
+export type TAddReceipt = Required<
+  Pick<TReceipt, "groupId" | "paidOn" | "paidById" | "items">
+>;
+
+export async function apiAddReceipt({
   groupId,
   paidOn,
   paidById,
   items,
-}: Parameters<typeof createReceipt>[1]) => {
+}: TAddReceipt) {
   if (
     typeof groupId !== "number" ||
     typeof paidOn !== "string" ||
@@ -68,24 +72,19 @@ const validateReceiptData = ({
   )
     err(400);
 
-  return {
+  const { id } = await currentUser();
+
+  return await svcAddReceipt(id, {
     groupId,
     paidOn,
     paidById,
     items,
-  };
-};
+  });
+}
 
-export const svcAddReceipt = wrapService(createReceipt, validateReceiptData);
-
-export async function createReceipt(
+export async function svcAddReceipt(
   revisedBy: number,
-  {
-    groupId,
-    paidOn,
-    paidById,
-    items: itemsCli,
-  }: Required<Pick<TReceipt, "groupId" | "paidOn" | "paidById" | "items">>
+  { groupId, paidOn, paidById, items: itemsCli }: TAddReceipt
 ) {
   return await atomic(
     { operation: "Adding receipt", revisedBy },
@@ -160,14 +159,15 @@ export async function createReceipt(
   );
 }
 
-function validateKnownIds(knownIds?: number[]) {
+export async function apiGetReceipts(knownIds?: number[]) {
   if (!Array.isArray(knownIds) || knownIds.some(isNaN))
     err("known ids contain NaN");
+
+  const { id } = await currentUser();
+  return await svcGetReceipts(id, knownIds);
 }
 
-export const svcGetReceipts = wrapService(getReceipts, validateKnownIds);
-
-export async function getReceipts(userId: number, knownIds: number[] = []) {
+export async function svcGetReceipts(userId: number, knownIds: number[] = []) {
   const res: TGroup[] = await db.query.groups.findMany({
     columns: {
       id: true,

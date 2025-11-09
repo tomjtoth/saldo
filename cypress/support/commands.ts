@@ -13,11 +13,13 @@ declare global {
   }
 }
 
-const fnAccessibleViaViewSelector = (text: string) =>
+const fnAccessibleViaViewSelector = (url: string, openUserMenu?: true) =>
   it("are accessible via the view selector", () => {
+    cy.visit("/");
     cy.wait(500);
-    cy.get("#view-selector").select(text);
-    cy.location("pathname").should("equal", text);
+    cy.get(`#usermenu-opener${openUserMenu ? "" : " + span"}`).click();
+    cy.get(`a[href='${url}']`).click();
+    cy.location("pathname", { timeout: 10000 }).should("equal", url);
   });
 
 (globalThis as any).itIsAccessibleViaViewSelector = fnAccessibleViaViewSelector;
@@ -102,7 +104,12 @@ function entityShouldBeFavorit(name: string) {
 }
 
 function selectGroup(group: string) {
-  cy.get("#group-selector").select(group);
+  cy.get("#usermenu-opener + span").then(($span) => {
+    if ($span.text() !== group) {
+      $span.trigger("click");
+      cy.contains(group).click();
+    }
+  });
 }
 
 function login({

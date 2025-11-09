@@ -5,7 +5,7 @@ import { useState } from "react";
 import { virt } from "@/app/_lib/utils";
 import { useAppDispatch } from "@/app/_lib/hooks";
 import { TCategory } from "@/app/_lib/db";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 import Slider from "@/app/_components/slider";
 
@@ -27,13 +27,13 @@ export default function Updater({ cat }: { cat: TCategory }) {
       onSubmit={(ev) => {
         ev.preventDefault();
 
-        dispatch(red.updateCategory(cat, { name, description, flags })).catch(
-          () => {
-            setName(cat.name!);
-            setDescr(cat.description ?? "");
-            setFlags(cat.flags!);
-          }
-        );
+        dispatch(
+          thunks.updateCategory(cat, { name, description, flags })
+        ).catch(() => {
+          setName(cat.name!);
+          setDescr(cat.description ?? "");
+          setFlags(cat.flags!);
+        });
       }}
     >
       <input

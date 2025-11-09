@@ -35,10 +35,10 @@ export const sliceGroups = {
     { payload: { color, uid } }: PayloadAction<{ color: string; uid?: number }>
   ) {
     const group = rs.groups.find((grp) => grp.id === rs.groupId)!;
-    const user = (group.pareto ?? group.balance)!.users.find(
-      (u) => u.id === uid
-    )!;
+    const user = uid
+      ? (group.pareto ?? group.balance)!.users.find((u) => u.id === uid)
+      : rs.user;
 
-    user.color = color;
+    user!.color = color;
   },
 };

@@ -23,6 +23,7 @@ type FindTsNameByDbName<DbNameToFind extends string> = {
  */
 type TModelWithRelations<TTableName extends keyof TSchema> = Partial<
   InferSelectModel<Schema[TTableName]> &
+    (TTableName extends "users" ? { color?: string } : object) &
     (TTableName extends "revisions" | "archive"
       ? object
       : { archives: TModelWithRelations<TTableName>[] }) &
@@ -71,11 +72,7 @@ export type TBalanceChartData = {
   }[];
 };
 
-export type TUserChartData = {
-  id: number;
-  name: string;
-  color: string;
-};
+export type TUserChartData = Pick<TUser, "id" | "name" | "color">;
 
 export type TCrRevision = typeof schema.revisions.$inferInsert;
 export type TCrUser = typeof schema.users.$inferInsert;

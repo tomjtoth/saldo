@@ -1,4 +1,4 @@
-import { getGroups } from "@/app/_lib/services";
+import { svcGetGroups } from "./_lib";
 
 import wrapPage from "@/app/_lib/wrapPage";
 import CliGroupsPage from "./_components";
@@ -9,7 +9,7 @@ export default wrapPage({
     groupId,
   }),
 
-  getData: getGroups,
+  getData: svcGetGroups,
   children: <CliGroupsPage />,
   rewritePath: "/groups",
 });

@@ -1,7 +1,7 @@
 "use client";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
@@ -9,16 +9,16 @@ import Entry from "./entry";
 
 export default function CliCategoriesPage(srv: { catId?: number }) {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
+  const cs = useClientState();
 
   return (
     <>
       <Header>
-        {rs.groups.length > 0 && (
+        {cs.groups.length > 0 && (
           <EntityAdderButton
             placeholder="Category"
             handler={({ name, description }) =>
-              dispatch(red.addCategory(rs.groupId!, name, description))
+              dispatch(thunks.addCategory(cs.groupId!, name, description))
             }
           />
         )}
@@ -30,7 +30,7 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {rs.group?.categories?.map((cat) => (
+        {cs.group?.categories?.map((cat) => (
           <Entry key={cat.id} cat={cat} preSelected={srv.catId === cat.id} />
         ))}
       </div>

@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
 import { TCategory } from "@/app/_lib/db";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 import Canceler from "@/app/_components/canceler";
 import SvgStar from "@/app/_components/star";
@@ -21,8 +21,8 @@ export default function Entry({
   const [showDetails, setShowDetails] = useState(preSelected);
   const hideDetails = () => setShowDetails(false);
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
-  const currentdefaultId = rs.group?.memberships?.at(0)?.defaultCategoryId;
+  const cs = useClientState();
+  const currentdefaultId = cs.group?.memberships?.at(0)?.defaultCategoryId;
   const isDefault = currentdefaultId === cat.id;
 
   return (
@@ -46,7 +46,7 @@ export default function Entry({
             ev.stopPropagation();
             if (!isDefault)
               dispatch(
-                red.updateDefaultCategoryId(
+                thunks.updateDefaultCategoryId(
                   cat.id!,
                   cat.groupId!,
                   currentdefaultId!

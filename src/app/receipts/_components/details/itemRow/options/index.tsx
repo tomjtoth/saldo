@@ -1,11 +1,7 @@
 "use client";
 
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useBodyNodes,
-} from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
 
 import Canceler from "@/app/_components/canceler";
 import ItemShareSetter from "../shares/setter";
@@ -19,8 +15,8 @@ export default function Options({
   hideModal?: () => void;
 }) {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
-  const currReceipt = rs.group!.activeReceipt!;
+  const cs = useClientState();
+  const currReceipt = cs.group!.activeReceipt!;
 
   const nodes = useBodyNodes();
   const showSetter = () => {
@@ -41,7 +37,7 @@ export default function Options({
 
   if (!item) return null;
 
-  const users = rs.users;
+  const users = cs.users;
   const isMultiUser = users.length > 1;
   const shares = item.itemShares;
 
@@ -54,7 +50,7 @@ export default function Options({
         value={item.notes ?? ""}
         onChange={(ev) =>
           dispatch(
-            red.updateItem({
+            thunks.updateItem({
               id: item.id!,
               notes: ev.target.value,
             })
@@ -97,7 +93,7 @@ export default function Options({
         <button
           className="inline-flex items-center gap-2 bg-background"
           onClick={() => {
-            dispatch(red.rmRow(item.id!));
+            dispatch(thunks.rmRow(item.id!));
             if (hideModal) hideModal();
           }}
         >
@@ -111,7 +107,7 @@ export default function Options({
       <button
         className="inline-flex items-center gap-2 col-start-5 bg-background"
         onClick={() => {
-          dispatch(red.addRow(item.id));
+          dispatch(thunks.addRow(item.id));
           if (hideModal) hideModal();
         }}
       >

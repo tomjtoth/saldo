@@ -1,36 +1,48 @@
 "use client";
 
-import { svcSignOut } from "@/app/_lib/services/auth";
-import { useBodyNodes, useRootDivCx } from "@/app/_lib/hooks";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
-import Canceler from "./canceler";
+import { apiSignOut } from "@/app/api/auth/_lib";
+import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
+
+import UserColorPicker from "./userColorPicker";
 
 export default function UserMenu() {
-  const { user } = useRootDivCx();
+  const cs = useClientState();
   const nodes = useBodyNodes();
+  const pathname = usePathname();
 
   return (
-    <Canceler onClick={nodes.pop}>
-      <div className="absolute z-2 top-1/2 left-1/2 -transalte-1/2">
-        <p>
-          Hi, {user?.name ?? "XYou"}!
-          {user?.email && (
-            <>
-              <br />({user.email})
-            </>
-          )}
-        </p>
+    <div className="flex flex-col p-2 gap-2 items-start">
+      <span>Hi, {cs.user?.name}!</span>
+      <span>{cs.user?.email}</span>
 
-        <button
-          id="sign-out-button"
-          onClick={() => {
-            nodes.pop();
-            svcSignOut();
-          }}
-        >
-          Sign Out
-        </button>
-      </div>
-    </Canceler>
+      <span>
+        Go to 👨‍👨‍👦‍👦 <Link href="/groups">group settings</Link>
+      </span>
+
+      {pathname !== "/" && (
+        <span>
+          View <Link href="/">about</Link> page
+        </span>
+      )}
+
+      <UserColorPicker
+        name="Set your color in charts"
+        color={cs.user!.color}
+        setLabelColor
+      />
+      <button
+        id="sign-out-button"
+        className="mt-2"
+        onClick={() => {
+          nodes.pop();
+          apiSignOut();
+        }}
+      >
+        Sign Out
+      </button>
+    </div>
   );
 }
