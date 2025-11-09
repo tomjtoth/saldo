@@ -10,10 +10,13 @@ const LINKS = [
 export const hrefToLabel = (href: string) => href.replaceAll(/\W+/g, "");
 
 export default function ViewListing({ prefix = "" }: { prefix?: string }) {
+  const lastIdx = LINKS.length - 1;
+
   return (
-    <ul className="pl-10">
-      {LINKS.map((a) => (
+    <ul>
+      {LINKS.map((a, idx) => (
         <li key={a.href}>
+          {idx === lastIdx ? "└ " : "├ "}
           <Link href={prefix + a.href}>{hrefToLabel(a.href)}</Link>
         </li>
       ))}
