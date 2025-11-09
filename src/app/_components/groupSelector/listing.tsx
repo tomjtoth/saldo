@@ -28,7 +28,10 @@ export default function GroupListing() {
               {group.name}
             </label>
 
-            <ViewListing prefix={checked ? "" : `/groups/${group.id}`} />
+            <ViewListing
+              decorate
+              prefix={checked ? "" : `/groups/${group.id}`}
+            />
           </li>
         );
       })}
