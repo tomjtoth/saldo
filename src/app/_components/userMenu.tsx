@@ -1,14 +1,17 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+
 import { apiSignOut } from "@/app/api/auth/_lib";
 import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
 
 import UserColorPicker from "./userColorPicker";
-import Link from "next/link";
 
 export default function UserMenu() {
   const cs = useClientState();
   const nodes = useBodyNodes();
+  const pathname = usePathname();
 
   return (
     <div className="flex flex-col p-2 gap-2 items-start">
@@ -16,8 +19,14 @@ export default function UserMenu() {
       <span>{cs.user?.email}</span>
 
       <span>
-        Go to 👨‍👨‍👦‍👦 <Link href="/groups">group settings</Link>.
+        Go to 👨‍👨‍👦‍👦 <Link href="/groups">group settings</Link>
       </span>
+
+      {pathname !== "/" && (
+        <span>
+          View <Link href="/">about</Link> page
+        </span>
+      )}
 
       <UserColorPicker
         name="Set your color in charts"
