@@ -18,9 +18,11 @@ export default function UserMenu() {
       <span>Hi, {cs.user?.name}!</span>
       <span>{cs.user?.email}</span>
 
-      <span>
-        Go to 👨‍👨‍👦‍👦 <Link href="/groups">group settings</Link>
-      </span>
+      {pathname !== "/groups" && (
+        <span>
+          Go to 👨‍👨‍👦‍👦 <Link href="/groups">group settings</Link>
+        </span>
+      )}
 
       {pathname !== "/" && (
         <span>
