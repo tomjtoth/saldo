@@ -12,7 +12,7 @@ export default function ViewSelector() {
 
   return (
     <span
-      className="truncate cursor-pointer min-w-10"
+      className="truncate cursor-pointer min-w-10 select-none"
       onClick={() => !!cs.user && nodes.push(MainMenu)}
     >
       {pathname === "/" ? "Saldo" : hrefToLabel(pathname)}
