@@ -8,7 +8,7 @@ import { apiSignIn } from "@/app/api/auth/_lib";
 import { useBodyNodes, useClientState, useRootDivCx } from "@/app/_lib/hooks";
 
 import UserAvatar from "./userAvatar";
-import UserMenu from "./userMenu";
+import MainMenu from "./mainMenu";
 import GroupSelector from "./groupSelector";
 import ViewSelector from "./viewSelector";
 
@@ -35,7 +35,8 @@ export default function Header({
                 user,
                 id: "usermenu-opener",
                 className: "w-12 h-12 cursor-pointer",
-                onClick: () => nodes.push(UserMenu),
+                onClick: () =>
+                  nodes.push(MainMenu.bind(null, { tab: "personal" })),
               }}
             />
             <GroupSelector />
