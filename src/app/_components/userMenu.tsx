@@ -3,48 +3,37 @@
 import { apiSignOut } from "@/app/api/auth/_lib";
 import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
 
-import Canceler from "./canceler";
 import UserColorPicker from "./userColorPicker";
-import UserAvatar from "./userAvatar";
+import Link from "next/link";
 
 export default function UserMenu() {
-  const user = useClientState().user;
+  const cs = useClientState();
   const nodes = useBodyNodes();
 
   return (
-    <Canceler onClick={nodes.pop}>
-      <div
-        className={
-          "absolute z-2 top-1/2 left-1/2 -translate-1/2 " +
-          "p-2 bg-background border rounded flex flex-col gap-2 items-center"
-        }
+    <div className="flex flex-col p-2 gap-2 items-start">
+      <span>Hi, {cs.user?.name}!</span>
+      <span>{cs.user?.email}</span>
+
+      <span>
+        Go to 👨‍👨‍👦‍👦 <Link href="/groups">group settings</Link>.
+      </span>
+
+      <UserColorPicker
+        name="Set your color in charts"
+        color={cs.user!.color}
+        setLabelColor
+      />
+      <button
+        id="sign-out-button"
+        className="mt-2"
+        onClick={() => {
+          nodes.pop();
+          apiSignOut();
+        }}
       >
-        <div className="flex p-2 gap-2 items-center">
-          <UserAvatar user={user!} className="w-10 h-10" />
-          <div>
-            Hi, {user?.name}!
-            <br />
-            {user?.email}
-          </div>
-        </div>
-
-        <UserColorPicker
-          name="your color in charts"
-          color={user!.color}
-          setLabelColor
-        />
-
-        <button
-          id="sign-out-button"
-          className="mt-2"
-          onClick={() => {
-            nodes.pop();
-            apiSignOut();
-          }}
-        >
-          Sign Out
-        </button>
-      </div>
-    </Canceler>
+        Sign Out
+      </button>
+    </div>
   );
 }
