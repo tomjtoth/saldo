@@ -1,10 +1,10 @@
 import Link from "next/link";
 
-const LINKS = [
-  { href: "/categories" },
-  { href: "/receipts" },
-  { href: "/pareto" },
-  { href: "/balance" },
+export const LINKS = [
+  { href: "/categories", emoji: "🛍️" },
+  { href: "/receipts", emoji: "🧾" },
+  { href: "/pareto", emoji: "📊" },
+  { href: "/balance", emoji: "📈" },
 ];
 
 export const hrefToLabel = (href: string) => href.replaceAll(/\W+/g, "");
@@ -23,7 +23,7 @@ export default function ViewListing({
       {LINKS.map((a, idx) => (
         <li key={a.href}>
           {decorate && (idx === lastIdx ? "└ " : "├ ")}
-          <Link href={prefix + a.href}>{hrefToLabel(a.href)}</Link>
+          {a.emoji} <Link href={prefix + a.href}>{hrefToLabel(a.href)}</Link>
         </li>
       ))}
     </ul>
