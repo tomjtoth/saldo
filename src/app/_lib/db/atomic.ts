@@ -1,9 +1,11 @@
+import fs from "fs";
 import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
 import { db } from "./instance";
 import * as schema from "./schema";
 import { DrizzleTx } from "./types";
+import { getDbPath } from "./helpers";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 
@@ -72,8 +74,8 @@ export const atomic: Overloads = async <T>(
     });
 
     if (revisionId % DB_BACKUP_EVERY_N_REVISIONS === 0) {
-      // TODO:
-      // db.backup(`${DB_PATH}.backup.${rev.id}`);
+      const dbPath = getDbPath().slice(5);
+      fs.copyFileSync(dbPath, `${dbPath}.at.${revisionId}`);
     }
 
     console.log(`\n\t${opDescription ?? "Transaction"} succeeded!\n`);
