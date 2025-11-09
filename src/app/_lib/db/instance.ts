@@ -4,7 +4,7 @@ import * as schema from "@/app/_lib/db/schema";
 import { getDbPath } from "./helpers";
 
 export const db = drizzle({
-  connection: getDbPath(),
+  connection: `file:${getDbPath()}`,
   schema,
   casing: "snake_case",
   logger: true,

@@ -13,7 +13,7 @@
     "pree2e": "rm -rf .nyc_output coverage",
     "e2e": "cypress open --e2e",
     "pree2e:headless": "if [ -f e2e.db ]; then rm e2e.db; fi",
-    "e2e:headless": "INSTRUMENT_E2E=1 MIGRATE=1 DATABASE_URL=file:e2e.db start-server-and-test dev http://localhost:3000 \"cypress run --e2e --spec '**/receipts.cy.ts,**/*.cy.ts'\"",
+    "e2e:headless": "INSTRUMENT_E2E=1 MIGRATE=1 DB_PATH=e2e.db start-server-and-test dev http://localhost:3000 \"cypress run --e2e --spec '**/receipts.cy.ts,**/*.cy.ts'\"",
     "build": "next build --no-lint",
     "start": "next start"
   },

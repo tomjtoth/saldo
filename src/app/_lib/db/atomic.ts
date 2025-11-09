@@ -74,7 +74,7 @@ export const atomic: Overloads = async <T>(
     });
 
     if (revisionId % DB_BACKUP_EVERY_N_REVISIONS === 0) {
-      const dbPath = getDbPath().slice(5);
+      const dbPath = getDbPath();
       fs.copyFileSync(dbPath, `${dbPath}.at.${revisionId}`);
     }
 
