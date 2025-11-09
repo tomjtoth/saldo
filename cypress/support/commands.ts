@@ -104,7 +104,12 @@ function entityShouldBeFavorit(name: string) {
 }
 
 function selectGroup(group: string) {
-  cy.get("#group-selector").select(group);
+  cy.get("#usermenu-opener + span").then(($span) => {
+    if ($span.text() !== group) {
+      $span.trigger("click");
+      cy.contains(group).click();
+    }
+  });
 }
 
 function login({
