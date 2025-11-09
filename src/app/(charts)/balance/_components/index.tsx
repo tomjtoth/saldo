@@ -16,7 +16,11 @@ export default function CliBalancePage() {
       value={{ users: cs.group?.balance?.users ?? [], hook }}
     >
       <Header>
-        {hook.isZoomedIn() && <button onClick={hook.zoomOut}>zoom out</button>}
+        {hook.isZoomedIn() && (
+          <button onClick={hook.zoomOut}>
+            🔎 <span className="hidden sm:inline-block">zoom out</span>
+          </button>
+        )}
       </Header>
 
       {cs.group?.balance && <BalanceChart {...cs.group.balance} />}
