@@ -15,7 +15,7 @@ export default function GroupSelector() {
   return !cs.groups.length || pathname === "/groups" ? null : (
     <>
       <span
-        className="truncate cursor-pointer min-w-10"
+        className="truncate cursor-pointer min-w-10 select-none"
         onClick={() => nodes.push(MainMenu)}
       >
         {cs.group?.name}
