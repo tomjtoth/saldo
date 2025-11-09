@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -5,42 +9,69 @@ import ViewListing from "../viewSelector/listing";
 
 export default function GroupListing() {
   const dispatch = useAppDispatch();
+  const pathname = usePathname();
   const nodes = useBodyNodes();
   const cs = useClientState();
+  const [showAll, setShowAll] = useState(false);
 
-  return cs.groups.length ? (
-    <ul className="p-2">
-      {cs.groups.map((group) => {
-        const checked = group.id === cs.groupId;
+  const groupLink = (
+    <span className="block mb-2 whitespace-nowrap">
+      👨‍👨‍👦‍👦 <Link href="/groups">group settings</Link>
+    </span>
+  );
 
-        // TODO: get `truncate` to work with the below label
-        return (
-          <li key={group.id}>
-            <label className="text-xl cursor-pointer">
-              <input
-                type="radio"
-                name="group-selection"
-                className="mr-2 cursor-pointer"
-                checked={checked}
-                onChange={() => {
-                  dispatch(thunks.setGroupId(group.id!));
-                  nodes.pop();
-                }}
-              />
-              {group.name}
-            </label>
+  return cs.groups.length && pathname !== "/groups" ? (
+    <div className="p-2">
+      <label>
+        <input
+          type="checkbox"
+          className="mr-2"
+          checked={showAll}
+          onChange={() => setShowAll(!showAll)}
+        />
+        permalinks
+      </label>
 
-            <ViewListing
-              decorate
-              prefix={checked ? "" : `/groups/${group.id}`}
-            />
-          </li>
-        );
-      })}
-    </ul>
+      {pathname !== "/groups" && groupLink}
+
+      <ul>
+        {cs.groups.map((group) => {
+          const checked = group.id === cs.groupId;
+
+          // TODO: get `truncate` to work with the below label
+          return (
+            <li key={group.id}>
+              <hr />
+
+              <label className="text-xl">
+                <input
+                  type="radio"
+                  name="group-selection"
+                  className="mr-2"
+                  checked={checked}
+                  onChange={() => {
+                    dispatch(thunks.setGroupId(group.id!));
+                    nodes.pop();
+                  }}
+                />
+                {group.name}
+              </label>
+
+              {(showAll || checked) && (
+                <ViewListing
+                  decorate
+                  prefix={showAll ? `/groups/${group.id}` : ""}
+                  includeCurrentPath={showAll}
+                />
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   ) : (
     <div className="p-2">
-      Go to
+      {pathname === "/groups" ? "Go to" : groupLink}
       <ViewListing decorate />
     </div>
   );
