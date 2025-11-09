@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
+import { LINKS } from "./viewSelector/listing";
 
 import Canceler from "./canceler";
 import UserAvatar from "./userAvatar";
@@ -41,12 +42,12 @@ export default function MainMenu(opts: { tab?: Tabs } = {}) {
               <table className="border-collapse [&_td]:p-1 select-none">
                 <tbody>
                   <tr>
-                    <td className="border-r">🛍️</td>
-                    <td className="border-b">🧾</td>
+                    <td className="border-r">{LINKS[0].emoji}</td>
+                    <td className="border-b">{LINKS[1].emoji}</td>
                   </tr>
                   <tr>
-                    <td className="border-t">📊</td>
-                    <td className="border-l">📈</td>
+                    <td className="border-t">{LINKS[2].emoji}</td>
+                    <td className="border-l">{LINKS[3].emoji}</td>
                   </tr>
                 </tbody>
               </table>
