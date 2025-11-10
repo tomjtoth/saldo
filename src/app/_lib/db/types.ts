@@ -9,19 +9,21 @@ import { ResultSet } from "@libsql/client";
 import * as schema from "./schema";
 
 type Schema = typeof schema;
-type TSchema = ExtractTablesWithRelations<Schema>;
+export type SchemaTables = ExtractTablesWithRelations<Schema>;
 
 // Helper type to find the tsName corresponding to a given dbName in TSchema
 type FindTsNameByDbName<DbNameToFind extends string> = {
-  [K in keyof TSchema]: TSchema[K] extends { dbName: DbNameToFind } ? K : never;
-}[keyof TSchema];
+  [K in keyof SchemaTables]: SchemaTables[K] extends { dbName: DbNameToFind }
+    ? K
+    : never;
+}[keyof SchemaTables];
 
 /**
  * Utility type to infer the model type for a given table name from the schema.
  * Handles nested relations recursively.
  * Uses referencedTableName (dbName) and FindTsNameByDbName helper.
  */
-type TModelWithRelations<TTableName extends keyof TSchema> = Partial<
+type TModelWithRelations<TTableName extends keyof SchemaTables> = Partial<
   InferSelectModel<Schema[TTableName]> &
     (TTableName extends "users" ? { color?: string } : object) &
     (TTableName extends "revisions" | "archive"
@@ -30,11 +32,11 @@ type TModelWithRelations<TTableName extends keyof TSchema> = Partial<
     (TTableName extends "groups"
       ? { pareto: TParetoChartData; balance: TBalanceChartData }
       : object) & {
-      [K in keyof TSchema[TTableName]["relations"]]?: TSchema[TTableName]["relations"][K] extends infer TRelation // Infer the Relation/Many type
+      [K in keyof SchemaTables[TTableName]["relations"]]?: SchemaTables[TTableName]["relations"][K] extends infer TRelation // Infer the Relation/Many type
         ? TRelation extends {
             referencedTableName: infer TRefDbName extends string;
           }
-          ? FindTsNameByDbName<TRefDbName> extends infer TRefTsName extends keyof TSchema
+          ? FindTsNameByDbName<TRefDbName> extends infer TRefTsName extends keyof SchemaTables
             ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
               TRelation extends Many<any>
               ? TModelWithRelations<TRefTsName>[]

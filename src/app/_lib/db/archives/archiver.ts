@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 
-import { DrizzleTx } from "../types";
+import { DrizzleTx, SchemaTables } from "../types";
 import { has3ConsecutiveLetters } from "../../utils";
 
 export async function archiver<T extends { revisionId: number }>(
@@ -15,7 +15,7 @@ export async function archiver<T extends { revisionId: number }>(
     skipArchivalOf = [],
   }: {
     tx: DrizzleTx;
-    tableName: string;
+    tableName: keyof SchemaTables;
     revisionId: number;
     entityPk1: number;
     entityPk2?: number;
