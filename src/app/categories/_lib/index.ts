@@ -9,7 +9,7 @@ import {
   isActive,
   TCategory,
   TGroup,
-  archiver,
+  modEntity,
 } from "@/app/_lib/db";
 import { categories, groups, memberships } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/(users)/_lib";
@@ -124,27 +124,22 @@ async function svcModCategory(
         where: eq(categories.id, id),
       }))!;
 
-      const changes = await archiver(cat, modifier, {
+      const res = (await modEntity(cat, modifier, {
         tx,
         tableName: "categories",
         revisionId,
-        entityPk1: id,
-      });
+        primaryKeys: { id: true },
 
-      if (changes)
-        await tx.update(categories).set(cat).where(eq(categories.id, id));
-      else err("No changes were made");
-
-      const res = (await tx.query.categories.findFirst({
-        with: {
-          revision: {
-            columns: {
-              createdAt: true,
+        returns: {
+          with: {
+            revision: {
+              columns: {
+                createdAt: true,
+              },
+              with: { createdBy: { columns: { name: true } } },
             },
-            with: { createdBy: { columns: { name: true } } },
           },
         },
-        where: eq(categories.id, cat.id),
       })) as TCategory;
 
       const populateArchives = await getArchivePopulator<TCategory>(
