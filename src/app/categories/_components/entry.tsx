@@ -46,7 +46,7 @@ export default function Entry({
             ev.stopPropagation();
             if (!isDefault)
               dispatch(
-                thunks.updateDefaultCategoryId(
+                thunks.modDefaultCategoryId(
                   cat.id!,
                   cat.groupId!,
                   currentdefaultId!

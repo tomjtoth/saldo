@@ -41,7 +41,7 @@ export default function ItemRow({
         value={item.categoryId}
         onChange={(ev) =>
           dispatch(
-            thunks.updateItem({
+            thunks.modItem({
               id: item.id!,
               categoryId: Number(ev.target.value),
             })
@@ -100,7 +100,7 @@ export default function ItemRow({
           value={item.cost}
           onChange={(ev) =>
             dispatch(
-              thunks.updateItem({
+              thunks.modItem({
                 id: item.id!,
                 cost: ev.target.value.replace(",", "."),
               })

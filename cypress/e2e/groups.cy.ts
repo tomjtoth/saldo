@@ -28,7 +28,7 @@ describe("groups", () => {
     it("can be renamed", () => {
       cy.addEntity(TEST_GROUP);
 
-      cy.updateEntity(TEST_GROUP, { name: "-2" });
+      cy.modEntity(TEST_GROUP, { name: "-2" });
 
       cy.toast(`Renaming "${TEST_GROUP}" succeeded!`);
       cy.contains(`${TEST_GROUP}-2`).should("exist");
@@ -37,7 +37,7 @@ describe("groups", () => {
     it("can be toggled", () => {
       cy.addEntity(TEST_GROUP);
 
-      cy.updateEntity(TEST_GROUP, { toggle: true });
+      cy.modEntity(TEST_GROUP, { toggle: true });
 
       cy.toast(`Toggling "${TEST_GROUP}" succeeded!`);
       cy.entityToggler().should("have.class", "bg-red-500");

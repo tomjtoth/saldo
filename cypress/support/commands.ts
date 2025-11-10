@@ -69,7 +69,7 @@ function addEntity(name: string, description?: string) {
   toast(`Saving "${name}" to db succeeded!`);
 }
 
-function updateEntity(
+function modEntity(
   text: string,
   {
     name,
@@ -155,7 +155,7 @@ const allCommands = {
   cleanup,
   populateDb,
   addEntity,
-  updateEntity,
+  modEntity,
   entityToggler,
   entityShouldBeFavorit,
   selectGroup,

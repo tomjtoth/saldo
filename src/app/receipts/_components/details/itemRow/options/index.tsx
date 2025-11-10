@@ -50,7 +50,7 @@ export default function Options({
         value={item.notes ?? ""}
         onChange={(ev) =>
           dispatch(
-            thunks.updateItem({
+            thunks.modItem({
               id: item.id!,
               notes: ev.target.value,
             })

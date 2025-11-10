@@ -14,7 +14,7 @@ import { apiSetUserColor, apiModMembership } from "@/app/(memberships)/_lib";
 import { csa } from "@/app/_lib/reducers/slice";
 
 export const thunksGroups = {
-  updateGroup:
+  modGroup:
     (groupId: number, modifiers: TGroup, original: TGroup) =>
     (dispatch: AppDispatch) => {
       try {
@@ -26,7 +26,7 @@ export const thunksGroups = {
 
       const crudOps = apiModGroup({ id: groupId, ...modifiers }).then((res) => {
         const ops = appToast.opsDone(original, res);
-        dispatch(csa.updateGroup(res));
+        dispatch(csa.modGroup(res));
 
         return `${ops} "${original.name}" succeeded!`;
       });
@@ -55,7 +55,7 @@ export const thunksGroups = {
 
   generateInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
     const crudOp = apiGenInviteLink({ id: groupId }).then((res) => {
-      dispatch(csa.updateGroup(res));
+      dispatch(csa.modGroup(res));
     });
 
     appToast.promise(crudOp, "Generating invitation link");
@@ -63,19 +63,19 @@ export const thunksGroups = {
 
   removeInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
     const crudOp = apiRmInviteLink({ id: groupId }).then((res) => {
-      dispatch(csa.updateGroup(res));
+      dispatch(csa.modGroup(res));
     });
 
     appToast.promise(crudOp, "Deleting invitation link");
   },
 
-  updateMembership:
+  modMembership:
     (groupId: number, userId: number, flags: number, toastMessage: string) =>
     (dispatch: AppDispatch) => {
       const crudOp = apiModMembership({ groupId, userId, flags }).then(
         ({ flags }) => {
           dispatch(
-            csa.updateMembership({
+            csa.modMembership({
               groupId,
               userId,
               flags,

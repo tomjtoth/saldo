@@ -34,7 +34,7 @@ export default function Individual({
               const nextState = virt({ flags }, setFlags).toggle("active");
 
               dispatch(
-                thunks.updateMembership(
+                thunks.modMembership(
                   ms.groupId!,
                   ms.user!.id!,
                   nextState,

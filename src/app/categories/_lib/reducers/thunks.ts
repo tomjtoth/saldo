@@ -11,7 +11,7 @@ import { csa } from "@/app/_lib/reducers/slice";
 import { apiAddCategory, apiModCategory, apiSetDefaultCategory } from "..";
 
 export const thunksCategories = {
-  updateCategory:
+  modCategory:
     (original: TCategory, modifiers: TCategory) => (dispatch: AppDispatch) => {
       try {
         has3ConsecutiveLetters(modifiers.name!);
@@ -22,7 +22,7 @@ export const thunksCategories = {
 
       const crudOp = apiModCategory({ ...modifiers, id: original.id! }).then(
         (res) => {
-          dispatch(csa.updateCategory(res));
+          dispatch(csa.modCategory(res));
 
           return `${appToast.opsDone(
             original,
@@ -55,11 +55,11 @@ export const thunksCategories = {
       return op;
     },
 
-  updateDefaultCategoryId:
+  modDefaultCategoryId:
     (categoryId: number, groupId: number, fallback: number) =>
     (dispatch: AppDispatch) => {
       dispatch(
-        csa.updateDefaultCategoryId({
+        csa.modDefaultCategoryId({
           categoryId,
           groupId,
         })
@@ -67,7 +67,7 @@ export const thunksCategories = {
 
       const op = apiSetDefaultCategory(categoryId!).catch((err) => {
         dispatch(
-          csa.updateDefaultCategoryId({
+          csa.modDefaultCategoryId({
             categoryId: fallback,
             groupId,
           })

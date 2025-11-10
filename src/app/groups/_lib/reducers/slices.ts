@@ -5,7 +5,7 @@ import { insertAlphabetically } from "@/app/_lib/utils";
 import { CombinedState as CS } from "@/app/_lib/reducers/types";
 
 export const sliceGroups = {
-  updateGroup(rs: CS, { payload }: PayloadAction<TGroup>) {
+  modGroup(rs: CS, { payload }: PayloadAction<TGroup>) {
     const popFrom = rs.groups.findIndex(({ id }) => id === payload.id)!;
     rs.groups.splice(popFrom, 1);
     insertAlphabetically(payload, rs.groups);
@@ -23,7 +23,7 @@ export const sliceGroups = {
     rs.user!.defaultGroupId = payload;
   },
 
-  updateMembership(rs: CS, { payload }: PayloadAction<TMembership>) {
+  modMembership(rs: CS, { payload }: PayloadAction<TMembership>) {
     const group = rs.groups.find((grp) => grp.id === payload.groupId)!;
     const ms = group.memberships!.find((x) => x.user!.id === payload.userId!)!;
 

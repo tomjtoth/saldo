@@ -55,7 +55,7 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
                       )
                     : item.itemShares?.concat({ userId: user.id, share });
 
-                dispatch(thunks.updateItem({ id: itemId, itemShares }));
+                dispatch(thunks.modItem({ id: itemId, itemShares }));
               }}
               {...(verbose && {
                 itemId,

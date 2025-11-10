@@ -5,7 +5,7 @@ import { insertAlphabetically } from "@/app/_lib/utils";
 import { CombinedState as CS } from "@/app/_lib/reducers/types";
 
 export const sliceCategories = {
-  updateCategory(rs: CS, { payload }: PayloadAction<TCategory>) {
+  modCategory(rs: CS, { payload }: PayloadAction<TCategory>) {
     const cats = rs.groups.find((g) => g.id === payload.groupId)!.categories!;
 
     const popFrom = cats.findIndex(({ id }) => id === payload.id)!;
@@ -20,7 +20,7 @@ export const sliceCategories = {
     insertAlphabetically(payload, cats);
   },
 
-  updateDefaultCategoryId(
+  modDefaultCategoryId(
     rs: CS,
     { payload }: PayloadAction<{ groupId: number; categoryId: number }>
   ) {

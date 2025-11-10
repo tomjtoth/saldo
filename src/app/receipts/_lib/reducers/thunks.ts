@@ -24,8 +24,8 @@ export const thunksReceipts = {
     return dispatch(csa.setFocusedRow(index));
   },
 
-  updateItem: (updater: TCliItem) => {
-    return (dispatch: AppDispatch) => dispatch(csa.updateItem(updater));
+  modItem: (updater: TCliItem) => {
+    return (dispatch: AppDispatch) => dispatch(csa.modItem(updater));
   },
 
   addReceipt: (rcpt: TReceipt) => {

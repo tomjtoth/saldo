@@ -27,13 +27,13 @@ export default function Updater({ cat }: { cat: TCategory }) {
       onSubmit={(ev) => {
         ev.preventDefault();
 
-        dispatch(
-          thunks.updateCategory(cat, { name, description, flags })
-        ).catch(() => {
-          setName(cat.name!);
-          setDescr(cat.description ?? "");
-          setFlags(cat.flags!);
-        });
+        dispatch(thunks.modCategory(cat, { name, description, flags })).catch(
+          () => {
+            setName(cat.name!);
+            setDescr(cat.description ?? "");
+            setFlags(cat.flags!);
+          }
+        );
       }}
     >
       <input

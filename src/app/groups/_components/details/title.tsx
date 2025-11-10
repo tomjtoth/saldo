@@ -38,7 +38,7 @@ export default function Title({
         ev.preventDefault();
 
         dispatch(
-          thunks.updateGroup(group.id!, { name, description, flags }, group)
+          thunks.modGroup(group.id!, { name, description, flags }, group)
         ).catch(restoreOriginals);
       }}
     >

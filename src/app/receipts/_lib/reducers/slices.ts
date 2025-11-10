@@ -61,7 +61,7 @@ export const sliceReceipts = {
     receipt.focusedIdx = payload;
   },
 
-  updateItem(rs: CS, { payload }: PayloadAction<TCliItem>) {
+  modItem(rs: CS, { payload }: PayloadAction<TCliItem>) {
     const receipt = getActiveReceipt(rs);
 
     const item = receipt.items!.find((i) => i.id === payload.id)!;
