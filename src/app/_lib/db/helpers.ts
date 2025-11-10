@@ -4,10 +4,6 @@ import { sql } from "drizzle-orm";
 import { db } from "./instance";
 import { revisions } from "./schema";
 
-export const getDbPath = () =>
-  process.env.DB_PATH ??
-  (process.env.NODE_ENV === "development" ? "data/dev.db" : "data/saldo.db");
-
 export const SQL_RANDOM_COLOR = sql.raw(
   "printf('%07x', abs(random()) % 0x2000000)"
 );

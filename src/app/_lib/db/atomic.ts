@@ -2,10 +2,9 @@ import fs from "fs";
 import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
-import { db } from "./instance";
+import { db, getDbPath } from "./instance";
 import * as schema from "./schema";
 import { DrizzleTx } from "./types";
-import { getDbPath } from "./helpers";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 
