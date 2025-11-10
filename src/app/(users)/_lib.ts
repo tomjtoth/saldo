@@ -4,7 +4,7 @@ import { eq, sql } from "drizzle-orm";
 
 import { auth, signIn } from "@/auth";
 
-import { atomic, db, TCrUser, TUser, archiver } from "@/app/_lib/db";
+import { atomic, db, TCrUser, TUser } from "@/app/_lib/db";
 import { revisions, users } from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
 import { svcAddGroup } from "../groups/_lib";
@@ -117,32 +117,4 @@ export async function currentUser(
   (user as TUser).color = color;
 
   return user;
-}
-
-export async function updateUser(id: number, modifier: { flags: number }) {
-  return await atomic(
-    { operation: "Updating user", revisedBy: id },
-    async (tx, revisionId) => {
-      const user = (await tx.query.users.findFirst({
-        where: eq(users.id, id),
-      }))!;
-
-      const changes = await archiver(user, modifier, {
-        tx,
-        tableName: "users",
-        entityPk1: id,
-        revisionId,
-      });
-
-      if (changes) {
-        const [res] = await tx
-          .update(users)
-          .set(user)
-          .where(eq(users.id, id))
-          .returning({ flags: users.flags });
-
-        return res;
-      } else err("No changes were made");
-    }
-  );
 }
