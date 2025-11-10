@@ -2,7 +2,7 @@
 
 import { and, eq, isNull, sql } from "drizzle-orm";
 
-import { atomic, db, TMembership, archiver } from "@/app/_lib/db";
+import { atomic, db, TMembership, modEntity } from "@/app/_lib/db";
 import { err } from "@/app/_lib/utils";
 import { chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser } from "../(users)/_lib";
@@ -45,29 +45,14 @@ export async function svcModMembership(
 
       if (!ms) err(404);
 
-      const saving = await archiver(ms, modifier, {
+      return await modEntity(ms, modifier, {
         tx,
         tableName: "memberships",
-        entityPk1: userId,
-        entityPk2: groupId,
+        primaryKeys: { userId: true, groupId: true },
         revisionId,
-        skipArchivalOf: ["defaultCategoryId"],
+        skipArchivalOf: { defaultCategoryId: true },
+        returns: { columns: { flags: true } },
       });
-
-      if (saving) {
-        const [res] = await tx
-          .update(memberships)
-          .set(ms)
-          .where(
-            and(
-              eq(memberships.userId, userId),
-              eq(memberships.groupId, groupId)
-            )
-          )
-          .returning({ flags: memberships.flags });
-
-        return res as TMembership;
-      } else err("No changes were made");
     }
   );
 }
