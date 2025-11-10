@@ -4,7 +4,7 @@ import { eq, exists, and, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 import { err, nullEmptyStrings, sortByName } from "@/app/_lib/utils";
-import { archiver } from "@/app/_lib/db";
+import { modEntity } from "@/app/_lib/db";
 import { atomic, db, isActive, TCrGroup, TGroup } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/(users)/_lib";
@@ -220,26 +220,18 @@ export async function svcModGroup(
 
       if (!group) err(404);
 
-      const changes = await archiver(group, modifier, {
+      const res = (await modEntity(group, modifier, {
         tx,
         tableName: "groups",
-        entityPk1: id,
+        primaryKeys: { id: true },
         revisionId,
-        skipArchivalOf: ["uuid"],
-      });
+        skipArchivalOf: { uuid: true },
+        returns: COLS_WITH,
+      })) as TGroup;
 
-      if (changes) {
-        await tx.update(groups).set(group).where(eq(groups.id, group.id));
+      res.memberships!.sort((a, b) => sortByName(a.user!, b.user!));
 
-        const res = (await tx.query.groups.findFirst({
-          ...COLS_WITH,
-          where: eq(groups.id, id),
-        })) as TGroup;
-
-        res.memberships!.sort((a, b) => sortByName(a.user!, b.user!));
-
-        return res;
-      } else err("No changes were made");
+      return res;
     }
   );
 }
