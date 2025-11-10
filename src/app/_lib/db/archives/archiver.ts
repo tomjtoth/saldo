@@ -26,6 +26,8 @@ export async function archiver<T extends { revisionId: number }>(
   const archive: Partial<T> = {};
 
   for (const key in modifier) {
+    if (key === "revisionId") continue;
+
     const typedKey = key as keyof typeof modifier;
     const val = modifier[typedKey];
 
