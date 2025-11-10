@@ -6,7 +6,7 @@ import { CombinedState as CS, Initializer } from "@/app/_lib/reducers/types";
 // TODO: enable drag n drop re-arrangement of items in adder
 let rowId = 0;
 export const addItem = (categoryId: number) => ({
-  id: rowId++,
+  id: --rowId,
   categoryId,
   cost: "",
   notes: "",
