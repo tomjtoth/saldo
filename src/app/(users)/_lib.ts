@@ -127,14 +127,14 @@ export async function updateUser(id: number, modifier: { flags: number }) {
         where: eq(users.id, id),
       }))!;
 
-      const saving = await archiver(user, modifier, {
+      const changes = await archiver(user, modifier, {
         tx,
         tableName: "users",
         entityPk1: id,
         revisionId,
       });
 
-      if (saving) {
+      if (changes) {
         const [res] = await tx
           .update(users)
           .set(user)

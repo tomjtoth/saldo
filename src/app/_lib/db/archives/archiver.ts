@@ -22,7 +22,7 @@ export async function archiver<T extends { revisionId: number }>(
     skipArchivalOf?: (keyof T)[];
   }
 ) {
-  let saving = false;
+  let changes = 0;
   const archive: Partial<T> = {};
 
   for (const key in modifier) {
@@ -38,7 +38,7 @@ export async function archiver<T extends { revisionId: number }>(
         archive[typedKey] = original[typedKey];
 
       original[typedKey] = val;
-      saving = true;
+      changes++;
     }
   }
 
@@ -105,5 +105,5 @@ export async function archiver<T extends { revisionId: number }>(
     original.revisionId = revisionId!;
   }
 
-  return saving;
+  return changes;
 }

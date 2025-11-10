@@ -124,14 +124,14 @@ async function svcModCategory(
         where: eq(categories.id, id),
       }))!;
 
-      const saving = await archiver(cat, modifier, {
+      const changes = await archiver(cat, modifier, {
         tx,
         tableName: "categories",
         revisionId,
         entityPk1: id,
       });
 
-      if (saving)
+      if (changes)
         await tx.update(categories).set(cat).where(eq(categories.id, id));
       else err("No changes were made");
 

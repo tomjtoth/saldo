@@ -220,7 +220,7 @@ export async function svcModGroup(
 
       if (!group) err(404);
 
-      const saving = await archiver(group, modifier, {
+      const changes = await archiver(group, modifier, {
         tx,
         tableName: "groups",
         entityPk1: id,
@@ -228,7 +228,7 @@ export async function svcModGroup(
         skipArchivalOf: ["uuid"],
       });
 
-      if (saving) {
+      if (changes) {
         await tx.update(groups).set(group).where(eq(groups.id, group.id));
 
         const res = (await tx.query.groups.findFirst({
