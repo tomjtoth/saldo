@@ -1,11 +1,11 @@
 import { sql } from "drizzle-orm";
 
-import { VDate } from "../../utils";
-import { db } from "../instance";
-import { DrizzleTx } from "../types";
+import { VDate } from "../utils";
+import { db } from "./instance";
+import { DrizzleTx, SchemaTables } from "./types";
 
 export async function getArchivePopulator<T extends { archives?: T[] }>(
-  tableName: string,
+  tableName: keyof SchemaTables,
   pk1: keyof T,
   {
     pk2,
