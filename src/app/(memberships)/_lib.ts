@@ -2,7 +2,7 @@
 
 import { and, eq, isNull, sql } from "drizzle-orm";
 
-import { atomic, db, TMembership, updater } from "@/app/_lib/db";
+import { atomic, db, TMembership, archiver } from "@/app/_lib/db";
 import { err } from "@/app/_lib/utils";
 import { chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser } from "../(users)/_lib";
@@ -45,7 +45,7 @@ export async function svcModMembership(
 
       if (!ms) err(404);
 
-      const saving = await updater(ms, modifier, {
+      const saving = await archiver(ms, modifier, {
         tx,
         tableName: "memberships",
         entityPk1: userId,

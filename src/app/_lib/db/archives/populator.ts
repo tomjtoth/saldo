@@ -1,8 +1,8 @@
 import { sql } from "drizzle-orm";
 
-import { VDate } from "../utils";
-import { db } from "./instance";
-import { DrizzleTx } from "./types";
+import { VDate } from "../../utils";
+import { db } from "../instance";
+import { DrizzleTx } from "../types";
 
 export async function getArchivePopulator<T extends { archives?: T[] }>(
   tableName: string,

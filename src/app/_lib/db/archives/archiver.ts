@@ -1,9 +1,9 @@
 import { sql } from "drizzle-orm";
 
-import { DrizzleTx } from "./types";
-import { has3ConsecutiveLetters } from "../utils";
+import { DrizzleTx } from "../types";
+import { has3ConsecutiveLetters } from "../../utils";
 
-export async function updater<T extends { revisionId: number }>(
+export async function archiver<T extends { revisionId: number }>(
   original: T,
   modifier: Partial<Omit<T, "revisionId">>,
   {

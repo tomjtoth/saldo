@@ -4,7 +4,7 @@ import { eq, exists, and, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 import { err, nullEmptyStrings, sortByName } from "@/app/_lib/utils";
-import { updater } from "@/app/_lib/db/updater";
+import { archiver } from "@/app/_lib/db";
 import { atomic, db, isActive, TCrGroup, TGroup } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/(users)/_lib";
@@ -220,7 +220,7 @@ export async function svcModGroup(
 
       if (!group) err(404);
 
-      const saving = await updater(group, modifier, {
+      const saving = await archiver(group, modifier, {
         tx,
         tableName: "groups",
         entityPk1: id,

@@ -9,7 +9,7 @@ import {
   isActive,
   TCategory,
   TGroup,
-  updater,
+  archiver,
 } from "@/app/_lib/db";
 import { categories, groups, memberships } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/(users)/_lib";
@@ -124,7 +124,7 @@ async function svcModCategory(
         where: eq(categories.id, id),
       }))!;
 
-      const saving = await updater(cat, modifier, {
+      const saving = await archiver(cat, modifier, {
         tx,
         tableName: "categories",
         revisionId,
