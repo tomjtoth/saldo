@@ -13,8 +13,7 @@ export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppSelector = useSelector.withTypes<RootState>();
 export const useAppStore = useStore.withTypes<AppStore>();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function useDebounce<T extends (...args: any[]) => void>(
+export function useDebounce<T extends (...args: unknown[]) => void>(
   callback: T,
   delay: number
 ) {
