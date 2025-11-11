@@ -1,10 +1,17 @@
+import baseline from "../fixtures/baselineDb.json";
+
 declare global {
   const itIsAccessibleViaViewSelector: typeof fnAccessibleViaViewSelector;
 
   namespace Cypress {
+    // unwrap if the command implementation already returns a Cypress.Chainable<T>
+    type UnwrapChainableReturn<R> = R extends Cypress.Chainable<infer U>
+      ? U
+      : R;
+
     type MappedCommands<AC = typeof allCommands> = {
       [K in keyof AC]: AC[K] extends (...args: infer A) => infer R
-        ? (...args: A) => Chainable<R>
+        ? (...args: A) => Cypress.Chainable<UnwrapChainableReturn<R>>
         : never;
     };
 
@@ -150,10 +157,34 @@ function logout() {
   cy.location("pathname", { timeout: 10000 }).should("eq", "/");
 }
 
+type DbShape = typeof baseline;
+
+function readDb() {
+  return cy.request("/api/e2e/db").then(($res) => {
+    const response: DbShape = $res.body;
+
+    response.revisions.forEach(
+      (rev, idx) => (rev.createdAt = baseline.revisions[idx].createdAt)
+    );
+
+    for (const mdName of ["migrations", "table_column_ids"]) {
+      const mdR = response.metadata.find((md) => md.name === mdName)!;
+      const mdB = baseline.metadata.find((md) => md.name === mdName)!;
+      mdR.payload = mdB.payload;
+    }
+
+    return cy.wrap({
+      baseline,
+      response,
+    });
+  });
+}
+
 const allCommands = {
   toast,
   cleanup,
   populateDb,
+  readDb,
   addEntity,
   modEntity,
   entityToggler,
