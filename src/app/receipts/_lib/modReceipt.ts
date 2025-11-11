@@ -202,7 +202,7 @@ async function svcModReceipt(
         }
       }
 
-      if (changes === 0) err(400, "No were changes made");
+      if (changes === 0) err(400, "No changes were made");
 
       const res = (await tx.query.receipts.findFirst({
         ...RECEIPT_COLS_WITH,
