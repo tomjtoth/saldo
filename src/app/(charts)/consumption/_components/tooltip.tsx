@@ -7,7 +7,7 @@ import {
 } from "recharts/types/component/DefaultTooltipContent";
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
-export default function ParetoTooltip({
+export default function ConsumptionTooltip({
   payload,
   label,
   active,

@@ -5,12 +5,15 @@ import { useState } from "react";
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { appToast } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
-import { apiGetPareto } from "../_lib";
+import { apiGetConsumption } from "../_lib";
 
 import Header from "@/app/_components/header";
-import ParetoChart from "./chart";
+import ConsumptionChart from "./chart";
 
-export default function CliParetoPage(srv: { from?: string; to?: string }) {
+export default function CliConsumptionPage(srv: {
+  from?: string;
+  to?: string;
+}) {
   const dispatch = useAppDispatch();
   const cs = useClientState();
 
@@ -28,7 +31,7 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
             ev.preventDefault();
 
             appToast.promise(
-              apiGetPareto({ from, to })
+              apiGetConsumption({ from, to })
                 .then((groups) => {
                   dispatch(thunks.init({ groups }));
                 })
@@ -63,8 +66,8 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
       </Header>
 
       <div className="p-2 h-full flex flex-col gap-2 items-center">
-        {!!group && (group.pareto?.categories.length ?? 0) > 0 ? (
-          <ParetoChart {...group.pareto!} />
+        {!!group && (group.consumption?.categories.length ?? 0) > 0 ? (
+          <ConsumptionChart {...group.consumption!} />
         ) : (
           <div className="grow flex items-center">
             <h2>no data to show</h2>

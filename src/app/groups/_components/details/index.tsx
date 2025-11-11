@@ -54,7 +54,7 @@ export default function Details({ group }: { group: TGroup }) {
           </h3>
 
           <h3>
-            Pareto <SvgLink href={`/groups/${group.id}/pareto`} />
+            Consumption <SvgLink href={`/groups/${group.id}/consumption`} />
           </h3>
         </>
       )}

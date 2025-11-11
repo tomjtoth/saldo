@@ -2,7 +2,9 @@ import { DefaultLegendContentProps } from "recharts";
 
 import UserColorPicker from "@/app/_components/userColorPicker";
 
-export default function ParetoLegend({ payload }: DefaultLegendContentProps) {
+export default function ConsumptionLegend({
+  payload,
+}: DefaultLegendContentProps) {
   return (
     <div className="flex gap-2 items-center justify-center">
       {payload?.map(({ color, value, dataKey }) => {

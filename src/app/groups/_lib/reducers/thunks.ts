@@ -109,7 +109,7 @@ export const thunksGroups = {
       const rs = getState().combined;
       const group = rs.groups.find((g) => g.id === rs.groupId)!;
       const prevState = uid
-        ? (group.pareto ?? group.balance)!.users.find((u) => u.id === uid)!
+        ? (group.consumption ?? group.balance)!.users.find((u) => u.id === uid)!
             .color
         : rs.user!.color;
 

@@ -36,7 +36,7 @@ export const sliceGroups = {
   ) {
     const group = rs.groups.find((grp) => grp.id === rs.groupId)!;
     const user = uid
-      ? (group.pareto ?? group.balance)!.users.find((u) => u.id === uid)
+      ? (group.consumption ?? group.balance)!.users.find((u) => u.id === uid)
       : rs.user;
 
     user!.color = color;

@@ -11,12 +11,15 @@ import {
   Legend,
 } from "recharts";
 
-import { TParetoChartData } from "@/app/_lib/db";
+import { TConsumptionChartData } from "@/app/_lib/db";
 
-import ParetoTooltip from "./tooltip";
-import ParetoLegend from "./legend";
+import ConsumptionTooltip from "./tooltip";
+import ConsumptionLegend from "./legend";
 
-export default function ParetoChart({ users, categories }: TParetoChartData) {
+export default function ConsumptionChart({
+  users,
+  categories,
+}: TConsumptionChartData) {
   return (
     <div className=" h-full w-full">
       <ResponsiveContainer>
@@ -31,8 +34,8 @@ export default function ParetoChart({ users, categories }: TParetoChartData) {
             height={100}
           />
           <YAxis />
-          <Tooltip content={ParetoTooltip} />
-          <Legend content={ParetoLegend} />
+          <Tooltip content={ConsumptionTooltip} />
+          <Legend content={ConsumptionLegend} />
           {users.map(({ id, name, color }) => (
             <Bar dataKey={id} name={name!} key={id} stackId="a" fill={color} />
           ))}

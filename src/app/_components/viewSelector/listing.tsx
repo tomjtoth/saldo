@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 export const LINKS = [
   { href: "/categories", emoji: "🛍️" },
   { href: "/receipts", emoji: "🧾" },
-  { href: "/pareto", emoji: "📊" },
+  { href: "/consumption", emoji: "📊" },
   { href: "/balance", emoji: "📈" },
 ];
 

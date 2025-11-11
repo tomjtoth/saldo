@@ -30,7 +30,7 @@ type TModelWithRelations<TTableName extends keyof SchemaTables> = Partial<
       ? object
       : { archives: TModelWithRelations<TTableName>[] }) &
     (TTableName extends "groups"
-      ? { pareto: TParetoChartData; balance: TBalanceChartData }
+      ? { consumption: TConsumptionChartData; balance: TBalanceChartData }
       : object) & {
       [K in keyof SchemaTables[TTableName]["relations"]]?: SchemaTables[TTableName]["relations"][K] extends infer TRelation // Infer the Relation/Many type
         ? TRelation extends {
@@ -54,7 +54,7 @@ export type DrizzleTx = SQLiteTransaction<
   ExtractTablesWithRelations<Schema>
 >;
 
-export type TParetoChartData = {
+export type TConsumptionChartData = {
   users: TUserChartData[];
   categories: ({
     category: string;

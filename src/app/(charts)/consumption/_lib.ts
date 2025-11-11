@@ -6,17 +6,20 @@ import { db, groupsWithUsersCTE, TGroup } from "@/app/_lib/db";
 import { VDate } from "@/app/_lib/utils";
 import { currentUser } from "@/app/(users)/_lib";
 
-type ParetoOpts = {
+type ConsumptionOpts = {
   from?: string;
   to?: string;
 };
 
-export async function apiGetPareto(opts: ParetoOpts) {
+export async function apiGetConsumption(opts: ConsumptionOpts) {
   const { id } = await currentUser();
-  return await svcGetPareto(id, opts);
+  return await svcGetConsumption(id, opts);
 }
 
-export async function svcGetPareto(userId: number, opts: ParetoOpts = {}) {
+export async function svcGetConsumption(
+  userId: number,
+  opts: ConsumptionOpts = {}
+) {
   const paidOnCrit: string[] = [];
 
   // SQL injection prevented here
@@ -73,7 +76,7 @@ export async function svcGetPareto(userId: number, opts: ParetoOpts = {}) {
           'id', gwu.gid,
           'name', gwu.name,
 
-          'pareto', jsonb_object(
+          'consumption', jsonb_object(
             'users', gwu.users,
             'categories', coalesce(arr.categories, jsonb_array())
           )
