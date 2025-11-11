@@ -186,8 +186,8 @@ export async function modEntity<
           where: conditions,
         });
       }
-
-      return changes;
     }
   } else if (unchangedThrows ?? true) err("No changes were made");
+
+  return returns ? null : changes;
 }
