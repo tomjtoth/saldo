@@ -5,7 +5,12 @@ import { toast } from "react-toastify";
 import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
-import { apiAddReceipt, TAddReceipt } from "../../_lib";
+import {
+  apiAddReceipt,
+  apiModReceipt,
+  TAddReceipt,
+  TModReceipt,
+} from "../../_lib";
 
 import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
@@ -34,29 +39,41 @@ export default function Details() {
       return toast.error("Invalid item cost", appToast.theme());
     }
 
-    if (receipt.id !== -1)
-      return toast.error(
-        "Updating receipts is not yet implemented",
-        appToast.theme()
-      );
-
+    const updating = receipt.id !== -1;
     const groupId = cs.groupId!;
 
-    appToast.promise(
-      apiAddReceipt({
-        ...receipt,
-        groupId,
-        items: receipt.items!.map((i) => ({
-          ...i,
-          cost: parseFloat(i.cost as string),
-        })),
-      } as unknown as TAddReceipt).then((res) => {
-        nodes.pop();
-        dispatch(thunks.setActiveReceipt());
-        dispatch(thunks.addReceipt({ ...res, groupId }));
-      }),
-      "Submitting new receipt"
-    );
+    if (updating) {
+      appToast.promise(
+        apiModReceipt({
+          ...receipt,
+          items: receipt.items!.map((i) => ({
+            ...i,
+            cost: parseFloat(i.cost as string),
+          })),
+        } as unknown as TModReceipt).then((res) => {
+          nodes.pop();
+          dispatch(thunks.setActiveReceipt());
+          dispatch(thunks.modReceipt({ ...res, groupId }));
+        }),
+        "Updating receipt"
+      );
+    } else {
+      appToast.promise(
+        apiAddReceipt({
+          ...receipt,
+          groupId,
+          items: receipt.items!.map((i) => ({
+            ...i,
+            cost: parseFloat(i.cost as string),
+          })),
+        } as unknown as TAddReceipt).then((res) => {
+          nodes.pop();
+          dispatch(thunks.setActiveReceipt());
+          dispatch(thunks.addReceipt({ ...res, groupId }));
+        }),
+        "Submitting new receipt"
+      );
+    }
   };
 
   const users = cs.users;
