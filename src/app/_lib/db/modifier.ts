@@ -85,7 +85,7 @@ export async function modEntity<
 
       if (!(key in skipArchivalOf)) archive[key] = entity[key];
 
-      entity[key] = val as any;
+      entity[key] = val as (typeof entity)[typeof key];
       changes++;
     }
   }
