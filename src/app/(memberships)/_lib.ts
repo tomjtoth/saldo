@@ -45,7 +45,7 @@ export async function svcModMembership(
 
       if (!ms) err(404);
 
-      return await modEntity(ms, modifier, {
+      const res = await modEntity(ms, modifier, {
         tx,
         tableName: "memberships",
         primaryKeys: { userId: true, groupId: true },
@@ -53,6 +53,8 @@ export async function svcModMembership(
         skipArchivalOf: { defaultCategoryId: true },
         returns: { columns: { flags: true } },
       });
+
+      return res!;
     }
   );
 }
