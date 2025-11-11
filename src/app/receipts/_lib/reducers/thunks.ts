@@ -28,6 +28,10 @@ export const thunksReceipts = {
     return (dispatch: AppDispatch) => dispatch(csa.modItem(updater));
   },
 
+  modReceipt: (rcpt: TReceipt) => {
+    return (dispatch: AppDispatch) => dispatch(csa.modReceipt(rcpt));
+  },
+
   addReceipt: (rcpt: TReceipt) => {
     return (dispatch: AppDispatch) => dispatch(csa.addReceipt(rcpt));
   },

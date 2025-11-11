@@ -71,6 +71,16 @@ export const sliceReceipts = {
     if (payload.itemShares !== undefined) item.itemShares = payload.itemShares;
   },
 
+  modReceipt(rs: CS, { payload }: PayloadAction<TReceipt>) {
+    const group = getActiveGroup(rs, payload.groupId);
+
+    const insertAt = group.receipts!.findIndex((r) => r.id === payload.id);
+
+    group.receipts!.splice(insertAt, 1, payload);
+
+    delete group["activeReceipt"];
+  },
+
   addReceipt(rs: CS, { payload }: PayloadAction<TReceipt>) {
     const group = getActiveGroup(rs, payload.groupId);
 
