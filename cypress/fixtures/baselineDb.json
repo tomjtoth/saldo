@@ -1,0 +1,293 @@
+{
+  "archives": [],
+  "metadata": [
+    {
+      "id": 1,
+      "name": "migrations",
+      "description": null,
+      "payload": "[\"00-schema.sql\",\"01-remove users passwd column.sql\",\"02-added INACTIVE status.sql\",\"03-add groups.sql\",\"04-add memberships.sql\",\"05-alter categories.sql\",\"06-add status_id to 2 tables.sql\",\"07-add group_id to table receipts.sql\",\"08-add default groupId column to table users.sql\",\"09-add col default_cat_id to table memberships.sql\",\"10-add column image to table users.sql\",\"11-create consumption view.sql\",\"12-rename multiple columns and unify archives.sql\",\"13-create archive view.sql\",\"14-rename flags in all tables.sql\",\"15-add chart_styles to tables memberships and users.sql\",\"16-chart_colors_as_separate_table.sql\",\"17-trim datetime related data in db.sql\",\"18-drop vw_archives.sql\"]"
+    },
+    {
+      "id": 3,
+      "name": "flags",
+      "description": "0th bit of statusId represents the ACTIVE state universally accross all tables; 1st bit is only used in the memberships table, and represents the ADMIN state",
+      "payload": "[\"ACTIVE\",{\"memberships\":\"ADMIN\"}]"
+    },
+    {
+      "id": 4,
+      "name": "table_column_ids",
+      "description": "storing camelCase to skip recursive snake_case=>camelCase transformations",
+      "payload": "[\"categories.name\",\"categories.description\",\"categories.flags\",\"categories.groupId\",\"groups.name\",\"groups.description\",\"groups.flags\",\"groups.uuid\",\"memberships.flags\",\"memberships.defaultCategoryId\",\"items.categoryId\",\"items.cost\",\"receipts.paidOn\",\"receipts.paidById\"]"
+    },
+    {
+      "id": 5,
+      "name": "datetime anchor",
+      "description": "all timestamps are calculated from this instead of unixepoch",
+      "payload": "2020-01-01"
+    }
+  ],
+  "users": [
+    {
+      "flags": 1,
+      "revisionId": 1,
+      "id": 1,
+      "email": "user1@e2e.tests",
+      "name": "user1",
+      "image": null,
+      "defaultGroupId": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 3,
+      "id": 2,
+      "email": "user2@e2e.tests",
+      "name": "user2",
+      "image": null,
+      "defaultGroupId": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 6,
+      "id": 3,
+      "email": "user3@e2e.tests",
+      "name": "user3",
+      "image": null,
+      "defaultGroupId": null
+    }
+  ],
+  "revisions": [
+    { "id": 1, "createdAt": "2025-11-11 18:00:55", "createdById": 1 },
+    { "id": 2, "createdAt": "2025-11-11 18:00:55", "createdById": 1 },
+    { "id": 3, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
+    { "id": 4, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
+    { "id": 5, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
+    { "id": 6, "createdAt": "2025-11-11 18:00:55", "createdById": 3 },
+    { "id": 7, "createdAt": "2025-11-11 18:00:55", "createdById": 3 },
+    { "id": 8, "createdAt": "2025-11-11 18:00:55", "createdById": 3 },
+    { "id": 9, "createdAt": "2025-11-11 18:00:55", "createdById": 1 },
+    { "id": 10, "createdAt": "2025-11-11 18:00:55", "createdById": 1 },
+    { "id": 11, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
+    { "id": 12, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
+    { "id": 13, "createdAt": "2025-11-11 18:00:55", "createdById": 1 },
+    { "id": 14, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
+    { "id": 15, "createdAt": "2025-11-11 18:00:56", "createdById": 3 }
+  ],
+  "groups": [
+    {
+      "flags": 1,
+      "revisionId": 2,
+      "id": 1,
+      "name": "shared group of user #1",
+      "description": null,
+      "uuid": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 4,
+      "id": 2,
+      "name": "just you",
+      "description": null,
+      "uuid": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 7,
+      "id": 3,
+      "name": "just you",
+      "description": null,
+      "uuid": null
+    }
+  ],
+  "memberships": [
+    {
+      "flags": 3,
+      "revisionId": 2,
+      "groupId": 1,
+      "userId": 1,
+      "defaultCategoryId": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 5,
+      "groupId": 1,
+      "userId": 2,
+      "defaultCategoryId": null
+    },
+    {
+      "flags": 3,
+      "revisionId": 4,
+      "groupId": 2,
+      "userId": 2,
+      "defaultCategoryId": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 8,
+      "groupId": 1,
+      "userId": 3,
+      "defaultCategoryId": null
+    },
+    {
+      "flags": 3,
+      "revisionId": 7,
+      "groupId": 3,
+      "userId": 3,
+      "defaultCategoryId": null
+    }
+  ],
+  "categories": [
+    {
+      "flags": 1,
+      "revisionId": 9,
+      "id": 1,
+      "groupId": 1,
+      "name": "food",
+      "description": "the vital stuff only"
+    },
+    {
+      "flags": 1,
+      "revisionId": 10,
+      "id": 2,
+      "groupId": 1,
+      "name": "soft drinks",
+      "description": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 11,
+      "id": 3,
+      "groupId": 1,
+      "name": "gas money",
+      "description": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 12,
+      "id": 4,
+      "groupId": 1,
+      "name": "booze",
+      "description": "anything with alcohol in it 🥴"
+    }
+  ],
+  "receipts": [
+    {
+      "flags": 1,
+      "revisionId": 13,
+      "id": 1,
+      "groupId": 1,
+      "paidOn": "2020-02-01",
+      "paidById": 3
+    },
+    {
+      "flags": 1,
+      "revisionId": 14,
+      "id": 2,
+      "groupId": 1,
+      "paidOn": "2020-02-04",
+      "paidById": 2
+    },
+    {
+      "flags": 1,
+      "revisionId": 15,
+      "id": 3,
+      "groupId": 1,
+      "paidOn": "2020-02-04",
+      "paidById": 2
+    }
+  ],
+  "chartColors": [],
+  "items": [
+    {
+      "flags": 1,
+      "revisionId": 13,
+      "id": 1,
+      "receiptId": 1,
+      "categoryId": 1,
+      "cost": 11,
+      "notes": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 13,
+      "id": 2,
+      "receiptId": 1,
+      "categoryId": 1,
+      "cost": 9,
+      "notes": "split 2-ways"
+    },
+    {
+      "flags": 1,
+      "revisionId": 13,
+      "id": 3,
+      "receiptId": 1,
+      "categoryId": 2,
+      "cost": 20,
+      "notes": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 14,
+      "id": 4,
+      "receiptId": 2,
+      "categoryId": 3,
+      "cost": 5,
+      "notes": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 14,
+      "id": 5,
+      "receiptId": 2,
+      "categoryId": 1,
+      "cost": 13,
+      "notes": "split 2-ways"
+    },
+    {
+      "flags": 1,
+      "revisionId": 14,
+      "id": 6,
+      "receiptId": 2,
+      "categoryId": 4,
+      "cost": 33,
+      "notes": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 15,
+      "id": 7,
+      "receiptId": 3,
+      "categoryId": 3,
+      "cost": 12,
+      "notes": null
+    },
+    {
+      "flags": 1,
+      "revisionId": 15,
+      "id": 8,
+      "receiptId": 3,
+      "categoryId": 4,
+      "cost": 23,
+      "notes": "split 2-ways"
+    },
+    {
+      "flags": 1,
+      "revisionId": 15,
+      "id": 9,
+      "receiptId": 3,
+      "categoryId": 4,
+      "cost": 45,
+      "notes": null
+    }
+  ],
+  "itemShares": [
+    { "flags": 1, "revisionId": 13, "itemId": 1, "userId": 2, "share": 1 },
+    { "flags": 1, "revisionId": 13, "itemId": 2, "userId": 1, "share": 2 },
+    { "flags": 1, "revisionId": 13, "itemId": 2, "userId": 2, "share": 1 },
+    { "flags": 1, "revisionId": 14, "itemId": 4, "userId": 3, "share": 1 },
+    { "flags": 1, "revisionId": 14, "itemId": 5, "userId": 1, "share": 1 },
+    { "flags": 1, "revisionId": 14, "itemId": 5, "userId": 2, "share": 1 },
+    { "flags": 1, "revisionId": 15, "itemId": 7, "userId": 1, "share": 1 },
+    { "flags": 1, "revisionId": 15, "itemId": 8, "userId": 1, "share": 1 },
+    { "flags": 1, "revisionId": 15, "itemId": 8, "userId": 2, "share": 1 }
+  ]
+}
