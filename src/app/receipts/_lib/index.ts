@@ -1,5 +1,3 @@
-"use server";
-
-export { apiGetReceipts } from "./getReceipts";
-export { apiAddReceipt } from "./addReceipt";
-export { apiModReceipt } from "./modReceipt";
+export * from "./getReceipts";
+export * from "./addReceipt";
+export * from "./modReceipt";
