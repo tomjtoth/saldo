@@ -26,10 +26,10 @@ export const GET = wrapRoute(
       "revisions",
       "users",
       "groups",
+      "chartColors",
       "memberships",
       "categories",
       "receipts",
-      "chartColors",
       "items",
       "itemShares",
     ] as (keyof SchemaTables)[]) {

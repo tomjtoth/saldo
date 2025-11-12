@@ -1,5 +1,4 @@
 {
-  "archives": [],
   "metadata": [
     {
       "id": 1,
@@ -17,7 +16,7 @@
       "id": 4,
       "name": "table_column_ids",
       "description": "storing camelCase to skip recursive snake_case=>camelCase transformations",
-      "payload": "[\"categories.name\",\"categories.description\",\"categories.flags\",\"categories.groupId\",\"groups.name\",\"groups.description\",\"groups.flags\",\"groups.uuid\",\"memberships.flags\",\"memberships.defaultCategoryId\",\"items.categoryId\",\"items.cost\",\"receipts.paidOn\",\"receipts.paidById\"]"
+      "payload": "[\"categories.name\",\"categories.description\",\"categories.flags\",\"categories.groupId\",\"groups.name\",\"groups.description\",\"groups.flags\",\"groups.uuid\",\"memberships.flags\",\"memberships.defaultCategoryId\"]"
     },
     {
       "id": 5,
@@ -25,6 +24,24 @@
       "description": "all timestamps are calculated from this instead of unixepoch",
       "payload": "2020-01-01"
     }
+  ],
+  "archives": [],
+  "revisions": [
+    { "id": 1, "createdAt": "2025-11-12 13:16:09", "createdById": 1 },
+    { "id": 2, "createdAt": "2025-11-12 13:16:09", "createdById": 1 },
+    { "id": 3, "createdAt": "2025-11-12 13:16:09", "createdById": 2 },
+    { "id": 4, "createdAt": "2025-11-12 13:16:09", "createdById": 2 },
+    { "id": 5, "createdAt": "2025-11-12 13:16:09", "createdById": 2 },
+    { "id": 6, "createdAt": "2025-11-12 13:16:09", "createdById": 3 },
+    { "id": 7, "createdAt": "2025-11-12 13:16:09", "createdById": 3 },
+    { "id": 8, "createdAt": "2025-11-12 13:16:09", "createdById": 3 },
+    { "id": 9, "createdAt": "2025-11-12 13:16:09", "createdById": 1 },
+    { "id": 10, "createdAt": "2025-11-12 13:16:09", "createdById": 1 },
+    { "id": 11, "createdAt": "2025-11-12 13:16:09", "createdById": 2 },
+    { "id": 12, "createdAt": "2025-11-12 13:16:09", "createdById": 2 },
+    { "id": 13, "createdAt": "2025-11-12 13:16:09", "createdById": 1 },
+    { "id": 14, "createdAt": "2025-11-12 13:16:09", "createdById": 2 },
+    { "id": 15, "createdAt": "2025-11-12 13:16:09", "createdById": 3 }
   ],
   "users": [
     {
@@ -55,23 +72,6 @@
       "defaultGroupId": null
     }
   ],
-  "revisions": [
-    { "id": 1, "createdAt": "2025-11-11 18:00:55", "createdById": 1 },
-    { "id": 2, "createdAt": "2025-11-11 18:00:55", "createdById": 1 },
-    { "id": 3, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
-    { "id": 4, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
-    { "id": 5, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
-    { "id": 6, "createdAt": "2025-11-11 18:00:55", "createdById": 3 },
-    { "id": 7, "createdAt": "2025-11-11 18:00:55", "createdById": 3 },
-    { "id": 8, "createdAt": "2025-11-11 18:00:55", "createdById": 3 },
-    { "id": 9, "createdAt": "2025-11-11 18:00:55", "createdById": 1 },
-    { "id": 10, "createdAt": "2025-11-11 18:00:55", "createdById": 1 },
-    { "id": 11, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
-    { "id": 12, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
-    { "id": 13, "createdAt": "2025-11-11 18:00:55", "createdById": 1 },
-    { "id": 14, "createdAt": "2025-11-11 18:00:55", "createdById": 2 },
-    { "id": 15, "createdAt": "2025-11-11 18:00:56", "createdById": 3 }
-  ],
   "groups": [
     {
       "flags": 1,
@@ -98,6 +98,7 @@
       "uuid": null
     }
   ],
+  "chartColors": [],
   "memberships": [
     {
       "flags": 3,
@@ -195,7 +196,6 @@
       "paidById": 2
     }
   ],
-  "chartColors": [],
   "items": [
     {
       "flags": 1,
