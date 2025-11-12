@@ -34,6 +34,14 @@ export function approxFloat(value: number, maxDenominator = 1000) {
   return [bestNumerator, bestDenominator];
 }
 
+const RE_CAMEL_TO_SNAKE_CASE = /(?<=\p{Lowercase})(\p{Uppercase})/gu;
+
+export function camelToSnakeCase(camelCase: string) {
+  return camelCase.replaceAll(RE_CAMEL_TO_SNAKE_CASE, (uppercase) => {
+    return "_" + uppercase.toLowerCase();
+  });
+}
+
 export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));
 }
