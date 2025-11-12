@@ -8,7 +8,7 @@ import { ResultSet } from "@libsql/client";
 
 import * as schema from "./schema";
 
-type Schema = typeof schema;
+export type Schema = typeof schema;
 export type SchemaTables = ExtractTablesWithRelations<Schema>;
 
 // Helper type to find the tsName corresponding to a given dbName in TSchema
