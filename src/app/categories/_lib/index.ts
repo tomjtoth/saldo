@@ -113,7 +113,7 @@ export async function apiModCategory({
   return await svcModCategory(user.id, data);
 }
 
-async function svcModCategory(
+export async function svcModCategory(
   revisedBy: number,
   { id, ...modifier }: CategoryModifier
 ) {
