@@ -9,7 +9,7 @@ import {
   modEntity,
 } from "@/app/_lib/db";
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
-import { err, nulledEmptyStrings, virt } from "@/app/_lib/utils";
+import { err, nullEmptyStrings, virt } from "@/app/_lib/utils";
 import { currentUser } from "@/app/(users)/_lib";
 import { TAddReceipt } from "./addReceipt";
 import { RECEIPT_COLS_WITH } from "./common";
@@ -67,7 +67,9 @@ function validateReceipt({
         }),
       };
 
-      return nulledEmptyStrings(safeItem);
+      nullEmptyStrings(safeItem);
+
+      return safeItem;
     }),
   };
 
@@ -82,7 +84,7 @@ export async function apiModReceipt(uncheckedData: TModReceipt) {
   return await svcModReceipt(user.id, safeReceipt);
 }
 
-async function svcModReceipt(
+export async function svcModReceipt(
   revisedBy: number,
   { items: itemMods, ...receiptMod }: ReturnType<typeof validateReceipt>
 ) {
