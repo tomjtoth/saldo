@@ -57,7 +57,7 @@ function toast(
 }
 
 function cleanup() {
-  cy.request("/api/e2e/cleanup");
+  cy.request("/api/e2e/db/truncate");
 }
 
 function populateDb() {
