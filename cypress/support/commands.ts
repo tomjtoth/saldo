@@ -163,14 +163,14 @@ function readDb() {
   return cy.request("/api/e2e/db").then(($res) => {
     const response: DbShape = $res.body;
 
-    response.revisions.forEach(
-      (rev, idx) => (rev.createdAt = baseline.revisions[idx].createdAt)
+    baseline.revisions.forEach(
+      (rev, idx) => (rev.createdAt = response.revisions[idx].createdAt)
     );
 
     for (const mdName of ["migrations", "table_column_ids"]) {
       const mdR = response.metadata.find((md) => md.name === mdName)!;
       const mdB = baseline.metadata.find((md) => md.name === mdName)!;
-      mdR.payload = mdB.payload;
+      mdB.payload = mdR.payload;
     }
 
     return cy.wrap({
