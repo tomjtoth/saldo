@@ -61,7 +61,7 @@ function cleanup() {
 }
 
 function populateDb() {
-  cy.request("/api/e2e/populate-db");
+  cy.request("/api/e2e/db/populate");
 }
 
 function addEntity(name: string, description?: string) {
