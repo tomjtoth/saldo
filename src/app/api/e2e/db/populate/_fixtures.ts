@@ -80,13 +80,12 @@ const RECEIPTS: NonNullable<
     revisedById: 1,
     groupId: 1,
     paidById: 3,
-    paidOn: "2020-02-01",
+    paidOn: "2025-02-01",
     items: [
       {
         categoryId: 1,
         cost: 11,
         itemShares: [{ userId: 2, share: 1 }],
-        id: 0,
         notes: "",
       },
       {
@@ -96,14 +95,12 @@ const RECEIPTS: NonNullable<
           { userId: 1, share: 2 },
           { userId: 2, share: 1 },
         ],
-        id: 0,
         notes: "split 2-ways",
       },
       {
         categoryId: 2,
         cost: 20,
         itemShares: [],
-        id: 0,
         notes: null,
       },
     ],
@@ -113,13 +110,12 @@ const RECEIPTS: NonNullable<
     revisedById: 2,
     groupId: 1,
     paidById: 2,
-    paidOn: "2020-02-04",
+    paidOn: "2025-02-04",
     items: [
       {
         categoryId: 3,
         cost: 5,
         itemShares: [{ userId: 3, share: 1 }],
-        id: 0,
         notes: "",
       },
       {
@@ -129,14 +125,12 @@ const RECEIPTS: NonNullable<
           { userId: 1, share: 1 },
           { userId: 2, share: 1 },
         ],
-        id: 0,
         notes: "split 2-ways",
       },
       {
         categoryId: 4,
         cost: 33,
         itemShares: [],
-        id: 0,
         notes: "",
       },
     ],
@@ -146,13 +140,12 @@ const RECEIPTS: NonNullable<
     revisedById: 2,
     groupId: 1,
     paidById: 2,
-    paidOn: "2020-02-07",
+    paidOn: "2025-02-07",
     items: [
       {
         categoryId: 3,
         cost: 5,
         itemShares: [{ userId: 3, share: 1 }],
-        id: 0,
         notes: "",
       },
       {
@@ -162,14 +155,12 @@ const RECEIPTS: NonNullable<
           { userId: 1, share: 1 },
           { userId: 2, share: 1 },
         ],
-        id: 0,
         notes: "split 2-ways",
       },
       {
         categoryId: 4,
         cost: 33,
         itemShares: [],
-        id: 0,
         notes: "",
       },
     ],
@@ -179,13 +170,12 @@ const RECEIPTS: NonNullable<
     revisedById: 3,
     groupId: 1,
     paidById: 2,
-    paidOn: "2020-02-10",
+    paidOn: "2025-02-10",
     items: [
       {
         categoryId: 3,
         cost: 12,
         itemShares: [{ userId: 1, share: 1 }],
-        id: 0,
         notes: "",
       },
       {
@@ -195,14 +185,12 @@ const RECEIPTS: NonNullable<
           { userId: 1, share: 1 },
           { userId: 2, share: 1 },
         ],
-        id: 0,
         notes: "split 2-ways",
       },
       {
         categoryId: 4,
         cost: 45,
         itemShares: [],
-        id: 0,
         notes: "",
       },
     ],
@@ -214,13 +202,12 @@ const RECEIPTS: NonNullable<
     revisedById: 3,
     groupId: 1,
     paidById: 2,
-    paidOn: "2020-02-04",
+    paidOn: "2025-02-04",
     items: [
       {
         categoryId: 5,
         cost: 2.99,
         itemShares: [{ userId: 2, share: 1 }],
-        id: 0,
         notes: "",
       },
       {
@@ -230,14 +217,12 @@ const RECEIPTS: NonNullable<
           { userId: 2, share: 1 },
           { userId: 3, share: 1 },
         ],
-        id: 0,
         notes: "split 2-ways",
       },
       {
         categoryId: 7,
         cost: 45.99,
         itemShares: [],
-        id: 0,
         notes: "",
       },
     ],
@@ -247,13 +232,12 @@ const RECEIPTS: NonNullable<
     revisedById: 2,
     groupId: 1,
     paidById: 3,
-    paidOn: "2020-02-10",
+    paidOn: "2025-02-10",
     items: [
       {
         categoryId: 5,
         cost: 2.99,
         itemShares: [{ userId: 2, share: 1 }],
-        id: 0,
         notes: "",
       },
       {
@@ -263,18 +247,18 @@ const RECEIPTS: NonNullable<
           { userId: 2, share: 1 },
           { userId: 3, share: 1 },
         ],
-        id: 0,
         notes: "split 2-ways",
       },
       {
         categoryId: 7,
         cost: 45.99,
         itemShares: [],
-        id: 0,
         notes: "",
       },
     ],
   },
 ];
 
-export default { USERS, CATEGORIES, RECEIPTS };
+const fixtures = { USERS, CATEGORIES, RECEIPTS };
+
+export default fixtures;
