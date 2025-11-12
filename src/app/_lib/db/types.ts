@@ -85,6 +85,15 @@ export type TCrReceipt = typeof schema.receipts.$inferInsert;
 export type TCrItem = typeof schema.items.$inferInsert;
 export type TCrItemShare = typeof schema.itemShares.$inferInsert;
 
+export type TSelRevision = typeof schema.revisions.$inferSelect;
+export type TSelUser = typeof schema.users.$inferSelect;
+export type TSelGroup = typeof schema.groups.$inferSelect;
+export type TSelMembership = typeof schema.memberships.$inferSelect;
+export type TSelCategory = typeof schema.categories.$inferSelect;
+export type TSelReceipt = typeof schema.receipts.$inferSelect;
+export type TSelItem = typeof schema.items.$inferSelect;
+export type TSelItemShare = typeof schema.itemShares.$inferSelect;
+
 export type TRevision = TModelWithRelations<"revisions">;
 export type TUser = TModelWithRelations<"users">;
 export type TGroup = TModelWithRelations<"groups">;
