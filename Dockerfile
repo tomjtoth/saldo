@@ -42,7 +42,8 @@ COPY --from=deps \
     ./node_modules/@libsql/linux-arm64-musl
 
 ARG GIT_HASH
-ENV GIT_HASH=${GIT_HASH}
+ENV GIT_HASH=${GIT_HASH} \
+    DB_PATH=data/prod.db
 
 USER nextjs
 
