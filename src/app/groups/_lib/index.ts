@@ -86,7 +86,7 @@ export async function svcAddGroup(
   );
 }
 
-export async function addMember(groupId: number, userId: number) {
+export async function svcAddMember(groupId: number, userId: number) {
   return await atomic(
     { operation: "adding new member", revisedBy: userId },
     async (tx, revisionId) => {
@@ -115,7 +115,7 @@ export async function joinGroup(uuid: string, userId: number) {
   });
   if (ms) err("already a member");
 
-  return await addMember(group.id, userId);
+  return await svcAddMember(group.id, userId);
 }
 
 export async function svcGetGroups(userId: number) {

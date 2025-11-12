@@ -1,7 +1,7 @@
 import { truncateDb } from "@/app/_lib/db";
 import { svcAddUser } from "@/app/(users)/_lib";
 import { svcAddCategory } from "@/app/categories/_lib";
-import { addMember, svcAddGroup } from "@/app/groups/_lib";
+import { svcAddMember, svcAddGroup } from "@/app/groups/_lib";
 import { svcAddReceipt } from "@/app/receipts/_lib";
 
 type UserParams = Parameters<typeof svcAddUser>[0];
@@ -176,7 +176,7 @@ export async function populateDb(args?: Args) {
     });
 
     // add everyone to user #1's group
-    if (uid != 1) await addMember(1, uid);
+    if (uid != 1) await svcAddMember(1, uid);
   }
 
   for (const { addedBy, ...data } of args?.categories ?? FALLBACK_CATEGORIES) {
