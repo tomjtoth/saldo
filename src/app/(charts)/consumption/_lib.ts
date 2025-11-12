@@ -44,8 +44,8 @@ export async function svcGetConsumption(
         cat.name AS category,
         sum(share) AS total
       FROM groups_with_users gwu
-      LEFT JOIN consumption con ON gwu.gid = con.group_id
-      LEFT JOIN categories cat ON con.category_id = cat.id
+      INNER JOIN consumption con ON gwu.gid = con.group_id
+      INNER JOIN categories cat ON con.category_id = cat.id
       ${whereClause}
       GROUP BY gid, paid_to, category_id
     ),
