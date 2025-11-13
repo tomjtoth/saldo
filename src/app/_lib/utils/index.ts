@@ -6,7 +6,6 @@ import { virt } from "./virt";
 
 export * from "./datetime";
 export * from "./errors";
-export * from "./nullEmptyStrings";
 export * from "./validators";
 export * from "./virt";
 
@@ -68,6 +67,29 @@ export const deepClone = <T>(obj: T) => {
     return JSON.parse(JSON.stringify(obj)) as T;
   }
 };
+
+type Entity = { [key: string]: unknown };
+type Options = { mutate: true };
+
+export function nullEmptyStrings<E extends Entity>(
+  entity: E,
+  opts: Options
+): void;
+export function nullEmptyStrings<E extends Entity>(entity: E): E;
+export function nullEmptyStrings<E extends Entity>(
+  entity: E,
+  opts?: Options
+): E | void {
+  const obj = opts?.mutate ? entity : deepClone(entity);
+
+  for (const key in obj) {
+    const val = obj[key];
+
+    if (val === "") (obj[key] as string | null) = null;
+  }
+
+  if (!opts?.mutate) return obj;
+}
 
 export const appToast = {
   messages: (operation: string) =>
