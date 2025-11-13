@@ -94,6 +94,12 @@ export type TSelReceipt = typeof schema.receipts.$inferSelect;
 export type TSelItem = typeof schema.items.$inferSelect;
 export type TSelItemShare = typeof schema.itemShares.$inferSelect;
 
+export type RevisionInfo = {
+  revision: Pick<TSelRevision, "createdAt"> & {
+    createdBy: Pick<TSelUser, "id" | "name" | "image">;
+  };
+};
+
 export type TRevision = TModelWithRelations<"revisions">;
 export type TUser = TModelWithRelations<"users">;
 export type TGroup = TModelWithRelations<"groups">;
