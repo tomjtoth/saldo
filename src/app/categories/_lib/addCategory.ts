@@ -29,9 +29,7 @@ export async function apiAddCategory({
 
   has3ConsecutiveLetters(name);
 
-  const data = { groupId, name, description };
-
-  nullEmptyStrings(data);
+  const data = nullEmptyStrings({ groupId, name, description });
 
   const user = await currentUser();
 

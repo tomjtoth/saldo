@@ -69,9 +69,7 @@ function validateReceipt({
         }),
       };
 
-      nullEmptyStrings(safeItem);
-
-      return safeItem;
+      return nullEmptyStrings(safeItem);
     }),
   };
 

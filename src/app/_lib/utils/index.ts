@@ -68,19 +68,11 @@ export const deepClone = <T>(obj: T) => {
   }
 };
 
-type Entity = { [key: string]: unknown };
-type Options = { mutate: true };
-
-export function nullEmptyStrings<E extends Entity>(
+export function nullEmptyStrings<E extends { [key: string]: unknown }>(
   entity: E,
-  opts: Options
-): void;
-export function nullEmptyStrings<E extends Entity>(entity: E): E;
-export function nullEmptyStrings<E extends Entity>(
-  entity: E,
-  opts?: Options
-): E | void {
-  const obj = opts?.mutate ? entity : deepClone(entity);
+  opts?: { canMutate?: false }
+): E {
+  const obj = opts?.canMutate ?? true ? entity : deepClone(entity);
 
   for (const key in obj) {
     const val = obj[key];
@@ -88,7 +80,7 @@ export function nullEmptyStrings<E extends Entity>(
     if (val === "") (obj[key] as string | null) = null;
   }
 
-  if (!opts?.mutate) return obj;
+  return obj;
 }
 
 export const appToast = {

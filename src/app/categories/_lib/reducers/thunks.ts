@@ -5,7 +5,7 @@ import { TCategory } from "@/app/_lib/db";
 import {
   appToast,
   has3ConsecutiveLetters,
-  nulledEmptyStrings,
+  nullEmptyStrings,
 } from "@/app/_lib/utils";
 import { csa } from "@/app/_lib/reducers/slice";
 import { apiAddCategory, apiModCategory, apiSetDefaultCategory } from "..";
@@ -24,10 +24,9 @@ export const thunksCategories = {
         (res) => {
           dispatch(csa.modCategory(res));
 
-          return `${appToast.opsDone(
-            original,
-            nulledEmptyStrings(modifiers)
-          )} "${original.name}" succeeded!`;
+          return `${appToast.opsDone(original, nullEmptyStrings(modifiers))} "${
+            original.name
+          }" succeeded!`;
         }
       );
 

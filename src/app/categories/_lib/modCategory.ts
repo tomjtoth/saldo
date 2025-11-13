@@ -31,14 +31,12 @@ export async function apiModCategory({
   )
     err();
 
-  const data = {
+  const data = nullEmptyStrings({
     id,
     name,
     description,
     flags,
-  };
-
-  nullEmptyStrings(data);
+  });
 
   const user = await currentUser();
 
