@@ -45,21 +45,6 @@ export async function sleep(ms: number) {
   return new Promise<void>((done) => setTimeout(done, ms));
 }
 
-function opsDone<T extends Pick<TCategory, "name" | "description" | "flags">>(
-  before: T,
-  after: T
-) {
-  const ops = [
-    ...(after.name !== before.name ? ["renaming"] : []),
-    ...(virt(after).active !== virt(before).active ? ["toggling"] : []),
-    ...(after.description !== before.description
-      ? ["altering the description of"]
-      : []),
-  ].join(", ");
-
-  return ops[0].toUpperCase() + ops.slice(1);
-}
-
 export const deepClone = <T>(obj: T) => {
   try {
     return structuredClone(isDraft(obj) ? current(obj) : obj);
@@ -102,7 +87,20 @@ export const appToast = {
       },
     } satisfies ToastPromiseParams),
 
-  opsDone,
+  opsDone<T extends Pick<TCategory, "name" | "description" | "flags">>(
+    before: T,
+    after: T
+  ) {
+    const ops = [
+      ...(after.name !== before.name ? ["renaming"] : []),
+      ...(virt(after).active !== virt(before).active ? ["toggling"] : []),
+      ...(after.description !== before.description
+        ? ["altering the description of"]
+        : []),
+    ].join(", ");
+
+    return ops[0].toUpperCase() + ops.slice(1);
+  },
 
   theme: () => ({
     theme: window.matchMedia("(prefers-color-scheme: dark)").matches
