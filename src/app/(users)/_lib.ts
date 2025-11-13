@@ -4,13 +4,13 @@ import { eq, sql } from "drizzle-orm";
 
 import { auth, signIn } from "@/auth";
 
-import { atomic, db, TCrUser, TUser } from "@/app/_lib/db";
+import { atomic, db, CrUser, TUser } from "@/app/_lib/db";
 import { revisions, users } from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
 import { svcAddGroup } from "../groups/_lib";
 
 export async function svcAddUser(
-  userData: Pick<TCrUser, "email" | "image" | "name">
+  userData: Pick<CrUser, "email" | "image" | "name">
 ) {
   return await atomic(
     { operation: "Adding new user", revisedBy: -1, deferForeignKeys: true },

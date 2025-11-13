@@ -76,14 +76,14 @@ export type TBalanceChartData = {
 
 export type TUserChartData = Pick<TUser, "id" | "name" | "color">;
 
-export type TCrRevision = typeof schema.revisions.$inferInsert;
-export type TCrUser = typeof schema.users.$inferInsert;
-export type TCrGroup = typeof schema.groups.$inferInsert;
-export type TCrMembership = typeof schema.memberships.$inferInsert;
-export type TCrCategory = typeof schema.categories.$inferInsert;
-export type TCrReceipt = typeof schema.receipts.$inferInsert;
-export type TCrItem = typeof schema.items.$inferInsert;
-export type TCrItemShare = typeof schema.itemShares.$inferInsert;
+export type CrRevision = typeof schema.revisions.$inferInsert;
+export type CrUser = typeof schema.users.$inferInsert;
+export type CrGroup = typeof schema.groups.$inferInsert;
+export type CrMembership = typeof schema.memberships.$inferInsert;
+export type CrCategory = typeof schema.categories.$inferInsert;
+export type CrReceipt = typeof schema.receipts.$inferInsert;
+export type CrItem = typeof schema.items.$inferInsert;
+export type CrItemShare = typeof schema.itemShares.$inferInsert;
 
 export type TSelRevision = typeof schema.revisions.$inferSelect;
 export type TSelUser = typeof schema.users.$inferSelect;

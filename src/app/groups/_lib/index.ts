@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { err, nullEmptyStrings, sortByName } from "@/app/_lib/utils";
 import { modEntity } from "@/app/_lib/db";
-import { atomic, db, isActive, TCrGroup, TGroup } from "@/app/_lib/db";
+import { atomic, db, isActive, CrGroup, TGroup } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/(users)/_lib";
 
@@ -54,7 +54,7 @@ export async function apiAddGroup({
 
 export async function svcAddGroup(
   ownerId: number,
-  data: Pick<TCrGroup, "name" | "description">
+  data: Pick<CrGroup, "name" | "description">
 ) {
   return await atomic(
     { operation: "creating new group", revisedBy: ownerId },
