@@ -4,8 +4,9 @@ import { sortByName } from "@/app/_lib/utils";
 import { WITH_CATEGORIES } from "./common";
 import { db, isActive, getArchivePopulator } from "@/app/_lib/db";
 import { memberships, groups } from "@/app/_lib/db/schema";
+import { User } from "@/app/(users)/_lib";
 
-export async function svcGetCategories(userId: number) {
+export async function svcGetCategories(userId: User["id"]) {
   const res = await db.query.groups.findMany({
     columns: {
       id: true,

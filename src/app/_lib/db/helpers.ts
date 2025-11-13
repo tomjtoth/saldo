@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 
 import { db } from "./instance";
 import { chartColors, revisions } from "./schema";
+import { User } from "@/app/(users)/_lib";
 
 export const SQL_RANDOM_COLOR = sql.raw(
   "printf('%07x', abs(random()) % 0x2000000)"
@@ -17,7 +18,7 @@ export async function truncateDb() {
 
 type TblCtx<ColName extends string> = { [K in ColName]: SQLiteColumn };
 
-export const groupsWithUsersCTE = (userId: number) => sql`
+export const groupsWithUsersCTE = (userId: User["id"]) => sql`
   groups_with_users AS (
     SELECT
       m.group_id AS gid,

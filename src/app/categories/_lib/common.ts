@@ -2,6 +2,8 @@ import { and, eq, exists, sql } from "drizzle-orm";
 
 import { db, isActive } from "@/app/_lib/db";
 import { categories, memberships } from "@/app/_lib/db/schema";
+import { User } from "@/app/(users)/_lib";
+import { Category } from "./modCategory";
 
 export const WITH_CATEGORIES = {
   with: {
@@ -16,7 +18,10 @@ export const WITH_CATEGORIES = {
   },
 } as const;
 
-export async function userHasAccessToCategory(userId: number, catId: number) {
+export async function userHasAccessToCategory(
+  userId: User["id"],
+  catId: Category["id"]
+) {
   const res = await db.query.categories.findFirst({
     columns: { id: true },
     where: and(

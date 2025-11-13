@@ -4,10 +4,14 @@ import { eq, sql } from "drizzle-orm";
 
 import { auth, signIn } from "@/auth";
 
-import { atomic, db, CrUser, TUser } from "@/app/_lib/db";
+import { atomic, db, CrUser } from "@/app/_lib/db";
 import { revisions, users } from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
 import { svcAddGroup } from "../groups/_lib";
+
+export type User = Awaited<ReturnType<typeof svcAddUser>> & {
+  color: string;
+};
 
 export async function svcAddUser(
   userData: Pick<CrUser, "email" | "image" | "name">
@@ -42,18 +46,15 @@ interface ArgsWithoutSession {
   requireSession: false;
 }
 
-type AddUserRetVal = Awaited<ReturnType<typeof svcAddUser>>;
-
 export function currentUser(
   args: ArgsWithoutSession
-): Promise<undefined | AddUserRetVal>;
+): Promise<undefined | User>;
 
-export function currentUser(args?: ArgsWithSession): Promise<AddUserRetVal>;
+export function currentUser(args?: ArgsWithSession): Promise<User>;
 
-// Implementation
 export async function currentUser(
   args: ArgsWithoutSession | ArgsWithSession = {}
-): Promise<undefined | AddUserRetVal> {
+): Promise<undefined | User> {
   const session = await auth();
 
   if (!session) {
@@ -85,7 +86,7 @@ export async function currentUser(
     await svcAddGroup(user.id!, { name: "just you" });
   }
 
-  const updater: TUser = {};
+  const updater: Partial<User> = {};
 
   if (name !== user.name) {
     updater.name = user.name = name;
@@ -114,7 +115,5 @@ export async function currentUser(
     ) AS color
   `);
 
-  (user as TUser).color = color;
-
-  return user;
+  return { ...user, color };
 }

@@ -30,7 +30,7 @@ type MembershipModifier = Required<Pick<TMembership, "groupId" | "userId">> &
   Pick<TMembership, "flags" | "defaultCategoryId">;
 
 export async function svcModMembership(
-  revisedBy: number,
+  revisedBy: User["id"],
   { userId, groupId, ...modifier }: MembershipModifier
 ) {
   return await atomic(
@@ -59,7 +59,7 @@ export async function svcModMembership(
   );
 }
 
-export async function isAdmin(userId: number, groupId: number) {
+export async function isAdmin(userId: User["id"], groupId: Group["id"]) {
   const ms = await db
     .select({ x: sql`1` })
     .from(memberships)
@@ -105,7 +105,7 @@ export async function apiSetUserColor({
 }
 
 async function svcSetUserColor(
-  userId: number,
+  userId: User["id"],
   { color, groupId, memberId }: Required<TSetUsercolor>
 ) {
   const conditions = and(

@@ -3,8 +3,8 @@
 import { sql } from "drizzle-orm";
 
 import { db, groupsWithUsersCTE, TGroup } from "@/app/_lib/db";
-import { VDate } from "@/app/_lib/utils";
-import { currentUser } from "@/app/(users)/_lib";
+import { err, VDate } from "@/app/_lib/utils";
+import { currentUser, User } from "@/app/(users)/_lib";
 
 type ConsumptionOpts = {
   from?: string;
@@ -17,7 +17,7 @@ export async function apiGetConsumption(opts: ConsumptionOpts) {
 }
 
 export async function svcGetConsumption(
-  userId: number,
+  userId: User["id"],
   opts: ConsumptionOpts = {}
 ) {
   const paidOnCrit: string[] = [];

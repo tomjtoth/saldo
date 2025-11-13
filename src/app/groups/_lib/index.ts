@@ -24,7 +24,10 @@ export async function svcAddMember(groupId: number, userId: User["id"]) {
   );
 }
 
-export async function joinGroup(uuid: string, userId: User["id"]) {
+export async function joinGroup(
+  uuid: NonNullable<DbGroup["uuid"]>,
+  userId: User["id"]
+) {
   const group = await db.query.groups.findFirst({
     where: eq(groups.uuid, uuid),
   });

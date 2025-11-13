@@ -1,7 +1,7 @@
 import { current, Draft, isDraft, WritableDraft } from "immer";
 import { toast, ToastPromiseParams } from "react-toastify";
 
-import { TCategory } from "@/app/_lib/db";
+import { Category } from "@/app/categories/_lib";
 import { virt } from "./virt";
 
 export * from "./datetime";
@@ -87,7 +87,7 @@ export const appToast = {
       },
     } satisfies ToastPromiseParams),
 
-  opsDone<T extends Pick<TCategory, "name" | "description" | "flags">>(
+  opsDone<T extends Pick<Category, "name" | "description" | "flags">>(
     before: T,
     after: T
   ) {
