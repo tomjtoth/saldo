@@ -2,20 +2,17 @@
 
 import { and, desc, eq, exists, sql } from "drizzle-orm";
 
-import {
-  db,
-  getArchivePopulator,
-  isActive,
-  orderByLowerName,
-  TGroup,
-  TReceipt,
-} from "@/app/_lib/db";
+import { db, isActive, orderByLowerName } from "@/app/_lib/db";
 import { groups, memberships, receipts } from "@/app/_lib/db/schema";
 import { err, sortByName } from "@/app/_lib/utils";
-import { currentUser } from "@/app/(users)/_lib";
-import { RECEIPT_COLS_WITH } from "./common";
+import { currentUser, User } from "@/app/(users)/_lib";
+import {
+  populateReceiptArchivesRecursively,
+  Receipt,
+  RECEIPT_COLS_WITH,
+} from "./common";
 
-export async function apiGetReceipts(knownIds?: number[]) {
+export async function apiGetReceipts(knownIds: Receipt["id"][]) {
   if (!Array.isArray(knownIds) || knownIds.some(isNaN))
     err("known ids contain NaN");
 
@@ -23,8 +20,11 @@ export async function apiGetReceipts(knownIds?: number[]) {
   return await svcGetReceipts(id, knownIds);
 }
 
-export async function svcGetReceipts(userId: number, knownIds: number[] = []) {
-  const res: TGroup[] = await db.query.groups.findMany({
+export async function svcGetReceipts(
+  userId: User["id"],
+  knownIds: Receipt["id"][] = []
+) {
+  const res = await db.query.groups.findMany({
     columns: {
       id: true,
       name: true,
@@ -67,16 +67,16 @@ export async function svcGetReceipts(userId: number, knownIds: number[] = []) {
     orderBy: orderByLowerName,
   });
 
-  const populateArchives = await getArchivePopulator<TReceipt>(
-    "receipts",
-    "id"
-  );
-
   res.sort(sortByName);
-  res.forEach((g) => {
-    g.categories!.sort(sortByName);
-    populateArchives(g.receipts!);
-  });
 
-  return res;
+  return await Promise.all(
+    res.map(async (group) => {
+      group.categories.sort(sortByName);
+
+      return {
+        ...group,
+        receipts: await populateReceiptArchivesRecursively(group.receipts),
+      };
+    })
+  );
 }

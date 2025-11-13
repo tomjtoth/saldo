@@ -4,18 +4,20 @@ import { eq } from "drizzle-orm";
 
 import {
   atomic,
-  getArchivePopulator,
-  TReceipt,
+  DbItem,
+  DbItemShare,
+  DbReceipt,
   modEntity,
 } from "@/app/_lib/db";
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
 import { err, nullEmptyStrings, virt } from "@/app/_lib/utils";
-import { currentUser } from "@/app/(users)/_lib";
-import { TAddReceipt } from "./addReceipt";
-import { RECEIPT_COLS_WITH } from "./common";
+import { currentUser, User } from "@/app/(users)/_lib";
+import { populateReceiptArchivesRecursively } from "./common";
+import { svcGetReceipts } from "./getReceipts";
 
-export type TModReceipt = TAddReceipt &
-  Required<Pick<TReceipt, "id" | "flags">>;
+export type TModReceipt = DbReceipt & {
+  items: (DbItem & { itemShares: DbItemShare[] })[];
+};
 
 function validateReceipt({
   id,
@@ -85,9 +87,11 @@ export async function apiModReceipt(uncheckedData: TModReceipt) {
 }
 
 export async function svcModReceipt(
-  revisedBy: number,
+  revisedBy: User["id"],
   { items: itemMods, ...receiptMod }: ReturnType<typeof validateReceipt>
-) {
+): Promise<
+  Awaited<ReturnType<typeof svcGetReceipts>>[number]["receipts"][number]
+> {
   return atomic(
     { revisedBy, operation: "updating receipt" },
 
@@ -206,20 +210,7 @@ export async function svcModReceipt(
 
       if (changes === 0) err(400, "No changes were made");
 
-      const res = (await tx.query.receipts.findFirst({
-        ...RECEIPT_COLS_WITH,
-        where: eq(receipts.id, receiptMod.id),
-      })) as TReceipt;
-
-      const archivePopulator = await getArchivePopulator<TReceipt>(
-        "receipts",
-        "id",
-        { tx }
-      );
-
-      archivePopulator([res]);
-
-      return res;
+      return await populateReceiptArchivesRecursively(receipt.id, tx);
     }
   );
 }

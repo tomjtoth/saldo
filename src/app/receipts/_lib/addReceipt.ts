@@ -1,18 +1,26 @@
 "use server";
 
-import { eq } from "drizzle-orm";
-
-import { atomic, TItemShare, TReceipt } from "@/app/_lib/db";
+import {
+  atomic,
+  DbItem,
+  DbItemShare,
+  DbReceipt,
+  TItemShare,
+} from "@/app/_lib/db";
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
-import { err, nulledEmptyStrings } from "@/app/_lib/utils";
-import { currentUser } from "@/app/(users)/_lib";
-import { RECEIPT_COLS_WITH } from "./common";
+import { err, nullEmptyStrings } from "@/app/_lib/utils";
+import { currentUser, User } from "@/app/(users)/_lib";
+import { populateReceiptArchivesRecursively, Receipt } from "./common";
 
-export type TAddReceipt = Required<
-  Pick<TReceipt, "groupId" | "paidOn" | "paidById" | "items">
->;
+export type TAddReceipt = Pick<DbReceipt, "groupId" | "paidOn" | "paidById"> & {
+  items: (Pick<DbItem, "cost" | "categoryId" | "notes"> & {
+    itemShares: Pick<DbItemShare, "share" | "userId">[];
+  })[];
+};
 
-export async function apiAddReceipt({
+type ValidatorFn = typeof validateReceiptData;
+
+function validateReceiptData({
   groupId,
   paidOn,
   paidById,
@@ -27,20 +35,55 @@ export async function apiAddReceipt({
   )
     err(400);
 
-  const { id } = await currentUser();
-
-  return await svcAddReceipt(id, {
+  const safeReceipt = {
     groupId,
     paidOn,
     paidById,
-    items,
-  });
+    items: items.map(({ cost, categoryId, notes, itemShares }) => {
+      if (typeof categoryId !== "number")
+        err(`categoryId "${categoryId}" is NaN`);
+
+      if (typeof cost !== "number") err(`cost "${cost}" is NaN`);
+
+      if (notes !== null && typeof notes !== "string")
+        err(`note "${notes}" is not a string`);
+
+      if (!Array.isArray(itemShares)) err("itemShares must be an array");
+
+      const safeItem = {
+        categoryId,
+        cost,
+        notes,
+        itemShares: itemShares.map(({ userId, share }) => {
+          if (typeof userId !== "number" || typeof share !== "number") err(400);
+
+          const safeItemShare = { userId, share };
+
+          return safeItemShare;
+        }),
+      };
+
+      nullEmptyStrings(safeItem);
+
+      return safeItem;
+    }),
+  };
+
+  return safeReceipt;
+}
+
+export async function apiAddReceipt(uncheckedData: Parameters<ValidatorFn>[0]) {
+  const safeData = validateReceiptData(uncheckedData);
+
+  const user = await currentUser();
+
+  return await svcAddReceipt(user.id, safeData);
 }
 
 export async function svcAddReceipt(
-  revisedBy: number,
-  { groupId, paidOn, paidById, items: itemsCli }: TAddReceipt
-) {
+  revisedBy: User["id"],
+  { groupId, paidOn, paidById, items: itemsCli }: ReturnType<ValidatorFn>
+): Promise<Receipt> {
   return await atomic(
     { operation: "Adding receipt", revisedBy },
     async (tx, revisionId) => {
@@ -51,25 +94,7 @@ export async function svcAddReceipt(
 
       const itemIds = await tx
         .insert(items)
-        .values(
-          itemsCli.map(({ cost, categoryId, notes }) => {
-            if (typeof categoryId !== "number")
-              err(`categoryId "${categoryId}" is NaN`);
-
-            if (typeof cost !== "number") err(`cost "${cost}" is NaN`);
-
-            if (notes !== null && typeof notes !== "string")
-              err(`note "${notes}" is not a string`);
-
-            return nulledEmptyStrings({
-              receiptId,
-              revisionId,
-              categoryId,
-              cost,
-              notes,
-            });
-          })
-        )
+        .values(itemsCli.map((i) => ({ ...i, receiptId, revisionId })))
         .returning({ id: items.id });
 
       const parsedItemShares = itemsCli.reduce(
@@ -102,14 +127,7 @@ export async function svcAddReceipt(
         await tx.insert(itemShares).values(parsedItemShares);
       }
 
-      const receipt = (await tx.query.receipts.findFirst({
-        ...RECEIPT_COLS_WITH,
-        where: eq(receipts.id, receiptId),
-      })) as TReceipt;
-
-      receipt.archives = [];
-
-      return receipt;
+      return await populateReceiptArchivesRecursively(receiptId, tx);
     }
   );
 }
