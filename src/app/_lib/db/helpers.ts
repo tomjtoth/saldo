@@ -2,13 +2,18 @@ import { SQLiteColumn } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 import { db } from "./instance";
-import { revisions } from "./schema";
+import { chartColors, revisions } from "./schema";
 
 export const SQL_RANDOM_COLOR = sql.raw(
   "printf('%07x', abs(random()) % 0x2000000)"
 );
 
-export const truncateDb = () => db.delete(revisions);
+export async function truncateDb() {
+  await db.transaction(async (tx) => {
+    await tx.delete(revisions);
+    await tx.delete(chartColors);
+  });
+}
 
 type TblCtx<ColName extends string> = { [K in ColName]: SQLiteColumn };
 
