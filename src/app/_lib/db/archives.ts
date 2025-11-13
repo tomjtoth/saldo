@@ -2,31 +2,24 @@ import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
 import { db } from "./instance";
-import { DrizzleTx, SchemaTables } from "./types";
+import { DrizzleTx, RevisionInfo, SchemaTables } from "./types";
+import * as schema from "./schema";
 
-export async function getArchivePopulator<T extends { archives?: T[] }>(
-  tableName: keyof SchemaTables,
-  pk1: keyof T,
+export async function getArchivePopulator<
+  Tbl extends keyof SchemaTables,
+  Ent extends (typeof schema)[Tbl]["$inferSelect"]
+>(
+  tableName: Tbl,
+  pk1: keyof Ent,
   {
     pk2,
     tx,
   }: {
-    pk2?: keyof T;
+    pk2?: keyof Ent;
     tx?: DrizzleTx;
   } = {}
 ) {
-  const query = {
-    async sql<T>(
-      strings: TemplateStringsArray,
-      ...args: (string | number | null)[]
-    ) {
-      const res: T = await (tx ?? db).get(sql(strings, ...args));
-
-      return res;
-    },
-  };
-
-  const res: { payload: string } = await query.sql`
+  const res: { payload: string } = await (tx ?? db).get(sql`
     WITH by_changes AS (
       SELECT
         entity_pk1 AS pk1,
@@ -86,37 +79,26 @@ export async function getArchivePopulator<T extends { archives?: T[] }>(
     )
 
     SELECT * FROM by_pk1
-  `;
+  `);
 
-  const archives: {
+  const buffer: {
     [pk1: string]: {
-      [pk2: string]: {
-        revisionId: number;
-        revision: {
-          createdAt: number | string;
-          createdBy: { name: string; image: string | null };
-        };
-      } & {
-        [columns: Exclude<string, "revision" | "revisionId">]:
-          | number
-          | string
-          | null;
-      }[];
+      [pk2: string]: (Partial<Ent> & RevisionInfo)[];
     };
   } = JSON.parse(res.payload);
 
-  return function populate(arr: T[]) {
-    arr.forEach((entity) => {
-      const strPk1 = (entity[pk1 as keyof T] as number).toString();
-      const strPk2 = pk2
-        ? (entity[pk2 as keyof T] as number).toString()
-        : "null";
+  return function populate<C extends Partial<Ent>>(
+    arr: C[]
+  ): (C & { archives: (Ent & RevisionInfo)[] })[] {
+    return arr.map((entity) => {
+      const strPk1 = (entity[pk1] as number).toString();
+      const strPk2 = pk2 ? (entity[pk2] as number).toString() : "null";
 
-      const restoredArchiveRows: T[] = [];
+      const archives: (Ent & RevisionInfo)[] = [];
 
-      if (archives[strPk1]) {
-        archives[strPk1][strPk2].reduce((prev, rev) => {
-          const curr = { ...prev, ...rev } as T;
+      if (buffer[strPk1]) {
+        buffer[strPk1][strPk2].reduce((prev, rev) => {
+          const curr = { ...prev, ...rev };
 
           const dateTimeConverter = curr as {
             revision?: { createdAt: number | string };
@@ -126,13 +108,13 @@ export async function getArchivePopulator<T extends { archives?: T[] }>(
             dateTimeConverter.revision!.createdAt as number
           );
 
-          restoredArchiveRows.push(curr);
+          archives.push(curr);
 
           return curr;
-        }, entity as T);
+        }, entity as unknown as Ent);
       }
 
-      entity.archives = restoredArchiveRows;
+      return { ...entity, archives };
     });
   };
 }
