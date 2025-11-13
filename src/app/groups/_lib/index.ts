@@ -1,92 +1,15 @@
 "use server";
 
-import { eq, exists, and, sql } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
-import { err, nullEmptyStrings, sortByName } from "@/app/_lib/utils";
-import { modEntity } from "@/app/_lib/db";
-import { atomic, db, isActive, CrGroup, TGroup } from "@/app/_lib/db";
+import { err } from "@/app/_lib/utils";
+import { atomic, db, DbGroup } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
-import { currentUser } from "@/app/(users)/_lib";
+import { currentUser, User } from "@/app/(users)/_lib";
+import { svcModGroup } from "./modGroup";
 
-const COLS_WITH = {
-  columns: {
-    id: true,
-    name: true,
-    description: true,
-    flags: true,
-    uuid: true,
-  },
-  with: {
-    memberships: {
-      columns: { flags: true },
-      with: {
-        user: {
-          columns: { name: true, id: true, email: true, flags: true },
-        },
-      },
-    },
-  },
-};
-
-export async function apiAddGroup({
-  name,
-  description,
-}: Required<Pick<TGroup, "name">> & Pick<TGroup, "description">) {
-  const typeDescr = typeof description;
-
-  if (
-    typeof name !== "string" ||
-    (description !== null &&
-      typeDescr !== "string" &&
-      typeDescr !== "undefined")
-  )
-    err();
-
-  const data = { name, description };
-
-  nullEmptyStrings(data);
-
-  const user = await currentUser();
-
-  return await svcAddGroup(user.id, data);
-}
-
-export async function svcAddGroup(
-  ownerId: number,
-  data: Pick<CrGroup, "name" | "description">
-) {
-  return await atomic(
-    { operation: "creating new group", revisedBy: ownerId },
-    async (tx, revisionId) => {
-      const [{ groupId }] = await tx
-        .insert(groups)
-        .values({
-          ...data,
-          revisionId,
-        })
-        .returning({
-          groupId: groups.id,
-        });
-
-      await tx.insert(memberships).values({
-        userId: ownerId,
-        flags: 3,
-        groupId,
-        revisionId,
-      });
-
-      const res = await tx.query.groups.findFirst({
-        ...COLS_WITH,
-        where: eq(groups.id, groupId),
-      });
-
-      return res as TGroup;
-    }
-  );
-}
-
-export async function svcAddMember(groupId: number, userId: number) {
+export async function svcAddMember(groupId: number, userId: User["id"]) {
   return await atomic(
     { operation: "adding new member", revisedBy: userId },
     async (tx, revisionId) => {
@@ -101,7 +24,7 @@ export async function svcAddMember(groupId: number, userId: number) {
   );
 }
 
-export async function joinGroup(uuid: string, userId: number) {
+export async function joinGroup(uuid: string, userId: User["id"]) {
   const group = await db.query.groups.findFirst({
     where: eq(groups.uuid, uuid),
   });
@@ -118,69 +41,7 @@ export async function joinGroup(uuid: string, userId: number) {
   return await svcAddMember(group.id, userId);
 }
 
-export async function svcGetGroups(userId: number) {
-  const res: TGroup[] = await db.query.groups.findMany({
-    ...COLS_WITH,
-    where: exists(
-      db
-        .select({ x: sql`1` })
-        .from(memberships)
-        .where(
-          and(
-            eq(memberships.groupId, groups.id),
-            eq(memberships.userId, userId),
-            isActive(memberships)
-          )
-        )
-    ),
-  });
-
-  res.sort(sortByName);
-  res.forEach((grp) =>
-    grp.memberships!.sort((a, b) => sortByName(a.user!, b.user!))
-  );
-
-  return res;
-}
-
-type GroupModifier = Required<Pick<TGroup, "id">> &
-  Pick<TGroup, "name" | "description" | "flags" | "uuid">;
-
-export async function apiModGroup({
-  id,
-  flags,
-  name,
-  description,
-}: Omit<GroupModifier, "uuid">) {
-  const typeDescr = typeof description;
-  const typeFlags = typeof flags;
-  const typeName = typeof name;
-
-  if (
-    typeof id !== "number" ||
-    (typeFlags !== "number" && typeFlags !== "undefined") ||
-    (typeName !== "string" && typeName !== "undefined") ||
-    (description !== null &&
-      typeDescr !== "string" &&
-      typeDescr !== "undefined")
-  )
-    err();
-
-  const user = await currentUser();
-
-  const data = {
-    id,
-    flags,
-    name,
-    description,
-  };
-
-  nullEmptyStrings(data);
-
-  return await svcModGroup(user.id, data);
-}
-
-export async function apiSetDefaultGroup(id: number) {
+export async function apiSetDefaultGroup(id: DbGroup["id"]) {
   if (typeof id !== "number") err();
 
   const { id: userId } = await currentUser();
@@ -191,7 +52,7 @@ export async function apiSetDefaultGroup(id: number) {
     .where(eq(users.id, userId));
 }
 
-export async function apiRmInviteLink({ id }: Pick<GroupModifier, "id">) {
+export async function apiRmInviteLink(id: DbGroup["id"]) {
   if (typeof id !== "number") err(400);
 
   const user = await currentUser();
@@ -199,39 +60,10 @@ export async function apiRmInviteLink({ id }: Pick<GroupModifier, "id">) {
   return svcModGroup(user.id, { id, uuid: null });
 }
 
-export async function apiGenInviteLink({ id }: Pick<GroupModifier, "id">) {
+export async function apiGenInviteLink(id: DbGroup["id"]) {
   if (typeof id !== "number") err(400);
 
   const user = await currentUser();
 
   return await svcModGroup(user.id, { id, uuid: uuidv4() });
-}
-
-export async function svcModGroup(
-  revisedBy: number,
-  { id, ...modifier }: GroupModifier
-) {
-  return await atomic(
-    { operation: "Updating group", revisedBy },
-    async (tx, revisionId) => {
-      const group = await tx.query.groups.findFirst({
-        where: eq(groups.id, id),
-      });
-
-      if (!group) err(404);
-
-      const res = (await modEntity(group, modifier, {
-        tx,
-        tableName: "groups",
-        primaryKeys: { id: true },
-        revisionId,
-        skipArchivalOf: { uuid: true },
-        returns: COLS_WITH,
-      })) as TGroup;
-
-      res.memberships!.sort((a, b) => sortByName(a.user!, b.user!));
-
-      return res;
-    }
-  );
 }
