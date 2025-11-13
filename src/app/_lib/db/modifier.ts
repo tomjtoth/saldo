@@ -4,67 +4,52 @@ import { err, has3ConsecutiveLetters } from "../utils";
 import { DrizzleTx, SchemaTables } from "./types";
 import * as schema from "./schema";
 
-type QueryOf<T extends keyof SchemaTables> = DrizzleTx["query"][T];
-type FindFirstArgs<T extends keyof SchemaTables> = Parameters<
-  QueryOf<T>["findFirst"]
->[0];
-type FindFirstRet<T extends keyof SchemaTables> = ReturnType<
-  QueryOf<T>["findFirst"]
->;
 type EntityBase = { revisionId: number };
 
-interface BaseOpts<T, M> {
+interface BaseOpts<E, T> {
   tx: DrizzleTx;
   tableName: T;
   revisionId: number;
-  primaryKeys: { [PK in keyof M]?: true };
-  skipArchivalOf?: { [SA in keyof M]?: true };
+  primaryKeys: { [PK in keyof E]?: true };
+  skipArchivalOf?: { [SA in keyof E]?: true };
   unchangedThrows?: false;
 }
 
 export async function modEntity<
   E extends EntityBase,
   T extends keyof SchemaTables,
-  M extends Omit<E, "revisionId"> = Omit<E, "revisionId">
+  M extends Partial<E>
 >(
   entity: E,
-  modifier: Partial<M>,
-  opts: BaseOpts<T, M> & { returns: FindFirstArgs<T> }
-): Promise<FindFirstRet<T>>;
-
-export async function modEntity<
-  E extends EntityBase,
-  T extends keyof SchemaTables,
-  M extends Omit<E, "revisionId"> = Omit<E, "revisionId">
->(
-  entity: E,
-  modifier: Partial<M>,
-  opts: BaseOpts<T, M> & { returns: true }
+  modifier: M,
+  opts: BaseOpts<E, T> & {
+    needsToReturn: true;
+  }
 ): Promise<E>;
 
 export async function modEntity<
   E extends EntityBase,
   T extends keyof SchemaTables,
-  M extends Omit<E, "revisionId"> = Omit<E, "revisionId">
->(entity: E, modifier: Partial<M>, opts: BaseOpts<T, M>): Promise<number>;
+  M extends Partial<E>
+>(entity: E, modifier: M, opts: BaseOpts<E, T>): Promise<number>;
 
 export async function modEntity<
   E extends EntityBase,
   T extends keyof SchemaTables,
-  M extends Omit<E, "revisionId"> = Omit<E, "revisionId">
+  M extends Partial<E>
 >(
   entity: E,
-  modifier: Partial<M>,
+  modifier: M,
   {
     tx,
     tableName,
     revisionId,
     primaryKeys,
     skipArchivalOf = {},
-    returns,
     unchangedThrows,
-  }: BaseOpts<T, M> & {
-    returns?: true | FindFirstArgs<T>;
+    needsToReturn,
+  }: BaseOpts<E, T> & {
+    needsToReturn?: true;
   }
 ) {
   const [entityPk1, entityPk2] = Object.keys(primaryKeys) as [
@@ -174,20 +159,15 @@ export async function modEntity<
       .set(entity as SetArg)
       .where(conditions);
 
-    if (typeof returns === "boolean") {
+    if (needsToReturn) {
       const [res] = await q.returning();
       return res;
     } else {
       await q;
-
-      if (returns) {
-        return await (tx.query[tableName] as QueryOf<T>).findFirst({
-          ...returns,
-          where: conditions,
-        });
-      }
     }
-  } else if (unchangedThrows ?? true) err("No changes were made");
+  } else if (needsToReturn || (unchangedThrows ?? true)) {
+    err("No changes were made");
+  }
 
-  return returns ? null : changes;
+  return changes;
 }
