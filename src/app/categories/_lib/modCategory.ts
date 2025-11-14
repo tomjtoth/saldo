@@ -9,7 +9,7 @@ import {
 import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { err, nullEmptyStrings } from "@/app/_lib/utils";
-import { userHasAccessToCategory, WITH_CATEGORIES } from "./common";
+import { userMayModCategory } from "./common";
 import { svcGetCategories } from "./getCategories";
 
 type CategoryModifier = Pick<DbCategory, "id"> &
@@ -40,7 +40,7 @@ export async function apiModCategory({
 
   const user = await currentUser();
 
-  if (!(await userHasAccessToCategory(user.id, id))) err(403);
+  await userMayModCategory(user.id, id);
 
   return await svcModCategory(user.id, data);
 }

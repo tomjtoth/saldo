@@ -1,6 +1,9 @@
+"use server";
+
 import { and, eq, exists, sql } from "drizzle-orm";
 
 import { db, isActive } from "@/app/_lib/db";
+import { err } from "@/app/_lib/utils";
 import { categories, memberships } from "@/app/_lib/db/schema";
 import { User } from "@/app/(users)/_lib";
 import { Category } from "./modCategory";
@@ -18,14 +21,14 @@ export const WITH_CATEGORIES = {
   },
 } as const;
 
-export async function userHasAccessToCategory(
+export async function userMayModCategory(
   userId: User["id"],
-  catId: Category["id"]
+  categoryId: Category["id"]
 ) {
   const res = await db.query.categories.findFirst({
     columns: { id: true },
     where: and(
-      eq(categories.id, catId),
+      eq(categories.id, categoryId),
       exists(
         db
           .select({ x: sql`1` })
@@ -41,5 +44,5 @@ export async function userHasAccessToCategory(
     ),
   });
 
-  return !!res;
+  if (!res) err(403);
 }
