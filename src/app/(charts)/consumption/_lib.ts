@@ -11,9 +11,19 @@ type ConsumptionOpts = {
   to?: string;
 };
 
-export async function apiGetConsumption(opts: ConsumptionOpts) {
-  const { id } = await currentUser();
-  return await svcGetConsumption(id, opts);
+export async function apiGetConsumption({ from, to }: ConsumptionOpts) {
+  const typeFrom = typeof from;
+  const typeTo = typeof to;
+
+  if (
+    (typeFrom !== "string" && typeFrom !== "undefined") ||
+    (typeTo !== "string" && typeTo !== "undefined")
+  )
+    err(400);
+
+  const user = await currentUser();
+
+  return await svcGetConsumption(user.id, { from, to });
 }
 
 export async function svcGetConsumption(
