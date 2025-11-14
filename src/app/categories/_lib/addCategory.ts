@@ -1,3 +1,5 @@
+"use server";
+
 import { eq } from "drizzle-orm";
 
 import { atomic, DbCategory } from "@/app/_lib/db";
@@ -8,8 +10,7 @@ import {
   has3ConsecutiveLetters,
   nullEmptyStrings,
 } from "@/app/_lib/utils";
-import { WITH_CATEGORIES } from "./common";
-import { Category } from "./modCategory";
+import { svcGetCategories } from "./getCategories";
 
 type CategoryAdder = Pick<DbCategory, "groupId" | "name" | "description">;
 
@@ -36,10 +37,7 @@ export async function apiAddCategory({
   return await svcAddCategory(user.id, data);
 }
 
-export async function svcAddCategory(
-  revisedBy: number,
-  data: CategoryAdder
-): Promise<Category> {
+export async function svcAddCategory(revisedBy: number, data: CategoryAdder) {
   return await atomic(
     { operation: "Creating category", revisedBy },
     async (tx, revisionId) => {
@@ -51,12 +49,11 @@ export async function svcAddCategory(
         })
         .returning({ id: categories.id });
 
-      const res = await tx.query.categories.findFirst({
-        ...WITH_CATEGORIES,
+      const [res] = await svcGetCategories(revisedBy, {
         where: eq(categories.id, id),
       });
 
-      return { ...res!, archives: [] };
+      return res;
     }
   );
 }

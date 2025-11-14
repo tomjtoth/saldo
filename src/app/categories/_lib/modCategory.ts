@@ -1,11 +1,6 @@
 import { eq } from "drizzle-orm";
 
-import {
-  atomic,
-  getArchivePopulator,
-  modEntity,
-  DbCategory,
-} from "@/app/_lib/db";
+import { atomic, modEntity, DbCategory } from "@/app/_lib/db";
 import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { err, nullEmptyStrings } from "@/app/_lib/utils";
@@ -14,8 +9,6 @@ import { svcGetCategories } from "./getCategories";
 
 type CategoryModifier = Pick<DbCategory, "id"> &
   Partial<Pick<DbCategory, "name" | "description" | "flags">>;
-
-export type Category = Awaited<ReturnType<typeof svcModCategory>>;
 
 export async function apiModCategory({
   id,
@@ -48,9 +41,7 @@ export async function apiModCategory({
 export async function svcModCategory(
   revisedBy: User["id"],
   { id, ...modifier }: CategoryModifier
-): Promise<
-  Awaited<ReturnType<typeof svcGetCategories>>[number]["categories"][number]
-> {
+) {
   return await atomic(
     { operation: "Updating category", revisedBy },
     async (tx, revisionId) => {
@@ -67,18 +58,11 @@ export async function svcModCategory(
         primaryKeys: { id: true },
       });
 
-      // TODO: merge this call into modEntity and
-      // get the ReturnType according to the args passed
-      const res = await tx.query.categories.findFirst({
-        ...WITH_CATEGORIES,
+      const [res] = await svcGetCategories(revisedBy, {
         where: eq(categories.id, cat.id),
       });
 
-      const withArchives = await getArchivePopulator("categories", "id", {
-        tx,
-      });
-
-      return withArchives([res!])[0];
+      return res;
     }
   );
 }

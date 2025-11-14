@@ -6,20 +6,7 @@ import { db, isActive } from "@/app/_lib/db";
 import { err } from "@/app/_lib/utils";
 import { categories, memberships } from "@/app/_lib/db/schema";
 import { User } from "@/app/(users)/_lib";
-import { Category } from "./modCategory";
-
-export const WITH_CATEGORIES = {
-  with: {
-    revision: {
-      columns: {
-        createdAt: true,
-      },
-      with: {
-        createdBy: { columns: { name: true } },
-      },
-    },
-  },
-} as const;
+import { Category } from "./getCategories";
 
 export async function userMayModCategory(
   userId: User["id"],
