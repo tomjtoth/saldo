@@ -2,12 +2,12 @@
 
 import { eq } from "drizzle-orm";
 
-import { err, nullEmptyStrings, sortByName } from "@/app/_lib/utils";
+import { err, nullEmptyStrings } from "@/app/_lib/utils";
 import { modEntity } from "@/app/_lib/db";
 import { atomic, DbGroup } from "@/app/_lib/db";
 import { groups } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
-import { COLS_WITH } from "./common";
+import { Group, svcGetGroups } from "./getGroups";
 
 type GroupModifier = Pick<DbGroup, "id"> &
   Partial<Omit<DbGroup, "id" | "revisionId">>;
@@ -47,7 +47,7 @@ export async function apiModGroup({
 export async function svcModGroup(
   revisedBy: User["id"],
   { id, ...modifier }: GroupModifier
-) {
+): Promise<Group> {
   return await atomic(
     { operation: "Updating group", revisedBy },
     async (tx, revisionId) => {
@@ -65,14 +65,12 @@ export async function svcModGroup(
         skipArchivalOf: { uuid: true },
       });
 
-      const res = await tx.query.groups.findFirst({
-        ...COLS_WITH,
+      const [res] = await svcGetGroups(revisedBy, {
+        tx,
         where: eq(groups.id, group.id),
       });
 
-      res!.memberships!.sort((a, b) => sortByName(a.user!, b.user!));
-
-      return res!;
+      return res;
     }
   );
 }

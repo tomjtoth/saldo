@@ -1,3 +1,5 @@
+"use server";
+
 import { eq } from "drizzle-orm";
 
 import { err, nullEmptyStrings } from "@/app/_lib/utils";
@@ -5,9 +7,7 @@ import { DbUser } from "@/app/_lib/db";
 import { atomic, CrGroup, DbGroup } from "@/app/_lib/db";
 import { groups, memberships } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/(users)/_lib";
-import { Category } from "@/app/categories/_lib";
-import { Receipt } from "@/app/receipts/_lib";
-import { COLS_WITH } from "./common";
+import { svcGetGroups } from "./getGroups";
 
 type GroupAdder = Pick<DbGroup, "name"> & Partial<Pick<DbGroup, "description">>;
 
@@ -53,16 +53,12 @@ export async function svcAddGroup(
         revisionId,
       });
 
-      const res = await tx.query.groups.findFirst({
-        ...COLS_WITH,
+      const [res] = await svcGetGroups(ownerId, {
+        tx,
         where: eq(groups.id, groupId),
       });
 
-      return {
-        ...res,
-        receipts: [] as Receipt[],
-        categories: [] as Category[],
-      };
+      return res;
     }
   );
 }
