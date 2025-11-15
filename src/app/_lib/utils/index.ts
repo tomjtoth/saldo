@@ -124,7 +124,7 @@ export function insertAlphabetically<T extends { name?: string }>(
   arr.splice(insertAt > -1 ? insertAt : arr.length, 0, payload);
 }
 
-export function sortByName<T extends { name?: string | null }>(a: T, b: T) {
+export function sortByName<T extends { name: string | null }>(a: T, b: T) {
   const lowerA = a.name?.toLowerCase() ?? "";
   const lowerB = b.name?.toLowerCase() ?? "";
 
