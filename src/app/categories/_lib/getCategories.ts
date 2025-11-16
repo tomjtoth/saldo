@@ -34,7 +34,7 @@ export async function svcGetCategories(
       ),
   });
 
-  const withArchives = await getArchivePopulator("categories", "id");
+  const withArchives = await getArchivePopulator(opts.tx);
 
-  return withArchives(arr.toSorted(sortByName));
+  return withArchives("categories", arr.toSorted(sortByName));
 }

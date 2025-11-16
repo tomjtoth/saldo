@@ -15,7 +15,12 @@ import { sortByName } from "@/app/_lib/utils";
 import { svcGetColors } from "./getColors";
 import { User } from "@/app/(users)/_lib";
 import { SELECT_CATEGORIES, SELECT_REVISION_INFO } from "@/app/_lib";
-import { queryReceipts } from "@/app/receipts/_lib/common";
+import {
+  populateReceiptArchivesRecursively,
+  queryReceipts,
+  Receipt,
+  ReceiptsFromDb,
+} from "@/app/receipts/_lib/common";
 
 export type Group = Awaited<ReturnType<typeof svcGetGroups>>[number];
 
@@ -82,33 +87,39 @@ export async function svcGetGroups(
       ),
   });
 
-  const populateCategoryArchives = await getArchivePopulator(
-    "categories",
-    "id"
+  const archivePopulator = await getArchivePopulator(tx);
+
+  return Promise.all(
+    arr.toSorted(sortByName).map(async (group) => {
+      group.memberships.sort((a, b) => sortByName(a.user, b.user));
+
+      const users: Pick<User, "id" | "name" | "email" | "color">[] =
+        group.memberships.map((ms) => ({
+          ...ms.user,
+          color: colors.find(
+            (row) => row.groupId === group.id && row.userId === ms.user.id
+          )!.color,
+        }));
+
+      return {
+        ...group,
+        users,
+        categories: archivePopulator(
+          "categories",
+          group.categories.toSorted(sortByName)
+        ),
+        receipts:
+          "receipts" in group
+            ? await populateReceiptArchivesRecursively(
+                group.receipts as ReceiptsFromDb,
+                archivePopulator
+              )
+            : ([] as Receipt[]),
+        consumption: [] as ConsumptionData[],
+        balance: { relations: [], data: [] } as BalanceData,
+      };
+    })
   );
-
-  return arr.toSorted(sortByName).map((group) => {
-    group.memberships.sort((a, b) => sortByName(a.user, b.user));
-
-    const users: Pick<User, "id" | "name" | "email" | "color">[] =
-      group.memberships.map((ms) => ({
-        ...ms.user,
-        color: colors.find(
-          (row) => row.groupId === group.id && row.userId === ms.user.id
-        )!.color,
-      }));
-
-    return {
-      ...group,
-      users,
-      categories: populateCategoryArchives(
-        group.categories.toSorted(sortByName)
-      ),
-      receipts: "receipts" in group ? group.receipts : [],
-      consumption: [] as ConsumptionData[],
-      balance: { relations: [], data: [] } as BalanceData,
-    };
-  });
 }
 
 // TODO: remove all of the below, once the typing has been fixed
