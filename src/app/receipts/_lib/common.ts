@@ -1,38 +1,32 @@
-import { eq } from "drizzle-orm";
+import { eq, sql, desc } from "drizzle-orm";
 
 import { receipts } from "@/app/_lib/db/schema";
-import { DbReceipt, DrizzleTx } from "@/app/_lib/db/types";
+import { QueryParamsOf, DbReceipt, DrizzleTx } from "@/app/_lib/db/types";
 import { getArchivePopulator } from "@/app/_lib/db/archives";
 import { db } from "@/app/_lib/db";
+import { SELECT_RECEIPTS } from "@/app/_lib";
 
-export const RECEIPT_COLS_WITH = {
-  with: {
-    revision: {
-      columns: {
-        createdAt: true,
-      },
-      with: {
-        createdBy: { columns: { id: true, image: true, name: true } },
-      },
-    },
-    items: {
-      with: {
-        itemShares: true,
-      },
-    },
-    paidBy: { columns: { id: true, image: true, name: true } },
-  },
-} as const;
+export const queryReceipts = (knownIds: Receipt["id"][] = []) =>
+  ({
+    ...SELECT_RECEIPTS,
+    limit: 50,
+    where: sql`${receipts.id} not in ${sql.raw(
+      "(" + knownIds.join(", ") + ")"
+    )}`,
+    orderBy: desc(receipts.paidOn),
+  } as const satisfies QueryParamsOf<"receipts">);
 
 const getMany = (receiptId: DbReceipt["id"], tx?: DrizzleTx) =>
   (tx ?? db).query.receipts.findMany({
-    ...RECEIPT_COLS_WITH,
+    ...SELECT_RECEIPTS,
     where: eq(receipts.id, receiptId),
   });
 
 type ManyFromDb = Awaited<ReturnType<typeof getMany>>;
 
 export type Receipt = Awaited<ReturnType<typeof populateRecursively>>[number];
+export type Item = Receipt["items"][number];
+export type ItemShare = Item["itemShares"][number];
 
 export async function populateReceiptArchivesRecursively(
   ...args: Parameters<typeof getMany>

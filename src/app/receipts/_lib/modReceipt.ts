@@ -87,9 +87,7 @@ export async function apiModReceipt(uncheckedData: TModReceipt) {
 export async function svcModReceipt(
   revisedBy: User["id"],
   { items: itemMods, ...receiptMod }: ReturnType<typeof validateReceipt>
-): Promise<
-  Awaited<ReturnType<typeof svcGetReceipts>>[number]["receipts"][number]
-> {
+): Promise<Awaited<ReturnType<typeof svcGetReceipts>>[number]> {
   return atomic(
     { revisedBy, operation: "updating receipt" },
 

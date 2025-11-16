@@ -1,16 +1,14 @@
 "use server";
 
-import {
-  atomic,
-  DbItem,
-  DbItemShare,
-  DbReceipt,
-  TItemShare,
-} from "@/app/_lib/db";
+import { atomic, DbItem, DbItemShare, DbReceipt } from "@/app/_lib/db";
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
 import { err, nullEmptyStrings } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
-import { populateReceiptArchivesRecursively, Receipt } from "./common";
+import {
+  ItemShare,
+  populateReceiptArchivesRecursively,
+  Receipt,
+} from "./common";
 
 export type TAddReceipt = Pick<DbReceipt, "groupId" | "paidOn" | "paidById"> & {
   items: (Pick<DbItem, "cost" | "categoryId" | "notes"> & {
@@ -116,9 +114,7 @@ export async function svcAddReceipt(
 
           return shares;
         },
-        [] as Required<
-          Pick<TItemShare, "revisionId" | "itemId" | "userId" | "share">
-        >[]
+        [] as Pick<ItemShare, "revisionId" | "itemId" | "userId" | "share">[]
       );
 
       if (parsedItemShares.length) {
