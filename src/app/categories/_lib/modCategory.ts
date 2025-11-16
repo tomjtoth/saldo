@@ -1,3 +1,5 @@
+"use server";
+
 import { eq } from "drizzle-orm";
 
 import { atomic, modEntity, DbCategory } from "@/app/_lib/db";
