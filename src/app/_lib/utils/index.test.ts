@@ -5,7 +5,6 @@ import {
   err,
   ErrorWithStatus,
   has3ConsecutiveLetters,
-  nulledEmptyStrings,
   nullEmptyStrings,
   virt,
 } from ".";
@@ -78,7 +77,7 @@ describe("nullEmptyStrings", () => {
 describe("nulledEmptyStrings", () => {
   it("does not mutate the original", () => {
     const before = { a: 1, b: "2", c: "", d: null, e: undefined };
-    const after = nulledEmptyStrings(before);
+    const after = nullEmptyStrings(before, { canMutate: false });
 
     expect(before.c).to.equal("");
     expect(after.c).to.toBeNull();

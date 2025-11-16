@@ -53,6 +53,9 @@ export const deepClone = <T>(obj: T) => {
   }
 };
 
+/**
+ * mutates by default
+ */
 export function nullEmptyStrings<E extends { [key: string]: unknown }>(
   entity: E,
   opts?: { canMutate?: false }
