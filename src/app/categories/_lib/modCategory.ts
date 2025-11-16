@@ -61,6 +61,7 @@ export async function svcModCategory(
       });
 
       const [res] = await svcGetCategories(revisedBy, {
+        tx,
         where: eq(categories.id, cat.id),
       });
 
