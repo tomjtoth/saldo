@@ -6,7 +6,7 @@ import { thunks } from "./reducers";
 
 import { RootDivCx } from "@/app/_components/rootDiv";
 import { BodyNodeCx } from "@/app/_components/bodyNodes";
-import { TCliGroup } from "./reducers/types";
+import { CliGroup } from "./reducers/types";
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
@@ -39,9 +39,9 @@ export function useClientState() {
   const dispatch = useAppDispatch();
 
   const fallback = useRootDivCx();
-  const groups = useAppSelector((s) => {
+  const groups: CliGroup[] = useAppSelector((s) => {
     const local = s.combined.groups;
-    return (local.length > 0 ? local : fallback.groups) as TCliGroup[];
+    return local.length > 0 ? local : fallback.groups;
   });
 
   const groupId = useAppSelector(
@@ -53,15 +53,16 @@ export function useClientState() {
   // leave it as a function as it get's called from useEffect, too
   const getGroup = () => groups.find((group) => group.id === groupId);
   const group = getGroup();
-  const users = group?.memberships?.map(({ user }) => user!) ?? [];
+
+  const users = group?.users ?? [];
 
   // TODO: performance improvement
   // console.debug("useGroupSelector being called");
 
   useEffect(() => {
     if (groups.length > 0 && !getGroup())
-      dispatch(thunks.setGroupId(groups[0].id!));
-  }, [groups]);
+      dispatch(thunks.setGroupId(groups[0].id));
+  }, [groups.length]);
 
   return {
     groups,
