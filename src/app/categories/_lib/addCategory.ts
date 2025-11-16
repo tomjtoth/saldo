@@ -12,7 +12,10 @@ import {
 } from "@/app/_lib/utils";
 import { svcGetCategories } from "./getCategories";
 
-type CategoryAdder = Pick<DbCategory, "groupId" | "name" | "description">;
+export type CategoryAdder = Pick<
+  CrCategory,
+  "groupId" | "name" | "description"
+>;
 
 export async function apiAddCategory({
   groupId,
