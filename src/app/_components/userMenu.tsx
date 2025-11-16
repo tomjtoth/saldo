@@ -16,7 +16,10 @@ export default function UserMenu() {
   return (
     <div className="flex flex-col p-2 gap-2 items-start">
       <span>Hi, {cs.user?.name}!</span>
-      <span>{cs.user?.email}</span>
+      <span>
+        <span className="select-none">🖂 </span>
+        {cs.user?.email}
+      </span>
 
       {pathname !== "/" && (
         <span>
@@ -29,6 +32,7 @@ export default function UserMenu() {
         color={cs.user!.color}
         setLabelColor
       />
+
       <button
         id="sign-out-button"
         className="mt-2"
