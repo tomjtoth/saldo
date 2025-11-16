@@ -2,9 +2,9 @@
 
 import { eq } from "drizzle-orm";
 
-import { atomic, DbCategory } from "@/app/_lib/db";
+import { atomic, CrCategory } from "@/app/_lib/db";
 import { categories } from "@/app/_lib/db/schema";
-import { currentUser } from "@/app/(users)/_lib";
+import { currentUser, User } from "@/app/(users)/_lib";
 import {
   err,
   has3ConsecutiveLetters,
@@ -40,7 +40,10 @@ export async function apiAddCategory({
   return await svcAddCategory(user.id, data);
 }
 
-export async function svcAddCategory(revisedBy: number, data: CategoryAdder) {
+export async function svcAddCategory(
+  revisedBy: User["id"],
+  data: CategoryAdder
+) {
   return await atomic(
     { operation: "Creating category", revisedBy },
     async (tx, revisionId) => {

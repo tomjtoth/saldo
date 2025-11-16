@@ -1,46 +1,36 @@
 "use server";
 
-import { eq, and, sql, exists } from "drizzle-orm";
+import { and, eq, exists, sql, SQL } from "drizzle-orm";
 
 import { sortByName } from "@/app/_lib/utils";
-import { db, isActive, getArchivePopulator } from "@/app/_lib/db";
-import { memberships, groups, categories } from "@/app/_lib/db/schema";
-import { SvcGetEntitiesArgs } from "@/app/_lib/types";
+import { db, DrizzleTx, getArchivePopulator, isActive } from "@/app/_lib/db";
+import { SELECT_CATEGORIES } from "@/app/_lib";
+import { User } from "@/app/(users)/_lib";
+import { categories, memberships } from "@/app/_lib/db/schema";
 
 export type Category = Awaited<ReturnType<typeof svcGetCategories>>[number];
 
-export async function svcGetCategories(...args: SvcGetEntitiesArgs) {
-  const [userId, { tx, where } = {}] = args;
-
-  const arr = await (tx ?? db).query.categories.findMany({
-    with: {
-      revision: {
-        columns: {
-          createdAt: true,
-        },
-        with: {
-          createdBy: { columns: { name: true } },
-        },
-      },
-    },
+export async function svcGetCategories(
+  userId: User["id"],
+  opts: { tx?: DrizzleTx; where?: SQL } = {}
+) {
+  const tx = opts.tx ?? db;
+  const arr = await tx.query.categories.findMany({
+    ...SELECT_CATEGORIES,
 
     where:
-      where ??
-      and(
-        isActive(groups),
-        eq(groups.id, categories.id),
-        exists(
-          db
-            .select({ x: sql`1` })
-            .from(memberships)
-            .where(
-              and(
-                eq(memberships.groupId, groups.id),
-                eq(memberships.userId, userId),
-                isActive(memberships)
-              )
+      opts.where ??
+      exists(
+        tx
+          .select({ x: sql`1` })
+          .from(memberships)
+          .where(
+            and(
+              eq(categories.groupId, memberships.groupId),
+              eq(memberships.userId, userId),
+              isActive(memberships)
             )
-        )
+          )
       ),
   });
 
