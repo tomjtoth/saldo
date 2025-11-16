@@ -46,11 +46,11 @@ interface ArgsWithoutSession {
   requireSession: false;
 }
 
-export function currentUser(
+export async function currentUser(
   args: ArgsWithoutSession
 ): Promise<undefined | User>;
 
-export function currentUser(args?: ArgsWithSession): Promise<User>;
+export async function currentUser(args?: ArgsWithSession): Promise<User>;
 
 export async function currentUser(
   args: ArgsWithoutSession | ArgsWithSession = {}
