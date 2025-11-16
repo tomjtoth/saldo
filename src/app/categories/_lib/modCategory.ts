@@ -9,7 +9,7 @@ import { err, nullEmptyStrings } from "@/app/_lib/utils";
 import { userMayModCategory } from "./common";
 import { svcGetCategories } from "./getCategories";
 
-type CategoryModifier = Pick<DbCategory, "id"> &
+export type CategoryModifier = Pick<DbCategory, "id"> &
   Partial<Pick<DbCategory, "name" | "description" | "flags">>;
 
 export async function apiModCategory({
