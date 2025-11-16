@@ -1,20 +1,15 @@
-import { TGroup, TItem, TReceipt, TUser } from "@/app/_lib/db";
+import { User } from "@/app/(users)/_lib";
+import { Group } from "@/app/groups/_lib";
+import { Receipt } from "@/app/receipts/_lib";
 
-export interface TCliItem extends Omit<TItem, "cost"> {
-  cost?: number | string;
-}
-
-export interface TCliGroup extends TGroup {
-  activeReceipt?: Omit<TReceipt, "items"> & {
+export interface CliGroup extends Group {
+  activeReceipt?: Receipt & {
     focusedIdx?: number;
-    items?: TCliItem[];
   };
 }
 
 export type CombinedState = {
-  user?: TUser;
+  user?: User;
   groupId?: number;
-  groups: TCliGroup[];
+  groups: CliGroup[];
 };
-
-export type Initializer = Pick<CombinedState, "groups" | "user">;
