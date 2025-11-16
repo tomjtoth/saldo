@@ -2,16 +2,20 @@
 
 import { and, eq, isNull, sql } from "drizzle-orm";
 
-import { atomic, db, TMembership, modEntity } from "@/app/_lib/db";
+import { atomic, db, DbMembership, modEntity } from "@/app/_lib/db";
 import { err } from "@/app/_lib/utils";
 import { chartColors, memberships } from "@/app/_lib/db/schema";
-import { currentUser } from "../(users)/_lib";
+import { currentUser, User } from "../(users)/_lib";
+import { Group } from "../groups/_lib/getGroups";
+
+type MembershipModifier = Pick<DbMembership, "groupId" | "userId"> &
+  Partial<Pick<DbMembership, "flags" | "defaultCategoryId">>;
 
 export async function apiModMembership({
   groupId,
   userId,
   flags,
-}: TMembership) {
+}: MembershipModifier) {
   if (
     typeof groupId !== "number" ||
     typeof userId !== "number" ||
@@ -25,9 +29,6 @@ export async function apiModMembership({
 
   return await svcModMembership(user.id, { groupId, userId, flags });
 }
-
-type MembershipModifier = Required<Pick<TMembership, "groupId" | "userId">> &
-  Pick<TMembership, "flags" | "defaultCategoryId">;
 
 export async function svcModMembership(
   revisedBy: User["id"],
@@ -51,10 +52,10 @@ export async function svcModMembership(
         primaryKeys: { userId: true, groupId: true },
         revisionId,
         skipArchivalOf: { defaultCategoryId: true },
-        returns: { columns: { flags: true } },
+        needsToReturn: true,
       });
 
-      return res!;
+      return res;
     }
   );
 }
