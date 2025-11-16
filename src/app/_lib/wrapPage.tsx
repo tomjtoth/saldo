@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import { TGroup } from "./db";
+import { Group } from "../groups/_lib";
 import { currentUser, User } from "../(users)/_lib";
 
 import RootDiv from "@/app/_components/rootDiv";
@@ -18,7 +18,7 @@ interface WithoutSession<T> extends BaseOptions<T> {
 }
 
 interface WithData<T> extends BaseOptions<T> {
-  getData?: (userId: User["id"]) => Promise<TGroup[]>;
+  getData?: (userId: User["id"]) => Promise<Group[]>;
 }
 
 type RequestContext<T> = { params: Promise<WithGID<T>> };
