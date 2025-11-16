@@ -2,13 +2,20 @@
 
 import { eq, exists, and, sql, SQL } from "drizzle-orm";
 
-import { Category } from "@/app/categories/_lib";
-import { db, DrizzleTx, isActive } from "@/app/_lib/db";
+import {
+  BalanceData,
+  ConsumptionData,
+  db,
+  DrizzleTx,
+  getArchivePopulator,
+  isActive,
+} from "@/app/_lib/db";
 import { groups, memberships } from "@/app/_lib/db/schema";
-import { Receipt } from "@/app/receipts/_lib";
 import { sortByName } from "@/app/_lib/utils";
 import { svcGetColors } from "./getColors";
 import { User } from "@/app/(users)/_lib";
+import { SELECT_CATEGORIES, SELECT_REVISION_INFO } from "@/app/_lib";
+import { queryReceipts } from "@/app/receipts/_lib/common";
 
 export type Group = Awaited<ReturnType<typeof svcGetGroups>>[number];
 
@@ -17,31 +24,48 @@ export async function svcGetGroups(
   {
     tx,
     where,
+    view,
   }: {
     tx?: DrizzleTx;
-    where?: SQL<unknown>;
-  }
+    where?: SQL;
+    view?: "receipts"; //| "balance" | "consumption";
+  } = {}
 ) {
   const colors = await svcGetColors(userId);
 
   const arr = await (tx ?? db).query.groups.findMany({
-    columns: {
-      id: true,
-      name: true,
-      description: true,
-      flags: true,
-      uuid: true,
-    },
+    columns: { revisionId: false },
+
     with: {
+      categories: SELECT_CATEGORIES,
+
+      ...(view === "receipts" ? { receipts: queryReceipts() } : {}),
+
+      // TODO: integrate my custom queries **somehow** into this query,
+      // so that I only need one DB query...
+
+      // ...(view === "consumption" ? { consumption: consumptionQuery() } : {}),
+      // ...(view === "balance" ? { balance: balanceQuery() } : {}),
+
       memberships: {
-        columns: { flags: true },
+        columns: { flags: true, defaultCategoryId: true },
         with: {
           user: {
-            columns: { name: true, id: true, email: true, flags: true },
+            columns: {
+              defaultGroupId: false,
+              revisionId: false,
+            },
+
+            // TODO:
+            // extras: {
+            //   color: sql<string>`'#012345'`.as("color"),
+            // },
           },
+          revision: SELECT_REVISION_INFO,
         },
       },
     },
+
     where:
       where ??
       exists(
@@ -58,22 +82,31 @@ export async function svcGetGroups(
       ),
   });
 
-  return arr.toSorted(sortByName).map((grp) => {
-    grp.memberships.sort((a, b) => sortByName(a.user, b.user));
+  const populateCategoryArchives = await getArchivePopulator(
+    "categories",
+    "id"
+  );
+
+  return arr.toSorted(sortByName).map((group) => {
+    group.memberships.sort((a, b) => sortByName(a.user, b.user));
 
     const users: Pick<User, "id" | "name" | "email" | "color">[] =
-      grp.memberships.map((ms) => ({
+      group.memberships.map((ms) => ({
         ...ms.user,
         color: colors.find(
-          (row) => row.groupId === grp.id && row.userId === ms.user.id
+          (row) => row.groupId === group.id && row.userId === ms.user.id
         )!.color,
       }));
 
     return {
-      ...grp,
+      ...group,
       users,
-      categories: [] as Category[],
-      receipts: [] as Receipt[],
+      categories: populateCategoryArchives(
+        group.categories.toSorted(sortByName)
+      ),
+      receipts: "receipts" in group ? group.receipts : [],
+      consumption: [] as ConsumptionData[],
+      balance: { relations: [], data: [] } as BalanceData,
     };
   });
 }

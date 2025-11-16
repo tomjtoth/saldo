@@ -3,8 +3,7 @@
 import { eq } from "drizzle-orm";
 
 import { err, nullEmptyStrings } from "@/app/_lib/utils";
-import { DbUser } from "@/app/_lib/db";
-import { atomic, CrGroup, DbGroup } from "@/app/_lib/db";
+import { atomic, CrGroup, DbGroup, DbUser } from "@/app/_lib/db";
 import { groups, memberships } from "@/app/_lib/db/schema";
 import { currentUser } from "@/app/(users)/_lib";
 import { svcGetGroups } from "./getGroups";
