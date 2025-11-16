@@ -50,6 +50,7 @@ export async function svcAddCategory(revisedBy: number, data: CategoryAdder) {
         .returning({ id: categories.id });
 
       const [res] = await svcGetCategories(revisedBy, {
+        tx,
         where: eq(categories.id, id),
       });
 
