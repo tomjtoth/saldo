@@ -24,6 +24,8 @@ import {
 
 export type Group = Awaited<ReturnType<typeof svcGetGroups>>[number];
 
+export type Membership = Group["memberships"][number];
+
 export async function svcGetGroups(
   userId: User["id"],
   {
@@ -53,7 +55,6 @@ export async function svcGetGroups(
       // ...(view === "balance" ? { balance: balanceQuery() } : {}),
 
       memberships: {
-        columns: { flags: true, defaultCategoryId: true },
         with: {
           user: {
             columns: {
