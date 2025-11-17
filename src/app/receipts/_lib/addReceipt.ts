@@ -1,18 +1,19 @@
 "use server";
 
-import { atomic, DbItem, DbItemShare, DbReceipt } from "@/app/_lib/db";
+import { atomic } from "@/app/_lib/db";
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
 import { err, nullEmptyStrings } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
+  Item,
   ItemShare,
   populateReceiptArchivesRecursively,
   Receipt,
 } from "./common";
 
-export type TAddReceipt = Pick<DbReceipt, "groupId" | "paidOn" | "paidById"> & {
-  items: (Pick<DbItem, "cost" | "categoryId" | "notes"> & {
-    itemShares: Pick<DbItemShare, "share" | "userId">[];
+export type TAddReceipt = Pick<Receipt, "groupId" | "paidOn" | "paidById"> & {
+  items: (Pick<Item, "cost" | "categoryId" | "notes"> & {
+    itemShares: Pick<ItemShare, "share" | "userId">[];
   })[];
 };
 

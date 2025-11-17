@@ -41,23 +41,23 @@ export type TBalanceChartData = {
   }[];
 };
 
-export type CrRevision = typeof schema.revisions.$inferInsert;
-export type CrUser = typeof schema.users.$inferInsert;
-export type CrGroup = typeof schema.groups.$inferInsert;
-export type CrMembership = typeof schema.memberships.$inferInsert;
-export type CrCategory = typeof schema.categories.$inferInsert;
-export type CrReceipt = typeof schema.receipts.$inferInsert;
-export type CrItem = typeof schema.items.$inferInsert;
-export type CrItemShare = typeof schema.itemShares.$inferInsert;
+export type CrRevision = DbInsert<"revisions">;
+export type CrUser = DbInsert<"users">;
+export type CrGroup = DbInsert<"groups">;
+export type CrMembership = DbInsert<"memberships">;
+export type CrCategory = DbInsert<"categories">;
+export type CrReceipt = DbInsert<"receipts">;
+export type CrItem = DbInsert<"items">;
+export type CrItemShare = DbInsert<"itemShares">;
 
-export type DbRevision = typeof schema.revisions.$inferSelect;
-export type DbUser = typeof schema.users.$inferSelect;
-export type DbGroup = typeof schema.groups.$inferSelect;
-export type DbMembership = typeof schema.memberships.$inferSelect;
-export type DbCategory = typeof schema.categories.$inferSelect;
-export type DbReceipt = typeof schema.receipts.$inferSelect;
-export type DbItem = typeof schema.items.$inferSelect;
-export type DbItemShare = typeof schema.itemShares.$inferSelect;
+export type DbRevision = DbSelect<"revisions">;
+export type DbUser = DbSelect<"users">;
+export type DbGroup = DbSelect<"groups">;
+export type DbMembership = DbSelect<"memberships">;
+export type DbCategory = DbSelect<"categories">;
+export type DbReceipt = DbSelect<"receipts">;
+export type DbItem = DbSelect<"items">;
+export type DbItemShare = DbSelect<"itemShares">;
 
 export type RevisionInfo = {
   revision: Pick<DbRevision, "createdAt"> & {

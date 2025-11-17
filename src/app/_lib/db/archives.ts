@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
 import { db } from "./instance";
-import { TSelectAllFrom, DrizzleTx, RevisionInfo, SchemaTables } from "./types";
+import { DbSelect, DrizzleTx, RevisionInfo, SchemaTables } from "./types";
 
 type ArchivedTables = Exclude<
   keyof SchemaTables,
@@ -99,7 +99,7 @@ export async function getArchivePopulator(tx?: DrizzleTx) {
 
   return function populator<
     Table extends ArchivedTables,
-    Entity extends TSelectAllFrom<Table>,
+    Entity extends DbSelect<Table>,
     PE extends Partial<Entity>
   >(
     origin:
