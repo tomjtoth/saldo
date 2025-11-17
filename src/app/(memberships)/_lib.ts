@@ -4,12 +4,11 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 
 import { atomic, db, DbMembership, modEntity } from "@/app/_lib/db";
 import { err } from "@/app/_lib/utils";
-import { chartColors, memberships } from "@/app/_lib/db/schema";
+import { categories, chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser, User } from "../(users)/_lib";
-import { Group } from "../groups/_lib/getGroups";
-
-type MembershipModifier = Pick<DbMembership, "groupId" | "userId"> &
-  Partial<Pick<DbMembership, "flags" | "defaultCategoryId">>;
+import { Group, Membership } from "../groups/_lib/getGroups";
+import { userMayModCategory } from "../categories/_lib/common";
+import { Category } from "../categories/_lib";
 
 export async function apiModMembership({
   groupId,
@@ -58,6 +57,25 @@ export async function svcModMembership(
       return res;
     }
   );
+}
+
+export async function apiSetDefaultCategory(categoryId: Category["id"]) {
+  if (typeof categoryId !== "number") err();
+
+  const { id: userId } = await currentUser();
+
+  await userMayModCategory(userId, categoryId);
+
+  const cat = await db.query.categories.findFirst({
+    columns: { groupId: true },
+    where: eq(categories.id, categoryId),
+  });
+
+  await svcModMembership(userId, {
+    userId,
+    groupId: cat!.groupId,
+    defaultCategoryId: categoryId,
+  });
 }
 
 export async function isAdmin(userId: User["id"], groupId: Group["id"]) {
