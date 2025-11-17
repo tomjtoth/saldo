@@ -8,7 +8,7 @@ export default function UserAvatar({
   className = "",
   onClick,
 }: {
-  user: User;
+  user: Pick<User, "name" | "image">;
   id?: string;
   className?: string;
   onClick?: () => void;
