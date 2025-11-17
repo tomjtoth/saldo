@@ -13,19 +13,6 @@ export type QueryParamsOf<T extends keyof SchemaTables> = Parameters<
   DrizzleTx["query"][T]["findMany"]
 >[0];
 
-// nice utility type, but makes my code less readable with
-// longer overall names and additional imports..
-export type ModelMode = "selectFromDb" | "insertIntoDb" | null;
-export type ModelType<
-  DefaultType,
-  Table extends keyof SchemaTables,
-  Mode extends ModelMode
-> = Mode extends "selectFromDb"
-  ? DbSelect<Table>
-  : Mode extends "insertIntoDb"
-  ? DbInsert<Table>
-  : DefaultType;
-
 export type DbInsert<T extends keyof SchemaTables> = Schema[T]["$inferInsert"];
 export type DbSelect<T extends keyof SchemaTables> = Schema[T]["$inferSelect"];
 
