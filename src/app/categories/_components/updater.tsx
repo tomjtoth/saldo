@@ -4,21 +4,21 @@ import { useState } from "react";
 
 import { virt } from "@/app/_lib/utils";
 import { useAppDispatch } from "@/app/_lib/hooks";
-import { TCategory } from "@/app/_lib/db";
+import { Category } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
 
 import Slider from "@/app/_components/slider";
 
-export default function Updater({ cat }: { cat: TCategory }) {
+export default function Updater({ cat }: { cat: Category }) {
   const dispatch = useAppDispatch();
-  const [name, setName] = useState(cat.name!);
+  const [name, setName] = useState(cat.name);
   const [description, setDescr] = useState(cat.description ?? "");
-  const [flags, setFlags] = useState(cat.flags!);
+  const [flags, setFlags] = useState(cat.flags);
 
   return (
     <form
       id="updater"
-      key={`${cat.id}-${cat.revisionId!}`}
+      key={`${cat.id}-${cat.revisionId}`}
       className={
         "p-2 bg-background rounded border-2 " +
         (virt({ flags }).active ? "border-green-500" : "border-red-500") +
@@ -29,9 +29,9 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
         dispatch(thunks.modCategory(cat, { name, description, flags })).catch(
           () => {
-            setName(cat.name!);
+            setName(cat.name);
             setDescr(cat.description ?? "");
-            setFlags(cat.flags!);
+            setFlags(cat.flags);
           }
         );
       }}
@@ -60,9 +60,9 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
       <div className="col-span-3 text-center">
         🗓️
-        <sub> {cat.revision!.createdAt} </sub>
+        <sub> {cat.revision.createdAt} </sub>
         🪪
-        <sub> {cat.revision!.createdBy!.name} </sub>
+        <sub> {cat.revision.createdBy.name} </sub>
       </div>
     </form>
   );

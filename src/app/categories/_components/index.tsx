@@ -18,7 +18,9 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
           <EntityAdderButton
             placeholder="Category"
             handler={({ name, description }) =>
-              dispatch(thunks.addCategory(cs.groupId!, name, description))
+              dispatch(
+                thunks.addCategory({ groupId: cs.groupId!, name, description })
+              )
             }
           />
         )}
@@ -30,7 +32,7 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {cs.group?.categories?.map((cat) => (
+        {cs.group?.categories.map((cat) => (
           <Entry key={cat.id} cat={cat} preSelected={srv.catId === cat.id} />
         ))}
       </div>

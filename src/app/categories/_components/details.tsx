@@ -1,6 +1,6 @@
 "use client";
 
-import { TCategory } from "@/app/_lib/db";
+import { Category } from "../_lib";
 import { virt } from "@/app/_lib/utils";
 
 import Slider from "@/app/_components/slider";
@@ -10,7 +10,7 @@ export default function Details({
   cat,
   hideDetails,
 }: {
-  cat: TCategory;
+  cat: Category;
   hideDetails: () => void;
 }) {
   return (
@@ -25,9 +25,9 @@ export default function Details({
       }}
     >
       <Updater cat={cat} />
-      {cat.archives?.map((cat) => (
+      {cat.archives.map((cat) => (
         <div
-          key={`${cat.id}-${cat.revisionId!}`}
+          key={`${cat.id}-${cat.revisionId}`}
           className={
             "p-2 bg-background rounded border-2 cursor-not-allowed " +
             (virt(cat).active ? "border-green-500" : "border-red-500") +
@@ -54,9 +54,9 @@ export default function Details({
 
           <div className="col-span-2 text-center">
             🗓️
-            <sub> {cat.revision!.createdAt} </sub>
+            <sub> {cat.revision.createdAt} </sub>
             🪪
-            <sub> {cat.revision!.createdBy!.name} </sub>
+            <sub> {cat.revision.createdBy.name} </sub>
           </div>
         </div>
       ))}
