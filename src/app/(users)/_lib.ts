@@ -68,9 +68,9 @@ export async function currentUser(
 
   // OAuth profiles without an email are disallowed in @/auth.ts
   // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const email = session.user?.email!;
-  const name = session.user?.name ?? `User #${(await db.$count(users)) + 1}`;
-  const image = session.user?.image ?? null;
+  const email = session.user!.email!;
+  const name = session.user!.name ?? `User #${(await db.$count(users)) + 1}`;
+  const image = session.user!.image ?? null;
 
   let user = await db.query.users.findFirst({
     where: eq(users.email, email),
@@ -81,9 +81,9 @@ export async function currentUser(
       name,
       email,
       image,
-    })!;
+    });
 
-    await svcAddGroup(user.id!, { name: "just you" });
+    await svcAddGroup(user.id, { name: "just you" });
   }
 
   const updater: Partial<User> = {};
@@ -97,7 +97,7 @@ export async function currentUser(
   }
 
   if (Object.keys(updater).length > 0) {
-    await db.update(users).set(updater).where(eq(users.id, user.id!));
+    await db.update(users).set(updater).where(eq(users.id, user.id));
   }
 
   const { color }: { color: string } = await db.get(sql`
