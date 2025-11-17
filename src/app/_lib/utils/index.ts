@@ -131,7 +131,5 @@ export function sortByName<T extends { name: string | null }>(a: T, b: T) {
   const lowerA = a.name?.toLowerCase() ?? "";
   const lowerB = b.name?.toLowerCase() ?? "";
 
-  if (lowerA < lowerB) return -1;
-  if (lowerA > lowerB) return 1;
-  return 0;
+  return lowerA < lowerB ? -1 : lowerA > lowerB ? 1 : 0;
 }
