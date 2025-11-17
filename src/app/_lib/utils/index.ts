@@ -116,12 +116,12 @@ export const appToast = {
   },
 };
 
-export function insertAlphabetically<T extends { name?: string }>(
+export function insertAlphabetically<T extends { name: string }>(
   payload: Draft<T>,
   arr: WritableDraft<T[]>
 ) {
   const insertAt = arr.findIndex(
-    (obj) => obj.name!.toLowerCase() > payload.name!.toLowerCase()
+    (obj) => obj.name.toLowerCase() > payload.name.toLowerCase()
   );
 
   arr.splice(insertAt > -1 ? insertAt : arr.length, 0, payload);
