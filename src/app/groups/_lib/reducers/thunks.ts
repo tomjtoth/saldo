@@ -1,7 +1,6 @@
 import { toast } from "react-toastify";
 
 import { AppDispatch, RootStateGetter } from "@/app/_lib/store";
-import { TGroup } from "@/app/_lib/db";
 import { appToast, has3ConsecutiveLetters } from "@/app/_lib/utils";
 import {
   apiAddGroup,
@@ -9,16 +8,26 @@ import {
   apiRmInviteLink,
   apiSetDefaultGroup,
   apiModGroup,
+  Group,
 } from "..";
-import { apiSetUserColor, apiModMembership } from "@/app/(memberships)/_lib";
+import {
+  apiSetUserColor,
+  apiModMembership,
+  MembershipModifier,
+} from "@/app/(memberships)/_lib";
 import { csa } from "@/app/_lib/reducers/slice";
+import { User } from "@/app/(users)/_lib";
 
 export const thunksGroups = {
   modGroup:
-    (groupId: number, modifiers: TGroup, original: TGroup) =>
+    (
+      groupId: number,
+      modifiers: Pick<Group, "name" | "description" | "flags">,
+      original: Group
+    ) =>
     (dispatch: AppDispatch) => {
       try {
-        has3ConsecutiveLetters(modifiers.name!);
+        has3ConsecutiveLetters(modifiers.name);
       } catch (err) {
         toast.error((err as Error).message as string, appToast.theme());
         throw err;
@@ -37,15 +46,15 @@ export const thunksGroups = {
     },
 
   addGroup:
-    ({ name, description }: TGroup) =>
+    ({ name, description }: Group) =>
     (dispatch: AppDispatch) => {
       try {
-        has3ConsecutiveLetters(name!);
+        has3ConsecutiveLetters(name);
       } catch (err) {
         toast.error((err as Error).message as string, appToast.theme());
       }
 
-      const crudOp = apiAddGroup({ name: name!, description }).then((res) => {
+      const crudOp = apiAddGroup({ name, description }).then((res) => {
         dispatch(csa.addGroup(res));
       });
       appToast.promise(crudOp, `Saving "${name}" to db`);
@@ -53,16 +62,16 @@ export const thunksGroups = {
       return crudOp;
     },
 
-  generateInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = apiGenInviteLink({ id: groupId }).then((res) => {
+  generateInviteLink: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
+    const crudOp = apiGenInviteLink(groupId).then((res) => {
       dispatch(csa.modGroup(res));
     });
 
     appToast.promise(crudOp, "Generating invitation link");
   },
 
-  removeInviteLink: (groupId: number) => (dispatch: AppDispatch) => {
-    const crudOp = apiRmInviteLink({ id: groupId }).then((res) => {
+  removeInviteLink: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
+    const crudOp = apiRmInviteLink(groupId).then((res) => {
       dispatch(csa.modGroup(res));
     });
 
@@ -70,7 +79,7 @@ export const thunksGroups = {
   },
 
   modMembership:
-    (groupId: number, userId: number, flags: number, toastMessage: string) =>
+    ({ groupId, userId, flags }: MembershipModifier, toastMessage: string) =>
     (dispatch: AppDispatch) => {
       const crudOp = apiModMembership({ groupId, userId, flags }).then(
         ({ flags }) => {
@@ -89,11 +98,11 @@ export const thunksGroups = {
       return crudOp;
     },
 
-  setGroupId: (groupId: number) => (dispatch: AppDispatch) => {
+  setGroupId: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
     return dispatch(csa.setGroupId(groupId));
   },
 
-  setDefaultGroupId: (groupId: number) => (dispatch: AppDispatch) => {
+  setDefaultGroupId: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
     const crudOp = apiSetDefaultGroup(groupId).then(() => {
       dispatch(csa.setDefaultGroupId(groupId));
     });
@@ -104,13 +113,12 @@ export const thunksGroups = {
   },
 
   setUserColor:
-    (color: string | null, uid?: number) =>
+    (color: User["color"] | null, uid?: User["id"]) =>
     async (dispatch: AppDispatch, getState: RootStateGetter) => {
       const rs = getState().combined;
       const group = rs.groups.find((g) => g.id === rs.groupId)!;
       const prevState = uid
-        ? (group.consumption ?? group.balance)!.users.find((u) => u.id === uid)!
-            .color
+        ? group.users.find((u) => u.id === uid)!.color
         : rs.user!.color;
 
       appToast.promise(
@@ -123,7 +131,7 @@ export const thunksGroups = {
               }
             : {}),
         }).catch((err) => {
-          dispatch(csa.setUserColor({ color: prevState!, uid }));
+          dispatch(csa.setUserColor({ color: prevState, uid }));
           throw err;
         }),
 
