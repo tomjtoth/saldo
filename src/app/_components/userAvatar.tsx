@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { TUser } from "@/app/_lib/db";
+import { User } from "../(users)/_lib";
 
 export default function UserAvatar({
   user: { name, image },
@@ -8,15 +8,15 @@ export default function UserAvatar({
   className = "",
   onClick,
 }: {
-  user: TUser;
+  user: User;
   id?: string;
   className?: string;
   onClick?: () => void;
 }) {
-  const names = (name ?? "").split(" ")!;
+  const names = (name ?? "").split(" ");
   const svgName =
     names.length > 1
-      ? names?.map((n) => n.slice(0, 1).toUpperCase()).join("")
+      ? names.map((n) => n.slice(0, 1).toUpperCase()).join("")
       : names[0].slice(0, 2).toUpperCase();
 
   const classes =
