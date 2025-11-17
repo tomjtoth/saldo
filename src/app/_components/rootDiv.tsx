@@ -26,7 +26,7 @@ export const RootDivCx = createContext<{
   addOnScroll: (name: string, handler: UIEventHandler<HTMLDivElement>) => void;
   rmOnScroll: (name: string) => void;
   groups: Group[];
-  groupId?: number;
+  groupId?: Group["id"];
   user?: User;
   rootDivRef?: RefObject<HTMLDivElement | null>;
 }>({
@@ -47,7 +47,7 @@ export default function RootDiv({
   children: ReactNode;
 
   rewritePath?: string;
-  groupId?: number;
+  groupId?: Group["id"];
 
   user?: User;
   groups: Group[];
