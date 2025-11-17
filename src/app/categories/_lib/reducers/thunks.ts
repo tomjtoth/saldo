@@ -10,12 +10,12 @@ import { csa } from "@/app/_lib/reducers/slice";
 import {
   apiAddCategory,
   apiModCategory,
-  apiSetDefaultCategory,
   Category,
   CategoryAdder,
   CategoryModifier,
 } from "..";
 import { Group } from "@/app/groups/_lib";
+import { apiSetDefaultCategory } from "@/app/(memberships)/_lib";
 
 export const thunksCategories = {
   modCategory:
