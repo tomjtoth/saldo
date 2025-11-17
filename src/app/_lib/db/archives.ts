@@ -125,12 +125,12 @@ export async function getArchivePopulator(tx?: DrizzleTx) {
         buffer[table][strPk1][strPk2].reduce((prev, rev) => {
           const curr = { ...prev, ...rev };
 
-          const dateTimeConverter = curr as {
-            revision?: { createdAt: number | string };
-          };
+          const dateTimeConverter: {
+            revision: { createdAt: number | string };
+          } = curr;
 
-          dateTimeConverter.revision!.createdAt = VDate.timeToStr(
-            dateTimeConverter.revision!.createdAt as number
+          dateTimeConverter.revision.createdAt = VDate.timeToStr(
+            dateTimeConverter.revision.createdAt as number
           );
 
           archives.push(curr);
