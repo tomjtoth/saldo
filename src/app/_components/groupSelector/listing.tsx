@@ -50,7 +50,7 @@ export default function GroupListing() {
                   className="mr-2"
                   checked={checked}
                   onChange={() => {
-                    dispatch(thunks.setGroupId(group.id!));
+                    dispatch(thunks.setGroupId(group.id));
                     nodes.pop();
                   }}
                 />
