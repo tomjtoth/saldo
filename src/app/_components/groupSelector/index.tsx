@@ -12,13 +12,13 @@ export default function GroupSelector() {
 
   const cs = useClientState();
 
-  return !cs.groups.length || pathname === "/groups" ? null : (
+  return !cs.group || pathname === "/groups" ? null : (
     <>
       <span
         className="truncate cursor-pointer min-w-10 select-none"
         onClick={() => nodes.push(MainMenu)}
       >
-        {cs.group?.name}
+        {cs.group.name}
       </span>{" "}
       /{" "}
     </>
