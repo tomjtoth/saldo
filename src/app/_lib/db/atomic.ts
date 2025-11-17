@@ -41,6 +41,7 @@ export const atomic: Overloads = async <T>(
   const isFnOnly = typeof optsOrFn === "function";
   const opts = isFnOnly ? {} : optsOrFn;
   const operation = isFnOnly ? optsOrFn : maybeFn!;
+
   const {
     revisedBy,
     deferForeignKeys,
