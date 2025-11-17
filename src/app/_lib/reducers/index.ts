@@ -5,10 +5,10 @@ import { thunksReceipts } from "@/app/receipts/_lib/reducers";
 import { addEmptyReceipts } from "@/app/receipts/_lib/reducers/helpers";
 import { deepClone } from "../utils";
 import { slice } from "./slice";
-import { Initializer } from "./types";
+import { CombinedState } from "./types";
 
 export const thunks = {
-  init: (data: Initializer) => (dispatch: AppDispatch) => {
+  init: (data: CombinedState) => (dispatch: AppDispatch) => {
     // must clone here, because Redux freezes the object async(?)
     // and by the 2nd iteration in the next fn it threw errors...
     const clone = deepClone(data);
