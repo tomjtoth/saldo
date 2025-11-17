@@ -94,13 +94,12 @@ export async function svcGetGroups(
     arr.toSorted(sortByName).map(async (group) => {
       group.memberships.sort((a, b) => sortByName(a.user, b.user));
 
-      const users: Pick<User, "id" | "name" | "email" | "color">[] =
-        group.memberships.map((ms) => ({
-          ...ms.user,
-          color: colors.find(
-            (row) => row.groupId === group.id && row.userId === ms.user.id
-          )!.color,
-        }));
+      const users = group.memberships.map((ms) => ({
+        ...ms.user,
+        color: colors.find(
+          (row) => row.groupId === group.id && row.userId === ms.user.id
+        )!.color,
+      }));
 
       return {
         ...group,
