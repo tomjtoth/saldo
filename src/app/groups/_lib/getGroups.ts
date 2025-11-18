@@ -12,7 +12,6 @@ import {
 } from "@/app/_lib/db";
 import { groups, memberships } from "@/app/_lib/db/schema";
 import { sortByName } from "@/app/_lib/utils";
-import { svcGetColors } from "./getColors";
 import { User } from "@/app/(users)/_lib";
 import { SELECT_CATEGORIES, SELECT_REVISION_INFO } from "@/app/_lib";
 import {
@@ -21,6 +20,7 @@ import {
   Receipt,
   ReceiptsFromDb,
 } from "@/app/receipts/_lib/common";
+import { colorsForGroups } from "./getColors";
 
 export type Group = Awaited<ReturnType<typeof svcGetGroups>>[number];
 
@@ -38,8 +38,6 @@ export async function svcGetGroups(
     view?: "receipts"; //| "balance" | "consumption";
   } = {}
 ) {
-  const colors = await svcGetColors(userId);
-
   const arr = await (tx ?? db).query.groups.findMany({
     columns: { revisionId: false },
 
@@ -62,10 +60,9 @@ export async function svcGetGroups(
               revisionId: false,
             },
 
-            // TODO:
-            // extras: {
-            //   color: sql<string>`'#012345'`.as("color"),
-            // },
+            extras: {
+              color: colorsForGroups(userId),
+            },
           },
           revision: SELECT_REVISION_INFO,
         },
@@ -94,16 +91,10 @@ export async function svcGetGroups(
     arr.toSorted(sortByName).map(async (group) => {
       group.memberships.sort((a, b) => sortByName(a.user, b.user));
 
-      const users = group.memberships.map((ms) => ({
-        ...ms.user,
-        color: colors.find(
-          (row) => row.groupId === group.id && row.userId === ms.user.id
-        )!.color,
-      }));
-
       return {
         ...group,
-        users,
+        users: group?.memberships.map((ms) => ms.user),
+
         categories: archivePopulator(
           "categories",
           group.categories.toSorted(sortByName)
