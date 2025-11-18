@@ -9,8 +9,8 @@ import { currentUser, User } from "@/app/(users)/_lib";
 import {
   populateReceiptArchivesRecursively,
   Receipt,
-  queryReceipts,
-} from "./common";
+} from "./populateRecursively";
+import { queryReceipts } from "./common";
 
 type ReceiptIds = Receipt["id"][];
 

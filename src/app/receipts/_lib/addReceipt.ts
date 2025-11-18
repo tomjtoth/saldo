@@ -9,7 +9,7 @@ import {
   ItemShare,
   populateReceiptArchivesRecursively,
   Receipt,
-} from "./common";
+} from "./populateRecursively";
 
 export type TAddReceipt = Pick<Receipt, "groupId" | "paidOn" | "paidById"> & {
   items: (Pick<Item, "cost" | "categoryId" | "notes"> & {

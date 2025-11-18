@@ -12,7 +12,7 @@ import {
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
 import { err, nullEmptyStrings, virt } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
-import { populateReceiptArchivesRecursively } from "./common";
+import { populateReceiptArchivesRecursively } from "./populateRecursively";
 import { svcGetReceipts } from "./getReceipts";
 
 export type TModReceipt = DbReceipt & {
