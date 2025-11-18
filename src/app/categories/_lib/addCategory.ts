@@ -18,16 +18,12 @@ export async function apiAddCategory({
   name,
   description,
 }: CategoryAdder) {
-  const typeDescr = typeof description;
-
   if (
-    typeof name !== "string" ||
-    typeof groupId !== "number" ||
-    (typeDescr !== "string" && typeDescr !== "undefined")
+    !is.number(groupId) ||
+    !is.stringOrUndefined(description) ||
+    !is.stringWith3ConsecutiveLetters(name)
   )
     err();
-
-  is.stringWith3ConsecutiveLetters(name);
 
   const data = nullEmptyStrings({ groupId, name, description });
 

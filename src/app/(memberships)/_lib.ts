@@ -3,7 +3,7 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 
 import { atomic, db, DbMembership, modEntity } from "@/app/_lib/db";
-import { err } from "@/app/_lib/utils";
+import { err, is } from "@/app/_lib/utils";
 import { categories, chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser, User } from "../(users)/_lib";
 import { Group, Membership } from "../groups/_lib/getGroups";
@@ -114,15 +114,12 @@ export async function apiSetUserColor({
   groupId,
   memberId,
 }: TSetUsercolor) {
-  if (color !== null && typeof color !== "string")
-    err(400, "color should be string");
+  if (!is.stringOrNull(color)) err(400, "color should be string");
 
-  const typeGID = typeof groupId;
-  if (groupId !== null && typeGID !== "number" && typeGID !== "undefined")
+  if (!is.numberNullOrUndefined(groupId))
     err(400, "groupId should be an optional number");
 
-  const typeMID = typeof memberId;
-  if (memberId !== null && typeMID !== "number" && typeMID !== "undefined")
+  if (!is.numberNullOrUndefined(memberId))
     err(400, "memberId should be an optional number");
 
   groupId = groupId ?? null;

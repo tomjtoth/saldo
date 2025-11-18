@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 
-import { err, nullEmptyStrings } from "@/app/_lib/utils";
+import { err, is, nullEmptyStrings } from "@/app/_lib/utils";
 import { atomic, CrGroup, DbGroup } from "@/app/_lib/db";
 import { groups, memberships } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
@@ -13,13 +13,9 @@ type GroupAdder = Pick<DbGroup, "name"> & Partial<Pick<DbGroup, "description">>;
 export async function apiAddGroup({ name, description }: GroupAdder) {
   const user = await currentUser();
 
-  const typeDescr = typeof description;
-
   if (
-    typeof name !== "string" ||
-    (description !== null &&
-      typeDescr !== "string" &&
-      typeDescr !== "undefined")
+    !is.stringWith3ConsecutiveLetters(name) ||
+    !is.stringNullOrUndefined(description)
   )
     err(400);
 

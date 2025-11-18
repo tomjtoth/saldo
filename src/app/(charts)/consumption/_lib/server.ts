@@ -4,19 +4,16 @@ import { sql } from "drizzle-orm";
 
 import { ConsumptionData, db } from "@/app/_lib/db";
 import { Group } from "@/app/groups/_lib";
-import { err, VDate } from "@/app/_lib/utils";
+import { err, is } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { ConsumptionOpts, consumptionQuery } from "./query";
 
 export async function apiGetConsumption({ from, to }: ConsumptionOpts) {
-  const typeFrom = typeof from;
-  const typeTo = typeof to;
-
   if (
-    (typeFrom !== "string" && typeFrom !== "undefined") ||
-    (typeTo !== "string" && typeTo !== "undefined") ||
-    (from && !VDate.couldBeParsedFrom(from)) ||
-    (to && !VDate.couldBeParsedFrom(to))
+    !is.stringOrUndefined(from) ||
+    !is.stringOrUndefined(to) ||
+    (from && !is.parsableIntoDate(from)) ||
+    (to && !is.parsableIntoDate(to))
   )
     err(400);
 

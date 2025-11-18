@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 
-import { err, nullEmptyStrings } from "@/app/_lib/utils";
+import { err, is, nullEmptyStrings } from "@/app/_lib/utils";
 import { modEntity } from "@/app/_lib/db";
 import { atomic, DbGroup } from "@/app/_lib/db";
 import { groups } from "@/app/_lib/db/schema";
@@ -18,17 +18,11 @@ export async function apiModGroup({
   name,
   description,
 }: Omit<GroupModifier, "uuid">) {
-  const typeDescr = typeof description;
-  const typeFlags = typeof flags;
-  const typeName = typeof name;
-
   if (
-    typeof id !== "number" ||
-    (typeFlags !== "number" && typeFlags !== "undefined") ||
-    (typeName !== "string" && typeName !== "undefined") ||
-    (description !== null &&
-      typeDescr !== "string" &&
-      typeDescr !== "undefined")
+    !is.number(id) ||
+    !is.numberOrUndefined(flags) ||
+    !is.stringOrUndefined(name) ||
+    !is.stringNullOrUndefined(description)
   )
     err();
 
