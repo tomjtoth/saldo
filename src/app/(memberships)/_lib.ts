@@ -10,6 +10,11 @@ import { Group, Membership } from "../groups/_lib/getGroups";
 import { userMayModCategory } from "../categories/_lib/common";
 import { Category } from "../categories/_lib";
 
+export type MembershipModifier = Pick<
+  DbMembership,
+  "groupId" | "userId" | "flags"
+>;
+
 export async function apiModMembership({
   groupId,
   userId,
