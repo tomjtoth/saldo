@@ -21,6 +21,7 @@ import {
   ReceiptsFromDb,
 } from "@/app/receipts/_lib/common";
 import { colorsForGroups } from "./getColors";
+import { consumptionQuery } from "@/app/(charts)/consumption/_lib";
 
 export type Group = Awaited<ReturnType<typeof svcGetGroups>>[number];
 
@@ -44,6 +45,14 @@ export async function svcGetGroups(
 ) {
   const arr = await (tx ?? db).query.groups.findMany({
     columns: { revisionId: false },
+
+    extras: {
+      ...("consumption" in extras
+        ? {
+            consumption: consumptionQuery(extras.consumption).as("consumption"),
+          }
+        : {}),
+    },
 
     with: {
       categories: SELECT_CATEGORIES,
@@ -97,6 +106,8 @@ export async function svcGetGroups(
             )
           : [];
 
+      const consumption: ConsumptionData[] =
+        "consumption" in group ? JSON.parse(group.consumption as string) : [];
 
       return {
         ...group,
@@ -108,7 +119,7 @@ export async function svcGetGroups(
         ),
 
         receipts,
-        consumption: [] as ConsumptionData[],
+        consumption,
         balance: { relations: [], data: [] } as BalanceData,
       };
     })
