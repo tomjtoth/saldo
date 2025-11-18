@@ -1,5 +1,7 @@
 import { sql } from "drizzle-orm";
 
+import { BalanceData } from "@/app/_lib/db";
+
 export const balanceQuery = () =>
   sql<string>`(
     WITH normalized_shares_and_uids AS (
@@ -55,4 +57,36 @@ export const balanceQuery = () =>
       'relations', (SELECT relations FROM distinct_relations),
       'data', (SELECT jsonb_group_array("daily_data") FROM data_by_date)
     )
-  )`;
+  )`.as("balance");
+
+export function getBalanceParser() {
+  const minMaxes: BalanceData["minMaxes"] = {};
+
+  return function parser<T extends { balance?: unknown }>(group: T) {
+    const balance: BalanceData = group.balance
+      ? JSON.parse(group.balance as string)
+      : { relations: [], data: [], minMaxes: [] };
+
+    balance.data.forEach(({ date, ...relations }) => {
+      balance.relations.forEach((relation) => {
+        const val = relations[relation];
+
+        if (val !== undefined) {
+          if (!minMaxes[date]) {
+            minMaxes[date] = {
+              min: val,
+              max: val,
+            };
+          } else {
+            if (val < minMaxes[date].min) minMaxes[date].min = val;
+            if (val > minMaxes[date].max) minMaxes[date].max = val;
+          }
+        }
+      });
+    });
+
+    balance.minMaxes = minMaxes;
+
+    return balance;
+  };
+}

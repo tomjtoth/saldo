@@ -3,7 +3,6 @@
 import { eq, exists, and, sql, SQL } from "drizzle-orm";
 
 import {
-  BalanceData,
   ConsumptionData,
   db,
   DrizzleTx,
@@ -22,7 +21,7 @@ import {
 } from "@/app/receipts/_lib";
 import { colorsForGroups } from "./getColors";
 import { consumptionQuery } from "@/app/(charts)/consumption/_lib";
-import { balanceQuery } from "@/app/(charts)/balance/_lib";
+import { balanceQuery, getBalanceParser } from "@/app/(charts)/balance/_lib";
 
 export type Group = Awaited<ReturnType<typeof svcGetGroups>>[number];
 
@@ -96,6 +95,8 @@ export async function svcGetGroups(
 
   const archivePopulator = await getArchivePopulator(tx);
 
+  const parser = getBalanceParser();
+
   return Promise.all(
     arr.toSorted(sortByName).map(async (group) => {
       group.memberships.sort((a, b) => sortByName(a.user, b.user));
@@ -111,11 +112,6 @@ export async function svcGetGroups(
       const consumption: ConsumptionData[] =
         "consumption" in group ? JSON.parse(group.consumption as string) : [];
 
-      const balance: BalanceData =
-        "balance" in group
-          ? JSON.parse(group.balance as string)
-          : { relations: [], data: [] };
-
       return {
         ...group,
         users: group?.memberships.map((ms) => ms.user),
@@ -127,7 +123,7 @@ export async function svcGetGroups(
 
         receipts,
         consumption,
-        balance,
+        balance: parser(group),
       };
     })
   );
