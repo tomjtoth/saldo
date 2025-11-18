@@ -3,9 +3,7 @@
 import { useState } from "react";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
-import { appToast } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
-import { apiGetConsumption } from "../_lib";
 
 import Header from "@/app/_components/header";
 import ConsumptionChart from "./chart";
@@ -29,20 +27,10 @@ export default function CliConsumptionPage(srv: {
           className="flex flex-wrap gap-2 items-center justify-left"
           onSubmit={(ev) => {
             ev.preventDefault();
-
-            appToast.promise(
-              apiGetConsumption({ from, to })
-                .then((groups) => {
-                  dispatch(thunks.init({ groups }));
-                })
-                .catch((err) => {
-                  setFrom("");
-                  setTo("");
-
-                  throw err;
-                }),
-              "Fetching data"
-            );
+            dispatch(thunks.updateConsumption({ from, to })).catch(() => {
+              setFrom("");
+              setTo("");
+            });
           }}
         >
           <label>
@@ -66,8 +54,8 @@ export default function CliConsumptionPage(srv: {
       </Header>
 
       <div className="p-2 h-full flex flex-col gap-2 items-center">
-        {!!group && (group.consumption?.categories.length ?? 0) > 0 ? (
-          <ConsumptionChart {...group.consumption!} />
+        {(group?.consumption.length ?? 0) > 0 ? (
+          <ConsumptionChart />
         ) : (
           <div className="grow flex items-center">
             <h2>no data to show</h2>
