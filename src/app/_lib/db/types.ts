@@ -29,14 +29,13 @@ export type ConsumptionData = ({
   [userId: string]: number;
 })[];
 
-export type TBalanceChartData = {
+export type BalanceData = {
   relations: string[];
   data: {
     date: number;
-    min: number;
-    max: number;
     [relation: string]: number;
   }[];
+  minMaxes: { [date: number]: { min: number; max: number } };
 };
 
 export type CrRevision = DbInsert<"revisions">;
