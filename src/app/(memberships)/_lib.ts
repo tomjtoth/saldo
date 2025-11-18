@@ -31,7 +31,12 @@ export async function apiModMembership({
 
 export async function svcModMembership(
   revisedBy: User["id"],
-  { userId, groupId, ...modifier }: MembershipModifier
+  {
+    userId,
+    groupId,
+    ...modifier
+  }: Pick<DbMembership, "groupId" | "userId"> &
+    Partial<Pick<DbMembership, "flags" | "defaultCategoryId">>
 ) {
   return await atomic(
     { operation: "Updating membership", revisedBy },
@@ -95,8 +100,8 @@ export async function isAdmin(userId: User["id"], groupId: Group["id"]) {
 
 type TSetUsercolor = {
   color: string | null;
-  groupId?: number | null;
-  memberId?: number | null;
+  groupId?: Membership["groupId"] | null;
+  memberId?: Membership["userId"] | null;
 };
 
 export async function apiSetUserColor({
@@ -129,8 +134,14 @@ async function svcSetUserColor(
 ) {
   const conditions = and(
     eq(chartColors.userId, userId),
-    groupId ? eq(chartColors.groupId, groupId) : isNull(chartColors.groupId),
-    memberId ? eq(chartColors.memberId, memberId) : isNull(chartColors.memberId)
+
+    groupId === null
+      ? isNull(chartColors.groupId)
+      : eq(chartColors.groupId, groupId),
+
+    memberId === null
+      ? isNull(chartColors.memberId)
+      : eq(chartColors.memberId, memberId)
   );
 
   const exists = await db
@@ -138,13 +149,13 @@ async function svcSetUserColor(
     .from(chartColors)
     .where(conditions);
 
-  if (color) {
+  if (color === null) {
+    await db.delete(chartColors).where(conditions);
+  } else {
     if (exists.length) {
       await db.update(chartColors).set({ color }).where(conditions);
     } else {
       await db.insert(chartColors).values({ userId, groupId, memberId, color });
     }
-  } else {
-    await db.delete(chartColors).where(conditions);
   }
 }
