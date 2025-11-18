@@ -19,7 +19,7 @@ import {
   queryReceipts,
   Receipt,
   ReceiptsFromDb,
-} from "@/app/receipts/_lib/common";
+} from "@/app/receipts/_lib";
 import { colorsForGroups } from "./getColors";
 import { consumptionQuery } from "@/app/(charts)/consumption/_lib";
 import { balanceQuery } from "@/app/(charts)/balance/_lib";
