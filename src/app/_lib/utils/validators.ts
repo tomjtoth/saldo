@@ -1,3 +1,4 @@
+import { VDate } from "./datetime";
 import { err } from "./errors";
 
 const RE_3_CONSECUTIVE_LETTERS = /\p{Letter}{3,}/u;
@@ -9,6 +10,10 @@ export const is = {
 
   numberOrNull(value: unknown): value is number | null {
     return (typeof value === "number" && !isNaN(value)) || value === null;
+  },
+
+  numberOrUndefined(value: unknown): value is number | undefined {
+    return (typeof value === "number" && !isNaN(value)) || value === undefined;
   },
 
   numberNullOrUndefined(value: unknown): value is number | null | undefined {
@@ -25,6 +30,10 @@ export const is = {
 
   stringOrNull(value: unknown): value is string | null {
     return typeof value === "string" || value === null;
+  },
+
+  stringOrUndefined(value: unknown): value is string | undefined {
+    return typeof value === "string" || value === undefined;
   },
 
   stringNullOrUndefined(value: unknown): value is string | null | undefined {
@@ -48,5 +57,9 @@ export const is = {
       err("must have at least 3 consecutive letters");
 
     return true;
+  },
+
+  parsableIntoDate(value: unknown): value is string {
+    return this.string(value) && VDate.couldBeParsedFrom(value);
   },
 };
