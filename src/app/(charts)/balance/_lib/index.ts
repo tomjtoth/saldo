@@ -25,11 +25,6 @@ export const balanceQuery = () =>
       GROUP BY "date", relation
     ),
 
-    distinct_relations AS (
-      SELECT jsonb_group_array(distinct relation) AS relations
-      FROM relations_and_daily_sums
-    ),
-
     cumulated_daily_sums AS (
       SELECT
         "date",
@@ -54,8 +49,15 @@ export const balanceQuery = () =>
     )
 
     SELECT json_object(
-      'relations', (SELECT relations FROM distinct_relations),
-      'data', (SELECT jsonb_group_array("daily_data") FROM data_by_date)
+      'relations', (
+        SELECT jsonb_group_array(distinct relation)
+        FROM relations_and_daily_sums
+      ),
+
+      'data', (
+        SELECT jsonb_group_array("daily_data")
+        FROM data_by_date
+      )
     )
   )`.as("balance");
 
