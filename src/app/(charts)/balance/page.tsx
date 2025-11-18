@@ -1,10 +1,10 @@
 import wrapPage from "@/app/_lib/wrapPage";
 
-import { svcGetBalance } from "./_lib";
+import { svcGetGroups } from "@/app/groups/_lib";
 import CliBalancePage from "@/app/(charts)/balance/_components";
 
 export default wrapPage({
-  getData: svcGetBalance,
+  getData: (userId) => svcGetGroups(userId, { extras: { balance: true } }),
   children: <CliBalancePage />,
   rewritePath: "/balance",
 });
