@@ -23,13 +23,11 @@ export type DrizzleTx = SQLiteTransaction<
   ExtractTablesWithRelations<Schema>
 >;
 
-export type TConsumptionChartData = {
-  categories: ({
-    category: string;
-  } & {
-    [user: string]: number;
-  })[];
-};
+export type ConsumptionData = ({
+  category: string;
+} & {
+  [userId: string]: number;
+})[];
 
 export type TBalanceChartData = {
   relations: string[];
