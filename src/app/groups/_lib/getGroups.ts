@@ -31,11 +31,15 @@ export async function svcGetGroups(
   {
     tx,
     where,
-    view,
+    extras = {},
   }: {
     tx?: DrizzleTx;
     where?: SQL;
-    view?: "receipts"; //| "balance" | "consumption";
+    extras?: {
+      receipts?: true;
+      consumption?: { from: string };
+      balance?: true;
+    };
   } = {}
 ) {
   const arr = await (tx ?? db).query.groups.findMany({
@@ -44,13 +48,7 @@ export async function svcGetGroups(
     with: {
       categories: SELECT_CATEGORIES,
 
-      ...(view === "receipts" ? { receipts: queryReceipts() } : {}),
-
-      // TODO: integrate my custom queries **somehow** into this query,
-      // so that I only need one DB query...
-
-      // ...(view === "consumption" ? { consumption: consumptionQuery() } : {}),
-      // ...(view === "balance" ? { balance: balanceQuery() } : {}),
+      ...("receipts" in extras ? { receipts: queryReceipts() } : {}),
 
       memberships: {
         with: {
@@ -91,6 +89,15 @@ export async function svcGetGroups(
     arr.toSorted(sortByName).map(async (group) => {
       group.memberships.sort((a, b) => sortByName(a.user, b.user));
 
+      const receipts: Receipt[] =
+        "receipts" in group
+          ? await populateReceiptArchivesRecursively(
+              group.receipts as ReceiptsFromDb,
+              archivePopulator
+            )
+          : [];
+
+
       return {
         ...group,
         users: group?.memberships.map((ms) => ms.user),
@@ -99,13 +106,8 @@ export async function svcGetGroups(
           "categories",
           group.categories.toSorted(sortByName)
         ),
-        receipts:
-          "receipts" in group
-            ? await populateReceiptArchivesRecursively(
-                group.receipts as ReceiptsFromDb,
-                archivePopulator
-              )
-            : ([] as Receipt[]),
+
+        receipts,
         consumption: [] as ConsumptionData[],
         balance: { relations: [], data: [] } as BalanceData,
       };
