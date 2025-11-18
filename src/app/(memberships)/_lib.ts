@@ -7,7 +7,7 @@ import { err } from "@/app/_lib/utils";
 import { categories, chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser, User } from "../(users)/_lib";
 import { Group, Membership } from "../groups/_lib/getGroups";
-import { userMayModCategory } from "../categories/_lib/common";
+import { userMayModCategory } from "../categories/_lib";
 import { Category } from "../categories/_lib";
 
 export type MembershipModifier = Pick<
