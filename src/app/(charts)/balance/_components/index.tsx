@@ -6,17 +6,16 @@ import { BalanceChartCx, useBalanceChartHook } from "../_lib/hook";
 import Header from "@/app/_components/header";
 import BalanceChart from "./chart";
 
+// TODO: remove Cli prefix from EntityPage names
 export default function CliBalancePage() {
   const cs = useClientState();
 
-  const hook = useBalanceChartHook(cs.group?.balance?.data ?? []);
+  const hook = useBalanceChartHook(cs.group?.balance);
 
   return (
-    <BalanceChartCx.Provider
-      value={{ users: cs.group?.balance?.users ?? [], hook }}
-    >
+    <BalanceChartCx.Provider value={hook}>
       <Header>
-        {hook.isZoomedIn() && (
+        {hook?.isZoomedIn() && (
           <button onClick={hook.zoomOut}>
             🔎 <span className="hidden sm:inline-block">zoom out</span>
           </button>

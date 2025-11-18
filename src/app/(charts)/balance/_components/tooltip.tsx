@@ -8,14 +8,14 @@ import {
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
 import { VDate } from "@/app/_lib/utils";
-import { useBalanceChartCx } from "../_lib/hook";
+import { useClientState } from "@/app/_lib/hooks";
 
 export default function BalanceTooltip({
   payload,
   label,
   active,
 }: TooltipContentProps<ValueType, NameType>) {
-  const cx = useBalanceChartCx();
+  const cs = useClientState();
 
   if (!active || !payload) return null;
 
@@ -25,7 +25,7 @@ export default function BalanceTooltip({
 
       {(payload as TooltipPayload).map((x) => {
         const uids = (x.dataKey as string).split(" vs ").map(Number);
-        const [u1, u2] = cx.users.filter((u) => uids.includes(u.id!));
+        const [u1, u2] = cs.users.filter((u) => uids.includes(u.id));
 
         const u1span = <span style={{ color: u1.color }}>{u1.name}</span>;
 
