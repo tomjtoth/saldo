@@ -1,16 +1,15 @@
 import { createContext, useContext, useState } from "react";
 import { CategoricalChartFunc } from "recharts/types/chart/types";
 
-import { TBalanceChartData, TUserChartData } from "@/app/_lib/db";
+import { BalanceData } from "@/app/_lib/db";
 
-export const BalanceChartCx = createContext<{
-  users: TUserChartData[];
-  hook?: ReturnType<typeof useBalanceChartHook>;
-}>({ users: [] });
+export const BalanceChartCx = createContext<ReturnType<
+  typeof useBalanceChartHook
+> | null>(null);
 
 export const useBalanceChartCx = () => useContext(BalanceChartCx);
 
-export function useBalanceChartHook(data: TBalanceChartData["data"]) {
+export function useBalanceChartHook(balance?: BalanceData) {
   const initialState: {
     refAreaLeft?: string | number;
     refAreaRight?: string | number;
@@ -27,12 +26,16 @@ export function useBalanceChartHook(data: TBalanceChartData["data"]) {
 
   const [state, setState] = useState(initialState);
 
+  if (!balance) return null;
+
   const findMinMax = (opts?: { minDate: number; maxDate: number }) =>
-    data.reduce(
+    balance.data.reduce(
       (prev, curr) => {
         if (!opts || (curr.date >= opts.minDate && curr.date <= opts.maxDate)) {
-          if (curr.min < prev.min) prev.min = curr.min;
-          if (curr.max > prev.max) prev.max = curr.max;
+          const currMinMax = balance.minMaxes[curr.date];
+
+          if (currMinMax.min < prev.min) prev.min = currMinMax.min;
+          if (currMinMax.max > prev.max) prev.max = currMinMax.max;
         }
 
         return prev;
