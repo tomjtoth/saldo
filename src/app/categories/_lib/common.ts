@@ -1,35 +1,6 @@
-"use server";
+import { QueryParamsOf } from "@/app/_lib/db";
+import { SELECT_REVISION_INFO } from "@/app/_lib";
 
-import { and, eq, exists, sql } from "drizzle-orm";
-
-import { db, isActive } from "@/app/_lib/db";
-import { err } from "@/app/_lib/utils";
-import { categories, memberships } from "@/app/_lib/db/schema";
-import { User } from "@/app/(users)/_lib";
-import { Category } from "./getCategories";
-
-export async function userMayModCategory(
-  userId: User["id"],
-  categoryId: Category["id"]
-) {
-  const res = await db.query.categories.findFirst({
-    columns: { id: true },
-    where: and(
-      eq(categories.id, categoryId),
-      exists(
-        db
-          .select({ x: sql`1` })
-          .from(memberships)
-          .where(
-            and(
-              eq(memberships.groupId, categories.groupId),
-              eq(memberships.userId, userId),
-              isActive(memberships)
-            )
-          )
-      )
-    ),
-  });
-
-  if (!res) err(403);
-}
+export const SELECT_CATEGORIES = {
+  with: { revision: SELECT_REVISION_INFO },
+} as const satisfies QueryParamsOf<"categories">;

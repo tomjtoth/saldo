@@ -4,7 +4,7 @@ import { and, eq, exists, sql, SQL } from "drizzle-orm";
 
 import { sortByName } from "@/app/_lib/utils";
 import { db, DrizzleTx, getArchivePopulator, isActive } from "@/app/_lib/db";
-import { SELECT_CATEGORIES } from "@/app/_lib";
+import { SELECT_CATEGORIES } from "./common";
 import { User } from "@/app/(users)/_lib";
 import { categories, memberships } from "@/app/_lib/db/schema";
 
