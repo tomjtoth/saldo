@@ -9,9 +9,7 @@ import { revisions, users } from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
 import { svcAddGroup } from "../groups/_lib";
 
-export type User = Awaited<ReturnType<typeof svcAddUser>> & {
-  color: string;
-};
+export type User = Awaited<ReturnType<typeof svcAddUser>>;
 
 const USERS_EXTRAS = {
   extras: {
