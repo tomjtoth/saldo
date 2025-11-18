@@ -4,7 +4,7 @@ import { eq, sql } from "drizzle-orm";
 
 import { auth, signIn } from "@/auth";
 
-import { atomic, db, CrUser } from "@/app/_lib/db";
+import { atomic, db, CrUser, QueryParamsOf } from "@/app/_lib/db";
 import { revisions, users } from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
 import { svcAddGroup } from "../groups/_lib";
@@ -13,13 +13,31 @@ export type User = Awaited<ReturnType<typeof svcAddUser>> & {
   color: string;
 };
 
+const USERS_EXTRAS = {
+  extras: {
+    color: sql<string>`
+    SELECT printf(
+      '#%06x', 
+      coalesce(
+        (
+          SELECT color FROM chart_colors
+          WHERE user_id = "users"."id"
+          AND group_id IS NULL
+          AND member_id IS NULL
+        ),
+        abs(random()) % 0x1000000
+      )
+    )`.as("color"),
+  },
+} as const satisfies QueryParamsOf<"users">;
+
 export async function svcAddUser(
   userData: Pick<CrUser, "email" | "image" | "name">
 ) {
   return await atomic(
     { operation: "Adding new user", revisedBy: -1, deferForeignKeys: true },
     async (tx, revisionId) => {
-      const [user] = await tx
+      const [createdRow] = await tx
         .insert(users)
         .values({
           ...userData,
@@ -29,8 +47,13 @@ export async function svcAddUser(
 
       await tx
         .update(revisions)
-        .set({ createdById: user.id })
+        .set({ createdById: createdRow.id })
         .where(eq(revisions.id, revisionId));
+
+      const [user] = await tx.query.users.findMany({
+        ...USERS_EXTRAS,
+        where: eq(users.id, createdRow.id),
+      });
 
       return user;
     }
@@ -73,6 +96,7 @@ export async function currentUser(
   const image = session.user!.image ?? null;
 
   let user = await db.query.users.findFirst({
+    ...USERS_EXTRAS,
     where: eq(users.email, email),
   });
 
@@ -100,20 +124,5 @@ export async function currentUser(
     await db.update(users).set(updater).where(eq(users.id, user.id));
   }
 
-  const { color }: { color: string } = await db.get(sql`
-    SELECT printf(
-      '#%06x', 
-      coalesce(
-        (
-          SELECT color FROM chart_colors
-          WHERE user_id = ${user.id}
-          AND group_id IS NULL
-          AND member_id IS NULL
-        ),
-        abs(random()) % 0x1000000
-      )
-    ) AS color
-  `);
-
-  return { ...user, color };
+  return user;
 }
