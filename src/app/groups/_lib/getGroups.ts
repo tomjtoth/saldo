@@ -128,6 +128,3 @@ export async function svcGetGroups(
     })
   );
 }
-
-// TODO: remove all of the below, once the typing has been fixed
-// (?<=\w)[?!](?=\.)
