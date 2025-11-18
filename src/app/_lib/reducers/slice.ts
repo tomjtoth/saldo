@@ -4,6 +4,7 @@ import { sliceCategories } from "../../categories/_lib/reducers";
 import { sliceGroups } from "../../groups/_lib/reducers";
 import { sliceReceipts } from "../../receipts/_lib/reducers";
 import { CombinedState } from "./types";
+import { sliceConsumption } from "@/app/(charts)/consumption/_lib/reducers";
 
 export const slice = createSlice({
   name: "combined",
@@ -23,6 +24,7 @@ export const slice = createSlice({
     ...sliceGroups,
     ...sliceCategories,
     ...sliceReceipts,
+    ...sliceConsumption,
   },
 });
 

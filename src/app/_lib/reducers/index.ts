@@ -6,6 +6,7 @@ import { addEmptyReceipts } from "@/app/receipts/_lib/reducers/helpers";
 import { deepClone } from "../utils";
 import { slice } from "./slice";
 import { CombinedState } from "./types";
+import { thunksConsumption } from "@/app/(charts)/consumption/_lib/reducers/thunks";
 
 export const thunks = {
   init: (data: CombinedState) => (dispatch: AppDispatch) => {
@@ -20,4 +21,5 @@ export const thunks = {
   ...thunksGroups,
   ...thunksCategories,
   ...thunksReceipts,
+  ...thunksConsumption,
 };
