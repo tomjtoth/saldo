@@ -1,6 +1,6 @@
 import { and, eq, sql } from "drizzle-orm";
 
-import { err, has3ConsecutiveLetters } from "../utils";
+import { err, is } from "../utils";
 import { DrizzleTx, SchemaTables } from "./types";
 import * as schema from "./schema";
 
@@ -66,7 +66,7 @@ export async function modEntity<
     const val = modifier[key as keyof M];
 
     if (val !== undefined && val !== entity[key]) {
-      if (key === "name") has3ConsecutiveLetters(val as string);
+      if (key === "name") is.stringWith3ConsecutiveLetters(val as string);
 
       if (!(key in skipArchivalOf)) archive[key] = entity[key];
 

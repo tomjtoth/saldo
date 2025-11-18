@@ -1,11 +1,7 @@
 import { toast } from "react-toastify";
 
 import { AppDispatch } from "@/app/_lib/store";
-import {
-  appToast,
-  has3ConsecutiveLetters,
-  nullEmptyStrings,
-} from "@/app/_lib/utils";
+import { appToast, is, nullEmptyStrings } from "@/app/_lib/utils";
 import { csa } from "@/app/_lib/reducers/slice";
 import {
   apiAddCategory,
@@ -22,7 +18,7 @@ export const thunksCategories = {
     (original: Category, modifiers: Required<Omit<CategoryModifier, "id">>) =>
     (dispatch: AppDispatch) => {
       try {
-        has3ConsecutiveLetters(modifiers.name);
+        is.stringWith3ConsecutiveLetters(modifiers.name);
       } catch (err) {
         toast.error((err as Error).message, appToast.theme());
         throw err;
@@ -45,7 +41,7 @@ export const thunksCategories = {
 
   addCategory: (args: CategoryAdder) => async (dispatch: AppDispatch) => {
     try {
-      has3ConsecutiveLetters(args.name);
+      is.stringWith3ConsecutiveLetters(args.name);
     } catch (err) {
       toast.error((err as Error).message as string, appToast.theme());
       throw err;

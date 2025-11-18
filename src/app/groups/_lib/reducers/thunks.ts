@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 
 import { AppDispatch, RootStateGetter } from "@/app/_lib/store";
-import { appToast, has3ConsecutiveLetters } from "@/app/_lib/utils";
+import { appToast, is } from "@/app/_lib/utils";
 import {
   apiAddGroup,
   apiGenInviteLink,
@@ -27,7 +27,7 @@ export const thunksGroups = {
     ) =>
     (dispatch: AppDispatch) => {
       try {
-        has3ConsecutiveLetters(modifiers.name);
+        is.stringWith3ConsecutiveLetters(modifiers.name);
       } catch (err) {
         toast.error((err as Error).message as string, appToast.theme());
         throw err;
@@ -49,7 +49,7 @@ export const thunksGroups = {
     ({ name, description }: Group) =>
     (dispatch: AppDispatch) => {
       try {
-        has3ConsecutiveLetters(name);
+        is.stringWith3ConsecutiveLetters(name);
       } catch (err) {
         toast.error((err as Error).message as string, appToast.theme());
       }
