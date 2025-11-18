@@ -3,7 +3,6 @@ import { sql } from "drizzle-orm";
 
 import { db } from "./instance";
 import { chartColors, revisions } from "./schema";
-import { User } from "@/app/(users)/_lib";
 
 export const SQL_RANDOM_COLOR = sql.raw(
   "printf('%07x', abs(random()) % 0x2000000)"
@@ -17,49 +16,6 @@ export async function truncateDb() {
 }
 
 type TblCtx<ColName extends string> = { [K in ColName]: SQLiteColumn };
-
-export const groupsWithUsersCTE = (userId: User["id"]) => sql`
-  groups_with_users AS (
-    SELECT
-      m.group_id AS gid,
-      g.name,
-      jsonb_group_array(jsonb_object(
-        'id', m2.user_id,
-        'name', u.name,
-        'color', printf(
-          '#%06x', 
-          coalesce(
-            (
-              SELECT cc.color FROM chart_colors cc
-              WHERE cc.user_id = ${userId}
-              AND cc.group_id = m.group_id
-              AND cc.member_id = m2.user_id
-            ),
-            (
-              SELECT cc.color FROM chart_colors cc
-              WHERE cc.user_id = m2.user_id
-              AND cc.group_id = m.group_id
-              AND cc.member_id IS NULL
-            ),
-            (
-              SELECT cc.color FROM chart_colors cc
-              WHERE cc.user_id = m2.user_id
-              AND cc.group_id IS NULL
-              AND cc.member_id IS NULL
-            ),
-            abs(random()) % 0x1000000
-          )
-        )
-      )) as users
-    FROM memberships m
-    INNER JOIN groups g ON g.id = m.group_id
-    INNER JOIN memberships m2 ON m2.group_id = m.group_id
-    INNER JOIN users u ON u.id = m2.user_id 
-    WHERE m.user_id = ${userId}
-    GROUP BY m.group_id
-    ORDER BY g.name
-  )
-`;
 
 export const orderByLowerName = (table: TblCtx<"name">) =>
   sql`lower(${table.name})`;
