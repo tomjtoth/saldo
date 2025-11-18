@@ -16,7 +16,7 @@ export type User = Awaited<ReturnType<typeof svcAddUser>> & {
 const USERS_EXTRAS = {
   extras: {
     color: sql<string>`
-    SELECT printf(
+    printf(
       '#%06x', 
       coalesce(
         (
