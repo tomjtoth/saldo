@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 
 import { useAppDispatch } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
-import { TGroup } from "@/app/_lib/db";
+import { Group } from "../../_lib";
 import { thunks } from "@/app/_lib/reducers";
 
 import Slider from "@/app/_components/slider";
@@ -18,16 +18,16 @@ export default function Title({
   flags: number;
   setFlags: Dispatch<SetStateAction<number>>;
   clientIsAdmin: boolean;
-  group: TGroup;
+  group: Group;
 }) {
   const dispatch = useAppDispatch();
-  const [name, setName] = useState(group.name!);
+  const [name, setName] = useState(group.name);
   const [description, setDescription] = useState(group.description ?? "");
 
   function restoreOriginals() {
-    setName(group.name!);
+    setName(group.name);
     setDescription(group.description ?? "");
-    setFlags(group.flags!);
+    setFlags(group.flags);
   }
 
   return clientIsAdmin ? (
@@ -38,7 +38,7 @@ export default function Title({
         ev.preventDefault();
 
         dispatch(
-          thunks.modGroup(group.id!, { name, description, flags }, group)
+          thunks.modGroup(group.id, { name, description, flags }, group)
         ).catch(restoreOriginals);
       }}
     >

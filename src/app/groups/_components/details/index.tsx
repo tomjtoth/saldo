@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { TGroup } from "@/app/_lib/db";
+import { Group } from "../../_lib";
 import { virt } from "@/app/_lib/utils";
 import { useClientState } from "@/app/_lib/hooks";
 
@@ -11,16 +11,16 @@ import Invitation from "./invitation";
 import Title from "./title";
 import Members from "./members";
 
-export default function Details({ group }: { group: TGroup }) {
-  const [flags, setFlags] = useState(group.flags!);
+export default function Details({ group }: { group: Group }) {
+  const [flags, setFlags] = useState(group.flags);
   const cs = useClientState();
-  const clientIsAdmin = group.memberships!.some(
-    (ms) => ms.user!.id === cs.user?.id && virt(ms).admin
+  const clientIsAdmin = group.memberships.some(
+    (ms) => ms.user.id === cs.user?.id && virt(ms).admin
   );
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFlags(group.flags!);
+    setFlags(group.flags);
   }, [group.flags]);
 
   return (

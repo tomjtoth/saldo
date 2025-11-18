@@ -3,7 +3,7 @@
 import { toast } from "react-toastify";
 
 import { useAppDispatch } from "@/app/_lib/hooks";
-import { TGroup } from "@/app/_lib/db";
+import { Group } from "../../_lib";
 import { appToast } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -11,7 +11,7 @@ export default function Invitation({
   group,
   clientIsAdmin,
 }: {
-  group: TGroup;
+  group: Group;
   clientIsAdmin: boolean;
 }) {
   const dispatch = useAppDispatch();
@@ -53,12 +53,12 @@ export default function Invitation({
       <div className="flex gap-2 justify-evenly">
         {!!invitationLink && <button onClick={copyToClipboard}>Copy 🔗</button>}
 
-        <button onClick={() => dispatch(thunks.generateInviteLink(group.id!))}>
+        <button onClick={() => dispatch(thunks.generateInviteLink(group.id))}>
           Generate 🔁
         </button>
 
         {!!invitationLink && (
-          <button onClick={() => dispatch(thunks.removeInviteLink(group.id!))}>
+          <button onClick={() => dispatch(thunks.removeInviteLink(group.id))}>
             Remove 🚫
           </button>
         )}

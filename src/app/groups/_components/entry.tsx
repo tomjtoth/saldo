@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { TGroup } from "@/app/_lib/db";
+import { Group } from "../_lib";
 import { virt } from "@/app/_lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
@@ -15,7 +15,7 @@ export default function Entry({
   group,
   preSelected,
 }: {
-  group: TGroup;
+  group: Group;
   preSelected?: boolean;
 }) {
   const [showDetails, setShowDetails] = useState(preSelected ?? false);
@@ -44,7 +44,7 @@ export default function Entry({
           onClick={(ev) => {
             ev.stopPropagation();
 
-            if (!isDefault) dispatch(thunks.setDefaultGroupId(group.id!));
+            if (!isDefault) dispatch(thunks.setDefaultGroupId(group.id));
           }}
         />{" "}
         {group.name}
