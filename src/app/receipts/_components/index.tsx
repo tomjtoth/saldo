@@ -27,7 +27,7 @@ export default function CliReceiptsPage() {
   return (
     <>
       <Header>
-        {(cs.group?.categories?.length ?? 0) > 0 ? (
+        {(cs.group?.categories.length ?? 0) > 0 ? (
           <button
             className="inline-block"
             onClick={() => dispatch(thunks.setActiveReceipt(-1))}
@@ -45,7 +45,7 @@ export default function CliReceiptsPage() {
       </Header>
 
       <ul className="p-2 flex flex-wrap justify-center items-center gap-2">
-        {cs.group?.receipts?.map((rcpt) =>
+        {cs.group?.receipts.map((rcpt) =>
           rcpt.id === -1 ? null : <Individual key={rcpt.id} {...rcpt} />
         )}
       </ul>

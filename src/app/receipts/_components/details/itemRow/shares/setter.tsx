@@ -13,11 +13,11 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
   const [verbose, setVerbose] = useState(false);
   const dispatch = useAppDispatch();
   const cs = useClientState();
-  const currReceipt = cs.group!.activeReceipt!;
+  const receipt = cs.group!.activeReceipt!;
 
-  const item = currReceipt.items!.find((item) => item.id === itemId)!;
+  const item = receipt.items.find((item) => item.id === itemId)!;
   const users = cs.users;
-  const notPayer = users.find((user) => user.id !== currReceipt.paidBy);
+  const notPayer = users.find((user) => user.id !== receipt.paidById);
 
   return (
     <div
@@ -34,7 +34,7 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
       <div className="flex flex-wrap gap-6 items-center justify-evenly">
         {users.map((user) => {
           const userShare =
-            item.itemShares?.find((is) => is.userId === user.id)?.share ?? 0;
+            item.itemShares.find((is) => is.userId === user.id)?.share ?? 0;
 
           return (
             <ItemShareAvatar
@@ -44,16 +44,25 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
               value={userShare}
               onChange={(ev) => {
                 const ishIdx =
-                  item.itemShares?.findIndex((sh) => sh.userId === user.id) ??
+                  item.itemShares.findIndex((sh) => sh.userId === user.id) ??
                   -1;
                 const share = Number(ev.target.value);
 
                 const itemShares =
                   ishIdx > -1
-                    ? item.itemShares?.map((sh) =>
+                    ? item.itemShares.map((sh) =>
                         sh.userId === user.id ? { ...sh, share } : sh
                       )
-                    : item.itemShares?.concat({ userId: user.id, share });
+                    : item.itemShares.concat([
+                        {
+                          userId: user.id,
+                          share,
+                          archives: [],
+                          flags: 1,
+                          itemId: -1,
+                          revisionId: -1,
+                        },
+                      ]);
 
                 dispatch(thunks.modItem({ id: itemId, itemShares }));
               }}

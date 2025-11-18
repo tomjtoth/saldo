@@ -16,7 +16,7 @@ export default function Options({
 }) {
   const dispatch = useAppDispatch();
   const cs = useClientState();
-  const currReceipt = cs.group!.activeReceipt!;
+  const receipt = cs.group!.activeReceipt!;
 
   const nodes = useBodyNodes();
   const showSetter = () => {
@@ -33,7 +33,7 @@ export default function Options({
     );
   };
 
-  const item = currReceipt.items!.find((item) => item.id === itemId);
+  const item = receipt.items.find((item) => item.id === itemId);
 
   if (!item) return null;
 
@@ -51,7 +51,7 @@ export default function Options({
         onChange={(ev) =>
           dispatch(
             thunks.modItem({
-              id: item.id!,
+              id: item.id,
               notes: ev.target.value,
             })
           )
@@ -59,18 +59,17 @@ export default function Options({
       />
 
       {isMultiUser &&
-        ((shares?.reduce((sum, { share }) => sum + (share ?? 0), 0) ?? 0) >
-        0 ? (
+        (shares.reduce((sum, { share }) => sum + (share ?? 0), 0) > 0 ? (
           <div
             className="flex gap-2 cursor-pointer mr-2 mb-2 sm:mb-0 items-center justify-evenly"
             onClick={showSetter}
           >
-            {shares!.map(({ userId, share }) =>
+            {shares.map(({ userId, share }) =>
               share === 0 ? null : (
                 <ItemShareAvatar
                   key={`${item.id}-${userId}`}
                   user={users.find((user) => user.id === Number(userId))!}
-                  value={share!}
+                  value={share}
                 />
               )
             )}
@@ -89,11 +88,11 @@ export default function Options({
           </button>
         ))}
 
-      {currReceipt.items!.length > 1 && (
+      {receipt.items.length > 1 && (
         <button
           className="inline-flex items-center gap-2 bg-background"
           onClick={() => {
-            dispatch(thunks.rmRow(item.id!));
+            dispatch(thunks.rmRow(item.id));
             if (hideModal) hideModal();
           }}
         >

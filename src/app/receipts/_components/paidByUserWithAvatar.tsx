@@ -1,6 +1,6 @@
 import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { TUser } from "@/app/_lib/db";
+import { User } from "@/app/(users)/_lib";
 
 import UserAvatar from "@/app/_components/userAvatar";
 import Canceler from "@/app/_components/canceler";
@@ -8,7 +8,7 @@ import Canceler from "@/app/_components/canceler";
 export default function PaidByUserWithAvatar({
   listOnClick,
   ...user
-}: TUser & {
+}: Pick<User, "name" | "image"> & {
   listOnClick?: true;
 }) {
   const nodes = useBodyNodes();
@@ -38,12 +38,12 @@ function Listing() {
           "flex flex-col gap-4"
         }
       >
-        {cs.users?.map((u) => (
+        {cs.users.map((u) => (
           <li
             key={u.id}
             className="cursor-pointer"
             onClick={() => {
-              dispatch(thunks.setPaidBy(u.id!));
+              dispatch(thunks.setPaidBy(u.id));
               nodes.pop();
             }}
           >

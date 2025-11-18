@@ -1,10 +1,10 @@
 "use client";
 
-import { KeyboardEventHandler, useEffect, useRef } from "react";
+import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
 
 import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { TCliItem } from "@/app/_lib/reducers/types";
+import { Item } from "@/app/receipts/_lib";
 
 import Options from "./options";
 import OptionsAsModal from "./options/modal";
@@ -13,7 +13,7 @@ export default function ItemRow({
   autoFocus,
   onKeyDown: adderKeyDownHandler,
   ...item
-}: TCliItem & {
+}: Item & {
   autoFocus: boolean;
   onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 }) {
@@ -24,6 +24,7 @@ export default function ItemRow({
 
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
+  const [cost, setCost] = useState(item.cost.toFixed(2));
 
   useEffect(() => {
     if (autoFocus) costRef.current?.focus();
@@ -42,7 +43,7 @@ export default function ItemRow({
         onChange={(ev) =>
           dispatch(
             thunks.modItem({
-              id: item.id!,
+              id: item.id,
               categoryId: Number(ev.target.value),
             })
           )
@@ -54,7 +55,7 @@ export default function ItemRow({
           }
         }}
       >
-        {cs.group?.categories?.map((cat) => (
+        {cs.group?.categories.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name}
           </option>
@@ -65,7 +66,7 @@ export default function ItemRow({
         className="sm:hidden"
         onClick={() =>
           nodes.push(
-            <OptionsAsModal key="options-as-modal" {...{ itemId: item.id! }} />
+            <OptionsAsModal key="options-as-modal" {...{ itemId: item.id }} />
           )
         }
       >
@@ -78,14 +79,14 @@ export default function ItemRow({
           (isMultiUser ? "col-span-4" : "col-span-3")
         }
       >
-        <Options {...{ itemId: item.id! }} />
+        <Options {...{ itemId: item.id }} />
       </div>
 
       <form
         className="inline-flex items-center gap-2"
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (!isNaN(Number(item.cost))) dispatch(thunks.addRow(item.id));
+          if (!isNaN(Number(cost))) dispatch(thunks.addRow(item.id));
         }}
       >
         €
@@ -95,17 +96,17 @@ export default function ItemRow({
           placeholder="cost"
           className={
             "w-15 no-spinner" +
-            (isNaN(Number(item.cost)) ? " border-2! border-red-500" : "")
+            (isNaN(Number(cost)) ? " border-2! border-red-500" : "")
           }
-          value={item.cost}
-          onChange={(ev) =>
-            dispatch(
-              thunks.modItem({
-                id: item.id!,
-                cost: ev.target.value.replace(",", "."),
-              })
-            )
-          }
+          value={cost === "0" ? "" : cost}
+          onChange={(ev) => {
+            const asStr = ev.target.value.replace(",", ".");
+            setCost(asStr);
+
+            const asNum = Number(asStr);
+            if (!isNaN(asNum))
+              dispatch(thunks.modItem({ id: item.id, cost: asNum }));
+          }}
           onFocus={() => dispatch(thunks.setFocusedRow(-1))}
           onKeyDown={(ev) => {
             if (ev.shiftKey) {

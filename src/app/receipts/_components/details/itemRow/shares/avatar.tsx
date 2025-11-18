@@ -2,9 +2,9 @@
 
 import { ChangeEventHandler, useEffect, useRef } from "react";
 
-import { TUser } from "@/app/_lib/db";
+import { User } from "@/app/(users)/_lib";
 import { useClientState } from "@/app/_lib/hooks";
-import { TCliItem } from "@/app/_lib/reducers/types";
+import { Item } from "@/app/receipts/_lib";
 import { costToFixed } from ".";
 
 import UserAvatar from "@/app/_components/userAvatar";
@@ -16,35 +16,35 @@ export default function ItemShareAvatar({
   focused,
   onChange,
 }: {
-  user: TUser;
+  user: Pick<User, "id" | "name" | "image">;
   value: string | number;
-  itemId?: number;
+  itemId?: Item["id"];
   focused?: boolean;
   onChange?: ChangeEventHandler<HTMLInputElement>;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const cs = useClientState();
-  const currReceipt = cs.group?.activeReceipt;
+  const currReceipt = cs.group!.activeReceipt!;
 
   useEffect(() => {
     if (!!onChange && focused) ref.current?.focus();
   }, []);
 
-  let item: TCliItem | null = null;
+  let item: Item | null = null;
   let denominator = 0;
   let share = 0;
   let calculations = null;
 
   if (itemId !== undefined) {
-    item = currReceipt!.items!.find((item) => item.id === itemId)!;
-    denominator = item.itemShares!.reduce(
+    item = currReceipt.items.find((item) => item.id === itemId)!;
+    denominator = item.itemShares.reduce(
       (sub, { share }) => sub + (share ?? 0),
       0
     );
 
     const costAsNum = Number(item.cost);
     const shareOfUser =
-      item.itemShares?.find((sh) => sh.userId === user.id)?.share ?? 0;
+      item.itemShares.find((sh) => sh.userId === user.id)?.share ?? 0;
 
     share = ((isNaN(costAsNum) ? 0 : costAsNum) * shareOfUser) / denominator;
 
@@ -56,7 +56,7 @@ export default function ItemShareAvatar({
             {costToFixed(item, costAsNum)} * {shareOfUser} / {denominator} ={" "}
             {share.toFixed(2)}
           </span>
-        ) : user.id === currReceipt?.paidBy?.id ? (
+        ) : user.id === currReceipt.paidBy.id ? (
           <span>{costToFixed(item, costAsNum)}</span>
         ) : (
           <span>{(0).toFixed(2)}</span>

@@ -5,12 +5,7 @@ import { toast } from "react-toastify";
 import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
-import {
-  apiAddReceipt,
-  apiModReceipt,
-  TAddReceipt,
-  TModReceipt,
-} from "../../_lib";
+import { apiAddReceipt, apiModReceipt } from "../../_lib";
 
 import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
@@ -30,9 +25,7 @@ export default function Details() {
   const receipt = cs.group!.activeReceipt!;
 
   const submitReceipt = () => {
-    const nanItem = receipt!.items!.findIndex(
-      (item) => item.cost === "" || isNaN(Number(item.cost))
-    );
+    const nanItem = receipt.items.findIndex((item) => item.cost === 0);
 
     if (nanItem > -1) {
       dispatch(thunks.setFocusedRow(nanItem));
@@ -44,13 +37,7 @@ export default function Details() {
 
     if (updating) {
       appToast.promise(
-        apiModReceipt({
-          ...receipt,
-          items: receipt.items!.map((i) => ({
-            ...i,
-            cost: parseFloat(i.cost as string),
-          })),
-        } as unknown as TModReceipt).then((res) => {
+        apiModReceipt(receipt).then((res) => {
           nodes.pop();
           dispatch(thunks.setActiveReceipt());
           dispatch(thunks.modReceipt({ ...res, groupId }));
@@ -62,11 +49,7 @@ export default function Details() {
         apiAddReceipt({
           ...receipt,
           groupId,
-          items: receipt.items!.map((i) => ({
-            ...i,
-            cost: parseFloat(i.cost as string),
-          })),
-        } as unknown as TAddReceipt).then((res) => {
+        }).then((res) => {
           nodes.pop();
           dispatch(thunks.setActiveReceipt());
           dispatch(thunks.addReceipt({ ...res, groupId }));
@@ -79,7 +62,7 @@ export default function Details() {
   const users = cs.users;
   const isMultiUser = users.length > 1;
 
-  const paidBy = users.find((u) => u.id === receipt.paidBy?.id);
+  const paidBy = users.find((u) => u.id === receipt.paidBy.id)!;
 
   return (
     <Canceler
@@ -124,13 +107,13 @@ export default function Details() {
               : "sm:grid-cols-[min-content_auto_min-content_min-content_min-content]")
           }
         >
-          {receipt?.items!.map((item, rowIdx) => (
+          {receipt.items.map((item, rowIdx) => (
             <ItemRow
               key={item.id}
               autoFocus={rowIdx === receipt.focusedIdx}
               {...item}
               onKeyDown={(ev) => {
-                const lastIdx = receipt.items!.length - 1;
+                const lastIdx = receipt.items.length - 1;
 
                 if (
                   ((ev.key === "ArrowUp" || ev.key === "PageUp") &&
@@ -170,8 +153,8 @@ export default function Details() {
               type="text"
               className="rounded border p-1 w-15 border-none!"
               readOnly
-              value={receipt
-                .items!.reduce((sub, { cost }) => {
+              value={receipt.items
+                .reduce((sub, { cost }) => {
                   const asNum = Number(cost);
                   return sub + (isNaN(asNum) ? 0 : asNum);
                 }, 0)
