@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { CategoricalChartFunc } from "recharts/types/chart/types";
+import { MouseHandlerDataParam } from "recharts";
 
 import { BalanceData } from "@/app/_lib/db";
 
@@ -26,85 +26,86 @@ export function useBalanceChartHook(balance?: BalanceData) {
 
   const [state, setState] = useState(initialState);
 
-  if (!balance) return null;
+  return !balance
+    ? null
+    : {
+        state,
 
-  const findMinMax = (opts?: { minDate: number; maxDate: number }) =>
-    balance.data.reduce(
-      (prev, curr) => {
-        if (!opts || (curr.date >= opts.minDate && curr.date <= opts.maxDate)) {
-          const currMinMax = balance.minMaxes[curr.date];
+        findMinMax(opts?: { minDate: number; maxDate: number }) {
+          return balance.data.reduce(
+            (prev, curr) => {
+              if (
+                !opts ||
+                (curr.date >= opts.minDate && curr.date <= opts.maxDate)
+              ) {
+                const currMinMax = balance.minMaxes[curr.date];
 
-          if (currMinMax.min < prev.min) prev.min = currMinMax.min;
-          if (currMinMax.max > prev.max) prev.max = currMinMax.max;
-        }
+                if (currMinMax.min < prev.min) prev.min = currMinMax.min;
+                if (currMinMax.max > prev.max) prev.max = currMinMax.max;
+              }
 
-        return prev;
-      },
-      { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY }
-    );
+              return prev;
+            },
+            { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY }
+          );
+        },
 
-  const isZoomedIn = () =>
-    Object.entries(initialState).some(
-      ([side, value]) => value != state[side as keyof typeof initialState]
-    );
+        zoomIn() {
+          let { refAreaLeft, refAreaRight } = state;
 
-  function zoomIn() {
-    let { refAreaLeft, refAreaRight } = state;
+          if (refAreaLeft === refAreaRight || refAreaRight === undefined) {
+            setState((prevState) => ({
+              ...prevState,
+              refAreaLeft: undefined,
+              refAreaRight: undefined,
+            }));
+            return;
+          }
 
-    if (refAreaLeft === refAreaRight || refAreaRight === undefined) {
-      setState((prevState) => ({
-        ...prevState,
-        refAreaLeft: undefined,
-        refAreaRight: undefined,
-      }));
-      return;
-    }
+          if (refAreaLeft! > refAreaRight)
+            [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
-    if (refAreaLeft! > refAreaRight)
-      [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
+          const { min, max } = this.findMinMax({
+            minDate: refAreaLeft as number,
+            maxDate: refAreaRight as number,
+          });
 
-    const { min, max } = findMinMax({
-      minDate: refAreaLeft as number,
-      maxDate: refAreaRight as number,
-    });
+          setState({
+            bottom: min,
+            top: max,
+            left: refAreaLeft!,
+            right: refAreaRight!,
+            refAreaLeft: undefined,
+            refAreaRight: undefined,
+          });
+        },
 
-    setState({
-      bottom: min,
-      top: max,
-      left: refAreaLeft!,
-      right: refAreaRight!,
-      refAreaLeft: undefined,
-      refAreaRight: undefined,
-    });
-  }
+        zoomOut() {
+          setState(initialState);
+        },
 
-  const zoomOut = () => setState(initialState);
+        isZoomedIn() {
+          return Object.entries(initialState).some(
+            ([side, value]) => value != state[side as keyof typeof initialState]
+          );
+        },
 
-  const startHighlight: CategoricalChartFunc = (e) =>
-    setState({ ...state, refAreaLeft: e.activeLabel });
+        startHighlight(e: MouseHandlerDataParam) {
+          setState({ ...state, refAreaLeft: e.activeLabel });
+        },
 
-  const dragHighlight: CategoricalChartFunc = ({ activeLabel: lbl }) => {
-    if (
-      state.refAreaLeft !== undefined &&
-      (state.refAreaRight === undefined || state.refAreaRight !== lbl)
-    ) {
-      setState({ ...state, refAreaRight: lbl });
-    }
-  };
+        dragHighlight({ activeLabel: lbl }: MouseHandlerDataParam) {
+          if (
+            state.refAreaLeft !== undefined &&
+            (state.refAreaRight === undefined || state.refAreaRight !== lbl)
+          ) {
+            setState({ ...state, refAreaRight: lbl });
+          }
+        },
 
-  const cancelHighlight = () => {
-    if (state.refAreaLeft !== undefined)
-      setState((prev) => ({ ...prev, refAreaLeft: undefined }));
-  };
-
-  return {
-    state,
-    findMinMax,
-    zoomIn,
-    zoomOut,
-    isZoomedIn,
-    startHighlight,
-    dragHighlight,
-    cancelHighlight,
-  };
+        cancelHighlight() {
+          if (state.refAreaLeft !== undefined)
+            setState((prev) => ({ ...prev, refAreaLeft: undefined }));
+        },
+      };
 }
