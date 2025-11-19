@@ -78,13 +78,15 @@ type BeType<T> = {
 type IsType = typeof is;
 type Be = BeType<IsType>;
 
+const RE_CAMEL_TO_SPACED = /(?<=\p{Lowercase}|\d)[\p{Uppercase}\d]/gu;
+
 export const be: Be = new Proxy(is, {
   get(target, prop, receiver) {
     const value = Reflect.get(target, prop, receiver);
 
     if (typeof value === "function") {
       const method = String(prop).replaceAll(
-        /(?<=\p{Lowercase}|\d)[\p{Uppercase}\d]/gu,
+        RE_CAMEL_TO_SPACED,
         (uppercaseOrNumber) => ` ${uppercaseOrNumber.toLowerCase()}`
       );
 
