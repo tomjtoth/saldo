@@ -9,19 +9,15 @@ export const is = {
   },
 
   numberOrNull(value: unknown): value is number | null {
-    return (typeof value === "number" && !isNaN(value)) || value === null;
+    return this.number(value) || this.null(value);
   },
 
   numberOrUndefined(value: unknown): value is number | undefined {
-    return (typeof value === "number" && !isNaN(value)) || value === undefined;
+    return this.number(value) || this.undefined(value);
   },
 
   numberNullOrUndefined(value: unknown): value is number | null | undefined {
-    return (
-      (typeof value === "number" && !isNaN(value)) ||
-      value === null ||
-      value === undefined
-    );
+    return this.numberOrNull(value) || this.undefined(value);
   },
 
   string(value: unknown): value is string {
@@ -29,15 +25,15 @@ export const is = {
   },
 
   stringOrNull(value: unknown): value is string | null {
-    return typeof value === "string" || value === null;
+    return this.string(value) || this.null(value);
   },
 
   stringOrUndefined(value: unknown): value is string | undefined {
-    return typeof value === "string" || value === undefined;
+    return this.string(value) || this.undefined(value);
   },
 
   stringNullOrUndefined(value: unknown): value is string | null | undefined {
-    return typeof value === "string" || value === null || value === undefined;
+    return this.stringOrNull(value) || this.undefined(value);
   },
 
   undefined(value: unknown): value is undefined {
