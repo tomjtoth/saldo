@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 
-import { err, is, nullEmptyStrings } from "@/app/_lib/utils";
+import { be, err, nullEmptyStrings } from "@/app/_lib/utils";
 import { modEntity } from "@/app/_lib/db";
 import { atomic, DbGroup } from "@/app/_lib/db";
 import { groups } from "@/app/_lib/db/schema";
@@ -18,13 +18,10 @@ export async function apiModGroup({
   name,
   description,
 }: Omit<GroupModifier, "uuid">) {
-  if (
-    !is.number(id) ||
-    !is.numberOrUndefined(flags) ||
-    !is.stringOrUndefined(name) ||
-    !is.stringNullOrUndefined(description)
-  )
-    err();
+  be.number(id, "id");
+  be.numberOrUndefined(flags, "flags");
+  be.stringOrUndefined(name, "name");
+  be.stringNullOrUndefined(description, "description");
 
   const user = await currentUser();
 

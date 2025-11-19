@@ -20,7 +20,9 @@ export const is = {
     return typeof value === "function";
   },
 
-  array: Array.isArray,
+  array(value: any): value is any[] {
+    return Array.isArray(value);
+  },
 
   number(value: unknown): value is number {
     return typeof value === "number" && !isNaN(value);
@@ -55,10 +57,7 @@ export const is = {
   },
 
   stringWith3ConsecutiveLetters(value: unknown): value is string {
-    if (!this.string(value) || !value.match(RE_3_CONSECUTIVE_LETTERS))
-      err("must have at least 3 consecutive letters");
-
-    return true;
+    return this.string(value) && !!value.match(RE_3_CONSECUTIVE_LETTERS);
   },
 
   parsableIntoDate(value: unknown): value is string {

@@ -4,7 +4,7 @@ import { and, eq, exists, sql } from "drizzle-orm";
 
 import { db } from "@/app/_lib/db";
 import { groups, memberships, receipts } from "@/app/_lib/db/schema";
-import { err, is } from "@/app/_lib/utils";
+import { be, err, is } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
   populateReceiptArchivesRecursively,

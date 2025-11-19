@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 
 import { AppDispatch, RootStateGetter } from "@/app/_lib/store";
-import { appToast, is } from "@/app/_lib/utils";
+import { appToast, be } from "@/app/_lib/utils";
 import {
   apiAddGroup,
   apiGenInviteLink,
@@ -27,39 +27,41 @@ export const thunksGroups = {
     ) =>
     (dispatch: AppDispatch) => {
       try {
-        is.stringWith3ConsecutiveLetters(modifiers.name);
+        be.stringWith3ConsecutiveLetters(modifiers.name, "name");
+
+        const crudOps = apiModGroup({ id: groupId, ...modifiers }).then(
+          (res) => {
+            const ops = appToast.opsDone(original, res);
+            dispatch(csa.modGroup(res));
+
+            return `${ops} "${original.name}" succeeded!`;
+          }
+        );
+
+        appToast.promise(crudOps, `Updating "${original.name}"`);
+
+        return crudOps;
       } catch (err) {
         toast.error((err as Error).message as string, appToast.theme());
-        throw err;
       }
-
-      const crudOps = apiModGroup({ id: groupId, ...modifiers }).then((res) => {
-        const ops = appToast.opsDone(original, res);
-        dispatch(csa.modGroup(res));
-
-        return `${ops} "${original.name}" succeeded!`;
-      });
-
-      appToast.promise(crudOps, `Updating "${original.name}"`);
-
-      return crudOps;
     },
 
   addGroup:
     ({ name, description }: Group) =>
     (dispatch: AppDispatch) => {
       try {
-        is.stringWith3ConsecutiveLetters(name);
+        be.stringWith3ConsecutiveLetters(name, "name");
+
+        const op = apiAddGroup({ name, description }).then((res) => {
+          dispatch(csa.addGroup(res));
+        });
+
+        appToast.promise(op, `Saving "${name}" to db`);
+
+        return op;
       } catch (err) {
         toast.error((err as Error).message as string, appToast.theme());
       }
-
-      const crudOp = apiAddGroup({ name, description }).then((res) => {
-        dispatch(csa.addGroup(res));
-      });
-      appToast.promise(crudOp, `Saving "${name}" to db`);
-
-      return crudOp;
     },
 
   generateInviteLink: (groupId: Group["id"]) => (dispatch: AppDispatch) => {

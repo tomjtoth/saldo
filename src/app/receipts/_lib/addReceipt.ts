@@ -2,7 +2,7 @@
 
 import { atomic } from "@/app/_lib/db";
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
-import { err, is, nullEmptyStrings } from "@/app/_lib/utils";
+import { be, err, nullEmptyStrings } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
   Item,
@@ -11,7 +11,7 @@ import {
   Receipt,
 } from "./populateRecursively";
 
-export type TAddReceipt = Pick<Receipt, "groupId" | "paidOn" | "paidById"> & {
+type ReceiptAdder = Pick<Receipt, "groupId" | "paidOn" | "paidById"> & {
   items: (Pick<Item, "cost" | "categoryId" | "notes"> & {
     itemShares: Pick<ItemShare, "share" | "userId">[];
   })[];
@@ -24,32 +24,31 @@ function validateReceiptData({
   paidOn,
   paidById,
   items,
-}: TAddReceipt) {
-  if (
-    !is.number(groupId) ||
-    !is.string(paidOn) ||
-    !is.number(paidById) ||
-    !is.array(items) ||
-    items.length === 0
-  )
-    err(400);
+}: ReceiptAdder) {
+  be.number(groupId, "group ID");
+  be.string(paidOn, "paid on");
+  be.number(paidById, "paid by ID");
+  be.array(items, "items");
+
+  if (items.length === 0) err(400);
 
   const safeReceipt = {
     groupId,
     paidOn,
     paidById,
     items: items.map(({ cost, categoryId, notes, itemShares }) => {
-      if (is.number(categoryId)) err(`categoryId "${categoryId}" is NaN`);
-      if (!is.number(cost)) err(`cost "${cost}" is NaN`);
-      if (!is.stringOrNull(notes)) err(`note "${notes}" is not a string`);
-      if (!is.array(itemShares)) err("itemShares must be an array");
+      be.number(categoryId, "category ID");
+      be.number(cost, "cost");
+      be.stringOrNull(notes, "notes");
+      be.array(itemShares, "item shares");
 
       const safeItem = {
         categoryId,
         cost,
         notes,
         itemShares: itemShares.map(({ userId, share }) => {
-          if (!is.number(userId) || !is.number(share)) err(400);
+          be.number(userId, "user ID");
+          be.number(share, "item share");
 
           const safeItemShare = { userId, share };
 
