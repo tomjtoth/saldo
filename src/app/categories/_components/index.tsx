@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -10,6 +12,14 @@ import Entry from "./entry";
 export default function CliCategoriesPage(srv: { catId?: number }) {
   const dispatch = useAppDispatch();
   const cs = useClientState();
+
+  const listing = useMemo(
+    () =>
+      cs.group?.categories.map((cat) => (
+        <Entry key={cat.id} cat={cat} preSelected={srv.catId === cat.id} />
+      )),
+    [cs.group?.categories]
+  );
 
   return (
     <>
@@ -31,11 +41,7 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
         categories cannot be assigned to items.
       </p>
 
-      <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {cs.group?.categories.map((cat) => (
-          <Entry key={cat.id} cat={cat} preSelected={srv.catId === cat.id} />
-        ))}
-      </div>
+      <div className="p-2 flex flex-wrap gap-2 justify-center">{listing}</div>
     </>
   );
 }
