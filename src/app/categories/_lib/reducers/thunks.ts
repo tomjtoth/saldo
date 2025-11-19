@@ -1,7 +1,5 @@
-import { toast } from "react-toastify";
-
 import { AppDispatch } from "@/app/_lib/store";
-import { appToast, is, nullEmptyStrings } from "@/app/_lib/utils";
+import { appToast, be, nullEmptyStrings } from "@/app/_lib/utils";
 import { csa } from "@/app/_lib/reducers/slice";
 import {
   apiAddCategory,
@@ -18,42 +16,37 @@ export const thunksCategories = {
     (original: Category, modifiers: Required<Omit<CategoryModifier, "id">>) =>
     (dispatch: AppDispatch) => {
       try {
-        is.stringWith3ConsecutiveLetters(modifiers.name);
+        be.stringWith3ConsecutiveLetters(modifiers.name, "name");
+
+        return appToast.promise(
+          apiModCategory({ ...modifiers, id: original.id }).then((res) => {
+            dispatch(csa.modCategory(res));
+
+            return `${appToast.opsDone(
+              original,
+              nullEmptyStrings(modifiers)
+            )} "${original.name}" succeeded!`;
+          }),
+          `Updating "${modifiers.name}"`
+        );
       } catch (err) {
-        toast.error((err as Error).message, appToast.theme());
-        throw err;
+        appToast.error(err);
       }
-
-      const crudOp = apiModCategory({ ...modifiers, id: original.id }).then(
-        (res) => {
-          dispatch(csa.modCategory(res));
-
-          return `${appToast.opsDone(original, nullEmptyStrings(modifiers))} "${
-            original.name
-          }" succeeded!`;
-        }
-      );
-
-      appToast.promise(crudOp, `Updating "${modifiers.name}"`);
-
-      return crudOp;
     },
 
   addCategory: (args: CategoryAdder) => async (dispatch: AppDispatch) => {
     try {
-      is.stringWith3ConsecutiveLetters(args.name);
+      be.stringWith3ConsecutiveLetters(args.name, "name");
+
+      return appToast.promise(
+        apiAddCategory(args).then((res) => {
+          dispatch(csa.addCategory(res));
+        }),
+        `Saving "${args.name}" to db`
+      );
     } catch (err) {
-      toast.error((err as Error).message as string, appToast.theme());
-      throw err;
+      appToast.error(err);
     }
-
-    const op = apiAddCategory(args).then((res) => {
-      dispatch(csa.addCategory(res));
-    });
-
-    appToast.promise(op, `Saving "${args.name}" to db`);
-
-    return op;
   },
 
   modDefaultCategoryId:
@@ -65,14 +58,15 @@ export const thunksCategories = {
     (dispatch: AppDispatch) => {
       dispatch(csa.modDefaultCategoryId({ categoryId, groupId }));
 
-      const op = apiSetDefaultCategory(categoryId).catch((err) => {
-        dispatch(csa.modDefaultCategoryId({ categoryId: fallbackId, groupId }));
+      return appToast.promise(
+        apiSetDefaultCategory(categoryId).catch((err) => {
+          dispatch(
+            csa.modDefaultCategoryId({ categoryId: fallbackId, groupId })
+          );
 
-        throw err;
-      });
-
-      appToast.promise(op, "Setting default category");
-
-      return op;
+          throw err;
+        }),
+        "Setting default category"
+      );
     },
 };

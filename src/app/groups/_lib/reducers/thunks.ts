@@ -1,5 +1,3 @@
-import { toast } from "react-toastify";
-
 import { AppDispatch, RootStateGetter } from "@/app/_lib/store";
 import { appToast, be } from "@/app/_lib/utils";
 import {
@@ -29,20 +27,17 @@ export const thunksGroups = {
       try {
         be.stringWith3ConsecutiveLetters(modifiers.name, "name");
 
-        const crudOps = apiModGroup({ id: groupId, ...modifiers }).then(
-          (res) => {
+        return appToast.promise(
+          apiModGroup({ id: groupId, ...modifiers }).then((res) => {
             const ops = appToast.opsDone(original, res);
             dispatch(csa.modGroup(res));
 
             return `${ops} "${original.name}" succeeded!`;
-          }
+          }),
+          `Updating "${original.name}"`
         );
-
-        appToast.promise(crudOps, `Updating "${original.name}"`);
-
-        return crudOps;
       } catch (err) {
-        toast.error((err as Error).message as string, appToast.theme());
+        appToast.error(err);
       }
     },
 
@@ -52,39 +47,40 @@ export const thunksGroups = {
       try {
         be.stringWith3ConsecutiveLetters(name, "name");
 
-        const op = apiAddGroup({ name, description }).then((res) => {
-          dispatch(csa.addGroup(res));
-        });
-
-        appToast.promise(op, `Saving "${name}" to db`);
-
-        return op;
+        return appToast.promise(
+          apiAddGroup({ name, description }).then((res) => {
+            dispatch(csa.addGroup(res));
+          }),
+          `Saving "${name}" to db`
+        );
       } catch (err) {
-        toast.error((err as Error).message as string, appToast.theme());
+        appToast.error(err);
       }
     },
 
   generateInviteLink: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
-    const crudOp = apiGenInviteLink(groupId).then((res) => {
-      dispatch(csa.modGroup(res));
-    });
-
-    appToast.promise(crudOp, "Generating invitation link");
+    appToast.promise(
+      apiGenInviteLink(groupId).then((res) => {
+        dispatch(csa.modGroup(res));
+      }),
+      "Generating invitation link"
+    );
   },
 
   removeInviteLink: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
-    const crudOp = apiRmInviteLink(groupId).then((res) => {
-      dispatch(csa.modGroup(res));
-    });
-
-    appToast.promise(crudOp, "Deleting invitation link");
+    appToast.promise(
+      apiRmInviteLink(groupId).then((res) => {
+        dispatch(csa.modGroup(res));
+      }),
+      "Deleting invitation link"
+    );
   },
 
   modMembership:
     ({ groupId, userId, flags }: MembershipModifier, toastMessage: string) =>
     (dispatch: AppDispatch) => {
-      const crudOp = apiModMembership({ groupId, userId, flags }).then(
-        ({ flags }) => {
+      return appToast.promise(
+        apiModMembership({ groupId, userId, flags }).then(({ flags }) => {
           dispatch(
             csa.modMembership({
               groupId,
@@ -92,12 +88,9 @@ export const thunksGroups = {
               flags,
             })
           );
-        }
+        }),
+        toastMessage
       );
-
-      appToast.promise(crudOp, toastMessage);
-
-      return crudOp;
     },
 
   setGroupId: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
@@ -105,13 +98,12 @@ export const thunksGroups = {
   },
 
   setDefaultGroupId: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
-    const crudOp = apiSetDefaultGroup(groupId).then(() => {
-      dispatch(csa.setDefaultGroupId(groupId));
-    });
-
-    appToast.promise(crudOp, "Setting default group");
-
-    return crudOp;
+    return appToast.promise(
+      apiSetDefaultGroup(groupId).then(() => {
+        dispatch(csa.setDefaultGroupId(groupId));
+      }),
+      "Setting default group"
+    );
   },
 
   setUserColor:
@@ -123,24 +115,25 @@ export const thunksGroups = {
         ? group.users.find((u) => u.id === uid)!.color
         : rs.user!.color;
 
-      appToast.promise(
-        apiSetUserColor({
-          color,
-          ...(uid
-            ? {
-                groupId: rs.groupId,
-                memberId: uid,
-              }
-            : {}),
-        }).catch((err) => {
-          dispatch(csa.setUserColor({ color: prevState, uid }));
-          throw err;
-        }),
+      appToast
+        .promise(
+          apiSetUserColor({
+            color,
+            ...(uid
+              ? {
+                  groupId: rs.groupId,
+                  memberId: uid,
+                }
+              : {}),
+          }),
 
-        `${color ? "updating" : "resetting"} ${
-          uid ? "color of member" : "chart color"
-        }`
-      );
+          `${color ? "updating" : "resetting"} ${
+            uid ? "color of member" : "chart color"
+          }`
+        )
+        .catch(() => {
+          dispatch(csa.setUserColor({ color: prevState, uid }));
+        });
 
       if (color) return dispatch(csa.setUserColor({ color, uid }));
     },

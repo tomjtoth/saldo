@@ -112,7 +112,11 @@ export const appToast = {
   }),
 
   promise(promise: Promise<unknown>, operation: string) {
-    toast.promise(promise, this.messages(operation), this.theme());
+    return toast.promise(promise, this.messages(operation), this.theme());
+  },
+
+  error(err: unknown) {
+    return toast.error((err as Error).message as string, this.theme());
   },
 };
 
