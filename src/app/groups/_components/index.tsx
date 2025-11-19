@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { useAppDispatch, useClientState, useRootDivCx } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -11,6 +13,18 @@ export default function CliGroupsPage() {
   const cs = useClientState();
   const dispatch = useAppDispatch();
   const preSelectedId = useRootDivCx().groupId;
+
+  const listing = useMemo(
+    () =>
+      cs.groups.map((group) => (
+        <Entry
+          key={group.id}
+          group={group}
+          preSelected={preSelectedId === group.id}
+        />
+      )),
+    [cs.groups]
+  );
 
   return (
     <>
@@ -28,15 +42,7 @@ export default function CliGroupsPage() {
         groups are not visible in categories, nor in receipts.
       </p>
 
-      <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {cs.groups.map((group) => (
-          <Entry
-            key={group.id}
-            group={group}
-            preSelected={preSelectedId === group.id}
-          />
-        ))}
-      </div>
+      <div className="p-2 flex flex-wrap gap-2 justify-center">{listing}</div>
     </>
   );
 }
