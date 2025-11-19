@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { describe, it, expect } from "vitest";
 
-import {
-  err,
-  ErrorWithStatus,
-  has3ConsecutiveLetters,
-  nullEmptyStrings,
-  virt,
-} from ".";
+import { err, ErrorWithStatus, is, nullEmptyStrings, virt } from ".";
 
 describe("status", () => {
   it("resolves ACTIVE state correctly", () => {
@@ -84,13 +78,36 @@ describe("nulledEmptyStrings", () => {
   });
 });
 
-describe("has3ConsecutiveLetters", () => {
-  it("does not mutate the original", () => {
-    expect(() => has3ConsecutiveLetters("as")).to.throw();
-    expect(() => has3ConsecutiveLetters(" as ")).to.throw();
-    expect(() => has3ConsecutiveLetters(" as as as ")).to.throw();
+describe("validators", () => {
+  it("stringWith3ConsecutiveLetters", () => {
+    expect(() => is.stringWith3ConsecutiveLetters("as")).to.throw();
+    expect(() => is.stringWith3ConsecutiveLetters(" as ")).to.throw();
+    expect(() => is.stringWith3ConsecutiveLetters(" as as as ")).to.throw();
 
-    expect(() => has3ConsecutiveLetters("asd")).not.to.throw();
+    expect(() => is.stringWith3ConsecutiveLetters("asd")).not.to.throw();
+    expect(() => is.stringWith3ConsecutiveLetters("ee rr asd")).not.to.throw();
+    expect(() => is.stringWith3ConsecutiveLetters(" ff asd ff")).not.to.throw();
+  });
+
+  it("number", () => {
+    expect(is.number(NaN)).to.eq(false);
+    expect(is.number("sdqwe")).to.eq(false);
+
+    expect(is.number(213)).to.eq(true);
+    expect(is.number(123.432)).to.eq(true);
+    expect(is.number(Number.POSITIVE_INFINITY)).to.eq(true);
+    expect(is.number(Number.NEGATIVE_INFINITY)).to.eq(true);
+  });
+
+  it("numberOrNull", () => {
+    expect(is.numberOrNull(NaN)).to.eq(false);
+    expect(is.numberOrNull(undefined)).to.eq(false);
+    expect(is.numberOrNull("sdqwe")).to.eq(false);
+
+    expect(is.numberOrNull(213)).to.eq(true);
+    expect(is.numberOrNull(123.432)).to.eq(true);
+    expect(is.numberOrNull(Number.POSITIVE_INFINITY)).to.eq(true);
+    expect(is.numberOrNull(Number.NEGATIVE_INFINITY)).to.eq(true);
   });
 });
 
