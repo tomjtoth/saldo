@@ -48,6 +48,8 @@ export const is = {
     return value === null;
   },
 
+  array: Array.isArray,
+
   function(value: unknown): value is Function {
     return typeof value === "function";
   },

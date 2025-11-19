@@ -2,7 +2,7 @@
 
 import { atomic } from "@/app/_lib/db";
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
-import { err, nullEmptyStrings } from "@/app/_lib/utils";
+import { err, is, nullEmptyStrings } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
   Item,
@@ -26,10 +26,10 @@ function validateReceiptData({
   items,
 }: TAddReceipt) {
   if (
-    typeof groupId !== "number" ||
-    typeof paidOn !== "string" ||
-    typeof paidById !== "number" ||
-    !Array.isArray(items) ||
+    !is.number(groupId) ||
+    !is.string(paidOn) ||
+    !is.number(paidById) ||
+    !is.array(items) ||
     items.length === 0
   )
     err(400);
@@ -39,22 +39,17 @@ function validateReceiptData({
     paidOn,
     paidById,
     items: items.map(({ cost, categoryId, notes, itemShares }) => {
-      if (typeof categoryId !== "number")
-        err(`categoryId "${categoryId}" is NaN`);
-
-      if (typeof cost !== "number") err(`cost "${cost}" is NaN`);
-
-      if (notes !== null && typeof notes !== "string")
-        err(`note "${notes}" is not a string`);
-
-      if (!Array.isArray(itemShares)) err("itemShares must be an array");
+      if (is.number(categoryId)) err(`categoryId "${categoryId}" is NaN`);
+      if (!is.number(cost)) err(`cost "${cost}" is NaN`);
+      if (!is.stringOrNull(notes)) err(`note "${notes}" is not a string`);
+      if (!is.array(itemShares)) err("itemShares must be an array");
 
       const safeItem = {
         categoryId,
         cost,
         notes,
         itemShares: itemShares.map(({ userId, share }) => {
-          if (typeof userId !== "number" || typeof share !== "number") err(400);
+          if (!is.number(userId) || !is.number(share)) err(400);
 
           const safeItemShare = { userId, share };
 

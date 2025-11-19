@@ -4,7 +4,7 @@ import { and, eq, exists, sql } from "drizzle-orm";
 
 import { db } from "@/app/_lib/db";
 import { groups, memberships, receipts } from "@/app/_lib/db/schema";
-import { err } from "@/app/_lib/utils";
+import { err, is } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
   populateReceiptArchivesRecursively,
@@ -15,7 +15,7 @@ import { queryReceipts } from "./common";
 type ReceiptIds = Receipt["id"][];
 
 export async function apiGetReceipts(knownIds: ReceiptIds) {
-  if (!Array.isArray(knownIds) || knownIds.some(isNaN))
+  if (!is.array(knownIds) || knownIds.some((id) => !is.number(id)))
     err("known ids contain NaN");
 
   const { id } = await currentUser();
