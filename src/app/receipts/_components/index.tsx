@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 
 import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
@@ -24,6 +24,14 @@ export default function CliReceiptsPage() {
     if (typeof receipt?.id === "number") nodes.push(Details);
   }, [receipt?.id]);
 
+  const listing = useMemo(
+    () =>
+      cs.group?.receipts.map((rcpt) =>
+        rcpt.id === -1 ? null : <Individual key={rcpt.id} {...rcpt} />
+      ),
+    [cs.group?.receipts]
+  );
+
   return (
     <>
       <Header>
@@ -45,9 +53,7 @@ export default function CliReceiptsPage() {
       </Header>
 
       <ul className="p-2 flex flex-wrap justify-center items-center gap-2">
-        {cs.group?.receipts.map((rcpt) =>
-          rcpt.id === -1 ? null : <Individual key={rcpt.id} {...rcpt} />
-        )}
+        {listing}
       </ul>
 
       <Scrollers />
