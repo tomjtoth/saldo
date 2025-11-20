@@ -22,8 +22,10 @@ export default function Entry({
   const hideDetails = () => setShowDetails(false);
   const dispatch = useAppDispatch();
   const cs = useClientState();
-  const currentdefaultId = cs.group?.memberships.at(0)?.defaultCategoryId;
-  const isDefault = currentdefaultId === cat.id;
+  const currentDefaultId = cs.group?.memberships.find(
+    (ms) => ms.userId === cs.user?.id
+  )?.defaultCategoryId;
+  const isDefault = currentDefaultId === cat.id;
 
   return (
     <>
@@ -49,7 +51,7 @@ export default function Entry({
                 thunks.modDefaultCategoryId(
                   cat.id,
                   cat.groupId,
-                  currentdefaultId
+                  currentDefaultId
                 )
               );
           }}
