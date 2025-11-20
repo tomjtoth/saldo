@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -27,55 +27,54 @@ export default function BalanceChart({ data, relations }: BalanceData) {
   const hook = useBalanceChartCx()!;
   const cs = useClientState();
 
-  const gradientDefinitions: ReactNode[] = [];
+  const { lines, gradients } = useMemo(() => {
+    const gradients: ReactNode[] = [];
+    const lines = relations.map((rel) => {
+      const uids = rel.split(" vs ").map(Number);
+      const [u1, u2] = cs.users.filter((u) => uids.includes(u.id));
 
-  const lines = relations.map((rel) => {
-    const uids = rel.split(" vs ").map(Number);
-    const [u1, u2] = cs.users.filter((u) => uids.includes(u.id));
+      const defId = `${u1.id}-${u2.id}-chart-colors`;
 
-    const defId = `${u1.id}-${u2.id}-chart-colors`;
+      const { min, max } = hook.findMinMax();
 
-    const { min, max } = hook.findMinMax();
+      const abs = [min, max].map(Math.abs);
+      const height = abs[0] + abs[1];
 
-    const abs = [min, max].map(Math.abs);
-    const height = abs[0] + abs[1];
+      const switchAt =
+        max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / height).toFixed(1);
 
-    const switchAt =
-      max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / height).toFixed(1);
+      gradients.push(
+        <linearGradient key={defId} id={defId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset={`${switchAt}%`} stopColor={u2.color} />
+          <stop offset={`${switchAt}%`} stopColor={u1.color} />
+        </linearGradient>
+      );
 
-    gradientDefinitions.push(
-      <linearGradient key={defId} id={defId} x1="0" y1="0" x2="0" y2="1">
-        <stop offset={`${switchAt}%`} stopColor={u2.color} />
-        <stop offset={`${switchAt}%`} stopColor={u1.color} />
-      </linearGradient>
-    );
+      return (
+        <Line
+          type="stepAfter"
+          key={rel}
+          dataKey={rel}
+          data={data}
+          dot={false}
+          connectNulls
+          activeDot={({ cx, cy, value }) => (
+            <circle
+              cx={cx}
+              cy={cy}
+              r={4}
+              strokeWidth={2}
+              fill={value > 0 ? u2.color : u1.color}
+            />
+          )}
+          name={[u1.name, u2.name].toSorted().join(" vs ")}
+          stroke={`url(#${defId})`}
+        />
+      );
+    });
 
-    return (
-      <Line
-        type="stepAfter"
-        key={rel}
-        dataKey={rel}
-        data={data}
-        dot={false}
-        connectNulls
-        activeDot={({ cx, cy, value }) => (
-          <circle
-            cx={cx}
-            cy={cy}
-            r={4}
-            strokeWidth={2}
-            fill={value > 0 ? u2.color : u1.color}
-          />
-        )}
-        name={[u1.name, u2.name].toSorted().join(" vs ")}
-        stroke={`url(#${defId})`}
-      />
-    );
-  });
-
-  useEffect(() => {
-    console.debug("lines got re-rendered (?)");
-  }, [lines]);
+    return { gradients, lines };
+  }, [cs.users, cs.groupId]);
 
   return (
     <div className="h-full w-full">
@@ -107,7 +106,7 @@ export default function BalanceChart({ data, relations }: BalanceData) {
           <Tooltip content={BalanceTooltip} />
           <Legend content={BalanceLegend} />
 
-          <defs>{gradientDefinitions}</defs>
+          <defs>{gradients}</defs>
           <ReferenceLine
             y={0}
             offset={10}
