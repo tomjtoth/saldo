@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 
 import Canceler from "@/app/_components/canceler";
@@ -15,8 +15,8 @@ export default function Options({
   hideModal?: () => void;
 }) {
   const dispatch = useAppDispatch();
-  const cs = useClientState();
-  const receipt = cs.group!.activeReceipt!;
+  const group = useClientState("group");
+  const receipt = group!.activeReceipt!;
 
   const nodes = useBodyNodes();
   const showSetter = () => {
@@ -37,8 +37,8 @@ export default function Options({
 
   if (!item) return null;
 
-  const users = cs.users;
-  const isMultiUser = users.length > 1;
+  const users = group?.users;
+  const isMultiUser = users?.length;
   const shares = item.itemShares;
 
   return (

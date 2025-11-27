@@ -10,15 +10,15 @@ export default function GroupSelector() {
   const nodes = useBodyNodes();
   const pathname = usePathname();
 
-  const cs = useClientState();
+  const group = useClientState("group");
 
-  return !cs.group || pathname === "/groups" ? null : (
+  return !group || pathname === "/groups" ? null : (
     <>
       <span
         className="truncate cursor-pointer min-w-10 select-none"
         onClick={() => nodes.push(MainMenu)}
       >
-        {cs.group.name}
+        {group.name}
       </span>{" "}
       /{" "}
     </>

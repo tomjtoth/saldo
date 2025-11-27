@@ -8,7 +8,7 @@ import { sliceConsumption } from "@/app/(charts)/consumption/_lib/reducers";
 
 export const slice = createSlice({
   name: "combined",
-  initialState: { groups: [] } as CombinedState,
+  initialState: { groups: [], users: [] } as CombinedState,
 
   reducers: {
     init(rs, { payload }: PayloadAction<CombinedState>) {

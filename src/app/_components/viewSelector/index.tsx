@@ -6,14 +6,14 @@ import { hrefToLabel } from "./listing";
 import MainMenu from "../mainMenu";
 
 export default function ViewSelector() {
-  const cs = useClientState();
+  const user = useClientState("user");
   const nodes = useBodyNodes();
   const pathname = usePathname();
 
   return (
     <span
       className="truncate cursor-pointer min-w-10 select-none"
-      onClick={() => !!cs.user && nodes.push(MainMenu)}
+      onClick={() => !!user && nodes.push(MainMenu)}
     >
       {pathname === "/" ? "Saldo" : hrefToLabel(pathname)}
     </span>

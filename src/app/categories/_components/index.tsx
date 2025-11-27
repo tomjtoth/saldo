@@ -11,25 +11,26 @@ import Entry from "./entry";
 
 export default function CliCategoriesPage(srv: { catId?: number }) {
   const dispatch = useAppDispatch();
-  const cs = useClientState();
+  const group = useClientState("group");
+  const groups = useClientState("groups");
 
   const listing = useMemo(
     () =>
-      cs.group?.categories.map((cat) => (
+      group?.categories.map((cat) => (
         <Entry key={cat.id} cat={cat} preSelected={srv.catId === cat.id} />
       )),
-    [cs.group?.categories]
+    [group?.categories, srv.catId]
   );
 
   return (
     <>
       <Header>
-        {cs.groups.length > 0 && (
+        {groups.length > 0 && (
           <EntityAdderButton
             placeholder="Category"
             handler={({ name, description }) =>
               dispatch(
-                thunks.addCategory({ groupId: cs.groupId!, name, description })
+                thunks.addCategory({ groupId: group!.id, name, description })
               )
             }
           />

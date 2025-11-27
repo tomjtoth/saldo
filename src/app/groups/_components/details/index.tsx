@@ -13,9 +13,10 @@ import Members from "./members";
 
 export default function Details({ group }: { group: Group }) {
   const [flags, setFlags] = useState(group.flags);
-  const cs = useClientState();
+  const user = useClientState("user");
+
   const clientIsAdmin = group.memberships.some(
-    (ms) => ms.user.id === cs.user?.id && virt(ms).admin
+    (ms) => ms.user.id === user?.id && virt(ms).admin
   );
 
   useEffect(() => {

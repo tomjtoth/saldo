@@ -1,4 +1,4 @@
-import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { User } from "@/app/(users)/_lib";
 
@@ -27,7 +27,7 @@ export default function PaidByUserWithAvatar({
 
 function Listing() {
   const dispatch = useAppDispatch();
-  const cs = useClientState();
+  const users = useClientState("users");
   const nodes = useBodyNodes();
 
   return (
@@ -38,7 +38,7 @@ function Listing() {
           "flex flex-col gap-4"
         }
       >
-        {cs.users.map((u) => (
+        {users.map((u) => (
           <li
             key={u.id}
             className="cursor-pointer"

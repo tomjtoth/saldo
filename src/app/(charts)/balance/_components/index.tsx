@@ -8,9 +8,9 @@ import BalanceChart from "./chart";
 
 // TODO: remove Cli prefix from EntityPage names
 export default function CliBalancePage() {
-  const cs = useClientState();
+  const group = useClientState("group");
 
-  const hook = useBalanceChartHook(cs.group?.balance);
+  const hook = useBalanceChartHook(group?.balance);
 
   return (
     <BalanceChartCx.Provider value={hook}>
@@ -22,7 +22,7 @@ export default function CliBalancePage() {
         )}
       </Header>
 
-      {cs.group?.balance && <BalanceChart {...cs.group.balance} />}
+      {group?.balance && <BalanceChart {...group.balance} />}
     </BalanceChartCx.Provider>
   );
 }

@@ -15,7 +15,7 @@ export default function BalanceTooltip({
   label,
   active,
 }: TooltipContentProps<ValueType, NameType>) {
-  const cs = useClientState();
+  const users = useClientState("users");
 
   if (!active || !payload) return null;
 
@@ -25,7 +25,7 @@ export default function BalanceTooltip({
 
       {(payload as TooltipPayload).map((x) => {
         const uids = (x.dataKey as string).split(" vs ").map(Number);
-        const [u1, u2] = cs.users.filter((u) => uids.includes(u.id));
+        const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
         const u1span = <span style={{ color: u1.color }}>{u1.name}</span>;
 

@@ -23,8 +23,8 @@ export default function ItemShareAvatar({
   onChange?: ChangeEventHandler<HTMLInputElement>;
 }) {
   const ref = useRef<HTMLInputElement>(null);
-  const cs = useClientState();
-  const currReceipt = cs.group!.activeReceipt!;
+  const group = useClientState("group");
+  const currReceipt = group!.activeReceipt!;
 
   useEffect(() => {
     if (!!onChange && focused) ref.current?.focus();

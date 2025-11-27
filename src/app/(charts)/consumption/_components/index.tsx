@@ -13,12 +13,10 @@ export default function CliConsumptionPage(srv: {
   to?: string;
 }) {
   const dispatch = useAppDispatch();
-  const cs = useClientState();
+  const group = useClientState("group");
 
   const [from, setFrom] = useState(srv.from ?? "");
   const [to, setTo] = useState(srv.to ?? "");
-
-  const group = cs.group;
 
   return (
     <>

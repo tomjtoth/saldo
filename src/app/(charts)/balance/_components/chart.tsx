@@ -25,13 +25,13 @@ import BalanceLegend from "./legend";
 
 export default function BalanceChart({ data, relations }: BalanceData) {
   const hook = useBalanceChartCx()!;
-  const cs = useClientState();
+  const users = useClientState("users");
 
   const { lines, gradients } = useMemo(() => {
     const gradients: ReactNode[] = [];
     const lines = relations.map((rel) => {
       const uids = rel.split(" vs ").map(Number);
-      const [u1, u2] = cs.users.filter((u) => uids.includes(u.id));
+      const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
       const defId = `${u1.id}-${u2.id}-chart-colors`;
 
@@ -74,7 +74,8 @@ export default function BalanceChart({ data, relations }: BalanceData) {
     });
 
     return { gradients, lines };
-  }, [cs.users, cs.groupId]);
+  }, [users, data, relations]);
+
 
   return (
     <div className="h-full w-full">

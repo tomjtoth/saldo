@@ -9,16 +9,16 @@ import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import UserColorPicker from "./userColorPicker";
 
 export default function UserMenu() {
-  const cs = useClientState();
+  const user = useClientState("user");
   const nodes = useBodyNodes();
   const pathname = usePathname();
 
   return (
     <div className="flex flex-col p-2 gap-2 items-start">
-      <span>Hi, {cs.user?.name}!</span>
+      <span>Hi, {user?.name}!</span>
       <span>
         <span className="select-none">🖂 </span>
-        {cs.user?.email}
+        {user?.email}
       </span>
 
       {pathname !== "/" && (
@@ -29,7 +29,7 @@ export default function UserMenu() {
 
       <UserColorPicker
         name="Set your color in charts"
-        color={cs.user!.color}
+        color={user!.color}
         setLabelColor
       />
 

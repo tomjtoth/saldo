@@ -2,7 +2,7 @@
 
 import { toast } from "react-toastify";
 
-import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
 import { apiAddReceipt, apiModReceipt } from "../../_lib";
@@ -19,10 +19,17 @@ const DIFFS = {
 };
 
 export default function Details() {
-  const dispatch = useAppDispatch();
-  const cs = useClientState();
   const nodes = useBodyNodes();
-  const receipt = cs.group!.activeReceipt!;
+  const dispatch = useAppDispatch();
+  const group = useClientState("group")!;
+
+  const groupId = group.id;
+  const receipt = group.activeReceipt!;
+
+  const users = group.users;
+  const isMultiUser = users.length > 1;
+
+  const paidBy = users.find((u) => u.id === receipt.paidBy.id)!;
 
   const submitReceipt = () => {
     const nanItem = receipt.items.findIndex((item) => item.cost === 0);
@@ -33,7 +40,6 @@ export default function Details() {
     }
 
     const updating = receipt.id !== -1;
-    const groupId = cs.groupId!;
 
     if (updating) {
       appToast.promise(
@@ -58,11 +64,6 @@ export default function Details() {
       );
     }
   };
-
-  const users = cs.users;
-  const isMultiUser = users.length > 1;
-
-  const paidBy = users.find((u) => u.id === receipt.paidBy.id)!;
 
   return (
     <Canceler

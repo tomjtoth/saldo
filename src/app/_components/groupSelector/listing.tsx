@@ -11,7 +11,9 @@ export default function GroupListing() {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const nodes = useBodyNodes();
-  const cs = useClientState();
+  const groups = useClientState("groups");
+  const groupId = useClientState("groupId");
+
   const [showAll, setShowAll] = useState(false);
 
   const groupLink = (
@@ -20,7 +22,7 @@ export default function GroupListing() {
     </span>
   );
 
-  return cs.groups.length && pathname !== "/groups" ? (
+  return groups.length && pathname !== "/groups" ? (
     <div className="p-2">
       <label>
         <input
@@ -31,12 +33,10 @@ export default function GroupListing() {
         />
         permalinks
       </label>
-
       {pathname !== "/groups" && groupLink}
-
       <ul>
-        {cs.groups.map((group) => {
-          const checked = group.id === cs.groupId;
+        {groups.map((group) => {
+          const checked = group.id === groupId;
 
           // TODO: get `truncate` to work with the below label
           return (

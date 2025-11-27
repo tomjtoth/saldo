@@ -21,9 +21,12 @@ export default function Entry({
   const [showDetails, setShowDetails] = useState(preSelected);
   const hideDetails = () => setShowDetails(false);
   const dispatch = useAppDispatch();
-  const cs = useClientState();
-  const currentDefaultId = cs.group?.memberships.find(
-    (ms) => ms.userId === cs.user?.id
+
+  const group = useClientState("group");
+  const user = useClientState("user");
+
+  const currentDefaultId = group?.memberships.find(
+    (ms) => ms.userId === user?.id
   )?.defaultCategoryId;
   const isDefault = currentDefaultId === cat.id;
 

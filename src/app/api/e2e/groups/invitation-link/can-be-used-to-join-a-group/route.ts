@@ -9,6 +9,6 @@ export const GET = wrapRoute(
 
     const group = await svcAddGroup(user.id, { name: "you and me" });
 
-    await svcModGroup(user.id, { id: group.id!, uuid: "some-uuid" });
+    await svcModGroup(user.id, { id: group.id, uuid: "some-uuid" });
   }
 );

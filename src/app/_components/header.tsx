@@ -21,7 +21,7 @@ export default function Header({
 }) {
   const nodes = useBodyNodes();
   const { user } = useRootDivCx();
-  const cs = useClientState();
+  const groups = useClientState("groups");
 
   const pathname = usePathname();
 
@@ -54,7 +54,7 @@ export default function Header({
         <div className={`grow ${cn}`}>{children}</div>
       </header>
 
-      {pathname !== "/" && cs.groups.length === 0 && (
+      {pathname !== "/" && groups.length === 0 && (
         <p>
           You have no access to active groups currently,{" "}
           <Link href="/groups">create or enable one</Link>!

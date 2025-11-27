@@ -2,7 +2,7 @@
 
 import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
 
-import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
 
@@ -19,8 +19,9 @@ export default function ItemRow({
 }) {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
-  const cs = useClientState();
-  const isMultiUser = cs.users.length > 1;
+  const group = useClientState("group");
+
+  const isMultiUser = group?.users.length;
 
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
@@ -55,7 +56,7 @@ export default function ItemRow({
           }
         }}
       >
-        {cs.group?.categories.map((cat) => (
+        {group?.categories.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name}
           </option>

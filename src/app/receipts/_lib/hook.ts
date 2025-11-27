@@ -7,7 +7,8 @@ import { thunks } from "@/app/_lib/reducers";
 const INFINITE_SCROLL = `INFINITE_SCROLL-${uuid()}`;
 
 export default function useInfiniteScroll() {
-  const cs = useClientState();
+  const group = useClientState("group");
+  const groupId = group?.id;
   const cx = useRootDivCx();
   const dispatch = useAppDispatch();
 
@@ -15,16 +16,15 @@ export default function useInfiniteScroll() {
     const rootDivH = cx.rootDivRef?.current?.scrollHeight ?? 0;
 
     if (
-      !!cs.groupId &&
-      (cs.group?.hasMoreToLoad ?? true) &&
-      !cs.group?.fetchingReceipts &&
-      (rootDivH < window.innerHeight ||
-        cs.group?.debounceReceiptsFetching === 1)
+      !!groupId &&
+      (group?.hasMoreToLoad ?? true) &&
+      !group?.fetchingReceipts &&
+      (rootDivH < window.innerHeight || group?.debounceReceiptsFetching === 1)
     ) {
       dispatch(
         thunks.fetchReceipts(
-          cs.groupId!,
-          cs.group!.receipts.map(({ id }) => id)
+          groupId!,
+          group!.receipts.map(({ id }) => id)
         )
       );
     }
@@ -32,11 +32,7 @@ export default function useInfiniteScroll() {
     return () => {
       // componentUnmounted = true;
     };
-  }, [
-    cs.group?.fetchingReceipts,
-    cs.group?.debounceReceiptsFetching,
-    cs.groupId,
-  ]);
+  }, [group?.fetchingReceipts, group?.debounceReceiptsFetching, groupId]);
 
   useEffect(() => {
     cx.addOnScroll(INFINITE_SCROLL, (ev) => {
@@ -45,7 +41,7 @@ export default function useInfiniteScroll() {
           ev.currentTarget.scrollHeight >
         0.8;
 
-      if (triggered && !cs.group?.fetchingReceipts) {
+      if (triggered && !group?.fetchingReceipts) {
         dispatch(thunks.tryFetchingReceipts());
         console.debug("scroll triggered");
       }

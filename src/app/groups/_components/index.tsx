@@ -10,20 +10,20 @@ import Header from "@/app/_components/header";
 import Entry from "./entry";
 
 export default function CliGroupsPage() {
-  const cs = useClientState();
+  const groups = useClientState("groups");
   const dispatch = useAppDispatch();
   const preSelectedId = useRootDivCx().groupId;
 
   const listing = useMemo(
     () =>
-      cs.groups.map((group) => (
+      groups.map((group) => (
         <Entry
           key={group.id}
           group={group}
           preSelected={preSelectedId === group.id}
         />
       )),
-    [cs.groups]
+    [groups, preSelectedId]
   );
 
   return (

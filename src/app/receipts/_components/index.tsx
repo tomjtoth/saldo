@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
 
-import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import useInfiniteScroll from "../_lib/hook";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -15,10 +15,10 @@ import Details from "./details";
 export default function CliReceiptsPage() {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
-  const cs = useClientState();
+  const group = useClientState("group");
   useInfiniteScroll();
 
-  const receipt = cs.group?.activeReceipt;
+  const receipt = group?.activeReceipt;
 
   useEffect(() => {
     if (typeof receipt?.id === "number") nodes.push(Details);
@@ -26,16 +26,16 @@ export default function CliReceiptsPage() {
 
   const listing = useMemo(
     () =>
-      cs.group?.receipts.map((rcpt) =>
+      group?.receipts.map((rcpt) =>
         rcpt.id === -1 ? null : <Individual key={rcpt.id} {...rcpt} />
       ),
-    [cs.group?.receipts]
+    [group?.receipts]
   );
 
   return (
     <>
       <Header>
-        {(cs.group?.categories.length ?? 0) > 0 ? (
+        {(group?.categories.length ?? 0) > 0 ? (
           <button
             className="inline-block"
             onClick={() => dispatch(thunks.setActiveReceipt(-1))}
@@ -43,7 +43,7 @@ export default function CliReceiptsPage() {
             ➕ <span className="hidden sm:inline-block">Add new...</span>
           </button>
         ) : (
-          <Link href={`/groups/${cs.group?.id}/categories`}>
+          <Link href={`/groups/${group?.id}/categories`}>
             🐱{" "}
             <span className="hidden sm:inline-block">
               Add/activate at least 1 category first

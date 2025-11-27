@@ -19,21 +19,21 @@ import ConsumptionTooltip from "./tooltip";
 import ConsumptionLegend from "./legend";
 
 export default function ConsumptionChart() {
-  const cs = useClientState();
+  const group = useClientState("group");
 
   const buffer = useMemo(
     () =>
       Object.fromEntries(
-        cs.group?.categories.map(({ id, name }) => [id, name]) ?? []
+        group?.categories.map(({ id, name }) => [id, name]) ?? []
       ),
-    [cs.groupId]
+    [group?.categories]
   );
 
   return (
     <ConsumptionCx.Provider value={buffer}>
       <div className=" h-full w-full">
         <ResponsiveContainer>
-          <BarChart data={cs.group?.consumption}>
+          <BarChart data={group?.consumption}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="categoryId"
@@ -47,7 +47,7 @@ export default function ConsumptionChart() {
             <YAxis />
             <Tooltip content={ConsumptionTooltip} />
             <Legend content={ConsumptionLegend} />
-            {cs.users.map(({ id, name, color }) => (
+            {group?.users.map(({ id, name, color }) => (
               <Bar
                 dataKey={id}
                 name={name!}
