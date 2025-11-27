@@ -12,7 +12,8 @@ import {
 import { groups, memberships } from "@/app/_lib/db/schema";
 import { sortByName } from "@/app/_lib/utils";
 import { User } from "@/app/(users)/_lib";
-import { SELECT_CATEGORIES, SELECT_REVISION_INFO } from "@/app/_lib";
+import { SELECT_CATEGORIES } from "@/app/categories/_lib";
+import { SELECT_REVISION_INFO } from "@/app/_lib";
 import {
   populateReceiptArchivesRecursively,
   queryReceipts,

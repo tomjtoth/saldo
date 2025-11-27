@@ -90,7 +90,7 @@ export async function svcAddReceipt(
 
       const parsedItemShares = itemsCli.reduce(
         (shares, { itemShares }, idx) => {
-          const filteredItemShares = itemShares!.filter(
+          const filteredItemShares = itemShares.filter(
             ({ share }) => (share ?? 0) > 0
           );
           if (
@@ -98,9 +98,9 @@ export async function svcAddReceipt(
             filteredItemShares[0].userId !== paidById
           ) {
             shares.push(
-              ...filteredItemShares.map((sh) => ({
-                userId: sh.userId!,
-                share: sh.share!,
+              ...filteredItemShares.map(({ userId, share }) => ({
+                userId,
+                share,
                 revisionId,
                 itemId: itemIds[idx].id,
               }))
