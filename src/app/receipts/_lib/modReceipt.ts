@@ -12,10 +12,12 @@ import {
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
 import { err, nullEmptyStrings, virt } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
-import { populateReceiptArchivesRecursively } from "./populateRecursively";
-import { svcGetReceipts } from "./getReceipts";
+import {
+  populateReceiptArchivesRecursively,
+  Receipt,
+} from "./populateRecursively";
 
-export type TModReceipt = DbReceipt & {
+type ReceiptModifier = DbReceipt & {
   items: (DbItem & { itemShares: DbItemShare[] })[];
 };
 
@@ -26,7 +28,7 @@ function validateReceipt({
   paidById,
   flags,
   items,
-}: TModReceipt) {
+}: ReceiptModifier) {
   if (
     typeof id !== "number" ||
     typeof groupId !== "number" ||
@@ -76,7 +78,7 @@ function validateReceipt({
   return safeReceipt;
 }
 
-export async function apiModReceipt(uncheckedData: TModReceipt) {
+export async function apiModReceipt(uncheckedData: ReceiptModifier) {
   const safeReceipt = validateReceipt(uncheckedData);
 
   const user = await currentUser();
@@ -87,7 +89,7 @@ export async function apiModReceipt(uncheckedData: TModReceipt) {
 export async function svcModReceipt(
   revisedBy: User["id"],
   { items: itemMods, ...receiptMod }: ReturnType<typeof validateReceipt>
-): Promise<Awaited<ReturnType<typeof svcGetReceipts>>[number]> {
+): Promise<Receipt> {
   return atomic(
     { revisedBy, operation: "updating receipt" },
 

@@ -1,11 +1,12 @@
 "use server";
 
-import { and, eq, exists, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "@/app/_lib/db";
-import { groups, memberships, receipts } from "@/app/_lib/db/schema";
+import { memberships } from "@/app/_lib/db/schema";
 import { be, err, is } from "@/app/_lib/utils";
-import { currentUser, User } from "@/app/(users)/_lib";
+import { currentUser } from "@/app/(users)/_lib";
+import { Group } from "@/app/groups/_lib";
 import {
   populateReceiptArchivesRecursively,
   Receipt,
@@ -14,34 +15,36 @@ import { queryReceipts } from "./common";
 
 type ReceiptIds = Receipt["id"][];
 
-export async function apiGetReceipts(knownIds: ReceiptIds) {
-  if (!is.array(knownIds) || knownIds.some((id) => !is.number(id)))
-    err("known ids contain NaN");
+export async function apiGetReceipts(
+  groupId: Group["id"],
+  knownIds: ReceiptIds
+) {
+  be.number(groupId, "group ID");
+  be.array(knownIds, "receipt IDs");
 
-  const { id } = await currentUser();
-  return await svcGetReceipts(id, knownIds);
+  if (!knownIds.every(is.number)) err("known ids contain NaN");
+
+  const user = await currentUser();
+
+  const ms = await db.query.memberships.findFirst({
+    where: and(
+      eq(memberships.groupId, groupId),
+      eq(memberships.userId, user.id)
+    ),
+  });
+
+  if (!ms) err(403);
+
+  return await svcGetReceipts(groupId, knownIds);
 }
 
 export async function svcGetReceipts(
-  userId: User["id"],
+  groupId: Group["id"],
   knownIds: ReceiptIds = []
 ) {
-  const res = await db.query.receipts.findMany({
-    ...queryReceipts(knownIds),
-
-    where: exists(
-      db
-        .select({ x: sql`1` })
-        .from(memberships)
-        .where(
-          and(
-            eq(receipts.groupId, groups.id),
-            eq(groups.id, memberships.groupId),
-            eq(memberships.userId, userId)
-          )
-        )
-    ),
-  });
+  const res = await db.query.receipts.findMany(
+    queryReceipts({ knownIds, groupId })
+  );
 
   return await populateReceiptArchivesRecursively(res);
 }
