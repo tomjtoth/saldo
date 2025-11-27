@@ -16,10 +16,11 @@ export const is = {
     return typeof value === "boolean";
   },
 
-  function(value: unknown): value is Function {
+  function(value: unknown): value is (...args: unknown[]) => unknown {
     return typeof value === "function";
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   array(value: any): value is any[] {
     return Array.isArray(value);
   },
@@ -106,12 +107,3 @@ export const be: Be = new Proxy(is, {
     return value;
   },
 });
-
-const xx: number | null | boolean | string = "123" === "123";
-
-be.boolean(xx, "xx");
-xx;
-
-function vv<V>(val: {
-  [name: string]: unknown;
-}): asserts val is { [name: string]: V } {}
