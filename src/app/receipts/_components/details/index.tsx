@@ -68,7 +68,7 @@ export default function Details() {
   return (
     <Canceler
       onClick={() => {
-        nodes.setNodes([]);
+        nodes.clear();
         dispatch(thunks.setActiveReceipt());
       }}
     >
