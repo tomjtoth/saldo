@@ -88,7 +88,6 @@ export async function currentUser(
   }
 
   // OAuth profiles without an email are disallowed in @/auth.ts
-  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const email = session.user!.email!;
   const name = session.user!.name ?? `User #${(await db.$count(users)) + 1}`;
   const image = session.user!.image ?? null;

@@ -40,6 +40,9 @@ export function useClientState(key: "groupId"): CombinedState["groupId"];
 export function useClientState(key: "group"): CombinedState["group"];
 export function useClientState(key: "users"): CombinedState["users"];
 
+// using overloads because returning CombinedState[K] and
+// handling groups and users separately required one cast
+// function useClientState<K extends keyof CombinedState>(key: K): CombinedState[K] {
 export function useClientState(key: keyof CombinedState) {
   const fallback = useRootDivCx();
 
