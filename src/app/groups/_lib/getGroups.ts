@@ -38,8 +38,8 @@ export async function svcGetGroups(
     tx?: DrizzleTx;
     where?: SQL;
     extras?: {
-      receipts?: true;
-      consumption?: { from: string };
+      receipts?: true | { getAll: true };
+      consumption?: { from?: string };
       balance?: true;
     };
   } = {}
@@ -59,7 +59,14 @@ export async function svcGetGroups(
     with: {
       categories: SELECT_CATEGORIES,
 
-      ...("receipts" in extras ? { receipts: queryReceipts() } : {}),
+      ...("receipts" in extras
+        ? {
+            receipts:
+              extras.receipts === true
+                ? queryReceipts()
+                : queryReceipts(extras.receipts),
+          }
+        : {}),
 
       memberships: {
         with: {
