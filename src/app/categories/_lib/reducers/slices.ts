@@ -21,7 +21,7 @@ export const sliceCategories = {
     insertAlphabetically(payload, cats);
   },
 
-  modDefaultCategoryId(
+  setDefaultCategoryId(
     rs: CS,
     {
       payload,

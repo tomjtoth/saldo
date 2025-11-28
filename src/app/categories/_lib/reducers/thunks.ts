@@ -38,21 +38,21 @@ export const thunksCategories = {
     });
   },
 
-  modDefaultCategoryId:
+  setDefaultCategoryId:
     (
       categoryId: Category["id"],
       groupId: Group["id"],
       fallbackId?: Category["id"] | null
     ) =>
     (dispatch: AppDispatch) => {
-      dispatch(csa.modDefaultCategoryId({ categoryId, groupId }));
+      dispatch(csa.setDefaultCategoryId({ categoryId, groupId }));
 
       return appToast.promise(
         "Setting default category",
 
         apiSetDefaultCategory(categoryId).catch((err) => {
           dispatch(
-            csa.modDefaultCategoryId({ categoryId: fallbackId, groupId })
+            csa.setDefaultCategoryId({ categoryId: fallbackId, groupId })
           );
 
           throw err;
