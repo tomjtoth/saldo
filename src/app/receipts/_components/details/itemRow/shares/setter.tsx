@@ -12,11 +12,11 @@ import ItemShareAvatar from "./avatar";
 export default function ItemShareSetter({ itemId }: { itemId: number }) {
   const [verbose, setVerbose] = useState(false);
   const dispatch = useAppDispatch();
-  const cs = useClientState();
-  const receipt = cs.group!.activeReceipt!;
+  const group = useClientState("group")!;
+  const receipt = group.activeReceipt!;
 
   const item = receipt.items.find((item) => item.id === itemId)!;
-  const users = cs.users;
+  const users = group.users;
   const notPayer = users.find((user) => user.id !== receipt.paidById);
 
   return (
