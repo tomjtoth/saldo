@@ -3,22 +3,30 @@
 import { useState } from "react";
 
 import { virt } from "@/app/_lib/utils";
-import { useAppDispatch } from "@/app/_lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
 import { Category } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
 
 import Slider from "@/app/_components/slider";
 
-export default function Updater({ cat }: { cat: Category }) {
+export default function Updater({
+  categoryId,
+}: {
+  categoryId: Category["id"];
+}) {
   const dispatch = useAppDispatch();
-  const [name, setName] = useState(cat.name);
-  const [description, setDescr] = useState(cat.description ?? "");
-  const [flags, setFlags] = useState(cat.flags);
+  const category = useAppSelector(
+    (s) => s.combined.group!.categories.find(({ id }) => id === categoryId)!
+  );
+
+  const [name, setName] = useState(category.name);
+  const [description, setDescr] = useState(category.description ?? "");
+  const [flags, setFlags] = useState(category.flags);
 
   return (
     <form
       id="updater"
-      key={`${cat.id}-${cat.revisionId}`}
+      key={`${category.id}-${category.revisionId}`}
       className={
         "p-2 bg-background rounded border-2 " +
         (virt({ flags }).active ? "border-green-500" : "border-red-500") +
@@ -27,13 +35,13 @@ export default function Updater({ cat }: { cat: Category }) {
       onSubmit={(ev) => {
         ev.preventDefault();
 
-        dispatch(thunks.modCategory(cat, { name, description, flags })).catch(
-          () => {
-            setName(cat.name);
-            setDescr(cat.description ?? "");
-            setFlags(cat.flags);
-          }
-        );
+        dispatch(
+          thunks.modCategory(category, { name, description, flags })
+        ).catch(() => {
+          setName(category.name);
+          setDescr(category.description ?? "");
+          setFlags(category.flags);
+        });
       }}
     >
       <input
@@ -60,9 +68,9 @@ export default function Updater({ cat }: { cat: Category }) {
 
       <div className="col-span-3 text-center">
         🗓️
-        <sub> {cat.revision.createdAt} </sub>
+        <sub> {category.revision.createdAt} </sub>
         🪪
-        <sub> {cat.revision.createdBy.name} </sub>
+        <sub> {category.revision.createdBy.name} </sub>
       </div>
     </form>
   );

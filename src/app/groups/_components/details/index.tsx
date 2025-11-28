@@ -1,28 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Group } from "../../_lib";
 import { virt } from "@/app/_lib/utils";
-import { useClientState } from "@/app/_lib/hooks";
+import { useAppSelector, useClientState } from "@/app/_lib/hooks";
+import { useDebugger } from "@/app/_lib/utils/react";
 
 import SvgLink from "@/app/_components/svgLink";
 import Invitation from "./invitation";
 import Title from "./title";
 import Members from "./members";
 
-export default function Details({ group }: { group: Group }) {
+export default function Details({ groupId }: { groupId: Group["id"] }) {
+  const group = useAppSelector(
+    (s) => s.combined.groups.find((group) => group.id === groupId)!
+  );
   const [flags, setFlags] = useState(group.flags);
   const user = useClientState("user");
 
   const clientIsAdmin = group.memberships.some(
     (ms) => ms.user.id === user?.id && virt(ms).admin
   );
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFlags(group.flags);
-  }, [group.flags]);
+  useDebugger("groups/details", user, group.memberships);
 
   return (
     <div
@@ -34,11 +34,11 @@ export default function Details({ group }: { group: Group }) {
         " p-2 flex flex-col items-center gap-2"
       }
     >
-      <Title {...{ group, flags, setFlags, clientIsAdmin }} />
+      <Title {...{ groupId: group.id, flags, setFlags, clientIsAdmin }} />
 
-      <Members {...{ ...group, clientIsAdmin }} />
+      <Members {...{ groupId: group.id, clientIsAdmin }} />
 
-      <Invitation {...{ group, clientIsAdmin }} />
+      <Invitation {...{ groupId: group.id, clientIsAdmin }} />
 
       {virt(group).active && (
         <>

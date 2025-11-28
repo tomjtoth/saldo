@@ -24,7 +24,7 @@ export default function Details({
         if (ev.target === ev.currentTarget) hideDetails();
       }}
     >
-      <Updater cat={cat} />
+      <Updater categoryId={cat.id} />
       {cat.archives.map((cat) => (
         <div
           key={`${cat.id}-${cat.revisionId}`}

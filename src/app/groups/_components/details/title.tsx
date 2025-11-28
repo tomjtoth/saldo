@@ -2,7 +2,7 @@
 
 import { Dispatch, SetStateAction, useState } from "react";
 
-import { useAppDispatch } from "@/app/_lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
 import { Group } from "../../_lib";
 import { thunks } from "@/app/_lib/reducers";
@@ -13,14 +13,18 @@ export default function Title({
   flags,
   setFlags,
   clientIsAdmin,
-  group,
+  groupId,
 }: {
   flags: number;
   setFlags: Dispatch<SetStateAction<number>>;
   clientIsAdmin: boolean;
-  group: Group;
+  groupId: Group["id"];
 }) {
   const dispatch = useAppDispatch();
+  const group = useAppSelector(
+    (s) => s.combined.groups.find((g) => g.id === groupId)!
+  );
+
   const [name, setName] = useState(group.name);
   const [description, setDescription] = useState(group.description ?? "");
 

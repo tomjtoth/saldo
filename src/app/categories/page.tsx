@@ -15,7 +15,9 @@ export default wrapPage<{ catId?: string }>({
 
   children({ catId }) {
     const cidAsNum = Number(catId);
-    return <CliCategoriesPage catId={isNaN(cidAsNum) ? undefined : cidAsNum} />;
+    return (
+      <CliCategoriesPage categoryId={isNaN(cidAsNum) ? undefined : cidAsNum} />
+    );
   },
 
   rewritePath: "/categories",

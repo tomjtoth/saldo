@@ -28,7 +28,7 @@ export default function Entry({
     <>
       {showDetails && (
         <Canceler onClick={() => setShowDetails(false)}>
-          <Details {...{ group }} />
+          <Details {...{ groupId: group.id }} />
         </Canceler>
       )}
 

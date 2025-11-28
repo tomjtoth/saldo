@@ -5,11 +5,12 @@ import { useState } from "react";
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { costToFixed } from ".";
+import { Item } from "@/app/receipts/_lib";
 
 import Slider from "@/app/_components/slider";
 import ItemShareAvatar from "./avatar";
 
-export default function ItemShareSetter({ itemId }: { itemId: number }) {
+export default function ItemShareSetter({ itemId }: { itemId: Item["id"] }) {
   const [verbose, setVerbose] = useState(false);
   const dispatch = useAppDispatch();
   const group = useClientState("group")!;

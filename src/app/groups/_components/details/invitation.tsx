@@ -2,19 +2,24 @@
 
 import { toast } from "react-toastify";
 
-import { useAppDispatch } from "@/app/_lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
 import { Group } from "../../_lib";
 import { appToast } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
 
 export default function Invitation({
-  group,
+  groupId,
   clientIsAdmin,
 }: {
-  group: Group;
+  groupId: Group["id"];
   clientIsAdmin: boolean;
 }) {
   const dispatch = useAppDispatch();
+
+  const group = useAppSelector(
+    (s) => s.combined.groups.find((g) => g.id === groupId)!
+  );
+
   const invitationLink = group.uuid
     ? `${window.location.origin}/join/${group.uuid}`
     : null;

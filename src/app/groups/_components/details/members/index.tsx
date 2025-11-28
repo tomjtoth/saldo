@@ -3,11 +3,19 @@
 import { Group } from "@/app/groups/_lib";
 
 import Individual from "./individual";
+import { useAppSelector } from "@/app/_lib/hooks";
 
 export default function Members({
+  groupId,
   clientIsAdmin,
-  ...group
-}: Group & { clientIsAdmin: boolean }) {
+}: {
+  groupId: Group["id"];
+  clientIsAdmin: boolean;
+}) {
+  const group = useAppSelector(
+    (s) => s.combined.groups.find((g) => g.id === groupId)!
+  );
+
   return (
     <>
       <h3>Current members</h3>

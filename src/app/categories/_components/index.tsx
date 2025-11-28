@@ -4,12 +4,15 @@ import { useMemo } from "react";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
+import { Category } from "../_lib";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
 import Entry from "./entry";
 
-export default function CliCategoriesPage(srv: { catId?: number }) {
+export default function CliCategoriesPage(srv: {
+  categoryId?: Category["id"];
+}) {
   const dispatch = useAppDispatch();
   const group = useClientState("group");
   const groups = useClientState("groups");
@@ -17,9 +20,9 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
   const listing = useMemo(
     () =>
       group?.categories.map((cat) => (
-        <Entry key={cat.id} cat={cat} preSelected={srv.catId === cat.id} />
+        <Entry key={cat.id} cat={cat} preSelected={srv.categoryId === cat.id} />
       )),
-    [group?.categories, srv.catId]
+    [group?.categories, srv.categoryId]
   );
 
   return (

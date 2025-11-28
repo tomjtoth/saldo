@@ -2,29 +2,36 @@ import pluralize from "pluralize";
 
 import { Receipt } from "../_lib";
 import { virt } from "@/app/_lib/utils";
-import { useAppDispatch } from "@/app/_lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 
 import UserAvatar from "@/app/_components/userAvatar";
 import PaidByUserWithAvatar from "./paidByUserWithAvatar";
 
-export default function Individual(rcpt: Receipt) {
+export default function Individual({
+  receiptId,
+}: {
+  receiptId: Receipt["id"];
+}) {
   const dispatch = useAppDispatch();
-  const activeItems = rcpt.items.filter((item) => virt(item).active);
-  const activeVsInactiveDiff = activeItems.length - rcpt.items.length;
+  const receipt = useAppSelector(
+    (s) => s.combined.group!.receipts.find(({ id }) => id === receiptId)!
+  );
+  const activeItems = receipt.items.filter((item) => virt(item).active);
+  const activeVsInactiveDiff = activeItems.length - receipt.items.length;
 
   const addedBy =
-    rcpt.archives.at(0)?.revision.createdBy ?? rcpt.revision.createdBy;
+    receipt.archives.at(-1)?.revision.createdBy ?? receipt.revision.createdBy;
 
   return (
     <li
-      key={rcpt.id}
-      onClick={() => dispatch(thunks.setActiveReceipt(rcpt.id))}
+      key={receipt.id}
+      onClick={() => dispatch(thunks.setActiveReceipt(receipt.id))}
       className="p-2 shrink-0 border rounded flex w-fit flex-col gap-2 cursor-pointer select-none"
     >
       <div className="flex gap-5 justify-between items-center">
-        <b>{rcpt.paidOn}</b>
-        <PaidByUserWithAvatar {...rcpt.paidBy} />
+        <b>{receipt.paidOn}</b>
+        <PaidByUserWithAvatar {...receipt.paidBy} />
       </div>
 
       <div className="flex gap-5 justify-between items-center flex-row-reverse">
@@ -37,14 +44,14 @@ export default function Individual(rcpt: Receipt) {
           <sup className="lg:hidden">{activeItems.length}</sup>
           <span className="hidden lg:inline-block">
             <sup>
-              {rcpt.items.length}
+              {receipt.items.length}
               {activeVsInactiveDiff !== 0 && ` (${activeVsInactiveDiff})`}
             </sup>{" "}
             {pluralize("item", activeItems.length)}
           </span>
         </div>
 
-        {addedBy.id !== rcpt.paidBy.id && (
+        {addedBy.id !== receipt.paidBy.id && (
           <div>
             <UserAvatar user={addedBy} className="w-8" />
             <span className="hidden xl:inline-block ml-2">{addedBy.name}</span>
