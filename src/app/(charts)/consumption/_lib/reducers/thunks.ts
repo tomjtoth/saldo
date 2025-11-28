@@ -7,10 +7,10 @@ import { ConsumptionOpts } from "../query";
 export const thunksConsumption = {
   updateConsumption: (opts: ConsumptionOpts) => (dispatch: AppDispatch) => {
     return appToast.promise(
+      "Fetching data",
       apiGetConsumption(opts).then((data) => {
         dispatch(csa.updateConsumptionData(data));
-      }),
-      "Fetching data"
+      })
     );
   },
 };

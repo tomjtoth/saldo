@@ -1,7 +1,5 @@
 "use client";
 
-import { toast } from "react-toastify";
-
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
@@ -36,22 +34,25 @@ export default function Details() {
 
     if (nanItem > -1) {
       dispatch(thunks.setFocusedRow(nanItem));
-      return toast.error("Invalid item cost", appToast.theme());
+      return appToast.error("Invalid item cost");
     }
 
     const updating = receipt.id !== -1;
 
     if (updating) {
       appToast.promise(
+        "Updating receipt",
+
         apiModReceipt(receipt).then((res) => {
           nodes.pop();
           dispatch(thunks.setActiveReceipt());
           dispatch(thunks.modReceipt({ ...res, groupId }));
-        }),
-        "Updating receipt"
+        })
       );
     } else {
       appToast.promise(
+        "Submitting new receipt",
+
         apiAddReceipt({
           ...receipt,
           groupId,
@@ -59,8 +60,7 @@ export default function Details() {
           nodes.pop();
           dispatch(thunks.setActiveReceipt());
           dispatch(thunks.addReceipt({ ...res, groupId }));
-        }),
-        "Submitting new receipt"
+        })
       );
     }
   };

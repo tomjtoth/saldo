@@ -22,8 +22,8 @@ export default function CliImportSection(fromDB: TEntriesInDbOfEachTable) {
         id="import-btn"
         onClick={() => {
           appToast.promise(
-            svcImportV3().then((res) => setData(res)),
-            "Dropping and re-populating all data in DB"
+            "Dropping and re-populating all data in DB",
+            svcImportV3().then(setData)
           );
         }}
       >

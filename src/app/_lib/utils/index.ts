@@ -111,7 +111,18 @@ export const appToast = {
       : "light",
   }),
 
-  promise(promise: Promise<unknown>, operation: string) {
+  promise<P extends Promise<unknown>>(
+    operation: string,
+    promiseOrFn: P | (() => P)
+  ) {
+    let promise: Promise<unknown>;
+
+    try {
+      promise = promiseOrFn instanceof Promise ? promiseOrFn : promiseOrFn();
+    } catch (err) {
+      promise = Promise.reject(err);
+    }
+
     return toast.promise(promise, this.messages(operation), this.theme());
   },
 

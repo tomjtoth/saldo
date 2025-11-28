@@ -15,38 +15,27 @@ export const thunksCategories = {
   modCategory:
     (original: Category, modifiers: Required<Omit<CategoryModifier, "id">>) =>
     (dispatch: AppDispatch) => {
-      try {
+      return appToast.promise(`Updating "${modifiers.name}"`, () => {
         be.stringWith3ConsecutiveLetters(modifiers.name, "name");
 
-        return appToast.promise(
-          apiModCategory({ ...modifiers, id: original.id }).then((res) => {
-            dispatch(csa.modCategory(res));
+        return apiModCategory({ ...modifiers, id: original.id }).then((res) => {
+          dispatch(csa.modCategory(res));
 
-            return `${appToast.opsDone(
-              original,
-              nullEmptyStrings(modifiers)
-            )} "${original.name}" succeeded!`;
-          }),
-          `Updating "${modifiers.name}"`
-        );
-      } catch (err) {
-        appToast.error(err);
-      }
+          return `${appToast.opsDone(original, nullEmptyStrings(modifiers))} "${
+            original.name
+          }" succeeded!`;
+        });
+      });
     },
 
   addCategory: (args: CategoryAdder) => async (dispatch: AppDispatch) => {
-    try {
+    return appToast.promise(`Saving "${args.name}" to db`, () => {
       be.stringWith3ConsecutiveLetters(args.name, "name");
 
-      return appToast.promise(
-        apiAddCategory(args).then((res) => {
-          dispatch(csa.addCategory(res));
-        }),
-        `Saving "${args.name}" to db`
-      );
-    } catch (err) {
-      appToast.error(err);
-    }
+      return apiAddCategory(args).then((res) => {
+        dispatch(csa.addCategory(res));
+      });
+    });
   },
 
   modDefaultCategoryId:
@@ -59,14 +48,15 @@ export const thunksCategories = {
       dispatch(csa.modDefaultCategoryId({ categoryId, groupId }));
 
       return appToast.promise(
+        "Setting default category",
+
         apiSetDefaultCategory(categoryId).catch((err) => {
           dispatch(
             csa.modDefaultCategoryId({ categoryId: fallbackId, groupId })
           );
 
           throw err;
-        }),
-        "Setting default category"
+        })
       );
     },
 };

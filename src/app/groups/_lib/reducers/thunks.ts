@@ -24,55 +24,47 @@ export const thunksGroups = {
       original: Group
     ) =>
     (dispatch: AppDispatch) => {
-      try {
+      return appToast.promise(`Updating "${original.name}"`, async () => {
         be.stringWith3ConsecutiveLetters(modifiers.name, "name");
 
-        return appToast.promise(
-          apiModGroup({ id: groupId, ...modifiers }).then((res) => {
-            const ops = appToast.opsDone(original, res);
-            dispatch(csa.modGroup(res));
+        apiModGroup({ id: groupId, ...modifiers }).then((res) => {
+          const ops = appToast.opsDone(original, res);
+          dispatch(csa.modGroup(res));
 
-            return `${ops} "${original.name}" succeeded!`;
-          }),
-          `Updating "${original.name}"`
-        );
-      } catch (err) {
-        appToast.error(err);
-      }
+          return `${ops} "${original.name}" succeeded!`;
+        });
+      });
     },
 
   addGroup:
     ({ name, description }: Group) =>
     (dispatch: AppDispatch) => {
-      try {
+      return appToast.promise(`Saving "${name}" to db`, async () => {
         be.stringWith3ConsecutiveLetters(name, "name");
 
-        return appToast.promise(
-          apiAddGroup({ name, description }).then((res) => {
-            dispatch(csa.addGroup(res));
-          }),
-          `Saving "${name}" to db`
-        );
-      } catch (err) {
-        appToast.error(err);
-      }
+        apiAddGroup({ name, description }).then((res) => {
+          dispatch(csa.addGroup(res));
+        });
+      });
     },
 
   generateInviteLink: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
     appToast.promise(
+      "Generating invitation link",
+
       apiGenInviteLink(groupId).then((res) => {
         dispatch(csa.modGroup(res));
-      }),
-      "Generating invitation link"
+      })
     );
   },
 
   removeInviteLink: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
     appToast.promise(
+      "Deleting invitation link",
+
       apiRmInviteLink(groupId).then((res) => {
         dispatch(csa.modGroup(res));
-      }),
-      "Deleting invitation link"
+      })
     );
   },
 
@@ -80,6 +72,8 @@ export const thunksGroups = {
     ({ groupId, userId, flags }: MembershipModifier, toastMessage: string) =>
     (dispatch: AppDispatch) => {
       return appToast.promise(
+        toastMessage,
+
         apiModMembership({ groupId, userId, flags }).then(({ flags }) => {
           dispatch(
             csa.modMembership({
@@ -88,8 +82,7 @@ export const thunksGroups = {
               flags,
             })
           );
-        }),
-        toastMessage
+        })
       );
     },
 
@@ -99,10 +92,11 @@ export const thunksGroups = {
 
   setDefaultGroupId: (groupId: Group["id"]) => (dispatch: AppDispatch) => {
     return appToast.promise(
+      "Setting default group",
+
       apiSetDefaultGroup(groupId).then(() => {
         dispatch(csa.setDefaultGroupId(groupId));
-      }),
-      "Setting default group"
+      })
     );
   },
 
@@ -117,6 +111,10 @@ export const thunksGroups = {
 
       appToast
         .promise(
+          `${color ? "updating" : "resetting"} ${
+            uid ? "color of member" : "chart color"
+          }`,
+
           apiSetUserColor({
             color,
             ...(uid
@@ -125,11 +123,7 @@ export const thunksGroups = {
                   memberId: uid,
                 }
               : {}),
-          }),
-
-          `${color ? "updating" : "resetting"} ${
-            uid ? "color of member" : "chart color"
-          }`
+          })
         )
         .catch(() => {
           dispatch(csa.setUserColor({ color: prevState, uid }));
