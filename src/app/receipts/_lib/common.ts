@@ -1,9 +1,8 @@
 import { sql, desc, and, eq, SQL } from "drizzle-orm";
 
 import { receipts } from "@/app/_lib/db/schema";
-import { DbGroup, QueryParamsOf } from "@/app/_lib/db/types";
+import { DbGroup, DbReceipt, QueryParamsOf } from "@/app/_lib/db/types";
 import { SELECT_REVISION_INFO } from "@/app/_lib";
-import { Receipt } from "./populateRecursively";
 
 export const SELECT_RECEIPTS = {
   with: {
@@ -19,7 +18,7 @@ export const SELECT_RECEIPTS = {
 
 export const queryReceipts = (opts?: {
   groupId?: DbGroup["id"]; // using type Group here would circular reference
-  knownIds: Receipt["id"][];
+  knownIds?: DbReceipt["id"][];
   getAll?: true;
 }) => {
   const crit: SQL[] = [
