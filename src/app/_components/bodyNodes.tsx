@@ -10,7 +10,11 @@ import {
 
 export const BodyNodeCx = createContext<{
   setNodes: Dispatch<SetStateAction<ReactNode[]>>;
-  push: (node: ReactNode | (() => ReactNode)) => void;
+  push: {
+    <T>(node: ReactNode | ((args: T) => ReactNode), args: T): void;
+    (node: () => ReactNode): void;
+    (node: ReactNode): void;
+  };
   pop: () => void;
 }>({
   setNodes() {},
@@ -30,10 +34,17 @@ export default function BodyNodeProvider({
       value={{
         setNodes,
 
-        push(Node) {
+        push<T extends object>(
+          Node: ReactNode | ((args: T) => ReactNode),
+          args?: T
+        ) {
           setNodes((nodes) =>
             nodes.concat(
-              typeof Node === "function" ? <Node key={Node.name} /> : Node
+              typeof Node === "function" ? (
+                <Node key={Node.name} {...(args ? args : ({} as T))} />
+              ) : (
+                Node
+              )
             )
           );
         },

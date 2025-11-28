@@ -35,8 +35,7 @@ export default function Header({
                 user,
                 id: "usermenu-opener",
                 className: "w-12 h-12 cursor-pointer",
-                onClick: () =>
-                  nodes.push(MainMenu.bind(null, { tab: "personal" })),
+                onClick: () => nodes.push(MainMenu, { tab: "personal" }),
               }}
             />
             <GroupSelector />

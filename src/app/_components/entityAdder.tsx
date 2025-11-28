@@ -17,7 +17,7 @@ export default function EntityAdderButton(args: TEntityAdder) {
   return (
     <button
       id="entity-adder-button"
-      onClick={() => nodes.push(EntityAdder.bind(null, args))}
+      onClick={() => nodes.push(EntityAdder, args)}
     >
       ➕ <span className="hidden sm:inline-block">Add new...</span>
     </button>
