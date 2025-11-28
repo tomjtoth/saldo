@@ -2,11 +2,10 @@ import { useCallback, useRef, useEffect, useContext } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
 import type { RootState, AppDispatch, AppStore } from "./store";
-import { thunks } from "./reducers";
 
 import { RootDivCx } from "@/app/_components/rootDiv";
 import { BodyNodeCx } from "@/app/_components/bodyNodes";
-import { CliGroup } from "./reducers/types";
+import { CliGroup, CombinedState } from "./reducers/types";
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
@@ -35,43 +34,31 @@ export function useDebounce<T extends (...args: any[]) => void>(
   );
 }
 
-export function useClientState() {
-  const dispatch = useAppDispatch();
+export function useClientState(key: "groups"): CombinedState["groups"];
+export function useClientState(key: "user"): CombinedState["user"];
+export function useClientState(key: "groupId"): CombinedState["groupId"];
+export function useClientState(key: "group"): CombinedState["group"];
+export function useClientState(key: "users"): CombinedState["users"];
 
+export function useClientState(key: keyof CombinedState) {
   const fallback = useRootDivCx();
-  const groups: CliGroup[] = useAppSelector((s) => {
-    const local = s.combined.groups;
-    return local.length > 0 ? local : fallback.groups;
+
+  return useAppSelector((s) => {
+    const local = s.combined;
+
+    if (
+      key === "groups" &&
+      local.groups.length === 0 &&
+      fallback.groups.length > 0
+    ) {
+      const groups: CliGroup[] = fallback.groups;
+      return groups;
+    }
+
+    if (key === "user" && !local.user && !!fallback.user) return fallback.user;
+
+    return local[key];
   });
-
-  const groupId = useAppSelector(
-    (s) => s.combined.groupId ?? fallback.groupId ?? groups.at(0)?.id
-  );
-
-  const user = useAppSelector((s) => s.combined.user ?? fallback.user);
-
-  // leave it as a function as it get's called from useEffect, too
-  const getGroup = () => groups.find((group) => group.id === groupId);
-  const group = getGroup();
-
-  const users = group?.users ?? [];
-
-  // TODO: performance improvement
-  // console.debug("useGroupSelector being called");
-
-  useEffect(() => {
-    if (groups.length > 0 && !getGroup())
-      dispatch(thunks.setGroupId(groups[0].id));
-  }, [groups.length]);
-
-  return {
-    groups,
-    group,
-    groupId,
-
-    users,
-    user,
-  };
 }
 
 export const useBodyNodes = () => useContext(BodyNodeCx);
