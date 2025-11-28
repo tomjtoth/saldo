@@ -7,6 +7,7 @@ import {
   SetStateAction,
   useState,
 } from "react";
+import { v4 as uuid } from "uuid";
 
 export const BodyNodeCx = createContext<{
   setNodes: Dispatch<SetStateAction<ReactNode[]>>;
@@ -41,7 +42,7 @@ export default function BodyNodeProvider({
           setNodes((nodes) =>
             nodes.concat(
               typeof Node === "function" ? (
-                <Node key={Node.name} {...(args ? args : ({} as T))} />
+                <Node key={uuid()} {...(args ? args : ({} as T))} />
               ) : (
                 Node
               )
