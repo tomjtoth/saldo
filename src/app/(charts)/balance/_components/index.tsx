@@ -10,7 +10,7 @@ import BalanceChart from "./chart";
 export default function CliBalancePage() {
   const group = useClientState("group");
 
-  const hook = useBalanceChartHook(group?.balance);
+  const hook = useBalanceChartHook();
 
   return (
     <BalanceChartCx.Provider value={hook}>
@@ -22,7 +22,7 @@ export default function CliBalancePage() {
         )}
       </Header>
 
-      {group?.balance && <BalanceChart {...group.balance} />}
+      {group?.balance && <BalanceChart />}
     </BalanceChartCx.Provider>
   );
 }

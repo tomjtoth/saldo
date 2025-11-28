@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { MouseHandlerDataParam } from "recharts";
 
+import { useAppSelector } from "@/app/_lib/hooks";
 import { BalanceData } from "@/app/_lib/db";
 
 export const BalanceChartCx = createContext<ReturnType<
@@ -9,7 +10,26 @@ export const BalanceChartCx = createContext<ReturnType<
 
 export const useBalanceChartCx = () => useContext(BalanceChartCx);
 
-export function useBalanceChartHook(balance?: BalanceData) {
+export function findMinMax(
+  { data, minMaxes }: Pick<BalanceData, "data" | "minMaxes">,
+  opts?: { minDate: number; maxDate: number }
+) {
+  return data.reduce(
+    (prev, curr) => {
+      if (!opts || (curr.date >= opts.minDate && curr.date <= opts.maxDate)) {
+        const currMinMax = minMaxes[curr.date];
+
+        if (currMinMax.min < prev.min) prev.min = currMinMax.min;
+        if (currMinMax.max > prev.max) prev.max = currMinMax.max;
+      }
+
+      return prev;
+    },
+    { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY }
+  );
+}
+
+export function useBalanceChartHook() {
   const initialState: {
     refAreaLeft?: string | number;
     refAreaRight?: string | number;
@@ -26,28 +46,12 @@ export function useBalanceChartHook(balance?: BalanceData) {
 
   const [state, setState] = useState(initialState);
 
-  function findMinMax(opts?: { minDate: number; maxDate: number }) {
-    return balance!.data.reduce(
-      (prev, curr) => {
-        if (!opts || (curr.date >= opts.minDate && curr.date <= opts.maxDate)) {
-          const currMinMax = balance!.minMaxes[curr.date];
-
-          if (currMinMax.min < prev.min) prev.min = currMinMax.min;
-          if (currMinMax.max > prev.max) prev.max = currMinMax.max;
-        }
-
-        return prev;
-      },
-      { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY }
-    );
-  }
+  const balance = useAppSelector((s) => s.combined.group?.balance);
 
   return !balance
     ? null
     : {
         state,
-
-        findMinMax,
 
         zoomIn() {
           let { refAreaLeft, refAreaRight } = state;
@@ -64,7 +68,7 @@ export function useBalanceChartHook(balance?: BalanceData) {
           if (refAreaLeft! > refAreaRight)
             [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
-          const { min, max } = findMinMax({
+          const { min, max } = findMinMax(balance, {
             minDate: refAreaLeft as number,
             maxDate: refAreaRight as number,
           });

@@ -15,27 +15,28 @@ import {
   Label,
 } from "recharts";
 
-import { BalanceData } from "@/app/_lib/db";
-import { useClientState } from "@/app/_lib/hooks";
-import { useBalanceChartCx } from "../_lib/hook";
+import { useAppSelector, useClientState } from "@/app/_lib/hooks";
+import { findMinMax, useBalanceChartCx } from "../_lib/hook";
+import { useDebugger } from "@/app/_lib/utils/react";
 
 import BalanceTick from "./tick";
 import BalanceTooltip from "./tooltip";
 import BalanceLegend from "./legend";
 
-export default function BalanceChart({ data, relations }: BalanceData) {
+export default function BalanceChart() {
+  const balance = useAppSelector((s) => s.combined.group!.balance);
   const hook = useBalanceChartCx()!;
   const users = useClientState("users");
 
   const { lines, gradients } = useMemo(() => {
     const gradients: ReactNode[] = [];
-    const lines = relations.map((rel) => {
+    const lines = balance.relations.map((rel) => {
       const uids = rel.split(" vs ").map(Number);
       const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
       const defId = `${u1.id}-${u2.id}-chart-colors`;
 
-      const { min, max } = hook.findMinMax();
+      const { min, max } = findMinMax(balance);
 
       const abs = [min, max].map(Math.abs);
       const height = abs[0] + abs[1];
@@ -55,7 +56,7 @@ export default function BalanceChart({ data, relations }: BalanceData) {
           type="stepAfter"
           key={rel}
           dataKey={rel}
-          data={data}
+          data={balance.data}
           dot={false}
           connectNulls
           activeDot={({ cx, cy, value }) => (
@@ -74,8 +75,9 @@ export default function BalanceChart({ data, relations }: BalanceData) {
     });
 
     return { gradients, lines };
-  }, [users, data, relations]);
+  }, [users, balance]);
 
+  useDebugger("balance chart rerendered", gradients, lines);
 
   return (
     <div className="h-full w-full">
