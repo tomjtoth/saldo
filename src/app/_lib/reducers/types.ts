@@ -6,6 +6,9 @@ export interface CliGroup extends Group {
   activeReceipt?: Receipt & {
     focusedIdx?: number;
   };
+  hasMoreToLoad?: boolean;
+  fetchingReceipts?: boolean;
+  debounceReceiptsFetching?: number;
 }
 
 export type CombinedState = {
