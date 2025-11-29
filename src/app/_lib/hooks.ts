@@ -91,7 +91,9 @@ export function useClientState(
         : local.groups;
     if (key === "groups") return groups;
 
-    return groups.find((group) => group.id === (id ?? groupId));
+    return groups.find(
+      (group) => group.id === (key === "group" ? id ?? groupId : groupId)
+    );
   });
 
   if (["user", "groupId", "groups"].includes(key)) return res;
