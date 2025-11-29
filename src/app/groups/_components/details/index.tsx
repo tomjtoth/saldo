@@ -22,7 +22,7 @@ export default function GroupDetails({ groupId }: { groupId: Group["id"] }) {
     (ms) => ms.user.id === user?.id && virt(ms).admin
   );
 
-  useDebugger("group details", user, group.memberships);
+  useDebugger("group details", [user, group.memberships]);
 
   return (
     <Canceler onClick={nodes.pop}>

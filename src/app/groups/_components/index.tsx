@@ -19,7 +19,7 @@ export default function GroupsPage() {
   const groups = useClientState("groups");
   const preSelectedId = useRootDivCx().groupId;
 
-  const listing = useMemo(
+  const groupsListing = useMemo(
     () =>
       groups.map((group) => (
         <GroupEntry
@@ -31,7 +31,7 @@ export default function GroupsPage() {
     [groups, preSelectedId]
   );
 
-  useDebugger("groups listing", listing);
+  useDebugger({ groupsListing });
 
   return (
     <>
@@ -49,7 +49,9 @@ export default function GroupsPage() {
         groups are not visible in categories, nor in receipts.
       </p>
 
-      <div className="p-2 flex flex-wrap gap-2 justify-center">{listing}</div>
+      <div className="p-2 flex flex-wrap gap-2 justify-center">
+        {groupsListing}
+      </div>
     </>
   );
 }

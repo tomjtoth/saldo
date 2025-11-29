@@ -27,7 +27,7 @@ export default function BalanceChart() {
   const hook = useBalanceChartCx()!;
   const users = useClientState("users");
 
-  const { lines, gradients } = useMemo(() => {
+  const { lines: balanceLines, gradients: balanceGradients } = useMemo(() => {
     const gradients: ReactNode[] = [];
     const lines = balance?.relations.map((rel) => {
       const uids = rel.split(" vs ").map(Number);
@@ -76,7 +76,7 @@ export default function BalanceChart() {
     return { gradients, lines };
   }, [users, balance]);
 
-  useDebugger("balance chart rerendered", gradients, lines);
+  useDebugger({ balanceGradients, balanceLines });
 
   return (
     <div className="h-full w-full">
@@ -108,7 +108,7 @@ export default function BalanceChart() {
           <Tooltip content={BalanceTooltip} />
           <Legend content={BalanceLegend} />
 
-          <defs>{gradients}</defs>
+          <defs>{balanceGradients}</defs>
           <ReferenceLine
             y={0}
             offset={10}
@@ -117,7 +117,7 @@ export default function BalanceChart() {
           >
             <Label value="0.00" position="left" fontWeight="bold" />
           </ReferenceLine>
-          {lines}
+          {balanceLines}
 
           {hook.state.refAreaLeft !== undefined &&
           hook.state.refAreaRight !== undefined ? (

@@ -15,6 +15,7 @@ import { RootDivCx } from "@/app/_components/rootDiv";
 import { BodyNodeCx } from "@/app/_components/bodyNodes";
 import { CliGroup, CombinedState } from "./reducers/types";
 import { Category } from "../categories/_lib";
+import { is } from "./utils";
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
@@ -124,18 +125,35 @@ export function useClientState(
   return res;
 }
 
-export function useDebugger(
-  fnOrMsg: EffectCallback | string,
-  ...deps: DependencyList
-) {
+type DependencyObject = { [name: string]: DependencyList[number] };
+
+export const useDebugger: {
+  (message: string, deps: DependencyList): void;
+  (callback: EffectCallback, deps: DependencyList): void;
+  (depsAsObject: DependencyObject): void;
+} = (
+  strObjFn: EffectCallback | string | DependencyObject,
+  deps?: DependencyList
+) => {
   if (process.env.NODE_ENV === "development") {
+    let hook: EffectCallback;
+
+    if (is.object(strObjFn) && !is.function(strObjFn)) {
+      deps = Object.values(strObjFn);
+      hook = () =>
+        console.debug(
+          "noticed changes in: ",
+          Object.keys(strObjFn).join(", "),
+          ...(deps as DependencyList)
+        );
+    } else {
+      hook = is.function(strObjFn) ? strObjFn : () => console.debug(strObjFn);
+    }
+
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(
-      typeof fnOrMsg === "function" ? fnOrMsg : () => console.debug(fnOrMsg),
-      deps
-    );
+    useEffect(hook, deps);
   }
-}
+};
 
 export const useBodyNodes = () => useContext(BodyNodeCx);
 

@@ -22,7 +22,7 @@ export default function CliCategoriesPage(srv: {
     (ms) => ms.userId === user?.id
   )?.defaultCategoryId;
 
-  const listing = useMemo(
+  const categoriesListing = useMemo(
     () =>
       group?.categories.map((cat) => (
         <Entry
@@ -35,7 +35,7 @@ export default function CliCategoriesPage(srv: {
     [group?.categories, srv.categoryId, defaultCategoryId]
   );
 
-  useDebugger("categories listing changed", listing);
+  useDebugger({ categoriesListing });
 
   return (
     <>
@@ -57,7 +57,9 @@ export default function CliCategoriesPage(srv: {
         categories cannot be assigned to items.
       </p>
 
-      <div className="p-2 flex flex-wrap gap-2 justify-center">{listing}</div>
+      <div className="p-2 flex flex-wrap gap-2 justify-center">
+        {categoriesListing}
+      </div>
     </>
   );
 }
