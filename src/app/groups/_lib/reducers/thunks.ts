@@ -37,7 +37,7 @@ export const thunksGroups = {
     },
 
   addGroup:
-    ({ name, description }: Group) =>
+    ({ name, description }: Pick<Group, "name" | "description">) =>
     (dispatch: AppDispatch) => {
       return appToast.promise(`Saving "${name}" to db`, async () => {
         be.stringWith3ConsecutiveLetters(name, "name");

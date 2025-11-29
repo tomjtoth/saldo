@@ -13,8 +13,6 @@ export interface CliGroup extends Group {
 
 export type CombinedState = {
   user?: User;
-  users: CliGroup["users"];
   groupId?: number;
-  group?: CliGroup;
   groups: CliGroup[];
 };

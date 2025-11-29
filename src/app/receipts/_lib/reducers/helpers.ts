@@ -20,24 +20,24 @@ export const addItem = (categoryId: Category["id"]): Item => ({
 });
 
 export const getActiveGroup = (rs: CS, groupId?: Group["id"]) =>
-  rs.groups.find((grp) => grp.id === (groupId ?? rs.groupId))!;
+  rs.groups.find((grp) => grp.id === (groupId ?? rs.groupId));
 
 export const getDefaultCategory = (rs: CS, groupId?: Group["id"]) => {
   const group = getActiveGroup(rs, groupId);
 
   return (
-    group.memberships.find((ms) => ms.userId === rs.user?.id)
+    group?.memberships.find((ms) => ms.userId === rs.user?.id)
       ?.defaultCategoryId ??
-    group.categories.at(0)?.id ??
+    group?.categories.at(0)?.id ??
     // in case we have no categories at all
     -1
   );
 };
 
 export const getActiveUsers = (rs: CS) =>
-  getActiveGroup(rs).memberships.map(({ user }) => user);
+  getActiveGroup(rs)?.memberships.map(({ user }) => user);
 
-export const getActiveReceipt = (rs: CS) => getActiveGroup(rs).activeReceipt!;
+export const getActiveReceipt = (rs: CS) => getActiveGroup(rs)?.activeReceipt;
 
 export const sortReceipts = (groups: Group[]) =>
   groups.forEach((group) =>

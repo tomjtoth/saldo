@@ -71,7 +71,7 @@ export default function RootDiv({
 
   useEffect(() => {
     // rendered on protectedPages
-    if (groups || user) dispatch(thunks.init({ groups, user, users: [] }));
+    if (groups || user) dispatch(thunks.init({ groups, user }));
 
     if (groupId) {
       if (rewritePath) window.history.replaceState(null, "", rewritePath);

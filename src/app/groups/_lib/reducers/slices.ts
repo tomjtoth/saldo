@@ -5,7 +5,6 @@ import { Group } from "../getGroups";
 import { insertAlphabetically } from "@/app/_lib/utils";
 import { CombinedState as CS } from "@/app/_lib/reducers/types";
 import { MembershipModifier } from "@/app/(memberships)/_lib";
-import { getActiveGroup } from "@/app/receipts/_lib/reducers/helpers";
 
 export const sliceGroups = {
   modGroup(rs: CS, { payload }: PayloadAction<Group>) {
@@ -20,8 +19,6 @@ export const sliceGroups = {
 
   setGroupId(rs: CS, { payload }: PayloadAction<Group["id"]>) {
     rs.groupId = payload;
-    rs.group = getActiveGroup(rs);
-    rs.users = rs.group.users;
   },
 
   setDefaultGroupId(rs: CS, { payload }: PayloadAction<Group["id"]>) {

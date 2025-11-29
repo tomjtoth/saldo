@@ -9,7 +9,6 @@ import BalanceChart from "./chart";
 // TODO: remove Cli prefix from EntityPage names
 export default function CliBalancePage() {
   const group = useClientState("group");
-
   const hook = useBalanceChartHook();
 
   return (

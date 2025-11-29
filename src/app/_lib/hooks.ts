@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect, useContext } from "react";
+import { useCallback, useRef, useEffect, useContext, useMemo } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
 import type { RootState, AppDispatch, AppStore } from "./store";
@@ -6,6 +6,7 @@ import type { RootState, AppDispatch, AppStore } from "./store";
 import { RootDivCx } from "@/app/_components/rootDiv";
 import { BodyNodeCx } from "@/app/_components/bodyNodes";
 import { CliGroup, CombinedState } from "./reducers/types";
+import { Category } from "../categories/_lib";
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
@@ -37,31 +38,61 @@ export function useDebounce<T extends (...args: any[]) => void>(
 export function useClientState(key: "groups"): CombinedState["groups"];
 export function useClientState(key: "user"): CombinedState["user"];
 export function useClientState(key: "groupId"): CombinedState["groupId"];
-export function useClientState(key: "group"): CombinedState["group"];
-export function useClientState(key: "users"): CombinedState["users"];
+export function useClientState(key: "group"): CliGroup | undefined;
 
-// using overloads because returning CombinedState[K] and
-// handling groups and users separately required one cast
-// function useClientState<K extends keyof CombinedState>(key: K): CombinedState[K] {
-export function useClientState(key: keyof CombinedState) {
+export function useClientState(
+  key: "users"
+): CliGroup["memberships"][number]["user"][];
+
+export function useClientState(
+  key: "category",
+  categoryId: Category["id"]
+): CliGroup["categories"][number] | undefined;
+
+export function useClientState(
+  key: keyof CombinedState | "group" | "users" | "category",
+  id?: number
+) {
   const fallback = useRootDivCx();
 
-  return useAppSelector((s) => {
+  const res = useAppSelector((s) => {
     const local = s.combined;
 
-    if (
-      key === "groups" &&
-      local.groups.length === 0 &&
-      fallback.groups.length > 0
-    ) {
-      const groups: CliGroup[] = fallback.groups;
-      return groups;
-    }
+    if (key === "user") return local.user ?? fallback.user;
 
-    if (key === "user" && !local.user && !!fallback.user) return fallback.user;
+    const groupId = local.groupId ?? fallback.groupId;
+    if (key === "groupId") return groupId;
 
-    return local[key];
+    const groups =
+      local.groups.length === 0 && fallback.groups.length > 0
+        ? fallback.groups
+        : local.groups;
+    if (key === "groups") return groups;
+
+    return groups.find((group) => group.id === groupId);
   });
+
+  if (key === "users") {
+    const group = res as CliGroup | undefined;
+
+    const dep = group?.memberships
+      .flatMap((ms) => [ms.flags, ms.user.color, ms.defaultCategoryId])
+      .join("-");
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useMemo(
+      () => group?.memberships.map((ms) => ms.user) ?? [],
+      [group?.memberships, dep]
+    );
+  }
+
+  if (key === "category") {
+    const group = res as CliGroup | undefined;
+
+    return group?.categories.find((category) => category.id === id);
+  }
+
+  return res;
 }
 
 export const useBodyNodes = () => useContext(BodyNodeCx);
