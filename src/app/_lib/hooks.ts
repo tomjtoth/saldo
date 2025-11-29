@@ -46,11 +46,9 @@ export function useDebounce<T extends (...args: any[]) => void>(
 export function useClientState(key: "groups"): CombinedState["groups"];
 export function useClientState(key: "user"): CombinedState["user"];
 export function useClientState(key: "groupId"): CombinedState["groupId"];
-export function useClientState(key: "group"): CliGroup | undefined;
 
-export function useClientState(
-  key: "users"
-): CliGroup["memberships"][number]["user"][];
+export function useClientState(key: "balance"): CliGroup["balance"];
+export function useClientState(key: "consumption"): CliGroup["consumption"];
 
 export function useClientState(
   key: "category",
@@ -58,7 +56,22 @@ export function useClientState(
 ): CliGroup["categories"][number] | undefined;
 
 export function useClientState(
-  key: keyof CombinedState | "group" | "users" | "category",
+  key: "group",
+  groupId?: CliGroup["id"]
+): CliGroup | undefined;
+
+export function useClientState(
+  key: "users"
+): CliGroup["memberships"][number]["user"][];
+
+export function useClientState(
+  key:
+    | keyof CombinedState
+    | "balance"
+    | "consumption"
+    | "category"
+    | "group"
+    | "users",
   id?: number
 ) {
   const fallback = useRootDivCx();
@@ -77,12 +90,14 @@ export function useClientState(
         : local.groups;
     if (key === "groups") return groups;
 
-    return groups.find((group) => group.id === groupId);
+    return groups.find((group) => group.id === (id ?? groupId));
   });
 
-  if (key === "users") {
-    const group = res as CliGroup | undefined;
+  if (["user", "groupId", "groups"].includes(key)) return res;
 
+  const group = res as CliGroup | undefined;
+
+  if (key === "users") {
     const dep = group?.memberships
       .flatMap((ms) => [ms.flags, ms.user.color, ms.defaultCategoryId])
       .join("-");
@@ -95,9 +110,15 @@ export function useClientState(
   }
 
   if (key === "category") {
-    const group = res as CliGroup | undefined;
-
     return group?.categories.find((category) => category.id === id);
+  }
+
+  if (key === "balance") {
+    return group?.balance;
+  }
+
+  if (key === "consumption") {
+    return group?.consumption;
   }
 
   return res;
