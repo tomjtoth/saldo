@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { apiSignIn } from "@/app/api/auth/_lib";
-import { useBodyNodes, useClientState, useRootDivCx } from "@/app/_lib/hooks";
+import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
 
 import UserAvatar from "./userAvatar";
 import MainMenu from "./mainMenu";
@@ -20,7 +20,7 @@ export default function Header({
   className?: string;
 }) {
   const nodes = useBodyNodes();
-  const { user } = useRootDivCx();
+  const user = useClientState("user");
   const groups = useClientState("groups");
 
   const pathname = usePathname();
