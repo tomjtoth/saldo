@@ -6,9 +6,9 @@ import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
 
 import Canceler from "@/app/_components/canceler";
 import Slider from "@/app/_components/slider";
-import Updater from "./updater";
+import CategoryUpdater from "./updater";
 
-export default function Details({
+export default function CategoryDetails({
   categoryId,
 }: {
   categoryId: Category["id"];
@@ -28,7 +28,7 @@ export default function Details({
           if (ev.target === ev.currentTarget) nodes.pop();
         }}
       >
-        <Updater {...{ categoryId }} />
+        <CategoryUpdater {...{ categoryId }} />
         {category.archives.map((cat) => (
           <div
             key={`${cat.id}-${cat.revisionId}`}

@@ -8,11 +8,9 @@ import { Category } from "../_lib";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
-import Entry from "./entry";
+import CategoryEntry from "./entry";
 
-export default function CliCategoriesPage(srv: {
-  categoryId?: Category["id"];
-}) {
+export default function CategoriesPage(srv: { categoryId?: Category["id"] }) {
   const dispatch = useAppDispatch();
   const user = useClientState("user");
   const group = useClientState("group");
@@ -25,7 +23,7 @@ export default function CliCategoriesPage(srv: {
   const categoriesListing = useMemo(
     () =>
       group?.categories.map((cat) => (
-        <Entry
+        <CategoryEntry
           key={cat.id}
           categoryId={cat.id}
           defaultId={defaultCategoryId}

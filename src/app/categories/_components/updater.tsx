@@ -9,7 +9,7 @@ import { thunks } from "@/app/_lib/reducers";
 
 import Slider from "@/app/_components/slider";
 
-export default function Updater({
+export default function CategoryUpdater({
   categoryId,
 }: {
   categoryId: Category["id"];

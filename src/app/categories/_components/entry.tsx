@@ -8,9 +8,9 @@ import { Category } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
 
 import SvgStar from "@/app/_components/star";
-import Details from "./details";
+import CategoryDetails from "./details";
 
-export default function Entry({
+export default function CategoryEntry({
   categoryId,
   defaultId,
   preSelected,
@@ -26,7 +26,7 @@ export default function Entry({
   const isDefault = defaultId === category.id;
 
   useEffect(() => {
-    if (preSelected) nodes.push(Details, { categoryId });
+    if (preSelected) nodes.push(CategoryDetails, { categoryId });
   }, []);
 
   return (
@@ -35,7 +35,7 @@ export default function Entry({
         "cursor-pointer select-none text-center p-2 rounded border-2 " +
         (virt(category).active ? "border-green-500" : "border-red-500")
       }
-      onClick={() => nodes.push(Details, { categoryId })}
+      onClick={() => nodes.push(CategoryDetails, { categoryId })}
     >
       <SvgStar
         fill={isDefault ? "#FB0" : "#AAA"}
