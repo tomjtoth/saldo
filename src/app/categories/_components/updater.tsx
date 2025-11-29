@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { virt } from "@/app/_lib/utils";
-import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { Category } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -15,9 +15,7 @@ export default function Updater({
   categoryId: Category["id"];
 }) {
   const dispatch = useAppDispatch();
-  const category = useAppSelector(
-    (s) => s.combined.group!.categories.find(({ id }) => id === categoryId)!
-  );
+  const category = useClientState("category", categoryId)!;
 
   const [name, setName] = useState(category.name);
   const [description, setDescr] = useState(category.description ?? "");

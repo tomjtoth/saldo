@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState, useDebugger } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { Category } from "../_lib";
 
@@ -14,16 +14,28 @@ export default function CliCategoriesPage(srv: {
   categoryId?: Category["id"];
 }) {
   const dispatch = useAppDispatch();
+  const user = useClientState("user");
   const group = useClientState("group");
   const groups = useClientState("groups");
+
+  const defaultCategoryId = group?.memberships.find(
+    (ms) => ms.userId === user?.id
+  )?.defaultCategoryId;
 
   const listing = useMemo(
     () =>
       group?.categories.map((cat) => (
-        <Entry key={cat.id} cat={cat} preSelected={srv.categoryId === cat.id} />
+        <Entry
+          key={cat.id}
+          categoryId={cat.id}
+          defaultId={defaultCategoryId}
+          preSelected={srv.categoryId === cat.id}
+        />
       )),
-    [group?.categories, srv.categoryId]
+    [group?.categories, srv.categoryId, defaultCategoryId]
   );
+
+  useDebugger("categories listing changed", listing);
 
   return (
     <>
