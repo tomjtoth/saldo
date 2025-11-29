@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { MouseHandlerDataParam } from "recharts";
 
-import { useAppSelector } from "@/app/_lib/hooks";
+import { useClientState } from "@/app/_lib/hooks";
 import { BalanceData } from "@/app/_lib/db";
 
 export const BalanceChartCx = createContext<ReturnType<
@@ -46,7 +46,7 @@ export function useBalanceChartHook() {
 
   const [state, setState] = useState(initialState);
 
-  const balance = useAppSelector((s) => s.combined.group?.balance);
+  const balance = useClientState("balance");
 
   return !balance
     ? null

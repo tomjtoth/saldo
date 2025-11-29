@@ -23,7 +23,7 @@ import BalanceTooltip from "./tooltip";
 import BalanceLegend from "./legend";
 
 export default function BalanceChart() {
-  const balance = useClientState("group")?.balance;
+  const balance = useClientState("balance");
   const hook = useBalanceChartCx()!;
   const users = useClientState("users");
 

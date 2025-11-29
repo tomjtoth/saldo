@@ -13,7 +13,7 @@ export default function CliConsumptionPage(srv: {
   to?: string;
 }) {
   const dispatch = useAppDispatch();
-  const group = useClientState("group");
+  const consumption = useClientState("consumption");
 
   const [from, setFrom] = useState(srv.from ?? "");
   const [to, setTo] = useState(srv.to ?? "");
@@ -52,7 +52,7 @@ export default function CliConsumptionPage(srv: {
       </Header>
 
       <div className="p-2 h-full flex flex-col gap-2 items-center">
-        {(group?.consumption.length ?? 0) > 0 ? (
+        {(consumption.length ?? 0) > 0 ? (
           <ConsumptionChart />
         ) : (
           <div className="grow flex items-center">
