@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { useAppDispatch } from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { Membership } from "@/app/groups/_lib";
 import { thunks } from "@/app/_lib/reducers";
 import { virt } from "@/app/_lib/utils";
@@ -11,9 +11,18 @@ import Slider from "@/app/_components/slider";
 
 export default function Individual({
   clientIsAdmin,
-  ...ms
-}: Membership & { clientIsAdmin: boolean }) {
+  userId,
+  groupId,
+}: {
+  clientIsAdmin: boolean;
+  userId: Membership["userId"];
+  groupId: Membership["groupId"];
+}) {
   const dispatch = useAppDispatch();
+  const ms = useClientState("group", groupId)!.memberships.find(
+    (ms) => ms.userId === userId && ms.groupId === groupId
+  )!;
+
   const [flags, setFlags] = useState(ms.flags);
 
   return (

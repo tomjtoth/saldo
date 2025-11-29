@@ -2,7 +2,7 @@
 
 import { toast } from "react-toastify";
 
-import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { Group } from "../../_lib";
 import { appToast } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
@@ -15,16 +15,13 @@ export default function Invitation({
   clientIsAdmin: boolean;
 }) {
   const dispatch = useAppDispatch();
-
-  const group = useAppSelector(
-    (s) => s.combined.groups.find((g) => g.id === groupId)!
-  );
+  const group = useClientState("group", groupId)!;
 
   const invitationLink = group.uuid
     ? `${window.location.origin}/join/${group.uuid}`
     : null;
 
-  const copyToClipboard = () =>
+  function copyToClipboard() {
     toast.promise(
       navigator.clipboard.writeText(invitationLink!),
       {
@@ -33,6 +30,7 @@ export default function Invitation({
       },
       appToast.theme()
     );
+  }
 
   return clientIsAdmin ? (
     <>

@@ -2,29 +2,36 @@
 
 import { useMemo } from "react";
 
-import { useAppDispatch, useClientState, useRootDivCx } from "@/app/_lib/hooks";
+import {
+  useAppDispatch,
+  useClientState,
+  useDebugger,
+  useRootDivCx,
+} from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
-import Entry from "./entry";
+import GroupEntry from "./entry";
 
-export default function CliGroupsPage() {
-  const groups = useClientState("groups");
+export default function GroupsPage() {
   const dispatch = useAppDispatch();
+  const groups = useClientState("groups");
   const preSelectedId = useRootDivCx().groupId;
 
   const listing = useMemo(
     () =>
       groups.map((group) => (
-        <Entry
+        <GroupEntry
           key={group.id}
-          group={group}
+          groupId={group.id}
           preSelected={preSelectedId === group.id}
         />
       )),
     [groups, preSelectedId]
   );
+
+  useDebugger("groups listing", listing);
 
   return (
     <>
