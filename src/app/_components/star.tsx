@@ -11,13 +11,11 @@ export default function SvgStar({
 }) {
   return (
     <svg
-      width={width}
-      height={width}
+      {...{ onClick, width, height: width }}
       viewBox="0 -0.5 33 33"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      onClick={onClick}
       className="inline-block"
     >
       <g
