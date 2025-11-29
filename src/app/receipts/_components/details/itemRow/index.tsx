@@ -65,11 +65,7 @@ export default function ItemRow({
 
       <button
         className="sm:hidden"
-        onClick={() =>
-          nodes.push(
-            <OptionsAsModal key="options-as-modal" {...{ itemId: item.id }} />
-          )
-        }
+        onClick={() => nodes.push(OptionsAsModal, { itemId: item.id })}
       >
         ⚙️
       </button>
