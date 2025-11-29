@@ -20,6 +20,10 @@ export const is = {
     return typeof value === "function";
   },
 
+  object(value: unknown): value is object {
+    return typeof value === "object" && value !== null;
+  },
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   array(value: any): value is any[] {
     return Array.isArray(value);
