@@ -15,22 +15,21 @@ import {
   Label,
 } from "recharts";
 
-import { useAppSelector, useClientState } from "@/app/_lib/hooks";
+import { useClientState, useDebugger } from "@/app/_lib/hooks";
 import { findMinMax, useBalanceChartCx } from "../_lib/hook";
-import { useDebugger } from "@/app/_lib/utils/react";
 
 import BalanceTick from "./tick";
 import BalanceTooltip from "./tooltip";
 import BalanceLegend from "./legend";
 
 export default function BalanceChart() {
-  const balance = useAppSelector((s) => s.combined.group!.balance);
+  const balance = useClientState("group")?.balance;
   const hook = useBalanceChartCx()!;
   const users = useClientState("users");
 
   const { lines, gradients } = useMemo(() => {
     const gradients: ReactNode[] = [];
-    const lines = balance.relations.map((rel) => {
+    const lines = balance?.relations.map((rel) => {
       const uids = rel.split(" vs ").map(Number);
       const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
