@@ -1,10 +1,17 @@
 "use client";
 
-import { createContext, ReactNode, useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useState,
+} from "react";
 import { v4 as uuid } from "uuid";
 
 type TBodyNodeCx = {
-  clear: () => void;
+  length: number;
+  setNodes: Dispatch<SetStateAction<ReactNode[]>>;
 
   push: {
     /**
@@ -27,7 +34,8 @@ type TBodyNodeCx = {
 };
 
 export const BodyNodeCx = createContext<TBodyNodeCx>({
-  clear() {},
+  length: 0,
+  setNodes() {},
   push() {},
   pop() {},
 });
@@ -40,9 +48,11 @@ export default function BodyNodeProvider({
   const [nodes, setNodes] = useState<ReactNode[]>([]);
 
   const cx: TBodyNodeCx = {
-    clear() {
-      setNodes([]);
+    get length() {
+      return nodes.length;
     },
+
+    setNodes,
 
     push<T extends object>(
       Node: ReactNode | ((args: T) => ReactNode),
