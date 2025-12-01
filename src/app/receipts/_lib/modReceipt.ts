@@ -114,17 +114,17 @@ export async function svcModReceipt(
       // checking what changed in old data first
       // https://chatgpt.com/share/69121a51-3304-800b-86db-e448eff3ac9e
       for (const avoidCrashingDebugger of srvItems) {
-        const { itemShares: dbItemShares, ...item } = avoidCrashingDebugger;
+        const { itemShares: srvItemShares, ...item } = avoidCrashingDebugger;
 
-        let itemFromCli = itemMods.find((i) => i.id === item.id);
+        let cliItem = itemMods.find((i) => i.id === item.id);
 
         // item has been deleted on the client side
-        if (!itemFromCli) {
-          itemFromCli = { ...item, itemShares: [] };
-          virt(itemFromCli).active = false;
+        if (!cliItem) {
+          cliItem = { ...item, itemShares: [] };
+          virt(cliItem).active = false;
         }
 
-        const { itemShares: cliItemShares, ...itemModifier } = itemFromCli;
+        const { itemShares: cliItemShares, ...itemModifier } = cliItem;
 
         changes += await modEntity(item, itemModifier, {
           tx,
@@ -134,7 +134,7 @@ export async function svcModReceipt(
           unchangedThrows: false,
         });
 
-        for (const oldItemShare of dbItemShares) {
+        for (const oldItemShare of srvItemShares) {
           let modItemShare = cliItemShares.find(
             (mod) =>
               mod.userId === oldItemShare.userId &&
@@ -145,7 +145,7 @@ export async function svcModReceipt(
           // since pre-existing shares simply get 0 value when "deleted"
           if (!modItemShare) {
             modItemShare = { ...oldItemShare };
-            virt(itemFromCli).active = false;
+            virt(cliItem).active = false;
           }
 
           changes += await modEntity(oldItemShare, modItemShare, {
@@ -158,7 +158,7 @@ export async function svcModReceipt(
 
         const newItemShares = cliItemShares.filter(
           (mod) =>
-            !dbItemShares.some(
+            !srvItemShares.some(
               // `modItem.id` because client side shares only store `userId` and `share`
               (old) =>
                 old.itemId === itemModifier.id && old.userId === mod.userId
@@ -184,7 +184,11 @@ export async function svcModReceipt(
       );
 
       for (const avoidCrashingDebugger of newItems) {
-        const { itemShares: newItemShares, ...newItem } = avoidCrashingDebugger;
+        const {
+          id: _discardingNegativeId,
+          itemShares: newItemShares,
+          ...newItem
+        } = avoidCrashingDebugger;
 
         const [{ itemId }] = await tx
           .insert(items)
