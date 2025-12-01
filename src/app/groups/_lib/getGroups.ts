@@ -122,7 +122,6 @@ export async function svcGetGroups(
 
       return {
         ...group,
-        users: group?.memberships.map((ms) => ms.user),
 
         categories: archivePopulator(
           "categories",
