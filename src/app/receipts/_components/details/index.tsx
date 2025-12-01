@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
+
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
-import { apiAddReceipt, apiModReceipt } from "../../_lib";
+import { apiAddReceipt, apiModReceipt, Item } from "../../_lib";
 
 import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
@@ -21,6 +23,8 @@ export default function ReceiptDetails() {
   const dispatch = useAppDispatch();
   const group = useClientState("group")!;
 
+  const [zeros, setZeros] = useState<Item["id"][]>([]);
+
   const groupId = group.id;
   const receipt = group.activeReceipt!;
 
@@ -30,11 +34,20 @@ export default function ReceiptDetails() {
   const paidBy = users.find((u) => u.id === receipt.paidById)!;
 
   function submitReceipt() {
-    const nanItem = receipt.items.findIndex((item) => item.cost === 0);
+    const zeroCostItems = receipt.items
+      .filter((i) => i.cost === 0)
+      .map((i) => i.id);
 
-    if (nanItem > -1) {
-      dispatch(thunks.setFocusedRow(nanItem));
-      return appToast.error("Invalid item cost");
+    if (zeroCostItems.length) {
+      if (
+        zeros.length !== zeroCostItems.length ||
+        !zeros.every((id, idx) => id === zeroCostItems[idx])
+      ) {
+        setZeros(zeroCostItems);
+        return void appToast.error(
+          "Found items with € 0.00 cost. Were these for free?"
+        );
+      }
     }
 
     const updating = receipt.id !== -1;
@@ -114,6 +127,7 @@ export default function ReceiptDetails() {
             <ItemRow
               key={item.id}
               autoFocus={rowIdx === receipt.focusedIdx}
+              highlighted={zeros.includes(item.id)}
               itemId={item.id}
               onKeyDown={(ev) => {
                 const lastIdx = receipt.items.length - 1;
@@ -145,11 +159,16 @@ export default function ReceiptDetails() {
           <button
             className={
               "inline-flex items-center gap-2 " +
-              (isMultiUser ? "sm:col-start-5" : "sm:col-start-4")
+              (isMultiUser ? "sm:col-start-5" : "sm:col-start-4") +
+              (!!zeros.length ? " bg-amber-500" : "")
             }
             onClick={submitReceipt}
           >
-            <span className="hidden xl:block grow">Save & clear</span>
+            {!!zeros.length ? (
+              <span className="hidden xl:block grow">Save anyways</span>
+            ) : (
+              <span className="hidden xl:block grow">Save & clear</span>
+            )}
             💾
           </button>
 

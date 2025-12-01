@@ -5,19 +5,18 @@ import { ChangeEventHandler, useEffect, useRef } from "react";
 import { User } from "@/app/(users)/_lib";
 import { useClientState } from "@/app/_lib/hooks";
 import { Item } from "@/app/receipts/_lib";
-import { costToFixed } from ".";
 
 import UserAvatar from "@/app/_components/userAvatar";
 
 export default function ItemShareAvatar({
-  user,
+  userId,
   value,
   itemId,
   focused,
   onChange,
 }: {
-  user: Pick<User, "id" | "name" | "image">;
-  value: string | number;
+  userId: User["id"];
+  value: number;
   itemId?: Item["id"];
   focused?: boolean;
   onChange?: ChangeEventHandler<HTMLInputElement>;
@@ -25,6 +24,7 @@ export default function ItemShareAvatar({
   const ref = useRef<HTMLInputElement>(null);
   const group = useClientState("group");
   const currReceipt = group!.activeReceipt!;
+  const user = useClientState("users").find((u) => u.id === userId)!;
 
   useEffect(() => {
     if (!!onChange && focused) ref.current?.focus();
@@ -42,22 +42,21 @@ export default function ItemShareAvatar({
       0
     );
 
-    const costAsNum = Number(item.cost);
     const shareOfUser =
-      item.itemShares.find((sh) => sh.userId === user.id)?.share ?? 0;
+      item.itemShares.find((sh) => sh.userId === userId)?.share ?? 0;
 
-    share = ((isNaN(costAsNum) ? 0 : costAsNum) * shareOfUser) / denominator;
+    share = (item.cost * shareOfUser) / denominator;
 
     calculations = (
       <span>
         💸{" "}
         {denominator > 0 ? (
           <span>
-            {costToFixed(item, costAsNum)} * {shareOfUser} / {denominator} ={" "}
+            {item.cost.toFixed(2)} * {shareOfUser} / {denominator} ={" "}
             {share.toFixed(2)}
           </span>
-        ) : user.id === currReceipt.paidBy.id ? (
-          <span>{costToFixed(item, costAsNum)}</span>
+        ) : userId === currReceipt.paidBy.id ? (
+          <span>{item.cost.toFixed(2)}</span>
         ) : (
           <span>{(0).toFixed(2)}</span>
         )}
@@ -68,7 +67,7 @@ export default function ItemShareAvatar({
   return (
     <div className="flex flex-col gap-2 items-center">
       <div className={"relative " + (onChange ? "w-25 h-25" : "w-8 h-8")}>
-        <UserAvatar userId={user.id} />
+        <UserAvatar userId={userId} />
 
         {onChange ? (
           <input

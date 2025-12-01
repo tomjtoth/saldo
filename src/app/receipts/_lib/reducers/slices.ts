@@ -18,13 +18,13 @@ export type ItemModifier = Pick<Item, "id"> &
 
 export const sliceReceipts = {
   setPaidOn(rs: CS, { payload }: PayloadAction<Receipt["paidOn"]>) {
-    const receipt = getActiveReceipt(rs);
+    const receipt = getActiveReceipt(rs)!;
     receipt.paidOn = payload;
   },
 
   setPaidBy(rs: CS, { payload }: PayloadAction<Receipt["paidById"]>) {
-    const receipt = getActiveReceipt(rs);
-    const users = getActiveUsers(rs);
+    const receipt = getActiveReceipt(rs)!;
+    const users = getActiveUsers(rs)!;
     const user = users.find((u) => u.id === payload)!;
 
     receipt.paidBy = user;
@@ -32,7 +32,7 @@ export const sliceReceipts = {
   },
 
   addRow(rs: CS, { payload }: PayloadAction<Item["id"] | undefined>) {
-    const receipt = getActiveReceipt(rs);
+    const receipt = getActiveReceipt(rs)!;
 
     if (payload !== undefined) {
       const idx = receipt.items.findIndex((i) => i.id === payload);
@@ -54,19 +54,19 @@ export const sliceReceipts = {
   },
 
   rmRow(rs: CS, { payload }: PayloadAction<Item["id"]>) {
-    const receipt = getActiveReceipt(rs);
+    const receipt = getActiveReceipt(rs)!;
     const idx = receipt.items.findIndex((i) => i.id === payload);
 
     receipt.items.splice(idx, 1);
   },
 
   setFocusedRow(rs: CS, { payload }: PayloadAction<number>) {
-    const receipt = getActiveReceipt(rs);
+    const receipt = getActiveReceipt(rs)!;
     receipt.focusedIdx = payload;
   },
 
   modItem(rs: CS, { payload }: PayloadAction<ItemModifier>) {
-    const receipt = getActiveReceipt(rs);
+    const receipt = getActiveReceipt(rs)!;
 
     const item = receipt.items.find((i) => i.id === payload.id)!;
     if (payload.categoryId !== undefined) item.categoryId = payload.categoryId;
@@ -76,7 +76,7 @@ export const sliceReceipts = {
   },
 
   modReceipt(rs: CS, { payload }: PayloadAction<Receipt>) {
-    const group = getActiveGroup(rs, payload.groupId);
+    const group = getActiveGroup(rs, payload.groupId)!;
 
     const insertAt = group.receipts.findIndex((r) => r.id === payload.id);
 
@@ -86,7 +86,7 @@ export const sliceReceipts = {
   },
 
   addReceipt(rs: CS, { payload }: PayloadAction<Receipt>) {
-    const group = getActiveGroup(rs, payload.groupId);
+    const group = getActiveGroup(rs, payload.groupId)!;
 
     const insertAt = group.receipts.findIndex((r) => r.paidOn < payload.paidOn);
 
@@ -99,7 +99,7 @@ export const sliceReceipts = {
     rs: CS,
     { payload }: PayloadAction<{ groupId: Group["id"]; receipts: Receipt[] }>
   ) {
-    const group = getActiveGroup(rs, payload.groupId);
+    const group = getActiveGroup(rs, payload.groupId)!;
 
     if (payload.receipts.length) {
       group.receipts.push(...payload.receipts);
@@ -113,7 +113,7 @@ export const sliceReceipts = {
   },
 
   tryFetchingReceipts(rs: CS) {
-    const group = getActiveGroup(rs);
+    const group = getActiveGroup(rs)!;
 
     group.debounceReceiptsFetching = (group.debounceReceiptsFetching ?? 0) + 1;
   },
@@ -122,7 +122,7 @@ export const sliceReceipts = {
     rs: CS,
     { payload }: PayloadAction<Receipt["id"] | undefined>
   ) {
-    const group = getActiveGroup(rs);
+    const group = getActiveGroup(rs)!;
 
     if (typeof payload === "number") {
       const activeReceipt = group.receipts.find((rcpt) => rcpt.id === payload);

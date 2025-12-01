@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { costToFixed } from ".";
 import { Item } from "@/app/receipts/_lib";
 
 import Slider from "@/app/_components/slider";
@@ -40,7 +39,8 @@ export default function ItemShareSetter({ itemId }: { itemId: Item["id"] }) {
           return (
             <ItemShareAvatar
               key={user.id}
-              user={user}
+              userId={user.id}
+              itemId={verbose ? itemId : undefined}
               focused={user.id === notPayer?.id}
               value={userShare}
               onChange={(ev) => {
@@ -67,14 +67,11 @@ export default function ItemShareSetter({ itemId }: { itemId: Item["id"] }) {
 
                 dispatch(thunks.modItem({ id: itemId, itemShares }));
               }}
-              {...(verbose && {
-                itemId,
-              })}
             />
           );
         })}
       </div>
-      {verbose && <p>where {costToFixed(item)} is the cost of the item</p>}
+      {verbose && <p>where {item.cost.toFixed(2)} is the cost of the item</p>}
     </div>
   );
 }

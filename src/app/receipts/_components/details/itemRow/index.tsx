@@ -6,16 +6,18 @@ import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
 
-import Options from "./options";
-import OptionsAsModal from "./options/modal";
+import ItemOptions from "./options";
+import ItemOptionsAsModal from "./options/modal";
 
 export default function ItemRow({
   itemId,
   autoFocus,
+  highlighted,
   onKeyDown: adderKeyDownHandler,
 }: {
   itemId: Item["id"];
   autoFocus: boolean;
+  highlighted: boolean;
   onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 }) {
   const dispatch = useAppDispatch();
@@ -23,7 +25,7 @@ export default function ItemRow({
   const group = useClientState("group");
   const item = group?.activeReceipt!.items.find((i) => i.id === itemId)!;
 
-  const isMultiUser = group?.users.length;
+  const isMultiUser = !!group?.users.length;
 
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
@@ -32,10 +34,6 @@ export default function ItemRow({
   useEffect(() => {
     if (autoFocus) costRef.current?.focus();
   }, [autoFocus]);
-
-  // TODO: buggy, unable to edit numbers properly...
-  // const costAsNum = Number(i.cost);
-  // const cost = isNaN(costAsNum) ? i.cost : costAsNum.toFixed(2);
 
   return (
     <>
@@ -67,7 +65,7 @@ export default function ItemRow({
 
       <button
         className="sm:hidden"
-        onClick={() => nodes.push(OptionsAsModal, { itemId: item.id })}
+        onClick={() => nodes.push(ItemOptionsAsModal, { itemId: item.id })}
       >
         ⚙️
       </button>
@@ -78,7 +76,7 @@ export default function ItemRow({
           (isMultiUser ? "col-span-4" : "col-span-3")
         }
       >
-        <Options {...{ itemId: item.id }} />
+        <ItemOptions {...{ itemId: item.id }} />
       </div>
 
       <form
@@ -95,7 +93,8 @@ export default function ItemRow({
           placeholder="cost"
           className={
             "w-15 no-spinner" +
-            (isNaN(Number(cost)) ? " border-2! border-red-500" : "")
+            (isNaN(Number(cost)) ? " border-2! border-red-500" : "") +
+            (highlighted ? " bg-amber-500" : "")
           }
           value={cost === "0.00" ? "" : cost}
           onChange={(ev) => {
