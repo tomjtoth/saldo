@@ -52,7 +52,7 @@ export default function ItemRow({
           )
         }
         onKeyDown={(ev) => {
-          if (ev.shiftKey) {
+          if (ev.key === "c") {
             ev.preventDefault();
             costRef.current?.focus();
           }
@@ -108,7 +108,7 @@ export default function ItemRow({
           }}
           onFocus={() => dispatch(thunks.setFocusedRow(-1))}
           onKeyDown={(ev) => {
-            if (ev.shiftKey) {
+            if (ev.key === "c") {
               ev.preventDefault();
               catRef.current?.focus();
             } else adderKeyDownHandler(ev);
