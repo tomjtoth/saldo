@@ -16,6 +16,7 @@ import { BodyNodeCx } from "@/app/_components/bodyNodes";
 import { CliGroup, CombinedState } from "./reducers/types";
 import { Category } from "../categories/_lib";
 import { is } from "./utils";
+import { Receipt } from "../receipts/_lib";
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
@@ -57,6 +58,11 @@ export function useClientState(
 ): CliGroup["categories"][number] | undefined;
 
 export function useClientState(
+  key: "receipt",
+  receiptId: Receipt["id"]
+): CliGroup["receipts"][number] | undefined;
+
+export function useClientState(
   key: "group",
   groupId?: CliGroup["id"]
 ): CliGroup | undefined;
@@ -72,6 +78,7 @@ export function useClientState(
     | "consumption"
     | "category"
     | "group"
+    | "receipt"
     | "users",
   id?: number
 ) {
@@ -123,6 +130,8 @@ export function useClientState(
   if (key === "consumption") {
     return group?.consumption;
   }
+
+  if (key === "receipt") return group?.receipts.find((r) => r.id === id);
 
   return res;
 }
