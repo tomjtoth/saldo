@@ -4,7 +4,7 @@ import { svcAddUser } from "@/app/(users)/_lib";
 import { svcAddCategory, svcModCategory } from "@/app/categories/_lib";
 import { svcAddGroup, svcAddMember } from "@/app/groups/_lib";
 import { svcAddReceipt } from "@/app/receipts/_lib";
-import fixtures from "./_fixtures";
+import fixtures from "./_lib/fixtures";
 
 export const GET = wrapRoute(
   { requireSession: false, onlyDuringDevelopment: true },

@@ -34,33 +34,37 @@ const CATEGORIES: {
     {
       revisedById: 1,
       groupId: 1,
-      name: "food",
+      name: "food 1",
       description: "the vital stuff only",
     },
     {
       revisedById: 1,
       groupId: 1,
-      name: "soft drinks",
+      name: "soft drinks 1",
       description: null,
     },
     {
       revisedById: 2,
       groupId: 1,
-      name: "gas money",
+      name: "gas money 1",
       description: null,
     },
     {
       revisedById: 2,
       groupId: 1,
-      name: "booze",
+      name: "booze 1",
       description: "anything with alcohol in it 🥴",
     },
 
     // group 2
-    { revisedById: 2, description: null, groupId: 2, name: "alkoholi" },
-    { revisedById: 3, description: null, groupId: 2, name: "bensaraha" },
-    { revisedById: 3, description: null, groupId: 2, name: "jotain" },
-    { revisedById: 3, description: null, groupId: 2, name: "vuokra" },
+    { revisedById: 2, description: null, groupId: 2, name: "alcohol 2" },
+    { revisedById: 3, description: null, groupId: 2, name: "gas money 2" },
+    { revisedById: 3, description: null, groupId: 2, name: "something 2" },
+    { revisedById: 3, description: null, groupId: 2, name: "rent 2" },
+
+    // group 3
+    { revisedById: 3, description: null, groupId: 3, name: "food 3" },
+    { revisedById: 3, description: null, groupId: 3, name: "rent 3" },
   ],
 
   mod: [
@@ -252,6 +256,93 @@ const RECEIPTS: NonNullable<
       {
         categoryId: 7,
         cost: 45.99,
+        itemShares: [],
+        notes: "",
+      },
+    ],
+  },
+
+  {
+    revisedById: 2,
+    groupId: 2,
+    paidById: 3,
+    paidOn: "2025-02-14",
+    items: [
+      {
+        categoryId: 5,
+        cost: 22.99,
+        itemShares: [{ userId: 2, share: 1 }],
+        notes: "",
+      },
+      {
+        categoryId: 6,
+        cost: 53.99,
+        itemShares: [
+          { userId: 2, share: 1 },
+          { userId: 3, share: 1 },
+        ],
+        notes: "split 2-ways",
+      },
+      {
+        categoryId: 7,
+        cost: 11.99,
+        itemShares: [],
+        notes: "faaf",
+      },
+    ],
+  },
+
+  {
+    revisedById: 3,
+    groupId: 2,
+    paidById: 2,
+    paidOn: "2025-02-24",
+    items: [
+      {
+        categoryId: 8,
+        cost: 0.99,
+        itemShares: [{ userId: 2, share: 1 }],
+        notes: "",
+      },
+      {
+        categoryId: 5,
+        cost: 13.99,
+        itemShares: [
+          { userId: 2, share: 1 },
+          { userId: 3, share: 1 },
+        ],
+        notes: "split 2-ways",
+      },
+      {
+        categoryId: 7,
+        cost: 13.99,
+        itemShares: [],
+        notes: "",
+      },
+    ],
+  },
+
+  {
+    revisedById: 3,
+    groupId: 3,
+    paidById: 3,
+    paidOn: "2025-02-27",
+    items: [
+      {
+        categoryId: 10,
+        cost: 40.99,
+        itemShares: [],
+        notes: "",
+      },
+      {
+        categoryId: 9,
+        cost: 21.99,
+        itemShares: [],
+        notes: "",
+      },
+      {
+        categoryId: 9,
+        cost: 0.99,
         itemShares: [],
         notes: "",
       },
