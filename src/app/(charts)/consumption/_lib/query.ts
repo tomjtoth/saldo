@@ -9,12 +9,12 @@ export type ConsumptionOpts = {
 };
 
 export function consumptionQuery(opts?: ConsumptionOpts) {
-  const crit = [`con.group_id = "groups"."id"`];
+  const crit: string[] = [];
 
   if (opts?.from) crit.push(`paid_on >= ${VDate.toInt(opts.from)}`);
   if (opts?.to) crit.push(`paid_on <= ${VDate.toInt(opts.to)}`);
 
-  const whereClause = sql.raw(`WHERE ${crit.join(" AND ")}`);
+  const whereClause = sql.raw(crit.length ? `WHERE ${crit.join(" AND ")}` : "");
 
   const groupingFn = sql.raw(`${opts?.jsonB ? "jsonb" : "json"}_group_array`);
 
@@ -26,6 +26,8 @@ export function consumptionQuery(opts?: ConsumptionOpts) {
         sum(share) AS total
       FROM consumption con
       INNER JOIN categories cat ON con.category_id = cat.id
+        -- had to filter to group here, the WHERE clause wouldn't work..
+        AND cat.group_id = "groups"."id"
       ${whereClause}
       GROUP BY paid_to, cat.id
     ),
