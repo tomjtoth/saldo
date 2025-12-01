@@ -3,16 +3,21 @@
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
 
-import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
-import useInfiniteScroll from "../_lib/hook";
+import {
+  useAppDispatch,
+  useBodyNodes,
+  useClientState,
+  useDebugger,
+} from "@/app/_lib/hooks";
+import { useInfiniteScroll } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
 
 import Header from "@/app/_components/header";
 import Scrollers from "./scrollers";
-import Individual from "./individual";
-import Details from "./details";
+import ReceiptEntry from "./entry";
+import ReceiptDetails from "./details";
 
-export default function CliReceiptsPage() {
+export default function ReceiptsPage() {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
   const group = useClientState("group");
@@ -21,16 +26,20 @@ export default function CliReceiptsPage() {
   const receipt = group?.activeReceipt;
 
   useEffect(() => {
-    if (typeof receipt?.id === "number") nodes.push(Details);
+    if (typeof receipt?.id === "number") nodes.push(ReceiptDetails);
   }, [receipt?.id]);
 
-  const listing = useMemo(
+  const receiptsListing = useMemo(
     () =>
       group?.receipts.map((rcpt) =>
-        rcpt.id === -1 ? null : <Individual key={rcpt.id} {...rcpt} />
+        rcpt.id === -1 ? null : (
+          <ReceiptEntry key={rcpt.id} receiptId={rcpt.id} />
+        )
       ),
     [group?.receipts]
   );
+
+  useDebugger({ receiptsListing });
 
   return (
     <>
@@ -53,7 +62,7 @@ export default function CliReceiptsPage() {
       </Header>
 
       <ul className="p-2 flex flex-wrap justify-center items-center gap-2">
-        {listing}
+        {receiptsListing}
       </ul>
 
       <Scrollers />

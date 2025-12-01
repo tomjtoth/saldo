@@ -1,22 +1,20 @@
 import pluralize from "pluralize";
 
-import { Receipt } from "../_lib";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
-import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
+import { Receipt } from "../_lib";
 
 import UserAvatar from "@/app/_components/userAvatar";
 import PaidByUserWithAvatar from "./paidByUserWithAvatar";
 
-export default function Individual({
+export default function ReceiptEntry({
   receiptId,
 }: {
   receiptId: Receipt["id"];
 }) {
   const dispatch = useAppDispatch();
-  const receipt = useAppSelector(
-    (s) => s.combined.group!.receipts.find(({ id }) => id === receiptId)!
-  );
+  const receipt = useClientState("receipt", receiptId)!;
   const activeItems = receipt.items.filter((item) => virt(item).active);
   const activeVsInactiveDiff = activeItems.length - receipt.items.length;
 
@@ -31,7 +29,7 @@ export default function Individual({
     >
       <div className="flex gap-5 justify-between items-center">
         <b>{receipt.paidOn}</b>
-        <PaidByUserWithAvatar {...receipt.paidBy} />
+        <PaidByUserWithAvatar userId={receipt.paidById} />
       </div>
 
       <div className="flex gap-5 justify-between items-center flex-row-reverse">
@@ -53,7 +51,7 @@ export default function Individual({
 
         {addedBy.id !== receipt.paidBy.id && (
           <div>
-            <UserAvatar user={addedBy} className="w-8" />
+            <UserAvatar userId={addedBy.id} className="w-8" />
             <span className="hidden xl:inline-block ml-2">{addedBy.name}</span>
             <span className="hidden lg:inline-block ml-2">added</span>
           </div>

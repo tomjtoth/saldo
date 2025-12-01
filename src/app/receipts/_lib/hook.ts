@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { v4 as uuid } from "uuid";
 
@@ -6,7 +8,7 @@ import { thunks } from "@/app/_lib/reducers";
 
 const INFINITE_SCROLL = `INFINITE_SCROLL-${uuid()}`;
 
-export default function useInfiniteScroll() {
+export function useInfiniteScroll() {
   const group = useClientState("group");
   const groupId = group?.id;
   const cx = useRootDivCx();

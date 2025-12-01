@@ -10,16 +10,18 @@ import Options from "./options";
 import OptionsAsModal from "./options/modal";
 
 export default function ItemRow({
+  itemId,
   autoFocus,
   onKeyDown: adderKeyDownHandler,
-  ...item
-}: Item & {
+}: {
+  itemId: Item["id"];
   autoFocus: boolean;
   onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 }) {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
   const group = useClientState("group");
+  const item = group?.activeReceipt!.items.find((i) => i.id === itemId)!;
 
   const isMultiUser = group?.users.length;
 
@@ -95,7 +97,7 @@ export default function ItemRow({
             "w-15 no-spinner" +
             (isNaN(Number(cost)) ? " border-2! border-red-500" : "")
           }
-          value={cost === "0" ? "" : cost}
+          value={cost === "0.00" ? "" : cost}
           onChange={(ev) => {
             const asStr = ev.target.value.replace(",", ".");
             setCost(asStr);

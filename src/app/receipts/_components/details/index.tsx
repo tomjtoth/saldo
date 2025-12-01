@@ -16,7 +16,7 @@ const DIFFS = {
   PageDown: 5,
 };
 
-export default function Details() {
+export default function ReceiptDetails() {
   const nodes = useBodyNodes();
   const dispatch = useAppDispatch();
   const group = useClientState("group")!;
@@ -27,9 +27,9 @@ export default function Details() {
   const users = group.users;
   const isMultiUser = users.length > 1;
 
-  const paidBy = users.find((u) => u.id === receipt.paidBy.id)!;
+  const paidBy = users.find((u) => u.id === receipt.paidById)!;
 
-  const submitReceipt = () => {
+  function submitReceipt() {
     const nanItem = receipt.items.findIndex((item) => item.cost === 0);
 
     if (nanItem > -1) {
@@ -46,7 +46,7 @@ export default function Details() {
         apiModReceipt(receipt).then((res) => {
           nodes.pop();
           dispatch(thunks.setActiveReceipt());
-          dispatch(thunks.modReceipt({ ...res, groupId }));
+          dispatch(thunks.modReceipt(res));
         })
       );
     } else {
@@ -59,11 +59,11 @@ export default function Details() {
         }).then((res) => {
           nodes.pop();
           dispatch(thunks.setActiveReceipt());
-          dispatch(thunks.addReceipt({ ...res, groupId }));
+          dispatch(thunks.addReceipt(res));
         })
       );
     }
-  };
+  }
 
   return (
     <Canceler
@@ -93,7 +93,9 @@ export default function Details() {
           </div>
 
           <div className="flex gap-2 items-center">
-            {isMultiUser && <PaidByUserWithAvatar {...paidBy} listOnClick />}
+            {isMultiUser && (
+              <PaidByUserWithAvatar userId={paidBy.id} listOnClick />
+            )}
           </div>
         </div>
 
@@ -112,7 +114,7 @@ export default function Details() {
             <ItemRow
               key={item.id}
               autoFocus={rowIdx === receipt.focusedIdx}
-              {...item}
+              itemId={item.id}
               onKeyDown={(ev) => {
                 const lastIdx = receipt.items.length - 1;
 
@@ -130,7 +132,10 @@ export default function Details() {
                       newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
                     )
                   );
-                } else if (ev.key === "Enter" && ev.ctrlKey) submitReceipt();
+                } else if (ev.key === "s" && ev.ctrlKey) {
+                  ev.preventDefault();
+                  submitReceipt();
+                }
               }}
             />
           ))}
