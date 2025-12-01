@@ -6,12 +6,14 @@ import UserAvatar from "@/app/_components/userAvatar";
 import Canceler from "@/app/_components/canceler";
 
 export default function PaidByUserWithAvatar({
+  userId,
   listOnClick,
-  ...user
-}: Pick<User, "name" | "image"> & {
+}: {
+  userId: User["id"];
   listOnClick?: true;
 }) {
   const nodes = useBodyNodes();
+  const user = useClientState("users").find((u) => u.id === userId);
 
   return (
     <div
@@ -19,8 +21,8 @@ export default function PaidByUserWithAvatar({
       onClick={listOnClick ? () => nodes.push(Listing) : undefined}
     >
       <span className="hidden sm:inline-block mr-2">paid by</span>
-      <span className="hidden lg:inline-block mr-2">{user.name}</span>
-      <UserAvatar user={user} className="w-10" />
+      <span className="hidden lg:inline-block mr-2">{user?.name}</span>
+      <UserAvatar userId={userId} className="w-10" />
     </div>
   );
 }
@@ -47,7 +49,7 @@ function Listing() {
               nodes.pop();
             }}
           >
-            <UserAvatar user={u} className="mr-2 w-10" />
+            <UserAvatar userId={u.id} className="mr-2 w-10" />
             {u.email}
           </li>
         ))}

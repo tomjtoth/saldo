@@ -13,7 +13,6 @@ import GroupListing from "./groupSelector/listing";
 type Tabs = "personal" | "";
 
 export default function MainMenu(opts: { tab?: Tabs } = {}) {
-  const user = useClientState("user");
   const nodes = useBodyNodes();
 
   const [tab, setTab] = useState<Tabs>(opts.tab ?? "");
@@ -29,7 +28,6 @@ export default function MainMenu(opts: { tab?: Tabs } = {}) {
       >
         <div className="min-w-max flex flex-col p-2 gap-4 items-center border-r">
           <UserAvatar
-            user={user!}
             className="w-16 h-16 cursor-pointer"
             onClick={() => setTab("personal")}
           />
