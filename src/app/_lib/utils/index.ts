@@ -126,8 +126,8 @@ export const appToast = {
     return toast.promise(promise, this.messages(operation), this.theme());
   },
 
-  error(err: unknown) {
-    return toast.error((err as Error).message as string, this.theme());
+  error(message: string) {
+    return toast.error(message, this.theme());
   },
 };
 
