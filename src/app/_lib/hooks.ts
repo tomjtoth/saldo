@@ -71,6 +71,10 @@ export function useClientState(
   key: "users"
 ): CliGroup["memberships"][number]["user"][];
 
+export function useClientState(key: "users[id]"): {
+  [userId: number]: CliGroup["memberships"][number]["user"];
+};
+
 export function useClientState(
   key:
     | keyof CombinedState
@@ -79,7 +83,8 @@ export function useClientState(
     | "category"
     | "group"
     | "receipt"
-    | "users",
+    | "users"
+    | "users[id]",
   id?: number
 ) {
   const fallback = useRootDivCx();
@@ -107,16 +112,21 @@ export function useClientState(
 
   const group = res as CliGroup | undefined;
 
-  if (key === "users") {
+  if (key === "users" || key === "users[id]") {
     const dep = group?.memberships
       .flatMap((ms) => [ms.flags, ms.user.color, ms.defaultCategoryId])
       .join("-");
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useMemo(
-      () => group?.memberships.map((ms) => ms.user) ?? [],
-      [group?.memberships, dep]
-    );
+    return useMemo(() => {
+      const users = group?.memberships.map((ms) => ms.user) ?? [];
+
+      if (key === "users[id]") {
+        return Object.fromEntries(users.map((u) => [u.id, u]));
+      }
+
+      return users;
+    }, [group?.memberships, dep]);
   }
 
   if (key === "category") {
