@@ -17,6 +17,7 @@ import { CliGroup, CombinedState } from "./reducers/types";
 import { Category } from "../categories/_lib";
 import { is } from "./utils";
 import { Receipt } from "../receipts/_lib";
+import { User } from "../(users)/_lib";
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
@@ -45,34 +46,68 @@ export function useDebounce<T extends (...args: any[]) => void>(
   );
 }
 
+/**
+ * @returns all groups from reducer state
+ */
 export function useClientState(key: "groups"): CombinedState["groups"];
+
+/**
+ * @returns the logged in user
+ */
 export function useClientState(key: "user"): CombinedState["user"];
+
+/**
+ * @returns reducer state's groupId
+ */
 export function useClientState(key: "groupId"): CombinedState["groupId"];
 
+/**
+ * @returns current group's balance data
+ */
 export function useClientState(key: "balance"): CliGroup["balance"];
+
+/**
+ * @returns current group's consumption data
+ */
 export function useClientState(key: "consumption"): CliGroup["consumption"];
 
+/**
+ * @returns current group's category by ID
+ */
 export function useClientState(
   key: "category",
   categoryId: Category["id"]
 ): CliGroup["categories"][number] | undefined;
 
+/**
+ * @returns current group's receipt by ID
+ */
 export function useClientState(
   key: "receipt",
   receiptId: Receipt["id"]
 ): CliGroup["receipts"][number] | undefined;
 
+/**
+ * @param groupId selects group by this Id if passed
+ * @returns one group, defaults to current group
+ */
 export function useClientState(
   key: "group",
   groupId?: CliGroup["id"]
 ): CliGroup | undefined;
 
+/**
+ * @returns an array of users mapped from current group's memberships
+ */
 export function useClientState(
   key: "users"
 ): CliGroup["memberships"][number]["user"][];
 
+/**
+ * @returns an object that provides O(1) access to any user of the current group
+ */
 export function useClientState(key: "users[id]"): {
-  [userId: number]: CliGroup["memberships"][number]["user"];
+  [userId: User["id"]]: CliGroup["memberships"][number]["user"];
 };
 
 export function useClientState(
