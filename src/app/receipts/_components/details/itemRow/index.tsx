@@ -24,7 +24,7 @@ export default function ItemRow({
   const nodes = useBodyNodes();
   const group = useClientState("group");
   const users = useClientState("users");
-  const item = group?.activeReceipt!.items.find((i) => i.id === itemId)!;
+  const item = group!.activeReceipt!.items.find((i) => i.id === itemId)!;
 
   const isMultiUser = !!users.length;
 
