@@ -106,7 +106,7 @@ export const thunksGroups = {
       const rs = getState().combined;
       const group = rs.groups.find((g) => g.id === rs.groupId)!;
       const prevState = uid
-        ? group.users.find((u) => u.id === uid)!.color
+        ? group.memberships.find((ms) => ms.user.id === uid)!.user.color
         : rs.user!.color;
 
       appToast
