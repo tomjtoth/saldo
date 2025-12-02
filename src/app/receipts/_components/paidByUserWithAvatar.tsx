@@ -13,7 +13,7 @@ export default function PaidByUserWithAvatar({
   listOnClick?: true;
 }) {
   const nodes = useBodyNodes();
-  const user = useClientState("users").find((u) => u.id === userId);
+  const user = useClientState("users[id]")[userId];
 
   return (
     <div

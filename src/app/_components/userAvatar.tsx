@@ -15,9 +15,12 @@ export default function UserAvatar({
   onClick?: () => void;
 }) {
   const user =
+    // this is fine, because the only change can occur during transpile time
     "userId" in source
-      ? useClientState("users").find((u) => u.id === source.userId)
-      : useClientState("user");
+      ? // eslint-disable-next-line react-hooks/rules-of-hooks
+        useClientState("users[id]")[source.userId!]
+      : // eslint-disable-next-line react-hooks/rules-of-hooks
+        useClientState("user");
 
   const names = (user?.name ?? "").split(" ");
   const svgName =

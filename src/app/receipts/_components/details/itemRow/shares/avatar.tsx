@@ -24,7 +24,7 @@ export default function ItemShareAvatar({
   const ref = useRef<HTMLInputElement>(null);
   const group = useClientState("group");
   const currReceipt = group!.activeReceipt!;
-  const user = useClientState("users").find((u) => u.id === userId)!;
+  const user = useClientState("users[id]")[userId];
 
   useEffect(() => {
     if (!!onChange && focused) ref.current?.focus();

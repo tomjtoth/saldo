@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
+import { useBodyNodes } from "@/app/_lib/hooks";
 import { LINKS } from "./viewSelector/listing";
 
 import Canceler from "./canceler";
