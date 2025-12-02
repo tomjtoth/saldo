@@ -11,6 +11,7 @@ import ItemShareAvatar from "../shares/avatar";
 export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
   const nodes = useBodyNodes();
   const dispatch = useAppDispatch();
+  const users = useClientState("users");
   const group = useClientState("group");
   const receipt = group!.activeReceipt!;
 
@@ -33,7 +34,6 @@ export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
 
   if (!item) return null;
 
-  const users = group?.users;
   const isMultiUser = users?.length;
   const shares = item.itemShares;
 

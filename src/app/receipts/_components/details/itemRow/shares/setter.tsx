@@ -13,10 +13,10 @@ export default function ItemShareSetter({ itemId }: { itemId: Item["id"] }) {
   const [verbose, setVerbose] = useState(false);
   const dispatch = useAppDispatch();
   const group = useClientState("group")!;
+  const users = useClientState("users");
   const receipt = group.activeReceipt!;
 
   const item = receipt.items.find((item) => item.id === itemId)!;
-  const users = group.users;
   const notPayer = users.find((user) => user.id !== receipt.paidById);
 
   return (

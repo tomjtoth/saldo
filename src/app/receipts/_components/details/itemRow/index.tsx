@@ -23,9 +23,10 @@ export default function ItemRow({
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
   const group = useClientState("group");
+  const users = useClientState("users");
   const item = group?.activeReceipt!.items.find((i) => i.id === itemId)!;
 
-  const isMultiUser = !!group?.users.length;
+  const isMultiUser = !!users.length;
 
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);

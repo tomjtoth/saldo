@@ -22,15 +22,14 @@ export default function ReceiptDetails() {
   const nodes = useBodyNodes();
   const dispatch = useAppDispatch();
   const group = useClientState("group")!;
+  const users = useClientState("users");
 
   const [zeros, setZeros] = useState<Item["id"][]>([]);
 
   const groupId = group.id;
   const receipt = group.activeReceipt!;
 
-  const users = group.users;
   const isMultiUser = users.length > 1;
-
   const paidBy = users.find((u) => u.id === receipt.paidById)!;
 
   function submitReceipt() {
