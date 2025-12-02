@@ -77,7 +77,14 @@ export function useClientState(key: "consumption"): CliGroup["consumption"];
 export function useClientState(
   key: "category",
   categoryId: Category["id"]
-): CliGroup["categories"][number] | undefined;
+): Category | undefined;
+
+/**
+ * @returns current group's category by ID
+ */
+export function useClientState(key: "categories[id]"): {
+  [categoryId: Category["id"]]: Category;
+};
 
 /**
  * @returns current group's receipt by ID
@@ -116,6 +123,7 @@ export function useClientState(
     | "balance"
     | "consumption"
     | "category"
+    | "categories[id]"
     | "group"
     | "receipt"
     | "users"
@@ -166,6 +174,13 @@ export function useClientState(
 
   if (key === "category") {
     return group?.categories.find((category) => category.id === id);
+  }
+
+  if (key === "categories[id]") {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useMemo(() => {
+      return Object.fromEntries(group?.categories.map((c) => [c.id, c]) ?? []);
+    }, [group?.categories]);
   }
 
   if (key === "balance") {
