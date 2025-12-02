@@ -34,7 +34,7 @@ export default function GroupListing() {
         permalinks
       </label>
       {pathname !== "/groups" && groupLink}
-      <ul>
+      <ul id="groups-listing">
         {groups.map((group) => {
           const checked = group.id === groupId;
 

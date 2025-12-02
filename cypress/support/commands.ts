@@ -111,10 +111,11 @@ function entityShouldBeFavorit(name: string) {
 }
 
 function selectGroup(group: string) {
+  cy.wait(500);
   cy.get("#usermenu-opener + span").then(($span) => {
     if ($span.text() !== group) {
       $span.trigger("click");
-      cy.contains(group).click();
+      cy.get("#groups-listing").contains(group).click();
     }
   });
 }
