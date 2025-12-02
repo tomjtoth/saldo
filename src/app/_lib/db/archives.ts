@@ -28,11 +28,7 @@ export async function getArchivePopulator(tx?: DrizzleTx) {
           '$.revisionId', a.revision_id,
           '$.revision', jsonb_object(
             'createdAt', r.created_at,
-            'createdBy', jsonb_object(
-              'id', u.id,
-              'name', u.name,
-              'image', u.image
-            )
+            'createdById', r.created_by
           )
         ) AS payload
       FROM archives a

@@ -35,10 +35,7 @@
           "groupId": 1,
           "name": "booze 1",
           "description": "anything with alcohol in it 🥴",
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "archives": []
         },
         {
@@ -48,10 +45,7 @@
           "groupId": 1,
           "name": "food 1",
           "description": "the vital stuff only",
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "archives": [
             {
               "flags": 1,
@@ -61,8 +55,8 @@
               "name": "food 1",
               "description": "the vital stuff only",
               "revision": {
-                "createdAt": "2025-12-01 23:47:28",
-                "createdBy": { "id": 1, "name": "user1", "image": null }
+                "createdAt": "2025-12-02 13:44:04",
+                "createdById": 1
               }
             },
             {
@@ -73,8 +67,8 @@
               "name": "food 1",
               "description": "the vital stuff only",
               "revision": {
-                "createdAt": "2025-12-01 23:47:28",
-                "createdBy": { "id": 1, "name": "user1", "image": null }
+                "createdAt": "2025-12-02 13:44:04",
+                "createdById": 1
               }
             }
           ]
@@ -86,10 +80,7 @@
           "groupId": 1,
           "name": "gas money 1",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "archives": []
         },
         {
@@ -99,10 +90,7 @@
           "groupId": 1,
           "name": "soft drinks 1",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 1, "name": "user1", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 1 },
           "archives": []
         }
       ],
@@ -114,10 +102,7 @@
           "groupId": 1,
           "paidOn": "2025-02-10",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "items": [
             {
               "flags": 1,
@@ -189,10 +174,7 @@
           "groupId": 1,
           "paidOn": "2025-02-10",
           "paidById": 3,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -264,10 +246,7 @@
           "groupId": 1,
           "paidOn": "2025-02-07",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -339,10 +318,7 @@
           "groupId": 1,
           "paidOn": "2025-02-04",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -414,10 +390,7 @@
           "groupId": 1,
           "paidOn": "2025-02-04",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "items": [
             {
               "flags": 1,
@@ -480,10 +453,7 @@
           "groupId": 1,
           "paidOn": "2025-02-01",
           "paidById": 3,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 1, "name": "user1", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 1 },
           "items": [
             {
               "flags": 1,
@@ -562,12 +532,9 @@
             "email": "user1@e2e.tests",
             "name": "user1",
             "image": null,
-            "color": "#3f3bd8"
+            "color": "#6a28c6"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 1, "name": "user1", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 1 }
         },
         {
           "flags": 1,
@@ -581,12 +548,9 @@
             "email": "user2@e2e.tests",
             "name": "user2",
             "image": null,
-            "color": "#61befe"
+            "color": "#d28654"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 }
         },
         {
           "flags": 1,
@@ -600,12 +564,9 @@
             "email": "user3@e2e.tests",
             "name": "user3",
             "image": null,
-            "color": "#7b22d0"
+            "color": "#15e737"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 }
         }
       ]
     }
@@ -648,10 +609,7 @@
           "groupId": 1,
           "name": "booze 1",
           "description": "anything with alcohol in it 🥴",
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "archives": []
         },
         {
@@ -661,10 +619,7 @@
           "groupId": 1,
           "name": "food 1",
           "description": "the vital stuff only",
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "archives": [
             {
               "flags": 1,
@@ -674,8 +629,8 @@
               "name": "food 1",
               "description": "the vital stuff only",
               "revision": {
-                "createdAt": "2025-12-01 23:47:28",
-                "createdBy": { "id": 1, "name": "user1", "image": null }
+                "createdAt": "2025-12-02 13:44:04",
+                "createdById": 1
               }
             },
             {
@@ -686,8 +641,8 @@
               "name": "food 1",
               "description": "the vital stuff only",
               "revision": {
-                "createdAt": "2025-12-01 23:47:28",
-                "createdBy": { "id": 1, "name": "user1", "image": null }
+                "createdAt": "2025-12-02 13:44:04",
+                "createdById": 1
               }
             }
           ]
@@ -699,10 +654,7 @@
           "groupId": 1,
           "name": "gas money 1",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "archives": []
         },
         {
@@ -712,10 +664,7 @@
           "groupId": 1,
           "name": "soft drinks 1",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 1, "name": "user1", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 1 },
           "archives": []
         }
       ],
@@ -727,10 +676,7 @@
           "groupId": 1,
           "paidOn": "2025-02-10",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "items": [
             {
               "flags": 1,
@@ -802,10 +748,7 @@
           "groupId": 1,
           "paidOn": "2025-02-10",
           "paidById": 3,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -877,10 +820,7 @@
           "groupId": 1,
           "paidOn": "2025-02-07",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -952,10 +892,7 @@
           "groupId": 1,
           "paidOn": "2025-02-04",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -1027,10 +964,7 @@
           "groupId": 1,
           "paidOn": "2025-02-04",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "items": [
             {
               "flags": 1,
@@ -1093,10 +1027,7 @@
           "groupId": 1,
           "paidOn": "2025-02-01",
           "paidById": 3,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 1, "name": "user1", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 1 },
           "items": [
             {
               "flags": 1,
@@ -1175,12 +1106,9 @@
             "email": "user1@e2e.tests",
             "name": "user1",
             "image": null,
-            "color": "#d93add"
+            "color": "#f5502f"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 1, "name": "user1", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 1 }
         },
         {
           "flags": 1,
@@ -1194,12 +1122,9 @@
             "email": "user2@e2e.tests",
             "name": "user2",
             "image": null,
-            "color": "#a80025"
+            "color": "#bb18a8"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 }
         },
         {
           "flags": 1,
@@ -1213,12 +1138,9 @@
             "email": "user3@e2e.tests",
             "name": "user3",
             "image": null,
-            "color": "#fda425"
+            "color": "#2464a3"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 }
         }
       ]
     },
@@ -1257,10 +1179,7 @@
           "groupId": 2,
           "name": "alcohol 2",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "archives": [
             {
               "flags": 1,
@@ -1270,8 +1189,8 @@
               "name": "alcohol 2",
               "description": null,
               "revision": {
-                "createdAt": "2025-12-01 23:47:28",
-                "createdBy": { "id": 2, "name": "user2", "image": null }
+                "createdAt": "2025-12-02 13:44:04",
+                "createdById": 2
               }
             },
             {
@@ -1282,8 +1201,8 @@
               "name": "alcohol 2",
               "description": null,
               "revision": {
-                "createdAt": "2025-12-01 23:47:28",
-                "createdBy": { "id": 2, "name": "user2", "image": null }
+                "createdAt": "2025-12-02 13:44:04",
+                "createdById": 2
               }
             }
           ]
@@ -1295,10 +1214,7 @@
           "groupId": 2,
           "name": "gas money 2",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "archives": []
         },
         {
@@ -1308,10 +1224,7 @@
           "groupId": 2,
           "name": "rent 2",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "archives": []
         },
         {
@@ -1321,10 +1234,7 @@
           "groupId": 2,
           "name": "something 2",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "archives": []
         }
       ],
@@ -1336,10 +1246,7 @@
           "groupId": 2,
           "paidOn": "2025-02-24",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "items": [
             {
               "flags": 1,
@@ -1402,10 +1309,7 @@
           "groupId": 2,
           "paidOn": "2025-02-14",
           "paidById": 3,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -1484,12 +1388,9 @@
             "email": "user2@e2e.tests",
             "name": "user2",
             "image": null,
-            "color": "#70fb4b"
+            "color": "#bd9131"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 }
         },
         {
           "flags": 1,
@@ -1503,12 +1404,9 @@
             "email": "user3@e2e.tests",
             "name": "user3",
             "image": null,
-            "color": "#12d18a"
+            "color": "#959ca8"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 }
         }
       ]
     }
@@ -1551,10 +1449,7 @@
           "groupId": 1,
           "name": "booze 1",
           "description": "anything with alcohol in it 🥴",
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "archives": []
         },
         {
@@ -1564,10 +1459,7 @@
           "groupId": 1,
           "name": "food 1",
           "description": "the vital stuff only",
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "archives": [
             {
               "flags": 1,
@@ -1577,8 +1469,8 @@
               "name": "food 1",
               "description": "the vital stuff only",
               "revision": {
-                "createdAt": "2025-12-01 23:47:28",
-                "createdBy": { "id": 1, "name": "user1", "image": null }
+                "createdAt": "2025-12-02 13:44:04",
+                "createdById": 1
               }
             },
             {
@@ -1589,8 +1481,8 @@
               "name": "food 1",
               "description": "the vital stuff only",
               "revision": {
-                "createdAt": "2025-12-01 23:47:28",
-                "createdBy": { "id": 1, "name": "user1", "image": null }
+                "createdAt": "2025-12-02 13:44:04",
+                "createdById": 1
               }
             }
           ]
@@ -1602,10 +1494,7 @@
           "groupId": 1,
           "name": "gas money 1",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "archives": []
         },
         {
@@ -1615,10 +1504,7 @@
           "groupId": 1,
           "name": "soft drinks 1",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 1, "name": "user1", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 1 },
           "archives": []
         }
       ],
@@ -1630,10 +1516,7 @@
           "groupId": 1,
           "paidOn": "2025-02-10",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "items": [
             {
               "flags": 1,
@@ -1705,10 +1588,7 @@
           "groupId": 1,
           "paidOn": "2025-02-10",
           "paidById": 3,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -1780,10 +1660,7 @@
           "groupId": 1,
           "paidOn": "2025-02-07",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -1855,10 +1732,7 @@
           "groupId": 1,
           "paidOn": "2025-02-04",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -1930,10 +1804,7 @@
           "groupId": 1,
           "paidOn": "2025-02-04",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "items": [
             {
               "flags": 1,
@@ -1996,10 +1867,7 @@
           "groupId": 1,
           "paidOn": "2025-02-01",
           "paidById": 3,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 1, "name": "user1", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 1 },
           "items": [
             {
               "flags": 1,
@@ -2078,12 +1946,9 @@
             "email": "user1@e2e.tests",
             "name": "user1",
             "image": null,
-            "color": "#be1797"
+            "color": "#22afb7"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 1, "name": "user1", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 1 }
         },
         {
           "flags": 1,
@@ -2097,12 +1962,9 @@
             "email": "user2@e2e.tests",
             "name": "user2",
             "image": null,
-            "color": "#12df0d"
+            "color": "#18fa1d"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 }
         },
         {
           "flags": 1,
@@ -2116,12 +1978,9 @@
             "email": "user3@e2e.tests",
             "name": "user3",
             "image": null,
-            "color": "#f3b3d1"
+            "color": "#430403"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 }
         }
       ]
     },
@@ -2160,10 +2019,7 @@
           "groupId": 2,
           "name": "alcohol 2",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "archives": [
             {
               "flags": 1,
@@ -2173,8 +2029,8 @@
               "name": "alcohol 2",
               "description": null,
               "revision": {
-                "createdAt": "2025-12-01 23:47:28",
-                "createdBy": { "id": 2, "name": "user2", "image": null }
+                "createdAt": "2025-12-02 13:44:04",
+                "createdById": 2
               }
             },
             {
@@ -2185,8 +2041,8 @@
               "name": "alcohol 2",
               "description": null,
               "revision": {
-                "createdAt": "2025-12-01 23:47:28",
-                "createdBy": { "id": 2, "name": "user2", "image": null }
+                "createdAt": "2025-12-02 13:44:04",
+                "createdById": 2
               }
             }
           ]
@@ -2198,10 +2054,7 @@
           "groupId": 2,
           "name": "gas money 2",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "archives": []
         },
         {
@@ -2211,10 +2064,7 @@
           "groupId": 2,
           "name": "rent 2",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "archives": []
         },
         {
@@ -2224,10 +2074,7 @@
           "groupId": 2,
           "name": "something 2",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "archives": []
         }
       ],
@@ -2239,10 +2086,7 @@
           "groupId": 2,
           "paidOn": "2025-02-24",
           "paidById": 2,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "items": [
             {
               "flags": 1,
@@ -2305,10 +2149,7 @@
           "groupId": 2,
           "paidOn": "2025-02-14",
           "paidById": 3,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 },
           "items": [
             {
               "flags": 1,
@@ -2387,12 +2228,9 @@
             "email": "user2@e2e.tests",
             "name": "user2",
             "image": null,
-            "color": "#2758e6"
+            "color": "#bea429"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 2, "name": "user2", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 2 }
         },
         {
           "flags": 1,
@@ -2406,12 +2244,9 @@
             "email": "user3@e2e.tests",
             "name": "user3",
             "image": null,
-            "color": "#c5f126"
+            "color": "#5b8599"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 }
         }
       ]
     },
@@ -2445,10 +2280,7 @@
           "groupId": 3,
           "name": "food 3",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "archives": []
         },
         {
@@ -2458,10 +2290,7 @@
           "groupId": 3,
           "name": "rent 3",
           "description": null,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "archives": []
         }
       ],
@@ -2473,10 +2302,7 @@
           "groupId": 3,
           "paidOn": "2025-02-27",
           "paidById": 3,
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          },
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 },
           "items": [
             {
               "flags": 1,
@@ -2529,12 +2355,9 @@
             "email": "user3@e2e.tests",
             "name": "user3",
             "image": null,
-            "color": "#9268e5"
+            "color": "#fc3b31"
           },
-          "revision": {
-            "createdAt": "2025-12-01 23:47:28",
-            "createdBy": { "id": 3, "name": "user3", "image": null }
-          }
+          "revision": { "createdAt": "2025-12-02 13:44:04", "createdById": 3 }
         }
       ]
     }

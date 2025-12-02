@@ -16,6 +16,7 @@ export default function CategoryUpdater({
 }) {
   const dispatch = useAppDispatch();
   const category = useClientState("category", categoryId)!;
+  const usersO1 = useClientState("users[id]");
 
   const [name, setName] = useState(category.name);
   const [description, setDescr] = useState(category.description ?? "");
@@ -68,7 +69,7 @@ export default function CategoryUpdater({
         🗓️
         <sub> {category.revision.createdAt} </sub>
         🪪
-        <sub> {category.revision.createdBy.name} </sub>
+        <sub> {usersO1[category.revision.createdById].name} </sub>
       </div>
     </form>
   );

@@ -15,6 +15,7 @@ export default function CategoryDetails({
 }) {
   const nodes = useBodyNodes();
   const category = useClientState("category", categoryId)!;
+  const usersO1 = useClientState("users[id]");
 
   return (
     <Canceler onClick={nodes.pop}>
@@ -60,7 +61,7 @@ export default function CategoryDetails({
               🗓️
               <sub> {cat.revision.createdAt} </sub>
               🪪
-              <sub> {cat.revision.createdBy.name} </sub>
+              <sub> {usersO1[cat.revision.createdById].name} </sub>
             </div>
           </div>
         ))}

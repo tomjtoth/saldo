@@ -14,12 +14,16 @@ export default function ReceiptEntry({
   receiptId: Receipt["id"];
 }) {
   const dispatch = useAppDispatch();
+  const usersO1 = useClientState("users[id]");
   const receipt = useClientState("receipt", receiptId)!;
   const activeItems = receipt.items.filter((item) => virt(item).active);
   const activeVsInactiveDiff = activeItems.length - receipt.items.length;
 
   const addedBy =
-    receipt.archives.at(-1)?.revision.createdBy ?? receipt.revision.createdBy;
+    usersO1[
+      receipt.archives.at(-1)?.revision.createdById ??
+        receipt.revision.createdById
+    ];
 
   return (
     <li

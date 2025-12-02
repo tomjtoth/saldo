@@ -57,7 +57,5 @@ export type DbItem = DbSelect<"items">;
 export type DbItemShare = DbSelect<"itemShares">;
 
 export type RevisionInfo = {
-  revision: Pick<DbRevision, "createdAt"> & {
-    createdBy: Pick<DbUser, "id" | "name" | "image">;
-  };
+  revision: Pick<DbRevision, "createdAt" | "createdById">;
 };
