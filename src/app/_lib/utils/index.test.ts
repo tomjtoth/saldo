@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { describe, it, expect } from "vitest";
 
-import { err, ErrorWithStatus, is, nullEmptyStrings, virt } from ".";
+import { be, err, ErrorWithStatus, is, nullEmptyStrings, virt } from ".";
 
 describe("status", () => {
   it("resolves ACTIVE state correctly", () => {
@@ -80,13 +80,13 @@ describe("nulledEmptyStrings", () => {
 
 describe("validators", () => {
   it("stringWith3ConsecutiveLetters", () => {
-    expect(() => is.stringWith3ConsecutiveLetters("as")).to.throw();
-    expect(() => is.stringWith3ConsecutiveLetters(" as ")).to.throw();
-    expect(() => is.stringWith3ConsecutiveLetters(" as as as ")).to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters("as")).to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters(" as ")).to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters(" as as as ")).to.throw();
 
-    expect(() => is.stringWith3ConsecutiveLetters("asd")).not.to.throw();
-    expect(() => is.stringWith3ConsecutiveLetters("ee rr asd")).not.to.throw();
-    expect(() => is.stringWith3ConsecutiveLetters(" ff asd ff")).not.to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters("asd")).not.to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters("ee rr asd")).not.to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters(" ff asd ff")).not.to.throw();
   });
 
   it("number", () => {
