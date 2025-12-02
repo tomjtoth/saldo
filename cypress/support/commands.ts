@@ -9,7 +9,7 @@ declare global {
       ? U
       : R;
 
-    type MappedCommands<AC = typeof allCommands> = {
+    type MappedCommands<AC = typeof commands> = {
       [K in keyof AC]: AC[K] extends (...args: infer A) => infer R
         ? (...args: A) => Cypress.Chainable<UnwrapChainableReturn<R>>
         : never;
@@ -31,161 +31,146 @@ const fnAccessibleViaViewSelector = (url: string, openUserMenu?: true) =>
 
 (globalThis as any).itIsAccessibleViaViewSelector = fnAccessibleViaViewSelector;
 
-function toast(
-  text?: string,
-  options: { cls?: "success" | ""; autoClose?: boolean } = {}
-) {
-  const { cls = "success", autoClose = true } = options;
-  let selector = "div.Toastify__toast";
-  if (cls) selector += "--" + cls;
+const commands = {
+  toast(
+    text?: string,
+    options: { cls?: "success" | ""; autoClose?: boolean } = {}
+  ) {
+    const { cls = "success", autoClose = true } = options;
+    let selector = "div.Toastify__toast";
+    if (cls) selector += "--" + cls;
 
-  const getter = () => cy.get(selector, { timeout: 10000 });
+    const getter = () => cy.get(selector, { timeout: 10000 });
 
-  if (text !== undefined) {
-    return getter()
-      .filter((_, el) => el.textContent === text)
-      .then(($node) => {
-        if (autoClose) {
-          $node.trigger("click");
-          cy.wrap($node).should("not.exist");
-        }
-        return cy.wrap($node);
+    if (text !== undefined) {
+      return getter()
+        .filter((_, el) => el.textContent === text)
+        .then(($node) => {
+          if (autoClose) {
+            $node.trigger("click");
+            cy.wrap($node).should("not.exist");
+          }
+          return cy.wrap($node);
+        });
+    }
+
+    return getter();
+  },
+
+  cleanup() {
+    cy.request("/api/e2e/db/truncate");
+  },
+
+  populateDb() {
+    cy.request("/api/e2e/db/populate");
+  },
+
+  readDb() {
+    return cy.request("/api/e2e/db").then(($res) => {
+      const response: typeof baseline = $res.body;
+
+      return cy.wrap({
+        baseline,
+        response,
       });
-  }
-
-  return getter();
-}
-
-function cleanup() {
-  cy.request("/api/e2e/db/truncate");
-}
-
-function populateDb() {
-  cy.request("/api/e2e/db/populate");
-}
-
-function addEntity(name: string, description?: string) {
-  // React re-render was dismissing my click event below
-  cy.wait(500);
-  cy.get("#entity-adder-button").click();
-
-  if (name) cy.get("#entity-adder-form > input").type(name);
-  if (description) cy.get("#entity-adder-form > textarea").type(description);
-  cy.get("#entity-adder-form > button").click();
-
-  toast(`Saving "${name}" to db succeeded!`);
-}
-
-function modEntity(
-  text: string,
-  {
-    name,
-    description,
-    toggle,
-  }: {
-    name?: string;
-    description?: string;
-    toggle?: true;
-  }
-) {
-  cy.contains(text)
-    .filter((_, el) => el.textContent?.trim() === text)
-    .click();
-
-  if (name) cy.get("#updater > input").type(name);
-  if (description) cy.get("#updater > textarea").type(description);
-  if (toggle) entityToggler().click();
-
-  cy.get("#updater>button").click();
-}
-
-function entityToggler() {
-  return cy.get("#updater > div").first();
-}
-
-function entityShouldBeFavorit(name: string) {
-  cy.contains(name)
-    .filter((_, el) => el.textContent?.trim() === name)
-    .find("svg g[fill='#FB0']")
-    .should("exist");
-}
-
-function selectGroup(group: string) {
-  cy.wait(500);
-  cy.get("#usermenu-opener + span").then(($span) => {
-    if ($span.text() !== group) {
-      $span.trigger("click");
-      cy.get("#groups-listing").contains(group).click();
-    }
-  });
-}
-
-function login({
-  page = "/",
-  email = "user1@e2e.tests",
-  passwd = "TEST_PASSWD",
-}: {
-  email?: string;
-  passwd?: string;
-  page?: string;
-} = {}) {
-  cy.session([email, passwd], () => {
-    cy.visit("/api/auth/signin");
-
-    cy.get("#email", { timeout: 10000 }).type(email);
-    cy.get("#passwd").type(passwd);
-    cy.get("#submitButton").click();
-    cy.location("pathname").should("eq", "/");
-  });
-
-  cy.visit(page);
-}
-
-function loginShouldBeVisible() {
-  cy.location("pathname").should("equal", "/api/auth/signin");
-}
-
-function logout() {
-  cy.get("#usermenu-opener").click();
-
-  Cypress.once("uncaught:exception", (err) => {
-    if (err.message.includes("NEXT_REDIRECT")) {
-      return false; // prevent Cypress from failing the test
-    }
-  });
-
-  cy.get("#sign-out-button").click();
-  cy.location("pathname", { timeout: 10000 }).should("eq", "/");
-}
-
-type DbShape = typeof baseline;
-
-function readDb() {
-  return cy.request("/api/e2e/db").then(($res) => {
-    const response: DbShape = $res.body;
-
-    return cy.wrap({
-      baseline,
-      response,
     });
-  });
-}
+  },
 
-const allCommands = {
-  toast,
-  cleanup,
-  populateDb,
-  readDb,
-  addEntity,
-  modEntity,
-  entityToggler,
-  entityShouldBeFavorit,
-  selectGroup,
-  login,
-  logout,
-  loginShouldBeVisible,
+  addEntity(name: string, description?: string) {
+    // React re-render was dismissing my click event below
+    cy.wait(500);
+    cy.get("#entity-adder-button").click();
+
+    if (name) cy.get("#entity-adder-form > input").type(name);
+    if (description) cy.get("#entity-adder-form > textarea").type(description);
+    cy.get("#entity-adder-form > button").click();
+
+    commands.toast(`Saving "${name}" to db succeeded!`);
+  },
+
+  modEntity(
+    text: string,
+    {
+      name,
+      description,
+      toggle,
+    }: {
+      name?: string;
+      description?: string;
+      toggle?: true;
+    }
+  ) {
+    cy.contains(text)
+      .filter((_, el) => el.textContent?.trim() === text)
+      .click();
+
+    if (name) cy.get("#updater > input").type(name);
+    if (description) cy.get("#updater > textarea").type(description);
+    if (toggle) commands.entityToggler().click();
+
+    cy.get("#updater>button").click();
+  },
+
+  entityToggler() {
+    return cy.get("#updater > div").first();
+  },
+
+  entityShouldBeFavorit(name: string) {
+    cy.contains(name)
+      .filter((_, el) => el.textContent?.trim() === name)
+      .find("svg g[fill='#FB0']")
+      .should("exist");
+  },
+
+  selectGroup(group: string) {
+    cy.wait(500);
+    cy.get("#usermenu-opener + span").then(($span) => {
+      if ($span.text() !== group) {
+        $span.trigger("click");
+        cy.get("#groups-listing").contains(group).click();
+      }
+    });
+  },
+
+  login({
+    page = "/",
+    email = "user1@e2e.tests",
+    passwd = "TEST_PASSWD",
+  }: {
+    email?: string;
+    passwd?: string;
+    page?: string;
+  } = {}) {
+    cy.session([email, passwd], () => {
+      cy.visit("/api/auth/signin");
+
+      cy.get("#email", { timeout: 10000 }).type(email);
+      cy.get("#passwd").type(passwd);
+      cy.get("#submitButton").click();
+      cy.location("pathname").should("eq", "/");
+    });
+
+    cy.visit(page);
+  },
+
+  logout() {
+    cy.get("#usermenu-opener").click();
+
+    Cypress.once("uncaught:exception", (err) => {
+      if (err.message.includes("NEXT_REDIRECT")) {
+        return false; // prevent Cypress from failing the test
+      }
+    });
+
+    cy.get("#sign-out-button").click();
+    cy.location("pathname", { timeout: 10000 }).should("eq", "/");
+  },
+
+  loginShouldBeVisible() {
+    cy.location("pathname").should("equal", "/api/auth/signin");
+  },
 };
 
-Cypress.Commands.addAll(allCommands);
+Cypress.Commands.addAll(commands);
 
 export {};
