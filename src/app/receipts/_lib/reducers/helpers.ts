@@ -56,7 +56,7 @@ export function addEmptyReceipts(data: CS) {
         paidBy: data.user,
         flags: 1,
         groupId: group.id,
-        revision: { createdAt: VDate.timeToStr(), createdBy: data.user },
+        revision: { createdAt: VDate.timeToStr(), createdById: data.user.id },
         revisionId: -1,
         archives: [],
         items: [
