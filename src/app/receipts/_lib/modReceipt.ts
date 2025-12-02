@@ -185,7 +185,8 @@ export async function svcModReceipt(
 
       for (const avoidCrashingDebugger of newItems) {
         const {
-          id: _discardingNegativeId,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          id: _discardingClientSidePlaceholderId,
           itemShares: newItemShares,
           ...newItem
         } = avoidCrashingDebugger;
