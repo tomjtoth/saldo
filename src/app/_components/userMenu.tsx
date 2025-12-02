@@ -38,7 +38,9 @@ export default function UserMenu() {
         className="mt-2"
         onClick={() => {
           nodes.pop();
-          apiSignOut();
+          apiSignOut().finally(() => {
+            if (pathname === "/") location.reload();
+          });
         }}
       >
         Sign Out
