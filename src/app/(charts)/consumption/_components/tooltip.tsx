@@ -7,20 +7,20 @@ import {
 } from "recharts/types/component/DefaultTooltipContent";
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
-import { useConsumptionCx } from "./context";
+import { useClientState } from "@/app/_lib/hooks";
 
 export default function ConsumptionTooltip({
   payload,
   label: catId,
   active,
 }: TooltipContentProps<ValueType, NameType>) {
-  const cx = useConsumptionCx();
+  const categoriesO1 = useClientState("categories[id]");
 
   if (!active || !payload || !catId) return null;
 
   return (
     <div className="bg-background rounded border p-2">
-      <h3>{cx[catId as number]}</h3>
+      <h3>{categoriesO1[catId as number].name}</h3>
 
       {(payload as TooltipPayload)
         .toSorted(({ name: a }, { name: b }) => {
