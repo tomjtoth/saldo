@@ -64,7 +64,7 @@ export function useClientState(key: "groupId"): CombinedState["groupId"];
 /**
  * @returns current group's balance data
  */
-export function useClientState(key: "balance"): CliGroup["balance"];
+export function useClientState(key: "balance"): CliGroup["balance"] | undefined;
 
 /**
  * @returns current group's consumption data
