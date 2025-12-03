@@ -102,8 +102,7 @@ export async function svcGetGroups(
   });
 
   const archivePopulator = await getArchivePopulator(tx);
-
-  const parser = getBalanceParser();
+  const balanceParser = getBalanceParser();
 
   return Promise.all(
     arr.toSorted(sortByName).map(async (group) => {
@@ -130,7 +129,7 @@ export async function svcGetGroups(
 
         receipts,
         consumption,
-        balance: parser(group),
+        balance: balanceParser(group),
       };
     })
   );
