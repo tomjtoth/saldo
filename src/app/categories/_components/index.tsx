@@ -1,24 +1,50 @@
 "use client";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { useMemo } from "react";
+
+import { useAppDispatch, useClientState, useDebugger } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
+import { Category } from "../_lib";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
-import Entry from "./entry";
+import CategoryEntry from "./entry";
 
-export default function CliCategoriesPage(srv: { catId?: number }) {
+export default function CategoriesPage(srv: { categoryId?: Category["id"] }) {
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
+  const user = useClientState("user");
+  const group = useClientState("group");
+  const groups = useClientState("groups");
+
+  const defaultCategoryId = group?.memberships.find(
+    (ms) => ms.userId === user?.id
+  )?.defaultCategoryId;
+
+  const categoriesListing = useMemo(
+    () =>
+      group?.categories.map((cat) => (
+        <CategoryEntry
+          key={cat.id}
+          categoryId={cat.id}
+          defaultId={defaultCategoryId}
+          preSelected={srv.categoryId === cat.id}
+        />
+      )),
+    [group?.categories, srv.categoryId, defaultCategoryId]
+  );
+
+  useDebugger({ categoriesListing });
 
   return (
     <>
       <Header>
-        {rs.groups.length > 0 && (
+        {groups.length > 0 && (
           <EntityAdderButton
             placeholder="Category"
             handler={({ name, description }) =>
-              dispatch(red.addCategory(rs.groupId!, name, description))
+              dispatch(
+                thunks.addCategory({ groupId: group!.id, name, description })
+              )
             }
           />
         )}
@@ -30,9 +56,7 @@ export default function CliCategoriesPage(srv: { catId?: number }) {
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {rs.group?.categories?.map((cat) => (
-          <Entry key={cat.id} cat={cat} preSelected={srv.catId === cat.id} />
-        ))}
+        {categoriesListing}
       </div>
     </>
   );

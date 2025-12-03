@@ -18,7 +18,7 @@ After everyone joined the same _[group](https://saldo.ttj.hu/groups)_,
 created the relevant _[categories](https://saldo.ttj.hu/categories)_,
 added their _[receipts](https://saldo.ttj.hu/receipts)_ (marking shares of each _item vs. user_),
 the _[balance](https://saldo.ttj.hu/balance)_ view will show each "realtion of debt" within the group,
-while the _[pareto](https://saldo.ttj.hu/pareto)_ view shows the total consumption of each category/user.
+while the _[consumption](https://saldo.ttj.hu/consumption)_ view shows the total consumption of each category/user.
 
 ## Implementation
 

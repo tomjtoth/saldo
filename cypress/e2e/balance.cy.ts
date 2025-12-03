@@ -6,7 +6,7 @@ describe("balance", () => {
     });
 
     it("can be accessed", () => {
-      cy.contains("shared group of user #1").should("exist");
+      cy.contains("group for users 1-3").should("exist");
     });
 
     itIsAccessibleViaViewSelector("/balance");

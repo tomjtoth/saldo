@@ -1,14 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { describe, it, expect } from "vitest";
 
-import {
-  err,
-  ErrorWithStatus,
-  has3ConsecutiveLetters,
-  nulledEmptyStrings,
-  nullEmptyStrings,
-  virt,
-} from ".";
+import { be, err, ErrorWithStatus, is, nullEmptyStrings, virt } from ".";
 
 describe("status", () => {
   it("resolves ACTIVE state correctly", () => {
@@ -78,20 +71,43 @@ describe("nullEmptyStrings", () => {
 describe("nulledEmptyStrings", () => {
   it("does not mutate the original", () => {
     const before = { a: 1, b: "2", c: "", d: null, e: undefined };
-    const after = nulledEmptyStrings(before);
+    const after = nullEmptyStrings(before, { canMutate: false });
 
     expect(before.c).to.equal("");
     expect(after.c).to.toBeNull();
   });
 });
 
-describe("has3ConsecutiveLetters", () => {
-  it("does not mutate the original", () => {
-    expect(() => has3ConsecutiveLetters("as")).to.throw();
-    expect(() => has3ConsecutiveLetters(" as ")).to.throw();
-    expect(() => has3ConsecutiveLetters(" as as as ")).to.throw();
+describe("validators", () => {
+  it("stringWith3ConsecutiveLetters", () => {
+    expect(() => be.stringWith3ConsecutiveLetters("as")).to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters(" as ")).to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters(" as as as ")).to.throw();
 
-    expect(() => has3ConsecutiveLetters("asd")).not.to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters("asd")).not.to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters("ee rr asd")).not.to.throw();
+    expect(() => be.stringWith3ConsecutiveLetters(" ff asd ff")).not.to.throw();
+  });
+
+  it("number", () => {
+    expect(is.number(NaN)).to.eq(false);
+    expect(is.number("sdqwe")).to.eq(false);
+
+    expect(is.number(213)).to.eq(true);
+    expect(is.number(123.432)).to.eq(true);
+    expect(is.number(Number.POSITIVE_INFINITY)).to.eq(true);
+    expect(is.number(Number.NEGATIVE_INFINITY)).to.eq(true);
+  });
+
+  it("numberOrNull", () => {
+    expect(is.numberOrNull(NaN)).to.eq(false);
+    expect(is.numberOrNull(undefined)).to.eq(false);
+    expect(is.numberOrNull("sdqwe")).to.eq(false);
+
+    expect(is.numberOrNull(213)).to.eq(true);
+    expect(is.numberOrNull(123.432)).to.eq(true);
+    expect(is.numberOrNull(Number.POSITIVE_INFINITY)).to.eq(true);
+    expect(is.numberOrNull(Number.NEGATIVE_INFINITY)).to.eq(true);
   });
 });
 

@@ -2,24 +2,26 @@
 
 import { toast } from "react-toastify";
 
-import { useAppDispatch } from "@/app/_lib/hooks";
-import { TGroup } from "@/app/_lib/db";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
+import { Group } from "../../_lib";
 import { appToast } from "@/app/_lib/utils";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { thunks } from "@/app/_lib/reducers";
 
 export default function Invitation({
-  group,
+  groupId,
   clientIsAdmin,
 }: {
-  group: TGroup;
+  groupId: Group["id"];
   clientIsAdmin: boolean;
 }) {
   const dispatch = useAppDispatch();
+  const group = useClientState("group", groupId)!;
+
   const invitationLink = group.uuid
     ? `${window.location.origin}/join/${group.uuid}`
     : null;
 
-  const copyToClipboard = () =>
+  function copyToClipboard() {
     toast.promise(
       navigator.clipboard.writeText(invitationLink!),
       {
@@ -28,6 +30,7 @@ export default function Invitation({
       },
       appToast.theme()
     );
+  }
 
   return clientIsAdmin ? (
     <>
@@ -53,12 +56,12 @@ export default function Invitation({
       <div className="flex gap-2 justify-evenly">
         {!!invitationLink && <button onClick={copyToClipboard}>Copy 🔗</button>}
 
-        <button onClick={() => dispatch(red.generateInviteLink(group.id!))}>
+        <button onClick={() => dispatch(thunks.generateInviteLink(group.id))}>
           Generate 🔁
         </button>
 
         {!!invitationLink && (
-          <button onClick={() => dispatch(red.removeInviteLink(group.id!))}>
+          <button onClick={() => dispatch(thunks.removeInviteLink(group.id))}>
             Remove 🚫
           </button>
         )}

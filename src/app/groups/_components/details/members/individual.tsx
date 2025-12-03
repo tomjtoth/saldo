@@ -2,19 +2,28 @@
 
 import { useState } from "react";
 
-import { useAppDispatch } from "@/app/_lib/hooks";
-import { TMembership } from "@/app/_lib/db";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
+import { Membership } from "@/app/groups/_lib";
+import { thunks } from "@/app/_lib/reducers";
 import { virt } from "@/app/_lib/utils";
 
 import Slider from "@/app/_components/slider";
 
 export default function Individual({
   clientIsAdmin,
-  ...ms
-}: TMembership & { clientIsAdmin: boolean }) {
+  userId,
+  groupId,
+}: {
+  clientIsAdmin: boolean;
+  userId: Membership["userId"];
+  groupId: Membership["groupId"];
+}) {
   const dispatch = useAppDispatch();
-  const [flags, setFlags] = useState(ms.flags!);
+  const ms = useClientState("group", groupId)!.memberships.find(
+    (ms) => ms.userId === userId && ms.groupId === groupId
+  )!;
+
+  const [flags, setFlags] = useState(ms.flags);
 
   return (
     <li
@@ -34,15 +43,18 @@ export default function Individual({
               const nextState = virt({ flags }, setFlags).toggle("active");
 
               dispatch(
-                red.updateMembership(
-                  ms.groupId!,
-                  ms.user!.id!,
-                  nextState,
+                thunks.modMembership(
+                  {
+                    groupId: ms.groupId,
+                    userId: ms.user.id,
+                    flags: nextState,
+                  },
+
                   `${
                     virt({ flags: nextState }).active
                       ? "Re-instating"
                       : "Banning"
-                  } "${ms.user!.name}"`
+                  } "${ms.user.name}"`
                 )
               ).catch(() => {
                 setFlags(prevState);
@@ -51,7 +63,7 @@ export default function Individual({
           />
         )
       )}{" "}
-      {ms.user!.name} ({ms.user!.email})
+      {ms.user.name} ({ms.user.email})
     </li>
   );
 }

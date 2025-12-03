@@ -11,18 +11,11 @@ import {
 } from "react";
 
 import { useAppDispatch } from "@/app/_lib/hooks";
-import { TGroup, TUser } from "@/app/_lib/db";
-import { rCombined } from "@/app/_lib/reducers";
+import { Group } from "../groups/_lib";
+import { User } from "../(users)/_lib";
+import { thunks } from "@/app/_lib/reducers";
 
-type TRootDiv = {
-  children: ReactNode;
-
-  rewritePath?: string;
-  user?: TUser;
-
-  groupId?: number;
-  groups?: TGroup[];
-};
+import BodyNodeProvider from "./bodyNodes";
 
 type TNamedScrollHandler = {
   name: string;
@@ -32,9 +25,9 @@ type TNamedScrollHandler = {
 export const RootDivCx = createContext<{
   addOnScroll: (name: string, handler: UIEventHandler<HTMLDivElement>) => void;
   rmOnScroll: (name: string) => void;
-  groups: TGroup[];
-  groupId?: number;
-  user?: TUser;
+  groups: Group[];
+  groupId?: Group["id"];
+  user?: User;
   rootDivRef?: RefObject<HTMLDivElement | null>;
 }>({
   addOnScroll: () => {},
@@ -44,13 +37,21 @@ export const RootDivCx = createContext<{
 
 export default function RootDiv({
   children,
-  rewritePath,
 
+  rewritePath,
   groupId,
+
   user,
   groups,
-}: TRootDiv) {
-  if (groups === undefined) groups = [];
+}: {
+  children: ReactNode;
+
+  rewritePath?: string;
+  groupId?: Group["id"];
+
+  user?: User;
+  groups: Group[];
+}) {
   const handlers = useRef<TNamedScrollHandler[]>([]);
 
   const addOnScroll = useCallback(
@@ -70,11 +71,11 @@ export default function RootDiv({
 
   useEffect(() => {
     // rendered on protectedPages
-    if (groups || user) dispatch(rCombined.init({ groups, user }));
+    if (groups || user) dispatch(thunks.init({ groups, user }));
 
     if (groupId) {
       if (rewritePath) window.history.replaceState(null, "", rewritePath);
-      dispatch(rCombined.setGroupId(groupId));
+      dispatch(thunks.setGroupId(groupId));
     }
   }, []);
 
@@ -96,7 +97,7 @@ export default function RootDiv({
         }}
         ref={rootDivRef}
       >
-        {children}
+        <BodyNodeProvider>{children}</BodyNodeProvider>
       </div>
     </RootDivCx.Provider>
   );

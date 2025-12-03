@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -15,130 +15,120 @@ import {
   Label,
 } from "recharts";
 
-import { TBalanceChartData } from "@/app/_lib/db";
+import { useClientState, useDebugger } from "@/app/_lib/hooks";
+import { findMinMax, useBalanceChartCx } from "../_lib/hook";
 
-import useLogic, { CtxBalanceChart } from "./logic";
 import BalanceTick from "./tick";
 import BalanceTooltip from "./tooltip";
 import BalanceLegend from "./legend";
 
-export default function BalanceChart({
-  data,
-  relations,
-  users,
-}: TBalanceChartData) {
-  const {
-    state: { refAreaLeft, refAreaRight, left, right, bottom, top },
-    zoomIn,
-    zoomOut,
-    startHighlight,
-    dragHighlight,
-    findMinMax,
-    cancelHighlight,
-  } = useLogic(data);
+export default function BalanceChart() {
+  const balance = useClientState("balance");
+  const hook = useBalanceChartCx()!;
+  const users = useClientState("users");
 
-  const gradientDefinitions: ReactNode[] = [];
+  const { lines: balanceLines, gradients: balanceGradients } = useMemo(() => {
+    const gradients: ReactNode[] = [];
+    const lines = balance?.relations.map((rel) => {
+      const uids = rel.split(" vs ").map(Number);
+      const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
-  const lines = relations?.map((rel) => {
-    const uids = rel.split(" vs ").map(Number);
-    const [u1, u2] = users.filter((u) => uids.includes(u.id));
+      const defId = `${u1.id}-${u2.id}-chart-colors`;
 
-    const defId = `${u1.id}-${u2.id}-chart-colors`;
+      const { min, max } = findMinMax(balance);
 
-    const { min, max } = findMinMax();
+      const abs = [min, max].map(Math.abs);
+      const height = abs[0] + abs[1];
 
-    const abs = [min, max].map(Math.abs);
-    const height = abs[0] + abs[1];
+      const switchAt =
+        max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / height).toFixed(1);
 
-    const switchAt =
-      max <= 0 ? 100 : min >= 0 ? 0 : ((abs[1] * 100) / height).toFixed(1);
+      gradients.push(
+        <linearGradient key={defId} id={defId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset={`${switchAt}%`} stopColor={u2.color} />
+          <stop offset={`${switchAt}%`} stopColor={u1.color} />
+        </linearGradient>
+      );
 
-    gradientDefinitions.push(
-      <linearGradient key={defId} id={defId} x1="0" y1="0" x2="0" y2="1">
-        <stop offset={`${switchAt}%`} stopColor={u2.color} />
-        <stop offset={`${switchAt}%`} stopColor={u1.color} />
-      </linearGradient>
-    );
+      return (
+        <Line
+          type="stepAfter"
+          key={rel}
+          dataKey={rel}
+          data={balance.data}
+          dot={false}
+          connectNulls
+          activeDot={({ cx, cy, value }) => (
+            <circle
+              cx={cx}
+              cy={cy}
+              r={4}
+              strokeWidth={2}
+              fill={value > 0 ? u2.color : u1.color}
+            />
+          )}
+          name={[u1.name, u2.name].toSorted().join(" vs ")}
+          stroke={`url(#${defId})`}
+        />
+      );
+    });
 
-    return (
-      <Line
-        type="stepAfter"
-        key={rel}
-        dataKey={rel}
-        data={data}
-        dot={false}
-        connectNulls
-        activeDot={({ cx, cy, value }) => (
-          <circle
-            cx={cx}
-            cy={cy}
-            r={4}
-            strokeWidth={2}
-            fill={value > 0 ? u2.color : u1.color}
-          />
-        )}
-        name={[u1.name, u2.name].toSorted().join(" vs ")}
-        stroke={`url(#${defId})`}
-      />
-    );
-  });
+    return { gradients, lines };
+  }, [users, balance]);
 
-  useEffect(() => {
-    console.debug("lines got re-rendered (?)");
-  }, [lines]);
+  useDebugger({ balanceGradients, balanceLines });
 
   return (
-    <CtxBalanceChart.Provider value={users}>
-      <div className="h-full w-full">
-        <ResponsiveContainer>
-          <LineChart
-            className="select-none"
-            onMouseDown={startHighlight}
-            onMouseMove={dragHighlight}
-            onMouseUp={zoomIn}
-            onMouseLeave={cancelHighlight}
-            onDoubleClick={zoomOut}
+    <div className="h-full w-full">
+      <ResponsiveContainer>
+        <LineChart
+          className="select-none"
+          onMouseDown={hook.startHighlight}
+          onMouseMove={hook.dragHighlight}
+          onMouseUp={hook.zoomIn}
+          onMouseLeave={hook.cancelHighlight}
+          onDoubleClick={hook.zoomOut}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="date"
+            type="number"
+            height={100}
+            tick={BalanceTick}
+            padding={{ left: 10, right: 10 }}
+            allowDataOverflow
+            domain={[hook.state.left, hook.state.right]}
+          />
+          <YAxis
+            allowDataOverflow
+            domain={[hook.state.bottom, hook.state.top]}
+            tickFormatter={(v) => v.toFixed(2)}
+            padding={{ bottom: 10, top: 10 }}
+          />
+          <Tooltip content={BalanceTooltip} />
+          <Legend content={BalanceLegend} />
+
+          <defs>{balanceGradients}</defs>
+          <ReferenceLine
+            y={0}
+            offset={10}
+            strokeWidth={2}
+            strokeDasharray="10 5"
           >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="date"
-              type="number"
-              height={100}
-              tick={BalanceTick}
-              padding={{ left: 10, right: 10 }}
-              allowDataOverflow
-              domain={[left, right]}
-            />
-            <YAxis
-              allowDataOverflow
-              domain={[bottom, top]}
-              tickFormatter={(v) => v.toFixed(2)}
-              padding={{ bottom: 10, top: 10 }}
-            />
-            <Tooltip content={BalanceTooltip} />
-            <Legend content={BalanceLegend} />
+            <Label value="0.00" position="left" fontWeight="bold" />
+          </ReferenceLine>
+          {balanceLines}
 
-            <defs>{gradientDefinitions}</defs>
-            <ReferenceLine
-              y={0}
-              offset={10}
-              strokeWidth={2}
-              strokeDasharray="10 5"
-            >
-              <Label value="0.00" position="left" fontWeight="bold" />
-            </ReferenceLine>
-            {lines}
-
-            {refAreaLeft !== undefined && refAreaRight !== undefined ? (
-              <ReferenceArea
-                x1={refAreaLeft}
-                x2={refAreaRight}
-                strokeOpacity={0.3}
-              />
-            ) : null}
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </CtxBalanceChart.Provider>
+          {hook.state.refAreaLeft !== undefined &&
+          hook.state.refAreaRight !== undefined ? (
+            <ReferenceArea
+              x1={hook.state.refAreaLeft}
+              x2={hook.state.refAreaRight}
+              strokeOpacity={0.3}
+            />
+          ) : null}
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

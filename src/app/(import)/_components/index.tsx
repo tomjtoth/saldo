@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { svcImportV3, TEntriesInDbOfEachTable } from "@/app/_lib/services";
+import { svcImportV3, TEntriesInDbOfEachTable } from "../_lib";
 import { appToast } from "@/app/_lib/utils";
 
 export default function CliImportSection(fromDB: TEntriesInDbOfEachTable) {
@@ -22,8 +22,8 @@ export default function CliImportSection(fromDB: TEntriesInDbOfEachTable) {
         id="import-btn"
         onClick={() => {
           appToast.promise(
-            svcImportV3().then((res) => setData(res)),
-            "Dropping and re-populating all data in DB"
+            "Dropping and re-populating all data in DB",
+            svcImportV3().then(setData)
           );
         }}
       >

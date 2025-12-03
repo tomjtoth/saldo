@@ -5,8 +5,7 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Spotify from "next-auth/providers/spotify";
 
-const PROD =
-  process.env.NODE_ENV === "production" && process.env.FORCE_DEV_ENV !== "true";
+const PROD = process.env.NODE_ENV === "production";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: PROD

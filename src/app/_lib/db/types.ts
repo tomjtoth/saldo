@@ -1,48 +1,20 @@
-import type {
-  ExtractTablesWithRelations,
-  Many,
-  InferSelectModel,
-} from "drizzle-orm";
+import type { ExtractTablesWithRelations } from "drizzle-orm";
 import { SQLiteTransaction } from "drizzle-orm/sqlite-core";
 import { ResultSet } from "@libsql/client";
 
 import * as schema from "./schema";
 
-type Schema = typeof schema;
-type TSchema = ExtractTablesWithRelations<Schema>;
+export type Schema = typeof schema;
+export type SchemaTables = {
+  [K in keyof Schema as K extends `${string}Rel` ? never : K]: Schema[K];
+};
 
-// Helper type to find the tsName corresponding to a given dbName in TSchema
-type FindTsNameByDbName<DbNameToFind extends string> = {
-  [K in keyof TSchema]: TSchema[K] extends { dbName: DbNameToFind } ? K : never;
-}[keyof TSchema];
+export type QueryParamsOf<T extends keyof SchemaTables> = Parameters<
+  DrizzleTx["query"][T]["findMany"]
+>[0];
 
-/**
- * Utility type to infer the model type for a given table name from the schema.
- * Handles nested relations recursively.
- * Uses referencedTableName (dbName) and FindTsNameByDbName helper.
- */
-type TModelWithRelations<TTableName extends keyof TSchema> = Partial<
-  InferSelectModel<Schema[TTableName]> &
-    (TTableName extends "revisions" | "archive"
-      ? object
-      : { archives: TModelWithRelations<TTableName>[] }) &
-    (TTableName extends "groups"
-      ? { pareto: TParetoChartData; balance: TBalanceChartData }
-      : object) & {
-      [K in keyof TSchema[TTableName]["relations"]]?: TSchema[TTableName]["relations"][K] extends infer TRelation // Infer the Relation/Many type
-        ? TRelation extends {
-            referencedTableName: infer TRefDbName extends string;
-          }
-          ? FindTsNameByDbName<TRefDbName> extends infer TRefTsName extends keyof TSchema
-            ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              TRelation extends Many<any>
-              ? TModelWithRelations<TRefTsName>[]
-              : TModelWithRelations<TRefTsName> | null
-            : never // Could not find a tsName for the given dbName
-          : never // Could not extract referencedTableName (dbName)
-        : never; // Could not infer TRelation
-    }
->;
+export type DbInsert<T extends keyof SchemaTables> = Schema[T]["$inferInsert"];
+export type DbSelect<T extends keyof SchemaTables> = Schema[T]["$inferSelect"];
 
 export type DrizzleTx = SQLiteTransaction<
   "async",
@@ -51,46 +23,39 @@ export type DrizzleTx = SQLiteTransaction<
   ExtractTablesWithRelations<Schema>
 >;
 
-export type TParetoChartData = {
-  users: TUserChartData[];
-  categories: ({
-    category: string;
-  } & {
-    [user: string]: number;
-  })[];
-};
+export type ConsumptionData = ({
+  category: string;
+} & {
+  [userId: string]: number;
+})[];
 
-export type TBalanceChartData = {
-  users: TUserChartData[];
+export type BalanceData = {
   relations: string[];
   data: {
     date: number;
-    min: number;
-    max: number;
     [relation: string]: number;
   }[];
+  minMaxes: { [date: number]: { min: number; max: number } };
 };
 
-export type TUserChartData = {
-  id: number;
-  name: string;
-  color: string;
+export type CrRevision = DbInsert<"revisions">;
+export type CrUser = DbInsert<"users">;
+export type CrGroup = DbInsert<"groups">;
+export type CrMembership = DbInsert<"memberships">;
+export type CrCategory = DbInsert<"categories">;
+export type CrReceipt = DbInsert<"receipts">;
+export type CrItem = DbInsert<"items">;
+export type CrItemShare = DbInsert<"itemShares">;
+
+export type DbRevision = DbSelect<"revisions">;
+export type DbUser = DbSelect<"users">;
+export type DbGroup = DbSelect<"groups">;
+export type DbMembership = DbSelect<"memberships">;
+export type DbCategory = DbSelect<"categories">;
+export type DbReceipt = DbSelect<"receipts">;
+export type DbItem = DbSelect<"items">;
+export type DbItemShare = DbSelect<"itemShares">;
+
+export type RevisionInfo = {
+  revision: Pick<DbRevision, "createdAt" | "createdById">;
 };
-
-export type TCrRevision = typeof schema.revisions.$inferInsert;
-export type TCrUser = typeof schema.users.$inferInsert;
-export type TCrGroup = typeof schema.groups.$inferInsert;
-export type TCrMembership = typeof schema.memberships.$inferInsert;
-export type TCrCategory = typeof schema.categories.$inferInsert;
-export type TCrReceipt = typeof schema.receipts.$inferInsert;
-export type TCrItem = typeof schema.items.$inferInsert;
-export type TCrItemShare = typeof schema.itemShares.$inferInsert;
-
-export type TRevision = TModelWithRelations<"revisions">;
-export type TUser = TModelWithRelations<"users">;
-export type TGroup = TModelWithRelations<"groups">;
-export type TMembership = TModelWithRelations<"memberships">;
-export type TCategory = TModelWithRelations<"categories">;
-export type TReceipt = TModelWithRelations<"receipts">;
-export type TItem = TModelWithRelations<"items">;
-export type TItemShare = TModelWithRelations<"itemShares">;

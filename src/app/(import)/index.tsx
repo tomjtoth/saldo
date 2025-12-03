@@ -2,7 +2,7 @@
 
 import { db } from "@/app/_lib/db";
 import * as schema from "@/app/_lib/db/schema";
-import { alreadyInProd } from "@/app/_lib/services";
+import { alreadyInProd } from "./_lib";
 
 import CliImportSection from "./_components";
 

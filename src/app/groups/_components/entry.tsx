@@ -1,54 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 
-import { TGroup } from "@/app/_lib/db";
+import { Group } from "../_lib";
 import { virt } from "@/app/_lib/utils";
-import { useAppDispatch, useAppSelector } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
 
-import Canceler from "@/app/_components/canceler";
 import SvgStar from "@/app/_components/star";
-import Details from "./details";
+import GroupDetails from "./details";
 
-export default function Entry({
-  group,
+export default function GroupEntry({
+  groupId,
   preSelected,
 }: {
-  group: TGroup;
+  groupId: Group["id"];
   preSelected?: boolean;
 }) {
-  const [showDetails, setShowDetails] = useState(preSelected ?? false);
+  const nodes = useBodyNodes();
   const dispatch = useAppDispatch();
-  const isDefault = useAppSelector(
-    (s) => s.combined.user?.defaultGroupId === group.id
-  );
+  const isDefault = useClientState("user")?.defaultGroupId === groupId;
+  const group = useClientState("group", groupId)!;
+
+  useEffect(() => {
+    if (preSelected) nodes.push(GroupDetails, { groupId });
+  }, []);
 
   return (
-    <>
-      {showDetails && (
-        <Canceler onClick={() => setShowDetails(false)}>
-          <Details {...{ group }} />
-        </Canceler>
-      )}
-
-      <div
-        className={
-          "cursor-pointer select-none p-2 rounded border-2 " +
-          (virt(group).active ? "border-green-500" : "border-red-500")
+    <div
+      className={
+        "cursor-pointer select-none p-2 rounded border-2 " +
+        (virt(group).active ? "border-green-500" : "border-red-500")
+      }
+      onClick={() => nodes.push(GroupDetails, { groupId })}
+    >
+      <SvgStar
+        fill={isDefault ? "#FB0" : "#AAA"}
+        onClick={
+          isDefault
+            ? undefined
+            : (ev) => {
+                ev.stopPropagation();
+                dispatch(thunks.setDefaultGroupId(groupId));
+              }
         }
-        onClick={() => setShowDetails(true)}
-      >
-        <SvgStar
-          fill={isDefault ? "#FB0" : "#AAA"}
-          onClick={(ev) => {
-            ev.stopPropagation();
-
-            if (!isDefault) dispatch(red.setDefaultGroupId(group.id!));
-          }}
-        />{" "}
-        {group.name}
-      </div>
-    </>
+      />{" "}
+      {group.name}
+    </div>
   );
 }

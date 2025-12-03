@@ -5,10 +5,11 @@ import { thunksReceipts } from "@/app/receipts/_lib/reducers";
 import { addEmptyReceipts } from "@/app/receipts/_lib/reducers/helpers";
 import { deepClone } from "../utils";
 import { slice } from "./slice";
-import { Initializer } from "./types";
+import { CombinedState } from "./types";
+import { thunksConsumption } from "@/app/(charts)/consumption/_lib/reducers/thunks";
 
-export const rCombined = {
-  init: (data: Initializer) => (dispatch: AppDispatch) => {
+export const thunks = {
+  init: (data: CombinedState) => (dispatch: AppDispatch) => {
     // must clone here, because Redux freezes the object async(?)
     // and by the 2nd iteration in the next fn it threw errors...
     const clone = deepClone(data);
@@ -20,4 +21,5 @@ export const rCombined = {
   ...thunksGroups,
   ...thunksCategories,
   ...thunksReceipts,
+  ...thunksConsumption,
 };

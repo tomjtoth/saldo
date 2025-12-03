@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 
-import { currentUser } from "@/app/_lib/services";
 import { err, ErrorWithStatus } from "@/app/_lib/utils";
+import { currentUser } from "../(users)/_lib";
 
 type RouteHandler<P, R> = (req: NextRequest, ctx: RequestContext<P>) => R;
 
@@ -47,7 +47,6 @@ type Overloads = {
   >;
 };
 
-// TODO: rename to `fb wrapRoute`
 const wrapRoute: Overloads =
   <P>(
     optsOrHandler: Options<P> | HandlerWithUser<P>,
@@ -68,6 +67,7 @@ const wrapRoute: Overloads =
         err(404);
 
       let res: unknown;
+      // TODO: remove this cast
       const params = (await cx?.params) as P;
 
       if (requireSession) {

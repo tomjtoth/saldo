@@ -3,22 +3,29 @@
 import { useState } from "react";
 
 import { virt } from "@/app/_lib/utils";
-import { useAppDispatch } from "@/app/_lib/hooks";
-import { TCategory } from "@/app/_lib/db";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
+import { Category } from "../_lib";
+import { thunks } from "@/app/_lib/reducers";
 
 import Slider from "@/app/_components/slider";
 
-export default function Updater({ cat }: { cat: TCategory }) {
+export default function CategoryUpdater({
+  categoryId,
+}: {
+  categoryId: Category["id"];
+}) {
   const dispatch = useAppDispatch();
-  const [name, setName] = useState(cat.name!);
-  const [description, setDescr] = useState(cat.description ?? "");
-  const [flags, setFlags] = useState(cat.flags!);
+  const category = useClientState("category", categoryId)!;
+  const usersO1 = useClientState("users[id]");
+
+  const [name, setName] = useState(category.name);
+  const [description, setDescr] = useState(category.description ?? "");
+  const [flags, setFlags] = useState(category.flags);
 
   return (
     <form
       id="updater"
-      key={`${cat.id}-${cat.revisionId!}`}
+      key={`${category.id}-${category.revisionId}`}
       className={
         "p-2 bg-background rounded border-2 " +
         (virt({ flags }).active ? "border-green-500" : "border-red-500") +
@@ -27,13 +34,13 @@ export default function Updater({ cat }: { cat: TCategory }) {
       onSubmit={(ev) => {
         ev.preventDefault();
 
-        dispatch(red.updateCategory(cat, { name, description, flags })).catch(
-          () => {
-            setName(cat.name!);
-            setDescr(cat.description ?? "");
-            setFlags(cat.flags!);
-          }
-        );
+        dispatch(
+          thunks.modCategory(category, { name, description, flags })
+        ).catch(() => {
+          setName(category.name);
+          setDescr(category.description ?? "");
+          setFlags(category.flags);
+        });
       }}
     >
       <input
@@ -60,9 +67,9 @@ export default function Updater({ cat }: { cat: TCategory }) {
 
       <div className="col-span-3 text-center">
         🗓️
-        <sub> {cat.revision!.createdAt} </sub>
+        <sub> {category.revision.createdAt} </sub>
         🪪
-        <sub> {cat.revision!.createdBy!.name} </sub>
+        <sub> {usersO1[category.revision.createdById].name} </sub>
       </div>
     </form>
   );

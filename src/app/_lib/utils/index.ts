@@ -1,12 +1,11 @@
 import { current, Draft, isDraft, WritableDraft } from "immer";
 import { toast, ToastPromiseParams } from "react-toastify";
 
-import { TCategory } from "@/app/_lib/db";
+import { Category } from "@/app/categories/_lib";
 import { virt } from "./virt";
 
 export * from "./datetime";
 export * from "./errors";
-export * from "./nullEmptyStrings";
 export * from "./validators";
 export * from "./virt";
 
@@ -34,23 +33,16 @@ export function approxFloat(value: number, maxDenominator = 1000) {
   return [bestNumerator, bestDenominator];
 }
 
-export async function sleep(ms: number) {
-  return new Promise<void>((done) => setTimeout(done, ms));
+const RE_CAMEL_TO_SNAKE_CASE = /(?<=\p{Lowercase})(\p{Uppercase})/gu;
+
+export function camelToSnakeCase(camelCase: string) {
+  return camelCase.replaceAll(RE_CAMEL_TO_SNAKE_CASE, (uppercase) => {
+    return "_" + uppercase.toLowerCase();
+  });
 }
 
-function opsDone<T extends Pick<TCategory, "name" | "description" | "flags">>(
-  before: T,
-  after: T
-) {
-  const ops = [
-    ...(after.name !== before.name ? ["renaming"] : []),
-    ...(virt(after).active !== virt(before).active ? ["toggling"] : []),
-    ...(after.description !== before.description
-      ? ["altering the description of"]
-      : []),
-  ].join(", ");
-
-  return ops[0].toUpperCase() + ops.slice(1);
+export async function sleep(ms: number) {
+  return new Promise<void>((done) => setTimeout(done, ms));
 }
 
 export const deepClone = <T>(obj: T) => {
@@ -60,6 +52,24 @@ export const deepClone = <T>(obj: T) => {
     return JSON.parse(JSON.stringify(obj)) as T;
   }
 };
+
+/**
+ * mutates by default
+ */
+export function nullEmptyStrings<E extends { [key: string]: unknown }>(
+  entity: E,
+  opts?: { canMutate?: false }
+): E {
+  const obj = opts?.canMutate ?? true ? entity : deepClone(entity);
+
+  for (const key in obj) {
+    const val = obj[key];
+
+    if (val === "") (obj[key] as string | null) = null;
+  }
+
+  return obj;
+}
 
 export const appToast = {
   messages: (operation: string) =>
@@ -80,7 +90,20 @@ export const appToast = {
       },
     } satisfies ToastPromiseParams),
 
-  opsDone,
+  opsDone<T extends Pick<Category, "name" | "description" | "flags">>(
+    before: T,
+    after: T
+  ) {
+    const ops = [
+      ...(after.name !== before.name ? ["renaming"] : []),
+      ...(virt(after).active !== virt(before).active ? ["toggling"] : []),
+      ...(after.description !== before.description
+        ? ["altering the description of"]
+        : []),
+    ].join(", ");
+
+    return ops[0].toUpperCase() + ops.slice(1);
+  },
 
   theme: () => ({
     theme: window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -88,27 +111,40 @@ export const appToast = {
       : "light",
   }),
 
-  promise(promise: Promise<unknown>, operation: string) {
-    toast.promise(promise, this.messages(operation), this.theme());
+  promise<P extends Promise<unknown>>(
+    operation: string,
+    promiseOrFn: P | (() => P)
+  ) {
+    let promise: Promise<unknown>;
+
+    try {
+      promise = promiseOrFn instanceof Promise ? promiseOrFn : promiseOrFn();
+    } catch (err) {
+      promise = Promise.reject(err);
+    }
+
+    return toast.promise(promise, this.messages(operation), this.theme());
+  },
+
+  error(message: string) {
+    return toast.error(message, this.theme());
   },
 };
 
-export function insertAlphabetically<T extends { name?: string }>(
+export function insertAlphabetically<T extends { name: string }>(
   payload: Draft<T>,
   arr: WritableDraft<T[]>
 ) {
   const insertAt = arr.findIndex(
-    (obj) => obj.name!.toLowerCase() > payload.name!.toLowerCase()
+    (obj) => obj.name.toLowerCase() > payload.name.toLowerCase()
   );
 
   arr.splice(insertAt > -1 ? insertAt : arr.length, 0, payload);
 }
 
-export function sortByName<T extends { name?: string | null }>(a: T, b: T) {
+export function sortByName<T extends { name: string | null }>(a: T, b: T) {
   const lowerA = a.name?.toLowerCase() ?? "";
   const lowerB = b.name?.toLowerCase() ?? "";
 
-  if (lowerA < lowerB) return -1;
-  if (lowerA > lowerB) return 1;
-  return 0;
+  return lowerA < lowerB ? -1 : lowerA > lowerB ? 1 : 0;
 }

@@ -1,1 +1,1 @@
-export { default } from "@/app/(charts)/pareto/page";
+export { default } from "@/app/(charts)/consumption/page";

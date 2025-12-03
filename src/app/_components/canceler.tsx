@@ -14,7 +14,7 @@ export default function Canceler({
 }) {
   let clsBase =
     "absolute top-0 left-0 h-full w-full " +
-    "transition duration-1000 backdrop-blur-sm backdrop-opacity-0 ";
+    "transition duration-500 backdrop-blur-sm backdrop-opacity-0 ";
 
   if (className) clsBase += ` ${className}`;
 

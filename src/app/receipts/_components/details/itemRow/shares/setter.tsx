@@ -2,22 +2,22 @@
 
 import { useState } from "react";
 
-import { useAppDispatch, useGroupSelector } from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
-import { costToFixed } from ".";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
+import { Item } from "@/app/receipts/_lib";
 
 import Slider from "@/app/_components/slider";
 import ItemShareAvatar from "./avatar";
 
-export default function ItemShareSetter({ itemId }: { itemId: number }) {
+export default function ItemShareSetter({ itemId }: { itemId: Item["id"] }) {
   const [verbose, setVerbose] = useState(false);
   const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
-  const currReceipt = rs.group!.activeReceipt!;
+  const group = useClientState("group")!;
+  const users = useClientState("users");
+  const receipt = group.activeReceipt!;
 
-  const item = currReceipt.items!.find((item) => item.id === itemId)!;
-  const users = rs.users;
-  const notPayer = users.find((user) => user.id !== currReceipt.paidBy);
+  const item = receipt.items.find((item) => item.id === itemId)!;
+  const notPayer = users.find((user) => user.id !== receipt.paidById);
 
   return (
     <div
@@ -34,37 +34,44 @@ export default function ItemShareSetter({ itemId }: { itemId: number }) {
       <div className="flex flex-wrap gap-6 items-center justify-evenly">
         {users.map((user) => {
           const userShare =
-            item.itemShares?.find((is) => is.userId === user.id)?.share ?? 0;
+            item.itemShares.find((is) => is.userId === user.id)?.share ?? 0;
 
           return (
             <ItemShareAvatar
               key={user.id}
-              user={user}
+              userId={user.id}
+              itemId={verbose ? itemId : undefined}
               focused={user.id === notPayer?.id}
               value={userShare}
               onChange={(ev) => {
                 const ishIdx =
-                  item.itemShares?.findIndex((sh) => sh.userId === user.id) ??
+                  item.itemShares.findIndex((sh) => sh.userId === user.id) ??
                   -1;
                 const share = Number(ev.target.value);
 
                 const itemShares =
                   ishIdx > -1
-                    ? item.itemShares?.map((sh) =>
+                    ? item.itemShares.map((sh) =>
                         sh.userId === user.id ? { ...sh, share } : sh
                       )
-                    : item.itemShares?.concat({ userId: user.id, share });
+                    : item.itemShares.concat([
+                        {
+                          userId: user.id,
+                          share,
+                          archives: [],
+                          flags: 1,
+                          itemId: -1,
+                          revisionId: -1,
+                        },
+                      ]);
 
-                dispatch(red.updateItem({ id: itemId, itemShares }));
+                dispatch(thunks.modItem({ id: itemId, itemShares }));
               }}
-              {...(verbose && {
-                itemId,
-              })}
             />
           );
         })}
       </div>
-      {verbose && <p>where {costToFixed(item)} is the cost of the item</p>}
+      {verbose && <p>where {item.cost.toFixed(2)} is the cost of the item</p>}
     </div>
   );
 }

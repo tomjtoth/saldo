@@ -1,12 +1,12 @@
 import { Dispatch, SetStateAction } from "react";
 
-import { TUser } from "@/app/_lib/db/types";
+import { User } from "@/app/(users)/_lib";
 
 export function virt(
-  entity: Pick<TUser, "flags">,
+  entity: Pick<User, "flags">,
   setter?: Dispatch<SetStateAction<number>>
 ) {
-  let int = entity.flags ?? 0;
+  let int = entity.flags;
 
   const getFlag = (bit: number) => (int & (1 << bit)) !== 0;
   const setFlag = (bit: number, value: boolean) => {

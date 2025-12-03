@@ -2,23 +2,23 @@
 
 import { usePathname } from "next/navigation";
 
-import { useBodyNodes, useGroupSelector } from "@/app/_lib/hooks";
+import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
 
-import GroupSelectorListing from "./listing";
+import MainMenu from "../mainMenu";
 
 export default function GroupSelector() {
-  const rs = useGroupSelector();
   const nodes = useBodyNodes();
   const pathname = usePathname();
 
-  return !rs.groups.length || pathname === "/groups" ? null : (
+  const group = useClientState("group");
+
+  return !group || pathname === "/groups" ? null : (
     <>
       <span
-        id="group-selector"
-        className="inline-block cursor-pointer truncate"
-        onClick={() => nodes.push(GroupSelectorListing)}
+        className="truncate cursor-pointer min-w-10 select-none"
+        onClick={() => nodes.push(MainMenu)}
       >
-        {rs.group?.name}
+        {group.name}
       </span>{" "}
       /{" "}
     </>

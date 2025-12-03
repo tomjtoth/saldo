@@ -4,14 +4,14 @@ import { Readable } from "stream";
 import csv from "csv-parser";
 
 import {
-  TCrRevision,
-  TCrCategory,
-  TCrGroup,
-  TCrItem,
-  TCrItemShare,
-  TCrMembership,
-  TCrReceipt,
-  TCrUser,
+  CrRevision,
+  CrCategory,
+  CrGroup,
+  CrItem,
+  CrItemShare,
+  CrMembership,
+  CrReceipt,
+  CrUser,
 } from "@/app/_lib/db";
 
 import { approxFloat } from "@/app/_lib/utils";
@@ -19,14 +19,14 @@ import { approxFloat } from "@/app/_lib/utils";
 export type TCsvRow = { [key: string]: string };
 
 export type TDBData = {
-  revisions: TCrRevision[];
-  users: TCrUser[];
-  groups: TCrGroup[];
-  memberships: TCrMembership[];
-  categories: TCrCategory[];
-  receipts: TCrReceipt[];
-  items: TCrItem[];
-  itemShares: TCrItemShare[];
+  revisions: CrRevision[];
+  users: CrUser[];
+  groups: CrGroup[];
+  memberships: CrMembership[];
+  categories: CrCategory[];
+  receipts: CrReceipt[];
+  items: CrItem[];
+  itemShares: CrItemShare[];
 };
 
 export function parseCSV(input: string, testing = false) {
@@ -91,7 +91,7 @@ export function parseData(csvRows: TCsvRow[]): TDBData {
     const revisionId = lastRev.id!;
 
     const newUser = (user: string) => {
-      const u: TCrUser = {
+      const u: CrUser = {
         id: dd.users.length + 1,
         revisionId,
         name: user,

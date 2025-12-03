@@ -1,42 +1,57 @@
 import { AppDispatch } from "@/app/_lib/store";
 import { csa } from "@/app/_lib/reducers/slice";
-import { TCliItem } from "@/app/_lib/reducers/types";
-import { TReceipt, TGroup } from "@/app/_lib/db";
+import { Group } from "@/app/groups/_lib";
+import { Item, Receipt } from "../populateRecursively";
+import { ItemModifier } from "./slices";
+import { apiGetReceipts } from "../getReceipts";
+import { User } from "@/app/(users)/_lib";
 
 export const thunksReceipts = {
-  setPaidOn: (date: string) => (dispatch: AppDispatch) => {
+  setPaidOn: (date: Receipt["paidOn"]) => (dispatch: AppDispatch) => {
     return dispatch(csa.setPaidOn(date));
   },
 
-  setPaidBy: (userId: number) => (dispatch: AppDispatch) => {
+  setPaidBy: (userId: User["id"]) => (dispatch: AppDispatch) => {
     return dispatch(csa.setPaidBy(userId));
   },
 
-  addRow: (afterId?: number) => (dispatch: AppDispatch) => {
+  addRow: (afterId?: Item["id"]) => (dispatch: AppDispatch) => {
     return dispatch(csa.addRow(afterId));
   },
 
-  rmRow: (rowId: number) => (dispatch: AppDispatch) => {
+  rmRow: (rowId: Item["id"]) => (dispatch: AppDispatch) => {
     return dispatch(csa.rmRow(rowId));
   },
 
-  setFocusedRow: (index: number) => (dispatch: AppDispatch) => {
+  setFocusedRow: (index: Item["id"]) => (dispatch: AppDispatch) => {
     return dispatch(csa.setFocusedRow(index));
   },
 
-  updateItem: (updater: TCliItem) => {
-    return (dispatch: AppDispatch) => dispatch(csa.updateItem(updater));
+  modItem: (modifier: ItemModifier) => {
+    return (dispatch: AppDispatch) => dispatch(csa.modItem(modifier));
   },
 
-  addReceipt: (rcpt: TReceipt) => {
+  modReceipt: (rcpt: Receipt) => {
+    return (dispatch: AppDispatch) => dispatch(csa.modReceipt(rcpt));
+  },
+
+  addReceipt: (rcpt: Receipt) => {
     return (dispatch: AppDispatch) => dispatch(csa.addReceipt(rcpt));
   },
 
-  addFetchedReceipts: (groups: TGroup[]) => {
-    return (dispatch: AppDispatch) => dispatch(csa.addFetchedReceipts(groups));
+  fetchReceipts:
+    (groupId: Group["id"], knownIds: Receipt["id"][]) =>
+    async (dispatch: AppDispatch) => {
+      const receipts = await apiGetReceipts(groupId, knownIds);
+
+      dispatch(csa.addFetchedReceipts({ groupId, receipts }));
+    },
+
+  tryFetchingReceipts: () => (dispatch: AppDispatch) => {
+    return dispatch(csa.tryFetchingReceipts());
   },
 
-  setActiveReceipt: (id?: number) => {
+  setActiveReceipt: (id?: Receipt["id"]) => {
     return (dispatch: AppDispatch) => dispatch(csa.setActiveReceipt(id));
   },
 };

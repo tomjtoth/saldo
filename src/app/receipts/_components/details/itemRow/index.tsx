@@ -1,41 +1,40 @@
 "use client";
 
-import { KeyboardEventHandler, useEffect, useRef } from "react";
+import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
 
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useBodyNodes,
-} from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
-import { TCliItem } from "@/app/_lib/reducers/types";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
+import { Item } from "@/app/receipts/_lib";
 
-import Options from "./options";
-import OptionsAsModal from "./options/modal";
+import ItemOptions from "./options";
+import ItemOptionsAsModal from "./options/modal";
 
 export default function ItemRow({
+  itemId,
   autoFocus,
+  highlighted,
   onKeyDown: adderKeyDownHandler,
-  ...item
-}: TCliItem & {
+}: {
+  itemId: Item["id"];
   autoFocus: boolean;
+  highlighted: boolean;
   onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 }) {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
-  const rs = useGroupSelector();
-  const isMultiUser = rs.users.length > 1;
+  const group = useClientState("group");
+  const users = useClientState("users");
+  const item = group!.activeReceipt!.items.find((i) => i.id === itemId)!;
+
+  const isMultiUser = !!users.length;
 
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
+  const [cost, setCost] = useState(item.cost.toFixed(2));
 
   useEffect(() => {
     if (autoFocus) costRef.current?.focus();
   }, [autoFocus]);
-
-  // TODO: buggy, unable to edit numbers properly...
-  // const costAsNum = Number(i.cost);
-  // const cost = isNaN(costAsNum) ? i.cost : costAsNum.toFixed(2);
 
   return (
     <>
@@ -45,20 +44,20 @@ export default function ItemRow({
         value={item.categoryId}
         onChange={(ev) =>
           dispatch(
-            red.updateItem({
-              id: item.id!,
+            thunks.modItem({
+              id: item.id,
               categoryId: Number(ev.target.value),
             })
           )
         }
         onKeyDown={(ev) => {
-          if (ev.shiftKey) {
+          if (ev.key === "c") {
             ev.preventDefault();
             costRef.current?.focus();
           }
         }}
       >
-        {rs.group?.categories?.map((cat) => (
+        {group?.categories.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name}
           </option>
@@ -67,11 +66,7 @@ export default function ItemRow({
 
       <button
         className="sm:hidden"
-        onClick={() =>
-          nodes.push(
-            <OptionsAsModal key="options-as-modal" {...{ itemId: item.id! }} />
-          )
-        }
+        onClick={() => nodes.push(ItemOptionsAsModal, { itemId: item.id })}
       >
         ⚙️
       </button>
@@ -82,14 +77,14 @@ export default function ItemRow({
           (isMultiUser ? "col-span-4" : "col-span-3")
         }
       >
-        <Options {...{ itemId: item.id! }} />
+        <ItemOptions {...{ itemId: item.id }} />
       </div>
 
       <form
         className="inline-flex items-center gap-2"
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (!isNaN(Number(item.cost))) dispatch(red.addRow(item.id));
+          if (!isNaN(Number(cost))) dispatch(thunks.addRow(item.id));
         }}
       >
         €
@@ -99,20 +94,21 @@ export default function ItemRow({
           placeholder="cost"
           className={
             "w-15 no-spinner" +
-            (isNaN(Number(item.cost)) ? " border-2! border-red-500" : "")
+            (isNaN(Number(cost)) ? " border-2! border-red-500" : "") +
+            (highlighted ? " bg-amber-500" : "")
           }
-          value={item.cost}
-          onChange={(ev) =>
-            dispatch(
-              red.updateItem({
-                id: item.id!,
-                cost: ev.target.value.replace(",", "."),
-              })
-            )
-          }
-          onFocus={() => dispatch(red.setFocusedRow(-1))}
+          value={cost === "0.00" ? "" : cost}
+          onChange={(ev) => {
+            const asStr = ev.target.value.replace(",", ".");
+            setCost(asStr);
+
+            const asNum = Number(asStr);
+            if (!isNaN(asNum))
+              dispatch(thunks.modItem({ id: item.id, cost: asNum }));
+          }}
+          onFocus={() => dispatch(thunks.setFocusedRow(-1))}
           onKeyDown={(ev) => {
-            if (ev.shiftKey) {
+            if (ev.key === "c") {
               ev.preventDefault();
               catRef.current?.focus();
             } else adderKeyDownHandler(ev);

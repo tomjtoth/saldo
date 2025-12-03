@@ -8,14 +8,14 @@ import {
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
 import { VDate } from "@/app/_lib/utils";
-import { useBalanceChartCx } from "./logic";
+import { useClientState } from "@/app/_lib/hooks";
 
 export default function BalanceTooltip({
   payload,
   label,
   active,
 }: TooltipContentProps<ValueType, NameType>) {
-  const users = useBalanceChartCx();
+  const users = useClientState("users");
 
   if (!active || !payload) return null;
 

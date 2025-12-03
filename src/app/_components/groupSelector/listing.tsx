@@ -1,72 +1,78 @@
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
-import {
-  useAppDispatch,
-  useBodyNodes,
-  useGroupSelector,
-} from "@/app/_lib/hooks";
-import { rCombined as red } from "@/app/_lib/reducers";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
 
-import ViewSelectorListing from "../viewSelector/listing";
-import Canceler from "../canceler";
+import ViewListing from "../viewSelector/listing";
 
-export default function GroupSelectorListing() {
+export default function GroupListing() {
   const dispatch = useAppDispatch();
+  const pathname = usePathname();
   const nodes = useBodyNodes();
-  const rs = useGroupSelector();
-  const [collapsibles, setCollapsibles] = useState<{
-    [groupId: number]: boolean;
-  }>({});
+  const groups = useClientState("groups");
+  const groupId = useClientState("groupId");
 
-  return (
-    <Canceler onClick={nodes.pop}>
-      <ul className="absolute left-1/2 top-1/2 -translate-1/2 p-2 bg-background border rounded">
-        {rs.groups.map((group) => {
-          const toggleCollapsible = () =>
-            setCollapsibles((cl) => ({ ...cl, [group.id!]: !cl[group.id!] }));
+  const [showAll, setShowAll] = useState(false);
 
-          const collapsibleIsOpen = collapsibles[group.id!] ?? false;
+  const groupLink = (
+    <span className="block mb-2 whitespace-nowrap">
+      👨‍👨‍👦‍👦 <Link href="/groups">group settings</Link>
+    </span>
+  );
 
-          const inputId = `group-selector-button-${group.id}`;
+  return groups.length && pathname !== "/groups" ? (
+    <div className="p-2">
+      <label>
+        <input
+          type="checkbox"
+          className="mr-2"
+          checked={showAll}
+          onChange={() => setShowAll(!showAll)}
+        />
+        permalinks
+      </label>
+      {pathname !== "/groups" && groupLink}
+      <ul id="groups-listing">
+        {groups.map((group) => {
+          const checked = group.id === groupId;
 
+          // TODO: get `truncate` to work with the below label
           return (
-            <li
-              key={group.id}
-              className="grid items-center grid-cols-[min-width_auto_min-width] gap-2"
-            >
-              <input
-                id={inputId}
-                type="radio"
-                radioGroup="a"
-                checked={rs.groupId === group.id}
-                onChange={() => {
-                  dispatch(red.setGroupId(group.id!));
-                  nodes.pop();
-                }}
-                className="w-min"
-              />
+            <li key={group.id}>
+              <hr />
 
-              <label htmlFor={inputId}>{group.name}</label>
+              <label className="text-xl">
+                <input
+                  type="radio"
+                  name="group-selection"
+                  className="mr-2"
+                  checked={checked}
+                  onChange={() => {
+                    dispatch(thunks.setGroupId(group.id));
+                    nodes.pop();
+                  }}
+                />
+                {group.name}
+              </label>
 
-              <div
-                onClick={toggleCollapsible}
-                className="cursor-pointer col-start-3"
-              >
-                <div className={collapsibleIsOpen ? "rotate-90" : "-rotate-90"}>
-                  &lt;
-                </div>
-              </div>
-
-              {collapsibleIsOpen && (
-                <ViewSelectorListing
-                  prefix={"/groups/" + group.id}
-                  className="col-start-2"
+              {(showAll || checked) && (
+                <ViewListing
+                  decorate
+                  prefix={showAll ? `/groups/${group.id}` : ""}
+                  includeCurrentPath={showAll}
                 />
               )}
             </li>
           );
         })}
       </ul>
-    </Canceler>
+    </div>
+  ) : (
+    <div className="p-2">
+      {pathname === "/groups" ? "Go to" : groupLink}
+      <ViewListing decorate />
+    </div>
   );
 }

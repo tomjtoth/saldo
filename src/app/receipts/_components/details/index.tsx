@@ -1,15 +1,11 @@
 "use client";
 
-import { toast } from "react-toastify";
+import { useState } from "react";
 
-import {
-  useAppDispatch,
-  useGroupSelector,
-  useBodyNodes,
-} from "@/app/_lib/hooks";
-import { rCombined, rCombined as red } from "@/app/_lib/reducers";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
+import { thunks } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
-import { svcAddReceipt } from "@/app/_lib/services";
+import { apiAddReceipt, apiModReceipt, Item } from "../../_lib";
 
 import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
@@ -22,57 +18,70 @@ const DIFFS = {
   PageDown: 5,
 };
 
-export default function Details() {
-  const dispatch = useAppDispatch();
-  const rs = useGroupSelector();
+export default function ReceiptDetails() {
   const nodes = useBodyNodes();
-  const receipt = rs.group!.activeReceipt!;
+  const dispatch = useAppDispatch();
+  const group = useClientState("group")!;
+  const users = useClientState("users");
 
-  const submitReceipt = () => {
-    const nanItem = receipt!.items!.findIndex(
-      (item) => item.cost === "" || isNaN(Number(item.cost))
-    );
+  const [zeros, setZeros] = useState<Item["id"][]>([]);
 
-    if (nanItem > -1) {
-      dispatch(red.setFocusedRow(nanItem));
-      return toast.error("Invalid item cost", appToast.theme());
+  const groupId = group.id;
+  const receipt = group.activeReceipt!;
+
+  const isMultiUser = users.length > 1;
+  const paidBy = users.find((u) => u.id === receipt.paidById)!;
+
+  function submitReceipt() {
+    const zeroCostItems = receipt.items
+      .filter((i) => i.cost === 0)
+      .map((i) => i.id);
+
+    if (zeroCostItems.length) {
+      if (
+        zeros.length !== zeroCostItems.length ||
+        !zeros.every((id, idx) => id === zeroCostItems[idx])
+      ) {
+        setZeros(zeroCostItems);
+        return void appToast.error(
+          "Found items with € 0.00 cost. Were these for free?"
+        );
+      }
     }
 
-    if (receipt.id !== -1)
-      return toast.error(
-        "Updating receipts is not yet implemented",
-        appToast.theme()
+    const updating = receipt.id !== -1;
+
+    if (updating) {
+      appToast.promise(
+        "Updating receipt",
+
+        apiModReceipt(receipt).then((res) => {
+          nodes.pop();
+          dispatch(thunks.setActiveReceipt());
+          dispatch(thunks.modReceipt(res));
+        })
       );
+    } else {
+      appToast.promise(
+        "Submitting new receipt",
 
-    const groupId = rs.groupId!;
-
-    appToast.promise(
-      svcAddReceipt({
-        ...receipt,
-        groupId,
-        items: receipt.items!.map((i) => ({
-          ...i,
-          cost: parseFloat(i.cost as string),
-        })),
-      } as unknown as Parameters<typeof svcAddReceipt>[0]).then((res) => {
-        nodes.pop();
-        dispatch(red.setActiveReceipt());
-        dispatch(red.addReceipt({ ...res, groupId }));
-      }),
-      "Submitting new receipt"
-    );
-  };
-
-  const users = rs.users;
-  const isMultiUser = users.length > 1;
-
-  const paidBy = users.find((u) => u.id === receipt.paidBy?.id);
+        apiAddReceipt({
+          ...receipt,
+          groupId,
+        }).then((res) => {
+          nodes.pop();
+          dispatch(thunks.setActiveReceipt());
+          dispatch(thunks.addReceipt(res));
+        })
+      );
+    }
+  }
 
   return (
     <Canceler
       onClick={() => {
         nodes.setNodes([]);
-        dispatch(rCombined.setActiveReceipt());
+        dispatch(thunks.setActiveReceipt());
       }}
     >
       <div
@@ -88,7 +97,7 @@ export default function Details() {
               id="paid-on"
               type="date"
               value={receipt.paidOn}
-              onChange={(ev) => dispatch(red.setPaidOn(ev.target.value))}
+              onChange={(ev) => dispatch(thunks.setPaidOn(ev.target.value))}
             />
             <label className="hidden sm:inline-block" htmlFor="paid-on">
               paid on
@@ -96,7 +105,9 @@ export default function Details() {
           </div>
 
           <div className="flex gap-2 items-center">
-            {isMultiUser && <PaidByUserWithAvatar {...paidBy} listOnClick />}
+            {isMultiUser && (
+              <PaidByUserWithAvatar userId={paidBy.id} listOnClick />
+            )}
           </div>
         </div>
 
@@ -111,13 +122,14 @@ export default function Details() {
               : "sm:grid-cols-[min-content_auto_min-content_min-content_min-content]")
           }
         >
-          {receipt?.items!.map((item, rowIdx) => (
+          {receipt.items.map((item, rowIdx) => (
             <ItemRow
               key={item.id}
               autoFocus={rowIdx === receipt.focusedIdx}
-              {...item}
+              highlighted={zeros.includes(item.id)}
+              itemId={item.id}
               onKeyDown={(ev) => {
-                const lastIdx = receipt.items!.length - 1;
+                const lastIdx = receipt.items.length - 1;
 
                 if (
                   ((ev.key === "ArrowUp" || ev.key === "PageUp") &&
@@ -129,11 +141,14 @@ export default function Details() {
                   const newIdx = rowIdx + DIFFS[ev.key];
 
                   dispatch(
-                    red.setFocusedRow(
+                    thunks.setFocusedRow(
                       newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
                     )
                   );
-                } else if (ev.key === "Enter" && ev.ctrlKey) submitReceipt();
+                } else if (ev.key === "s" && ev.ctrlKey) {
+                  ev.preventDefault();
+                  submitReceipt();
+                }
               }}
             />
           ))}
@@ -143,11 +158,16 @@ export default function Details() {
           <button
             className={
               "inline-flex items-center gap-2 " +
-              (isMultiUser ? "sm:col-start-5" : "sm:col-start-4")
+              (isMultiUser ? "sm:col-start-5" : "sm:col-start-4") +
+              (!!zeros.length ? " bg-amber-500" : "")
             }
             onClick={submitReceipt}
           >
-            <span className="hidden xl:block grow">Save & clear</span>
+            {!!zeros.length ? (
+              <span className="hidden xl:block grow">Save anyways</span>
+            ) : (
+              <span className="hidden xl:block grow">Save & clear</span>
+            )}
             💾
           </button>
 
@@ -157,8 +177,8 @@ export default function Details() {
               type="text"
               className="rounded border p-1 w-15 border-none!"
               readOnly
-              value={receipt
-                .items!.reduce((sub, { cost }) => {
+              value={receipt.items
+                .reduce((sub, { cost }) => {
                   const asNum = Number(cost);
                   return sub + (isNaN(asNum) ? 0 : asNum);
                 }, 0)

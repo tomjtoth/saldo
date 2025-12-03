@@ -2,33 +2,22 @@ import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
 import { db } from "./instance";
-import { DrizzleTx } from "./types";
+import { DbSelect, DrizzleTx, RevisionInfo, SchemaTables } from "./types";
 
-export async function getArchivePopulator<T extends { archives?: T[] }>(
-  tableName: string,
-  pk1: keyof T,
-  {
-    pk2,
-    tx,
-  }: {
-    pk2?: keyof T;
-    tx?: DrizzleTx;
-  } = {}
-) {
-  const query = {
-    async sql<T>(
-      strings: TemplateStringsArray,
-      ...args: (string | number | null)[]
-    ) {
-      const res: T = await (tx ?? db).get(sql(strings, ...args));
+type ArchivedTables = Exclude<
+  keyof SchemaTables,
+  "metadata" | "archives" | "chartColors" | "revisions"
+>;
 
-      return res;
-    },
-  };
+export type ArchivePopulatorFn = Awaited<
+  ReturnType<typeof getArchivePopulator>
+>;
 
-  const res: { payload: string } = await query.sql`
+export async function getArchivePopulator(tx?: DrizzleTx) {
+  const res: { payload: string } = await (tx ?? db).get(sql`
     WITH by_changes AS (
       SELECT
+        names.table_name AS tbl,
         entity_pk1 AS pk1,
         entity_pk2 AS pk2,
         a.revision_id,
@@ -36,103 +25,117 @@ export async function getArchivePopulator<T extends { archives?: T[] }>(
         jsonb_insert(
           jsonb_group_object(names.column_name, payload),
 
+          '$.revisionId', a.revision_id,
           '$.revision', jsonb_object(
             'createdAt', r.created_at,
-            'createdBy', jsonb_object(
-              'id', u.id,
-              'name', u.name,
-              'image', u.image
-            )
-          ),
-          '$.revisionId', a.revision_id
+            'createdById', r.created_by
+          )
         ) AS payload
       FROM archives a
       INNER JOIN table_column_names AS names
         ON a.table_column_id = names.id
-        AND names.table_name = ${tableName}
       INNER JOIN revisions r ON r.id = a.revision_id
       INNER JOIN users u ON u.id = r.created_by
-      GROUP BY pk1, pk2, a.revision_id
+      GROUP BY tbl, pk1, pk2, a.revision_id
       ORDER BY r.created_at DESC
     ),
 
     by_revisions AS (
       SELECT
+        tbl,
         pk1,
         pk2,
         jsonb_group_array(payload) AS payload
       FROM by_changes
-      GROUP BY pk1, pk2
+      GROUP BY tbl, pk1, pk2
     ),
 
     by_pk2 AS (
       SELECT
+        tbl,
         pk1,
         jsonb_group_object(
           coalesce(cast(pk2 AS TEXT), 'null'),
           payload
         ) AS payload
       FROM by_revisions
-      GROUP BY pk1
+      GROUP BY tbl, pk1
     ),
 
     by_pk1 AS (
       SELECT
-        json_group_object(
+        tbl,
+        jsonb_group_object(
           cast(pk1 AS TEXT),
           payload
         ) AS payload
       FROM by_pk2
+      GROUP BY tbl
+    ),
+
+    by_tbl AS (
+      SELECT 
+        json_group_object(
+          tbl,
+          payload
+        ) AS payload
+      FROM by_pk1
     )
 
-    SELECT * FROM by_pk1
-  `;
+    SELECT * FROM by_tbl
+  `);
 
-  const archives: {
-    [pk1: string]: {
-      [pk2: string]: {
-        revisionId: number;
-        revision: {
-          createdAt: number | string;
-          createdBy: { name: string; image: string | null };
-        };
-      } & {
-        [columns: Exclude<string, "revision" | "revisionId">]:
-          | number
-          | string
-          | null;
-      }[];
+  const buffer: {
+    [T in ArchivedTables]?: {
+      [pk1: string]: {
+        [pk2: string]: (object & RevisionInfo)[];
+      };
     };
   } = JSON.parse(res.payload);
 
-  return function populate(arr: T[]) {
-    arr.forEach((entity) => {
-      const strPk1 = (entity[pk1 as keyof T] as number).toString();
-      const strPk2 = pk2
-        ? (entity[pk2 as keyof T] as number).toString()
-        : "null";
+  return function populator<
+    Table extends ArchivedTables,
+    Entity extends DbSelect<Table>,
+    PE extends Partial<Entity>
+  >(
+    origin:
+      | Table
+      | { table: Table; primaryKeys: { [PK in keyof Entity]?: true } },
+    entities: PE[]
+  ): (PE & { archives: (Entity & RevisionInfo)[] })[] {
+    const { table, primaryKeys = { id: true } } =
+      typeof origin === "string" ? { table: origin } : origin;
 
-      const restoredArchiveRows: T[] = [];
+    const [pk1, pk2] = Object.keys(primaryKeys) as [
+      keyof PE,
+      keyof PE | undefined
+    ];
 
-      if (archives[strPk1]) {
-        archives[strPk1][strPk2].reduce((prev, rev) => {
-          const curr = { ...prev, ...rev } as T;
+    return entities.map((entity) => {
+      const strPk1 = (entity[pk1] as number).toString();
+      const strPk2 = pk2 ? (entity[pk2] as number).toString() : "null";
 
-          const dateTimeConverter = curr as {
-            revision?: { createdAt: number | string };
-          };
+      const archives: (Entity & RevisionInfo)[] = [];
 
-          dateTimeConverter.revision!.createdAt = VDate.timeToStr(
-            dateTimeConverter.revision!.createdAt as number
+      if (buffer[table] && buffer[table][strPk1]) {
+        buffer[table][strPk1][strPk2].reduce((prev, rev) => {
+          const curr = { ...prev, ...rev };
+
+          const dateTimeConverter: {
+            revision: { createdAt: number | string };
+          } = curr;
+
+          dateTimeConverter.revision.createdAt = VDate.timeToStr(
+            dateTimeConverter.revision.createdAt as number
           );
 
-          restoredArchiveRows.push(curr);
+          archives.push(curr);
 
           return curr;
-        }, entity as T);
+        }, entity as unknown as Entity);
       }
 
-      entity.archives = restoredArchiveRows;
+      return { ...entity, archives };
     });
   };
 }

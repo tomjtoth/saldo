@@ -16,7 +16,7 @@ describe("categories", () => {
     it("can be renamed", () => {
       cy.addEntity(TEST_CATEGORY);
 
-      cy.updateEntity(TEST_CATEGORY, { name: "-2" });
+      cy.modEntity(TEST_CATEGORY, { name: "-2" });
 
       cy.toast(`Renaming "${TEST_CATEGORY}" succeeded!`);
     });
@@ -24,7 +24,7 @@ describe("categories", () => {
     it("can be toggled", () => {
       cy.addEntity(TEST_CATEGORY);
 
-      cy.updateEntity(TEST_CATEGORY, { toggle: true });
+      cy.modEntity(TEST_CATEGORY, { toggle: true });
 
       cy.toast(`Toggling "${TEST_CATEGORY}" succeeded!`);
       cy.entityToggler().should("have.class", "bg-red-500");

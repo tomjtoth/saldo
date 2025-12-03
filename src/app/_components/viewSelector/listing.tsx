@@ -1,40 +1,38 @@
 import Link from "next/link";
-
-import { useBodyNodes } from "../../_lib/hooks";
+import { usePathname } from "next/navigation";
 
 export const LINKS = [
-  { href: "/", label: "about" },
-  { href: "/groups" },
-  { href: "/categories" },
-  { href: "/receipts" },
-  { href: "/pareto" },
-  { href: "/balance" },
+  { href: "/categories", emoji: "🛍️" },
+  { href: "/receipts", emoji: "🧾" },
+  { href: "/consumption", emoji: "📊" },
+  { href: "/balance", emoji: "📈" },
 ];
 
 export const hrefToLabel = (href: string) => href.replaceAll(/\W+/g, "");
 
-export default function ViewSelectorListing({
+export default function ViewListing({
   prefix = "",
-  className: cn = "",
+  decorate,
+  includeCurrentPath,
 }: {
-  className?: string;
   prefix?: string;
+  decorate?: true;
+  includeCurrentPath?: boolean;
 }) {
-  const nodes = useBodyNodes();
-  const lastIdx = LINKS.length - 1;
+  const pathname = usePathname();
+  const links = includeCurrentPath
+    ? LINKS
+    : LINKS.filter((a) => a.href !== pathname);
+  const lastIdx = links.length - 1;
 
   return (
-    <ul className={cn}>
-      {LINKS.map((a, idx) => {
-        return a.href === "/" ? null : (
-          <li key={a.href}>
-            {idx === lastIdx ? "└ " : "├ "}
-            <Link href={prefix + a.href} onClick={nodes.pop}>
-              {a.label ?? hrefToLabel(a.href)}
-            </Link>
-          </li>
-        );
-      })}
+    <ul className="whitespace-nowrap">
+      {links.map((a, idx) => (
+        <li key={a.href}>
+          {decorate && (idx === lastIdx ? "└ " : "├ ")}
+          {a.emoji} <Link href={prefix + a.href}>{hrefToLabel(a.href)}</Link>
+        </li>
+      ))}
     </ul>
   );
 }

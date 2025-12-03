@@ -1,7 +1,8 @@
+import fs from "fs";
 import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
-import { db } from "./instance";
+import { db, getDbPath } from "./instance";
 import * as schema from "./schema";
 import { DrizzleTx } from "./types";
 
@@ -40,6 +41,7 @@ export const atomic: Overloads = async <T>(
   const isFnOnly = typeof optsOrFn === "function";
   const opts = isFnOnly ? {} : optsOrFn;
   const operation = isFnOnly ? optsOrFn : maybeFn!;
+
   const {
     revisedBy,
     deferForeignKeys,
@@ -72,8 +74,8 @@ export const atomic: Overloads = async <T>(
     });
 
     if (revisionId % DB_BACKUP_EVERY_N_REVISIONS === 0) {
-      // TODO:
-      // db.backup(`${DB_PATH}.backup.${rev.id}`);
+      const dbPath = getDbPath();
+      fs.copyFileSync(dbPath, `${dbPath}.at.${revisionId}`);
     }
 
     console.log(`\n\t${opDescription ?? "Transaction"} succeeded!\n`);
