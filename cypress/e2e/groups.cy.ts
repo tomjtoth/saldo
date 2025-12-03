@@ -79,9 +79,7 @@ describe("groups", () => {
       it("can be removed", () => {
         cy.addEntity(TEST_GROUP);
 
-        cy.contains(TEST_GROUP)
-          // .filter((_, el) => el.textContent === TEST_GROUP)
-          .click();
+        cy.contains(TEST_GROUP).click();
 
         invLink.generator.click();
         cy.toast().should("not.exist");

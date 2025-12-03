@@ -43,15 +43,17 @@ const commands = {
     const getter = () => cy.get(selector, { timeout: 10000 });
 
     if (text !== undefined) {
-      return getter()
-        .filter((_, el) => el.textContent === text)
-        .then(($node) => {
-          if (autoClose) {
-            $node.trigger("click");
-            cy.wrap($node).should("not.exist");
-          }
-          return cy.wrap($node);
-        });
+      return getter().then(($nodes) => {
+        const $node = $nodes.filter((_, el) => el.textContent === text);
+        const wrapped = cy.wrap($node);
+
+        if (autoClose) {
+          $node.trigger("click");
+          wrapped.should("not.exist");
+        }
+
+        return wrapped;
+      });
     }
 
     return getter();
