@@ -9,7 +9,7 @@ RUN npm ci
 
 RUN if [ ! -d ./node_modules/@libsql/linux-arm64-musl ]; then \
         mkdir -p ./node_modules/@libsql/linux-arm64-musl; \
-    fi 
+    fi
 
 # ----------------------------
 FROM base AS builder
@@ -37,7 +37,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/migrations ./migrations
 
-COPY --from=deps \ 
+COPY --from=deps \
     /app/node_modules/@libsql/linux-arm64-musl \
     ./node_modules/@libsql/linux-arm64-musl
 
