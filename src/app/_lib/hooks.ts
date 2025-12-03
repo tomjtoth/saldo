@@ -178,9 +178,10 @@ export function useClientState(
 
   if (key === "categories[id]") {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useMemo(() => {
-      return Object.fromEntries(group?.categories.map((c) => [c.id, c]) ?? []);
-    }, [group?.categories]);
+    return useMemo(
+      () => Object.fromEntries(group?.categories.map((c) => [c.id, c]) ?? []),
+      [group?.categories]
+    );
   }
 
   if (key === "balance") {
@@ -188,7 +189,7 @@ export function useClientState(
   }
 
   if (key === "consumption") {
-    return group?.consumption;
+    return group?.consumption ?? [];
   }
 
   if (key === "receipt") return group?.receipts.find((r) => r.id === id);
