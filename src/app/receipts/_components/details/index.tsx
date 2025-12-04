@@ -159,11 +159,11 @@ export default function ReceiptDetails() {
             className={
               "inline-flex items-center gap-2 " +
               (isMultiUser ? "sm:col-start-5" : "sm:col-start-4") +
-              (!!zeros.length ? " bg-amber-500" : "")
+              (zeros.length > 0 ? " bg-amber-500" : "")
             }
             onClick={submitReceipt}
           >
-            {!!zeros.length ? (
+            {zeros.length > 0 ? (
               <span className="hidden xl:block grow">Save anyways</span>
             ) : (
               <span className="hidden xl:block grow">Save & clear</span>
