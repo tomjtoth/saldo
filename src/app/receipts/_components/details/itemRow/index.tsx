@@ -9,6 +9,8 @@ import { Item } from "@/app/receipts/_lib";
 import ItemOptions from "./options";
 import ItemOptionsAsModal from "./options/modal";
 
+const RE_ONE_LETTER = /^\p{Letter}$/u;
+
 export default function ItemRow({
   itemId,
   autoFocus,
@@ -112,6 +114,10 @@ export default function ItemRow({
             if (ev.key === "c") {
               ev.preventDefault();
               catRef.current?.focus();
+            } else if (ev.key.match(RE_ONE_LETTER)) {
+              // this is necessary in Firefox as it validates number inputs only upon submission...
+
+              ev.preventDefault();
             } else adderKeyDownHandler(ev);
           }}
         />
