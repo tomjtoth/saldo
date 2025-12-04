@@ -1,6 +1,6 @@
 import { useAppDispatch, useDebounce } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { TUserChartData } from "@/app/_lib/db";
+import { User } from "../(users)/_lib";
 
 export default function UserColorPicker({
   id,
@@ -9,11 +9,12 @@ export default function UserColorPicker({
   hideInput,
   setLabelColor,
   canReset,
-}: TUserChartData & {
-  hideInput?: true;
-  setLabelColor?: true;
-  canReset?: true;
-}) {
+}: Pick<User, "name" | "color"> &
+  Partial<Pick<User, "id">> & {
+    hideInput?: true;
+    setLabelColor?: true;
+    canReset?: true;
+  }) {
   const dispatch = useAppDispatch();
 
   const debouncedSetter = useDebounce(

@@ -1,17 +1,19 @@
-import { useAppDispatch, useClientState, useBodyNodes } from "@/app/_lib/hooks";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { TUser } from "@/app/_lib/db";
+import { User } from "@/app/(users)/_lib";
 
 import UserAvatar from "@/app/_components/userAvatar";
 import Canceler from "@/app/_components/canceler";
 
 export default function PaidByUserWithAvatar({
+  userId,
   listOnClick,
-  ...user
-}: TUser & {
+}: {
+  userId: User["id"];
   listOnClick?: true;
 }) {
   const nodes = useBodyNodes();
+  const user = useClientState("users[id]")[userId];
 
   return (
     <div
@@ -19,15 +21,15 @@ export default function PaidByUserWithAvatar({
       onClick={listOnClick ? () => nodes.push(Listing) : undefined}
     >
       <span className="hidden sm:inline-block mr-2">paid by</span>
-      <span className="hidden lg:inline-block mr-2">{user.name}</span>
-      <UserAvatar user={user} className="w-10" />
+      <span className="hidden lg:inline-block mr-2">{user?.name}</span>
+      <UserAvatar userId={userId} className="w-10" />
     </div>
   );
 }
 
 function Listing() {
   const dispatch = useAppDispatch();
-  const cs = useClientState();
+  const users = useClientState("users");
   const nodes = useBodyNodes();
 
   return (
@@ -38,16 +40,16 @@ function Listing() {
           "flex flex-col gap-4"
         }
       >
-        {cs.users?.map((u) => (
+        {users.map((u) => (
           <li
             key={u.id}
             className="cursor-pointer"
             onClick={() => {
-              dispatch(thunks.setPaidBy(u.id!));
+              dispatch(thunks.setPaidBy(u.id));
               nodes.pop();
             }}
           >
-            <UserAvatar user={u} className="mr-2 w-10" />
+            <UserAvatar userId={u.id} className="mr-2 w-10" />
             {u.email}
           </li>
         ))}

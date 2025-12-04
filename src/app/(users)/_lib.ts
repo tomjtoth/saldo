@@ -4,18 +4,38 @@ import { eq, sql } from "drizzle-orm";
 
 import { auth, signIn } from "@/auth";
 
-import { atomic, db, TCrUser, TUser, updater } from "@/app/_lib/db";
+import { atomic, db, CrUser, QueryParamsOf } from "@/app/_lib/db";
 import { revisions, users } from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
 import { svcAddGroup } from "../groups/_lib";
 
+export type User = Awaited<ReturnType<typeof svcAddUser>>;
+
+const USERS_EXTRAS = {
+  extras: {
+    color: sql<string>`
+    printf(
+      '#%06x', 
+      coalesce(
+        (
+          SELECT color FROM chart_colors
+          WHERE user_id = "users"."id"
+          AND group_id IS NULL
+          AND member_id IS NULL
+        ),
+        abs(random()) % 0x1000000
+      )
+    )`.as("color"),
+  },
+} as const satisfies QueryParamsOf<"users">;
+
 export async function svcAddUser(
-  userData: Pick<TCrUser, "email" | "image" | "name">
+  userData: Pick<CrUser, "email" | "image" | "name">
 ) {
   return await atomic(
     { operation: "Adding new user", revisedBy: -1, deferForeignKeys: true },
     async (tx, revisionId) => {
-      const [user] = await tx
+      const [createdRow] = await tx
         .insert(users)
         .values({
           ...userData,
@@ -25,8 +45,13 @@ export async function svcAddUser(
 
       await tx
         .update(revisions)
-        .set({ createdById: user.id })
+        .set({ createdById: createdRow.id })
         .where(eq(revisions.id, revisionId));
+
+      const [user] = await tx.query.users.findMany({
+        ...USERS_EXTRAS,
+        where: eq(users.id, createdRow.id),
+      });
 
       return user;
     }
@@ -42,18 +67,15 @@ interface ArgsWithoutSession {
   requireSession: false;
 }
 
-type AddUserRetVal = Awaited<ReturnType<typeof svcAddUser>>;
-
-export function currentUser(
+export async function currentUser(
   args: ArgsWithoutSession
-): Promise<undefined | AddUserRetVal>;
+): Promise<undefined | User>;
 
-export function currentUser(args?: ArgsWithSession): Promise<AddUserRetVal>;
+export async function currentUser(args?: ArgsWithSession): Promise<User>;
 
-// Implementation
 export async function currentUser(
   args: ArgsWithoutSession | ArgsWithSession = {}
-): Promise<undefined | AddUserRetVal> {
+): Promise<undefined | User> {
   const session = await auth();
 
   if (!session) {
@@ -66,12 +88,12 @@ export async function currentUser(
   }
 
   // OAuth profiles without an email are disallowed in @/auth.ts
-  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const email = session.user?.email!;
-  const name = session.user?.name ?? `User #${(await db.$count(users)) + 1}`;
-  const image = session.user?.image ?? null;
+  const email = session.user!.email!;
+  const name = session.user!.name ?? `User #${(await db.$count(users)) + 1}`;
+  const image = session.user!.image ?? null;
 
   let user = await db.query.users.findFirst({
+    ...USERS_EXTRAS,
     where: eq(users.email, email),
   });
 
@@ -80,12 +102,12 @@ export async function currentUser(
       name,
       email,
       image,
-    })!;
+    });
 
-    await svcAddGroup(user.id!, { name: "just you" });
+    await svcAddGroup(user.id, { name: "just you" });
   }
 
-  const updater: TUser = {};
+  const updater: Partial<User> = {};
 
   if (name !== user.name) {
     updater.name = user.name = name;
@@ -96,53 +118,8 @@ export async function currentUser(
   }
 
   if (Object.keys(updater).length > 0) {
-    await db.update(users).set(updater).where(eq(users.id, user.id!));
+    await db.update(users).set(updater).where(eq(users.id, user.id));
   }
 
-  const { color }: { color: string } = await db.get(sql`
-    SELECT printf(
-      '#%06x', 
-      coalesce(
-        (
-          SELECT color FROM chart_colors
-          WHERE user_id = ${user.id}
-          AND group_id IS NULL
-          AND member_id IS NULL
-        ),
-        abs(random()) % 0x1000000
-      )
-    ) AS color
-  `);
-
-  (user as TUser).color = color;
-
   return user;
-}
-
-export async function updateUser(id: number, modifier: { flags: number }) {
-  return await atomic(
-    { operation: "Updating user", revisedBy: id },
-    async (tx, revisionId) => {
-      const user = (await tx.query.users.findFirst({
-        where: eq(users.id, id),
-      }))!;
-
-      const saving = await updater(user, modifier, {
-        tx,
-        tableName: "users",
-        entityPk1: id,
-        revisionId,
-      });
-
-      if (saving) {
-        const [res] = await tx
-          .update(users)
-          .set(user)
-          .where(eq(users.id, id))
-          .returning({ flags: users.flags });
-
-        return res;
-      } else err("No changes were made");
-    }
-  );
 }

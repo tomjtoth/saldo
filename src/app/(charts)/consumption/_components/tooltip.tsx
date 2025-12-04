@@ -7,16 +7,20 @@ import {
 } from "recharts/types/component/DefaultTooltipContent";
 import { TooltipPayload } from "recharts/types/state/tooltipSlice";
 
-export default function ParetoTooltip({
+import { useClientState } from "@/app/_lib/hooks";
+
+export default function ConsumptionTooltip({
   payload,
-  label,
+  label: catId,
   active,
 }: TooltipContentProps<ValueType, NameType>) {
-  if (!active || !payload || !label) return null;
+  const categoriesO1 = useClientState("categories[id]");
+
+  if (!active || !payload || !catId) return null;
 
   return (
     <div className="bg-background rounded border p-2">
-      <h3>{label}</h3>
+      <h3>{categoriesO1[catId as number].name}</h3>
 
       {(payload as TooltipPayload)
         .toSorted(({ name: a }, { name: b }) => {

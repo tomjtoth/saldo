@@ -1,61 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 
-import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
-import { TCategory } from "@/app/_lib/db";
+import { Category } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
 
-import Canceler from "@/app/_components/canceler";
 import SvgStar from "@/app/_components/star";
-import Details from "./details";
+import CategoryDetails from "./details";
 
-export default function Entry({
-  cat,
+export default function CategoryEntry({
+  categoryId,
+  defaultId,
   preSelected,
 }: {
-  cat: TCategory;
+  categoryId: Category["id"];
+  defaultId?: Category["id"] | null;
   preSelected: boolean;
 }) {
-  const [showDetails, setShowDetails] = useState(preSelected);
-  const hideDetails = () => setShowDetails(false);
+  const nodes = useBodyNodes();
   const dispatch = useAppDispatch();
-  const cs = useClientState();
-  const currentdefaultId = cs.group?.memberships?.at(0)?.defaultCategoryId;
-  const isDefault = currentdefaultId === cat.id;
+  const category = useClientState("category", categoryId)!;
+
+  const isDefault = defaultId === category.id;
+
+  useEffect(() => {
+    if (preSelected) nodes.push(CategoryDetails, { categoryId });
+  }, []);
 
   return (
-    <>
-      {showDetails && (
-        <Canceler onClick={hideDetails}>
-          <Details {...{ cat, hideDetails }} />
-        </Canceler>
-      )}
-
-      <div
-        className={
-          "cursor-pointer select-none text-center p-2 rounded border-2 " +
-          (virt(cat).active ? "border-green-500" : "border-red-500")
+    <div
+      className={
+        "cursor-pointer select-none text-center p-2 rounded border-2 " +
+        (virt(category).active ? "border-green-500" : "border-red-500")
+      }
+      onClick={() => nodes.push(CategoryDetails, { categoryId })}
+    >
+      <SvgStar
+        fill={isDefault ? "#FB0" : "#AAA"}
+        onClick={
+          isDefault
+            ? undefined
+            : (ev) => {
+                ev.stopPropagation();
+                dispatch(
+                  thunks.setDefaultCategoryId(
+                    category.id,
+                    category.groupId,
+                    defaultId
+                  )
+                );
+              }
         }
-        onClick={() => setShowDetails(true)}
-      >
-        <SvgStar
-          fill={isDefault ? "#FB0" : "#AAA"}
-          onClick={(ev) => {
-            ev.stopPropagation();
-            if (!isDefault)
-              dispatch(
-                thunks.updateDefaultCategoryId(
-                  cat.id!,
-                  cat.groupId!,
-                  currentdefaultId!
-                )
-              );
-          }}
-        />{" "}
-        {cat.name}
-      </div>
-    </>
+      />{" "}
+      {category.name}
+    </div>
   );
 }

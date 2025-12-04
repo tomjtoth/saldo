@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import Canceler from "./canceler";
 import { useBodyNodes } from "../_lib/hooks";
+
+import Canceler from "./canceler";
 
 type TEntityAdder = {
   placeholder?: string;
-  handler: (data: { name: string; description: string }) => Promise<void>;
+  handler: (data: { name: string; description: string }) => Promise<unknown>;
 };
 
 export default function EntityAdderButton(args: TEntityAdder) {
@@ -16,7 +17,7 @@ export default function EntityAdderButton(args: TEntityAdder) {
   return (
     <button
       id="entity-adder-button"
-      onClick={() => nodes.push(EntityAdder.bind(null, args))}
+      onClick={() => nodes.push(EntityAdder, args)}
     >
       ➕ <span className="hidden sm:inline-block">Add new...</span>
     </button>
@@ -46,11 +47,9 @@ function EntityAdder({ placeholder, handler }: TEntityAdder) {
         onSubmit={(ev) => {
           ev.preventDefault();
 
-          handler({ name, description }).then(() => {
-            setName("");
-            setDescr("");
-            nodes.pop();
-          });
+          handler({ name, description })
+            .then(nodes.pop)
+            .catch(() => {});
         }}
       >
         <input

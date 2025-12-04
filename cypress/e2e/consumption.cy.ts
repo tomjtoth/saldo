@@ -1,11 +1,11 @@
-describe("pareto", () => {
+describe("consumption", () => {
   describe("while logged in", () => {
     beforeEach(() => {
       cy.populateDb();
-      cy.login({ page: "/pareto" });
+      cy.login({ page: "/consumption" });
     });
 
-    itIsAccessibleViaViewSelector("/pareto");
+    itIsAccessibleViaViewSelector("/consumption");
 
     it("can be accessed", () => {
       cy.contains("no data to show").should("exist");
@@ -14,7 +14,7 @@ describe("pareto", () => {
 
   describe("while *NOT* logged in", () => {
     it("should redirect to login", () => {
-      cy.visit("/pareto");
+      cy.visit("/consumption");
       cy.loginShouldBeVisible();
     });
   });

@@ -1,17 +1,17 @@
 import { DefaultLegendContentProps } from "recharts";
 
-import { useBalanceChartCx } from "../_lib/hook";
+import { useClientState } from "@/app/_lib/hooks";
 
 import UserColorPicker from "@/app/_components/userColorPicker";
 
 export default function BalanceLegend({ payload }: DefaultLegendContentProps) {
-  const cx = useBalanceChartCx();
+  const users = useClientState("users");
 
   return (
     <div className="flex gap-2 items-center justify-center">
       {payload?.map(({ dataKey }) => {
         const uids = (dataKey as string).split(" vs ").map(Number);
-        const [u1, u2] = cx.users.filter((u) => uids.includes(u.id!));
+        const [u1, u2] = users.filter((u) => uids.includes(u.id));
 
         return u1 && u2 ? (
           <div

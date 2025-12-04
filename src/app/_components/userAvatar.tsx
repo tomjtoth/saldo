@@ -1,22 +1,31 @@
 import Image from "next/image";
 
-import { TUser } from "@/app/_lib/db";
+import { User } from "../(users)/_lib";
+import { useClientState } from "../_lib/hooks";
 
 export default function UserAvatar({
-  user: { name, image },
   id,
   className = "",
   onClick,
+  ...source
 }: {
-  user: TUser;
+  userId?: User["id"];
   id?: string;
   className?: string;
   onClick?: () => void;
 }) {
-  const names = (name ?? "").split(" ")!;
+  const user =
+    // this is fine, because the only change can occur during transpile time
+    "userId" in source
+      ? // eslint-disable-next-line react-hooks/rules-of-hooks
+        useClientState("users[id]")[source.userId!]
+      : // eslint-disable-next-line react-hooks/rules-of-hooks
+        useClientState("user");
+
+  const names = (user?.name ?? "").split(" ");
   const svgName =
     names.length > 1
-      ? names?.map((n) => n.slice(0, 1).toUpperCase()).join("")
+      ? names.map((n) => n.slice(0, 1).toUpperCase()).join("")
       : names[0].slice(0, 2).toUpperCase();
 
   const classes =
@@ -24,15 +33,15 @@ export default function UserAvatar({
     " overflow-hidden shrink-0 object-cover " +
     "rounded-full border-2 border-foreground inline-block aspect-square";
 
-  return image ? (
+  return user?.image ? (
     <Image
       {...{ id, onClick }}
       unoptimized
       className={classes}
       height={96}
       width={96}
-      src={image}
-      alt={`avatar of ${name ?? "someone"}`}
+      src={user.image}
+      alt={`avatar of ${user.name ?? "someone"}`}
       draggable={false}
     />
   ) : (

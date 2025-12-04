@@ -1,6 +1,6 @@
 import wrapRoute from "@/app/_lib/wrapRoute";
 import { svcAddUser } from "@/app/(users)/_lib";
-import { addMember } from "@/app/groups/_lib";
+import { svcAddMember } from "@/app/groups/_lib";
 
 export const GET = wrapRoute(
   { requireSession: false, onlyDuringDevelopment: true },
@@ -10,6 +10,6 @@ export const GET = wrapRoute(
       email: "user2@e2e.tests",
     });
 
-    await addMember(1, otherUser.id);
+    await svcAddMember(1, otherUser.id);
   }
 );

@@ -1,11 +1,12 @@
 "use client";
 
 import { useBodyNodes } from "@/app/_lib/hooks";
+import { Item } from "@/app/receipts/_lib";
 
 import Canceler from "@/app/_components/canceler";
-import Options from ".";
+import ItemOptions from ".";
 
-export default function OptionsAsModal({ itemId }: { itemId: number }) {
+export default function ItemOptionsAsModal({ itemId }: { itemId: Item["id"] }) {
   const nodes = useBodyNodes();
 
   return (
@@ -19,7 +20,7 @@ export default function OptionsAsModal({ itemId }: { itemId: number }) {
           if (ev.target === ev.currentTarget) nodes.pop();
         }}
       >
-        <Options {...{ itemId, hideModal: nodes.pop }} />
+        <ItemOptions {...{ itemId, hideModal: nodes.pop }} />
       </div>
     </Canceler>
   );

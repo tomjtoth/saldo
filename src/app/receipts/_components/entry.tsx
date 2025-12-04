@@ -1,37 +1,44 @@
 import pluralize from "pluralize";
 
-import { TReceipt } from "@/app/_lib/db";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
-import { useAppDispatch } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
+import { Receipt } from "../_lib";
 
 import UserAvatar from "@/app/_components/userAvatar";
 import PaidByUserWithAvatar from "./paidByUserWithAvatar";
 
-export default function Individual(rcpt: TReceipt) {
+export default function ReceiptEntry({
+  receiptId,
+}: {
+  receiptId: Receipt["id"];
+}) {
   const dispatch = useAppDispatch();
-  const activeItems = rcpt.items!.filter((item) => virt(item).active);
-  const activeVsInactiveDiff = activeItems.length - rcpt.items!.length;
+  const usersO1 = useClientState("users[id]");
+  const receipt = useClientState("receipt", receiptId)!;
+  const activeItems = receipt.items.filter((item) => virt(item).active);
+  const activeVsInactiveDiff = activeItems.length - receipt.items.length;
 
   const addedBy =
-    rcpt.archives!.length > 0
-      ? rcpt.archives?.at(0)?.revision?.createdBy
-      : rcpt.revision?.createdBy;
+    usersO1[
+      receipt.archives.at(-1)?.revision.createdById ??
+        receipt.revision.createdById
+    ];
 
   return (
     <li
-      key={rcpt.id}
-      onClick={() => dispatch(thunks.setActiveReceipt(rcpt.id!))}
+      key={receipt.id}
+      onClick={() => dispatch(thunks.setActiveReceipt(receipt.id))}
       className="p-2 shrink-0 border rounded flex w-fit flex-col gap-2 cursor-pointer select-none"
     >
       <div className="flex gap-5 justify-between items-center">
-        <b>{rcpt.paidOn}</b>
-        <PaidByUserWithAvatar {...rcpt.paidBy} />
+        <b>{receipt.paidOn}</b>
+        <PaidByUserWithAvatar userId={receipt.paidById} />
       </div>
 
       <div className="flex gap-5 justify-between items-center flex-row-reverse">
         <b>
-          € {activeItems.reduce((sub, { cost }) => sub + cost!, 0).toFixed(2)}
+          € {activeItems.reduce((sub, { cost }) => sub + cost, 0).toFixed(2)}
         </b>
 
         <div>
@@ -39,17 +46,17 @@ export default function Individual(rcpt: TReceipt) {
           <sup className="lg:hidden">{activeItems.length}</sup>
           <span className="hidden lg:inline-block">
             <sup>
-              {rcpt.items?.length}
+              {receipt.items.length}
               {activeVsInactiveDiff !== 0 && ` (${activeVsInactiveDiff})`}
             </sup>{" "}
             {pluralize("item", activeItems.length)}
           </span>
         </div>
 
-        {addedBy!.id !== rcpt.paidBy!.id && (
+        {addedBy.id !== receipt.paidBy.id && (
           <div>
-            <UserAvatar user={addedBy!} className="w-8" />
-            <span className="hidden xl:inline-block ml-2">{addedBy!.name}</span>
+            <UserAvatar userId={addedBy.id} className="w-8" />
+            <span className="hidden xl:inline-block ml-2">{addedBy.name}</span>
             <span className="hidden lg:inline-block ml-2">added</span>
           </div>
         )}

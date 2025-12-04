@@ -3,21 +3,20 @@
 import { useState } from "react";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
-import { appToast } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
-import { apiGetPareto } from "../_lib";
 
 import Header from "@/app/_components/header";
-import ParetoChart from "./chart";
+import ConsumptionChart from "./chart";
 
-export default function CliParetoPage(srv: { from?: string; to?: string }) {
+export default function CliConsumptionPage(srv: {
+  from?: string;
+  to?: string;
+}) {
   const dispatch = useAppDispatch();
-  const cs = useClientState();
+  const consumption = useClientState("consumption");
 
   const [from, setFrom] = useState(srv.from ?? "");
   const [to, setTo] = useState(srv.to ?? "");
-
-  const group = cs.group;
 
   return (
     <>
@@ -26,20 +25,10 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
           className="flex flex-wrap gap-2 items-center justify-left"
           onSubmit={(ev) => {
             ev.preventDefault();
-
-            appToast.promise(
-              apiGetPareto({ from, to })
-                .then((groups) => {
-                  dispatch(thunks.init({ groups }));
-                })
-                .catch((err) => {
-                  setFrom("");
-                  setTo("");
-
-                  throw err;
-                }),
-              "Fetching data"
-            );
+            dispatch(thunks.updateConsumption({ from, to })).catch(() => {
+              setFrom("");
+              setTo("");
+            });
           }}
         >
           <label>
@@ -63,8 +52,8 @@ export default function CliParetoPage(srv: { from?: string; to?: string }) {
       </Header>
 
       <div className="p-2 h-full flex flex-col gap-2 items-center">
-        {!!group && (group.pareto?.categories.length ?? 0) > 0 ? (
-          <ParetoChart {...group.pareto!} />
+        {(consumption.length ?? 0) > 0 ? (
+          <ConsumptionChart />
         ) : (
           <div className="grow flex items-center">
             <h2>no data to show</h2>

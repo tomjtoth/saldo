@@ -11,19 +11,24 @@ import {
   Legend,
 } from "recharts";
 
-import { TParetoChartData } from "@/app/_lib/db";
+import { useClientState } from "@/app/_lib/hooks";
 
-import ParetoTooltip from "./tooltip";
-import ParetoLegend from "./legend";
+import ConsumptionTooltip from "./tooltip";
+import ConsumptionLegend from "./legend";
 
-export default function ParetoChart({ users, categories }: TParetoChartData) {
+export default function ConsumptionChart() {
+  const consumption = useClientState("consumption");
+  const users = useClientState("users");
+  const categoriesO1 = useClientState("categories[id]");
+
   return (
     <div className=" h-full w-full">
       <ResponsiveContainer>
-        <BarChart data={categories}>
+        <BarChart data={consumption}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
-            dataKey="category"
+            dataKey="categoryId"
+            tickFormatter={(id) => categoriesO1[id].name}
             type="category"
             allowDuplicatedCategory={false}
             angle={-75}
@@ -31,8 +36,8 @@ export default function ParetoChart({ users, categories }: TParetoChartData) {
             height={100}
           />
           <YAxis />
-          <Tooltip content={ParetoTooltip} />
-          <Legend content={ParetoLegend} />
+          <Tooltip content={ConsumptionTooltip} />
+          <Legend content={ConsumptionLegend} />
           {users.map(({ id, name, color }) => (
             <Bar dataKey={id} name={name!} key={id} stackId="a" fill={color} />
           ))}

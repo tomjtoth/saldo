@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { apiSignIn } from "@/app/api/auth/_lib";
-import { useBodyNodes, useClientState, useRootDivCx } from "@/app/_lib/hooks";
+import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
 
 import UserAvatar from "./userAvatar";
 import MainMenu from "./mainMenu";
@@ -20,8 +20,8 @@ export default function Header({
   className?: string;
 }) {
   const nodes = useBodyNodes();
-  const { user } = useRootDivCx();
-  const cs = useClientState();
+  const user = useClientState("user");
+  const groups = useClientState("groups");
 
   const pathname = usePathname();
 
@@ -31,13 +31,9 @@ export default function Header({
         {!!user ? (
           <>
             <UserAvatar
-              {...{
-                user,
-                id: "usermenu-opener",
-                className: "w-12 h-12 cursor-pointer",
-                onClick: () =>
-                  nodes.push(MainMenu.bind(null, { tab: "personal" })),
-              }}
+              id="usermenu-opener"
+              className="w-12 h-12 cursor-pointer"
+              onClick={() => nodes.push(MainMenu, { tab: "personal" })}
             />
             <GroupSelector />
             <ViewSelector />
@@ -54,7 +50,7 @@ export default function Header({
         <div className={`grow ${cn}`}>{children}</div>
       </header>
 
-      {pathname !== "/" && cs.groups.length === 0 && (
+      {pathname !== "/" && groups.length === 0 && (
         <p>
           You have no access to active groups currently,{" "}
           <Link href="/groups">create or enable one</Link>!

@@ -1,10 +1,10 @@
-import { svcGetReceipts } from "./_lib";
+import { svcGetGroups } from "../groups/_lib";
 
 import wrapPage from "@/app/_lib/wrapPage";
-import CliReceiptsPage from "./_components";
+import ReceiptsPage from "./_components";
 
 export default wrapPage({
-  getData: svcGetReceipts,
-  children: <CliReceiptsPage />,
+  getData: (userId) => svcGetGroups(userId, { extras: { receipts: true } }),
+  children: <ReceiptsPage />,
   rewritePath: "/receipts",
 });

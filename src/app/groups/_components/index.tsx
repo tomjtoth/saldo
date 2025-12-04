@@ -1,16 +1,37 @@
 "use client";
 
-import { useAppDispatch, useClientState, useRootDivCx } from "@/app/_lib/hooks";
+import { useMemo } from "react";
+
+import {
+  useAppDispatch,
+  useClientState,
+  useDebugger,
+  useRootDivCx,
+} from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
-import Entry from "./entry";
+import GroupEntry from "./entry";
 
-export default function CliGroupsPage() {
-  const cs = useClientState();
+export default function GroupsPage() {
   const dispatch = useAppDispatch();
+  const groups = useClientState("groups");
   const preSelectedId = useRootDivCx().groupId;
+
+  const groupsListing = useMemo(
+    () =>
+      groups.map((group) => (
+        <GroupEntry
+          key={group.id}
+          groupId={group.id}
+          preSelected={preSelectedId === group.id}
+        />
+      )),
+    [groups, preSelectedId]
+  );
+
+  useDebugger({ groupsListing });
 
   return (
     <>
@@ -29,13 +50,7 @@ export default function CliGroupsPage() {
       </p>
 
       <div className="p-2 flex flex-wrap gap-2 justify-center">
-        {cs.groups.map((group) => (
-          <Entry
-            key={group.id}
-            group={group}
-            preSelected={preSelectedId === group.id}
-          />
-        ))}
+        {groupsListing}
       </div>
     </>
   );

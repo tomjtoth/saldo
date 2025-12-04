@@ -67,6 +67,7 @@ const wrapRoute: Overloads =
         err(404);
 
       let res: unknown;
+      // TODO: remove this cast
       const params = (await cx?.params) as P;
 
       if (requireSession) {

@@ -1,7 +1,7 @@
 import { svcGetGroups } from "./_lib";
 
 import wrapPage from "@/app/_lib/wrapPage";
-import CliGroupsPage from "./_components";
+import GroupsPage from "./_components";
 
 export default wrapPage({
   resolveParams: ({ groupId }) => ({
@@ -10,6 +10,6 @@ export default wrapPage({
   }),
 
   getData: svcGetGroups,
-  children: <CliGroupsPage />,
+  children: <GroupsPage />,
   rewritePath: "/groups",
 });

@@ -6,13 +6,13 @@ import { useRootDivCx } from "@/app/_lib/hooks";
 const SCROLLERS = `SCROLLERS-${uuid()}`;
 
 export default function Scrollers() {
-  const { rootDivRef, addOnScroll, rmOnScroll } = useRootDivCx();
+  const cx = useRootDivCx();
 
   const visible = useRef(false);
   const [rendered, setRendered] = useState<ReactNode>(null);
 
   const scrollRootDiv = (dy: number) => {
-    const div = rootDivRef!.current!;
+    const div = cx.rootDivRef!.current!;
     const newTop = dy === 0 ? 0 : div.scrollTop + dy;
     div.scroll(0, Math.max(0, Math.min(newTop, div.scrollHeight)));
   };
@@ -36,7 +36,7 @@ export default function Scrollers() {
   );
 
   useEffect(() => {
-    addOnScroll(SCROLLERS, ({ currentTarget: { scrollTop } }) => {
+    cx.addOnScroll(SCROLLERS, ({ currentTarget: { scrollTop } }) => {
       if (!visible.current && scrollTop > 2000) {
         visible.current = true;
         setRendered(node);
@@ -46,7 +46,7 @@ export default function Scrollers() {
       }
     });
 
-    return () => rmOnScroll(SCROLLERS);
+    return () => cx.rmOnScroll(SCROLLERS);
   }, []);
 
   return rendered;
