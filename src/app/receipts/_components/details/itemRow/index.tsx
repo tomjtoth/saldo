@@ -28,7 +28,7 @@ export default function ItemRow({
   const users = useClientState("users");
   const item = group!.activeReceipt!.items.find((i) => i.id === itemId)!;
 
-  const isMultiUser = !!users.length;
+  const isMultiUser = users.length > 1;
 
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);

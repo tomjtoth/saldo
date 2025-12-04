@@ -34,7 +34,7 @@ export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
 
   if (!item) return null;
 
-  const isMultiUser = users?.length;
+  const isMultiUser = users.length > 1;
   const shares = item.itemShares;
 
   return (
