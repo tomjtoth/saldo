@@ -16,7 +16,7 @@ export default function MainMenu(opts: { tab?: Tabs } = {}) {
   const nodes = useBodyNodes();
 
   const [tab, setTab] = useState<Tabs>(opts.tab ?? "");
-  const shadows = " shadow-lg shadow-amber-500";
+  const shadows = " shadow-[0_0_5px,0_0_15px] shadow-amber-500";
 
   return (
     <Canceler onClick={nodes.pop}>
