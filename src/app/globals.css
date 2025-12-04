@@ -53,6 +53,10 @@ textarea {
   @apply border rounded p-1;
 }
 
+select {
+  @apply bg-background text-foreground;
+}
+
 input.no-spinner {
   appearance: textfield;
   -moz-appearance: textfield;
