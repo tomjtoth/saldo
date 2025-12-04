@@ -73,7 +73,10 @@ export const atomic: Overloads = async <T>(
       return res;
     });
 
-    if (revisionId % DB_BACKUP_EVERY_N_REVISIONS === 0) {
+    if (
+      process.env.NODE_ENV === "production" &&
+      revisionId % DB_BACKUP_EVERY_N_REVISIONS === 0
+    ) {
       const dbPath = getDbPath();
       fs.copyFileSync(dbPath, `${dbPath}.at.${revisionId}`);
     }
