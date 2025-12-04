@@ -91,6 +91,7 @@ export default function ItemRow({
         <input
           ref={costRef}
           type="number"
+          step={0.01}
           placeholder="cost"
           className={
             "w-15 no-spinner" +
