@@ -3,7 +3,7 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 
 import { atomic, db, DbMembership, modEntity } from "@/app/_lib/db";
-import { err, be } from "@/app/_lib/utils";
+import { apiInternal, err, be } from "@/app/_lib/utils";
 import { categories, chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser, User } from "../(users)/_lib";
 import { Group, Membership } from "../groups/_lib/getGroups";
@@ -20,18 +20,17 @@ export async function apiModMembership({
   userId,
   flags,
 }: MembershipModifier) {
-  if (
-    typeof groupId !== "number" ||
-    typeof userId !== "number" ||
-    typeof flags !== "number"
-  )
-    err();
+  return apiInternal(async () => {
+    be.number(groupId, "group ID");
+    be.number(userId, "user ID");
+    be.number(flags, "flags");
 
-  const user = await currentUser();
+    const user = await currentUser();
 
-  if (!(await isAdmin(user.id, groupId))) err(403);
+    if (!(await isAdmin(user.id, groupId))) err(403);
 
-  return await svcModMembership(user.id, { groupId, userId, flags });
+    return await svcModMembership(user.id, { groupId, userId, flags });
+  });
 }
 
 export async function svcModMembership(
@@ -70,21 +69,23 @@ export async function svcModMembership(
 }
 
 export async function apiSetDefaultCategory(categoryId: Category["id"]) {
-  if (typeof categoryId !== "number") err();
+  return apiInternal(async () => {
+    be.number(categoryId, "category ID");
 
-  const { id: userId } = await currentUser();
+    const { id: userId } = await currentUser();
 
-  await userMayModCategory(userId, categoryId);
+    await userMayModCategory(userId, categoryId);
 
-  const cat = await db.query.categories.findFirst({
-    columns: { groupId: true },
-    where: eq(categories.id, categoryId),
-  });
+    const cat = await db.query.categories.findFirst({
+      columns: { groupId: true },
+      where: eq(categories.id, categoryId),
+    });
 
-  await svcModMembership(userId, {
-    userId,
-    groupId: cat!.groupId,
-    defaultCategoryId: categoryId,
+    await svcModMembership(userId, {
+      userId,
+      groupId: cat!.groupId,
+      defaultCategoryId: categoryId,
+    });
   });
 }
 
@@ -114,16 +115,18 @@ export async function apiSetUserColor({
   groupId,
   memberId,
 }: TSetUsercolor) {
-  be.stringOrNull(color, "color");
-  be.numberNullOrUndefined(groupId, "group id");
-  be.numberNullOrUndefined(memberId, "member id");
+  return apiInternal(async () => {
+    be.stringOrNull(color, "color");
+    be.numberNullOrUndefined(groupId, "group id");
+    be.numberNullOrUndefined(memberId, "member id");
 
-  groupId = groupId ?? null;
-  memberId = memberId ?? null;
+    groupId = groupId ?? null;
+    memberId = memberId ?? null;
 
-  const user = await currentUser();
+    const user = await currentUser();
 
-  return await svcSetUserColor(user.id, { color, groupId, memberId });
+    return await svcSetUserColor(user.id, { color, groupId, memberId });
+  });
 }
 
 async function svcSetUserColor(

@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { atomic, modEntity, DbCategory } from "@/app/_lib/db";
 import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
-import { err, nullEmptyStrings } from "@/app/_lib/utils";
+import { apiInternal, err, is, nullEmptyStrings } from "@/app/_lib/utils";
 import { userMayModCategory } from "./accessChecker";
 import { svcGetCategories } from "./getCategories";
 
@@ -18,26 +18,26 @@ export async function apiModCategory({
   name,
   description,
 }: CategoryModifier) {
-  if (
-    typeof id !== "number" ||
-    (typeof name !== "string" &&
-      typeof description !== "string" &&
-      typeof flags !== "number")
-  )
-    err();
+  return apiInternal(async () => {
+    if (
+      !is.number(id) ||
+      (!is.string(name) && !is.string(description) && !is.number(flags))
+    )
+      err();
 
-  const data = nullEmptyStrings({
-    id,
-    name,
-    description,
-    flags,
+    const data = nullEmptyStrings({
+      id,
+      name,
+      description,
+      flags,
+    });
+
+    const user = await currentUser();
+
+    await userMayModCategory(user.id, id);
+
+    return await svcModCategory(user.id, data);
   });
-
-  const user = await currentUser();
-
-  await userMayModCategory(user.id, id);
-
-  return await svcModCategory(user.id, data);
 }
 
 export async function svcModCategory(

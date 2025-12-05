@@ -3,7 +3,7 @@
 import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
-import { err } from "@/app/_lib/utils";
+import { apiInternal, be, err } from "@/app/_lib/utils";
 import { atomic, db } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
@@ -46,28 +46,34 @@ export async function joinGroup(
 }
 
 export async function apiSetDefaultGroup(id: Group["id"]) {
-  if (typeof id !== "number") err();
+  return apiInternal(async () => {
+    be.number(id, "group ID");
 
-  const { id: userId } = await currentUser();
+    const { id: userId } = await currentUser();
 
-  await db
-    .update(users)
-    .set({ defaultGroupId: id })
-    .where(eq(users.id, userId));
+    await db
+      .update(users)
+      .set({ defaultGroupId: id })
+      .where(eq(users.id, userId));
+  });
 }
 
 export async function apiRmInviteLink(id: Group["id"]) {
-  if (typeof id !== "number") err(400);
+  return apiInternal(async () => {
+    be.number(id, "group ID");
 
-  const user = await currentUser();
+    const user = await currentUser();
 
-  return svcModGroup(user.id, { id, uuid: null });
+    return svcModGroup(user.id, { id, uuid: null });
+  });
 }
 
 export async function apiGenInviteLink(id: Group["id"]) {
-  if (typeof id !== "number") err(400);
+  return apiInternal(async () => {
+    be.number(id, "group ID");
 
-  const user = await currentUser();
+    const user = await currentUser();
 
-  return await svcModGroup(user.id, { id, uuid: uuidv4() });
+    return await svcModGroup(user.id, { id, uuid: uuidv4() });
+  });
 }

@@ -10,7 +10,7 @@ import {
   modEntity,
 } from "@/app/_lib/db";
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
-import { err, nullEmptyStrings, virt } from "@/app/_lib/utils";
+import { apiInternal, err, nullEmptyStrings, virt } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
   populateReceiptArchivesRecursively,
@@ -79,11 +79,13 @@ function validateReceipt({
 }
 
 export async function apiModReceipt(uncheckedData: ReceiptModifier) {
-  const safeReceipt = validateReceipt(uncheckedData);
+  return apiInternal(async () => {
+    const safeReceipt = validateReceipt(uncheckedData);
 
-  const user = await currentUser();
+    const user = await currentUser();
 
-  return await svcModReceipt(user.id, safeReceipt);
+    return await svcModReceipt(user.id, safeReceipt);
+  });
 }
 
 export async function svcModReceipt(
@@ -112,8 +114,8 @@ export async function svcModReceipt(
       });
 
       // checking what changed in old data first
-      // https://chatgpt.com/share/69121a51-3304-800b-86db-e448eff3ac9e
       for (const avoidCrashingDebugger of srvItems) {
+        // https://chatgpt.com/share/69121a51-3304-800b-86db-e448eff3ac9e
         const { itemShares: srvItemShares, ...item } = avoidCrashingDebugger;
 
         let cliItem = itemMods.find((i) => i.id === item.id);

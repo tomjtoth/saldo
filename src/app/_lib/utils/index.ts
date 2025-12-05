@@ -4,6 +4,7 @@ import { toast, ToastPromiseParams } from "react-toastify";
 import { Category } from "@/app/categories/_lib";
 import { virt } from "./virt";
 
+export * from "./apiInternal";
 export * from "./datetime";
 export * from "./errors";
 export * from "./validators";

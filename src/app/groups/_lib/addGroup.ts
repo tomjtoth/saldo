@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 
-import { be, nullEmptyStrings } from "@/app/_lib/utils";
+import { apiInternal, be, nullEmptyStrings } from "@/app/_lib/utils";
 import { atomic, CrGroup, DbGroup } from "@/app/_lib/db";
 import { groups, memberships } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
@@ -11,13 +11,15 @@ import { svcGetGroups } from "./getGroups";
 type GroupAdder = Pick<DbGroup, "name"> & Partial<Pick<DbGroup, "description">>;
 
 export async function apiAddGroup({ name, description }: GroupAdder) {
-  be.stringWith3ConsecutiveLetters(name, "name");
-  be.stringNullOrUndefined(description, "description");
+  return apiInternal(async () => {
+    be.stringWith3ConsecutiveLetters(name, "name");
+    be.stringNullOrUndefined(description, "description");
 
-  const data = nullEmptyStrings({ name, description });
+    const data = nullEmptyStrings({ name, description });
 
-  const user = await currentUser();
-  return await svcAddGroup(user.id, data);
+    const user = await currentUser();
+    return await svcAddGroup(user.id, data);
+  });
 }
 
 export async function svcAddGroup(
