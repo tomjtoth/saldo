@@ -36,10 +36,11 @@ const allApiCalls = {
 
 type UnwrapApiResult<F> = F extends (
   ...args: infer A
-) => Promise<{ result?: infer R; error?: any }>
+) => Promise<{ result?: infer R; error?: unknown }>
   ? (...args: A) => Promise<R>
   : never;
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type TCallApi<T extends Record<string, any>> = {
   // K is the original key ("apiAddGroup")
   // Infer the rest of the key *after* "api"
@@ -73,3 +74,5 @@ export const callApi: TCallApi<typeof allApiCalls> = new Proxy(
     },
   }
 );
+
+/* eslint-enable @typescript-eslint/no-explicit-any */
