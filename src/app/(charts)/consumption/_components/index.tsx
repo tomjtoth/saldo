@@ -8,10 +8,7 @@ import { thunks } from "@/app/_lib/reducers";
 import Header from "@/app/_components/header";
 import ConsumptionChart from "./chart";
 
-export default function CliConsumptionPage(srv: {
-  from?: string;
-  to?: string;
-}) {
+export default function ConsumptionPage(srv: { from?: string; to?: string }) {
   const dispatch = useAppDispatch();
   const consumption = useClientState("consumption");
 

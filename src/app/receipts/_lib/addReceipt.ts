@@ -2,7 +2,7 @@
 
 import { atomic } from "@/app/_lib/db";
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
-import { be, err, nullEmptyStrings } from "@/app/_lib/utils";
+import { apiInternal, be, err, nullEmptyStrings } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
   Item,
@@ -64,11 +64,13 @@ function validateReceiptData({
 }
 
 export async function apiAddReceipt(uncheckedData: Parameters<ValidatorFn>[0]) {
-  const safeData = validateReceiptData(uncheckedData);
+  return apiInternal(async () => {
+    const safeData = validateReceiptData(uncheckedData);
 
-  const user = await currentUser();
+    const user = await currentUser();
 
-  return await svcAddReceipt(user.id, safeData);
+    return await svcAddReceipt(user.id, safeData);
+  });
 }
 
 export async function svcAddReceipt(

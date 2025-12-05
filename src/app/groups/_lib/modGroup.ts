@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 
-import { be, err, nullEmptyStrings } from "@/app/_lib/utils";
+import { apiInternal, be, err, nullEmptyStrings } from "@/app/_lib/utils";
 import { modEntity } from "@/app/_lib/db";
 import { atomic, DbGroup } from "@/app/_lib/db";
 import { groups } from "@/app/_lib/db/schema";
@@ -18,21 +18,23 @@ export async function apiModGroup({
   name,
   description,
 }: Omit<GroupModifier, "uuid">) {
-  be.number(id, "id");
-  be.numberOrUndefined(flags, "flags");
-  be.stringOrUndefined(name, "name");
-  be.stringNullOrUndefined(description, "description");
+  return apiInternal(async () => {
+    be.number(id, "id");
+    be.numberOrUndefined(flags, "flags");
+    be.stringOrUndefined(name, "name");
+    be.stringNullOrUndefined(description, "description");
 
-  const user = await currentUser();
+    const user = await currentUser();
 
-  const data = nullEmptyStrings({
-    id,
-    flags,
-    name,
-    description,
+    const data = nullEmptyStrings({
+      id,
+      flags,
+      name,
+      description,
+    });
+
+    return await svcModGroup(user.id, data);
   });
-
-  return await svcModGroup(user.id, data);
 }
 
 export async function svcModGroup(

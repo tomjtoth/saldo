@@ -3,7 +3,7 @@ import { csa } from "@/app/_lib/reducers/slice";
 import { Group } from "@/app/groups/_lib";
 import { Item, Receipt } from "../populateRecursively";
 import { ItemModifier } from "./slices";
-import { apiGetReceipts } from "../getReceipts";
+import { callApi } from "@/app/_lib/utils/apiCalls";
 import { User } from "@/app/(users)/_lib";
 
 export const thunksReceipts = {
@@ -42,7 +42,7 @@ export const thunksReceipts = {
   fetchReceipts:
     (groupId: Group["id"], knownIds: Receipt["id"][]) =>
     async (dispatch: AppDispatch) => {
-      const receipts = await apiGetReceipts(groupId, knownIds);
+      const receipts = await callApi.getReceipts(groupId, knownIds);
 
       dispatch(csa.addFetchedReceipts({ groupId, receipts }));
     },

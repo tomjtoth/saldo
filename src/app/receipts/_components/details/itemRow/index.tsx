@@ -114,7 +114,10 @@ export default function ItemRow({
             if (ev.key === "c") {
               ev.preventDefault();
               catRef.current?.focus();
-            } else if (ev.key.match(RE_ONE_LETTER)) {
+            } else if (
+              !(ev.ctrlKey && ev.key === "s") &&
+              ev.key.match(RE_ONE_LETTER)
+            ) {
               // this is necessary in Firefox as it validates number inputs only upon submission...
 
               ev.preventDefault();

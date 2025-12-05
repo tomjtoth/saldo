@@ -5,7 +5,8 @@ import { useState } from "react";
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { appToast } from "@/app/_lib/utils";
-import { apiAddReceipt, apiModReceipt, Item } from "../../_lib";
+import { callApi } from "@/app/_lib/utils/apiCalls";
+import { Item } from "../../_lib";
 
 import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
@@ -55,7 +56,7 @@ export default function ReceiptDetails() {
       appToast.promise(
         "Updating receipt",
 
-        apiModReceipt(receipt).then((res) => {
+        callApi.modReceipt(receipt).then((res) => {
           nodes.pop();
           dispatch(thunks.setActiveReceipt());
           dispatch(thunks.modReceipt(res));
@@ -65,14 +66,16 @@ export default function ReceiptDetails() {
       appToast.promise(
         "Submitting new receipt",
 
-        apiAddReceipt({
-          ...receipt,
-          groupId,
-        }).then((res) => {
-          nodes.pop();
-          dispatch(thunks.setActiveReceipt());
-          dispatch(thunks.addReceipt(res));
-        })
+        callApi
+          .addReceipt({
+            ...receipt,
+            groupId,
+          })
+          .then((res) => {
+            nodes.pop();
+            dispatch(thunks.setActiveReceipt());
+            dispatch(thunks.addReceipt(res));
+          })
       );
     }
   }

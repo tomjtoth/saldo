@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { atomic, CrCategory } from "@/app/_lib/db";
 import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
-import { be, nullEmptyStrings } from "@/app/_lib/utils";
+import { apiInternal, be, nullEmptyStrings } from "@/app/_lib/utils";
 import { svcGetCategories } from "./getCategories";
 
 export type CategoryAdder = Pick<
@@ -18,15 +18,17 @@ export async function apiAddCategory({
   name,
   description,
 }: CategoryAdder) {
-  be.number(groupId, "group ID");
-  be.stringOrUndefined(description, "description");
-  be.stringWith3ConsecutiveLetters(name, "name");
+  return apiInternal(async () => {
+    be.number(groupId, "group ID");
+    be.stringOrUndefined(description, "description");
+    be.stringWith3ConsecutiveLetters(name, "name");
 
-  const data = nullEmptyStrings({ groupId, name, description });
+    const data = nullEmptyStrings({ groupId, name, description });
 
-  const user = await currentUser();
+    const user = await currentUser();
 
-  return await svcAddCategory(user.id, data);
+    return await svcAddCategory(user.id, data);
+  });
 }
 
 export async function svcAddCategory(

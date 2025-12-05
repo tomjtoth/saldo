@@ -16,6 +16,7 @@ export default function MainMenu(opts: { tab?: Tabs } = {}) {
   const nodes = useBodyNodes();
 
   const [tab, setTab] = useState<Tabs>(opts.tab ?? "");
+  const shadows = " shadow-[0_0_5px,0_0_15px] shadow-amber-500";
 
   return (
     <Canceler onClick={nodes.pop}>
@@ -28,12 +29,17 @@ export default function MainMenu(opts: { tab?: Tabs } = {}) {
       >
         <div className="min-w-max flex flex-col p-2 gap-4 items-center border-r">
           <UserAvatar
-            className="w-16 h-16 cursor-pointer"
+            className={
+              "w-16 h-16 cursor-pointer" + (tab === "personal" ? shadows : "")
+            }
             onClick={() => setTab("personal")}
           />
 
           <div
-            className="overflow-hidden border rounded-xl cursor-pointer"
+            className={
+              "overflow-hidden border rounded-xl cursor-pointer" +
+              (tab === "" ? shadows : "")
+            }
             onClick={() => setTab("")}
           >
             <table className="border-collapse [&_td]:p-1 select-none">

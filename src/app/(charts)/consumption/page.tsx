@@ -3,7 +3,7 @@ import { svcGetGroups } from "@/app/groups/_lib";
 import { VDate } from "@/app/_lib/utils";
 import wrapPage from "@/app/_lib/wrapPage";
 
-import CliConsumptionPage from "./_components";
+import ConsumptionPage from "./_components";
 
 let from: string;
 
@@ -12,6 +12,6 @@ export default wrapPage({
     from = VDate.nMonthsAgo(3);
     return svcGetGroups(userId, { extras: { consumption: { from } } });
   },
-  children: () => <CliConsumptionPage {...{ from }} />,
+  children: () => <ConsumptionPage {...{ from }} />,
   rewritePath: "/consumption",
 });
