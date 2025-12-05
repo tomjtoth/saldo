@@ -1,5 +1,6 @@
 import { AppDispatch, RootStateGetter } from "@/app/_lib/store";
-import { appToast, be, callApi } from "@/app/_lib/utils";
+import { appToast, be } from "@/app/_lib/utils";
+import { callApi } from "@/app/_lib/utils/apiCalls";
 import { Group } from "..";
 import { MembershipModifier } from "@/app/(memberships)/_lib";
 import { csa } from "@/app/_lib/reducers/slice";

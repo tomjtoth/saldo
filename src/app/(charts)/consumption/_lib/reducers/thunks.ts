@@ -1,6 +1,7 @@
 import { csa } from "@/app/_lib/reducers/slice";
 import { AppDispatch } from "@/app/_lib/store";
-import { appToast, callApi } from "@/app/_lib/utils";
+import { appToast } from "@/app/_lib/utils";
+import { callApi } from "@/app/_lib/utils/apiCalls";
 import { ConsumptionOpts } from "../query";
 
 export const thunksConsumption = {

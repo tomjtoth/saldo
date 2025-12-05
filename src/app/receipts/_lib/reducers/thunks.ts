@@ -3,7 +3,7 @@ import { csa } from "@/app/_lib/reducers/slice";
 import { Group } from "@/app/groups/_lib";
 import { Item, Receipt } from "../populateRecursively";
 import { ItemModifier } from "./slices";
-import { callApi } from "@/app/_lib/utils";
+import { callApi } from "@/app/_lib/utils/apiCalls";
 import { User } from "@/app/(users)/_lib";
 
 export const thunksReceipts = {
