@@ -1,18 +1,7 @@
 import { AppDispatch, RootStateGetter } from "@/app/_lib/store";
-import { appToast, be } from "@/app/_lib/utils";
-import {
-  apiAddGroup,
-  apiGenInviteLink,
-  apiRmInviteLink,
-  apiSetDefaultGroup,
-  apiModGroup,
-  Group,
-} from "..";
-import {
-  apiSetUserColor,
-  apiModMembership,
-  MembershipModifier,
-} from "@/app/(memberships)/_lib";
+import { appToast, be, callApi } from "@/app/_lib/utils";
+import { Group } from "..";
+import { MembershipModifier } from "@/app/(memberships)/_lib";
 import { csa } from "@/app/_lib/reducers/slice";
 import { User } from "@/app/(users)/_lib";
 
@@ -27,7 +16,7 @@ export const thunksGroups = {
       return appToast.promise(`Updating "${original.name}"`, async () => {
         be.stringWith3ConsecutiveLetters(modifiers.name, "name");
 
-        apiModGroup({ id: groupId, ...modifiers }).then((res) => {
+        callApi.modGroup({ id: groupId, ...modifiers }).then((res) => {
           const ops = appToast.opsDone(original, res);
           dispatch(csa.modGroup(res));
 
@@ -42,7 +31,7 @@ export const thunksGroups = {
       return appToast.promise(`Saving "${name}" to db`, async () => {
         be.stringWith3ConsecutiveLetters(name, "name");
 
-        apiAddGroup({ name, description }).then((res) => {
+        callApi.addGroup({ name, description }).then((res) => {
           dispatch(csa.addGroup(res));
         });
       });
@@ -52,7 +41,7 @@ export const thunksGroups = {
     appToast.promise(
       "Generating invitation link",
 
-      apiGenInviteLink(groupId).then((res) => {
+      callApi.genInviteLink(groupId).then((res) => {
         dispatch(csa.modGroup(res));
       })
     );
@@ -62,7 +51,7 @@ export const thunksGroups = {
     appToast.promise(
       "Deleting invitation link",
 
-      apiRmInviteLink(groupId).then((res) => {
+      callApi.rmInviteLink(groupId).then((res) => {
         dispatch(csa.modGroup(res));
       })
     );
@@ -74,7 +63,7 @@ export const thunksGroups = {
       return appToast.promise(
         toastMessage,
 
-        apiModMembership({ groupId, userId, flags }).then(({ flags }) => {
+        callApi.modMembership({ groupId, userId, flags }).then(({ flags }) => {
           dispatch(
             csa.modMembership({
               groupId,
@@ -94,7 +83,7 @@ export const thunksGroups = {
     return appToast.promise(
       "Setting default group",
 
-      apiSetDefaultGroup(groupId).then(() => {
+      callApi.setDefaultGroup(groupId).then(() => {
         dispatch(csa.setDefaultGroupId(groupId));
       })
     );
@@ -115,7 +104,7 @@ export const thunksGroups = {
             uid ? "color of member" : "chart color"
           }`,
 
-          apiSetUserColor({
+          callApi.setUserColor({
             color,
             ...(uid
               ? {
