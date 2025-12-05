@@ -67,7 +67,7 @@ export const callApi: TCallApi<typeof allApiCalls> = new Proxy(
       return async function (...args: any[]) {
         const { error, result } = await value.apply(target, args);
 
-        if (error) throw error;
+        if (error) throw new Error(error);
 
         return result;
       };
