@@ -8,11 +8,11 @@
  */
 export async function apiInternal<T>(
   apiFn: () => Promise<T>
-): Promise<{ result?: T; error?: unknown }> {
+): Promise<{ result?: T; error?: string }> {
   try {
     const result = await apiFn();
     return { result };
   } catch (error) {
-    return { error };
+    return { error: (error as Error).message };
   }
 }
