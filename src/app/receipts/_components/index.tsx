@@ -47,8 +47,10 @@ export default function ReceiptsPage() {
   if (group) {
     const groupIsActive = virt(group).active;
 
+    const activeCategories = group.categories.filter((c) => virt(c).active);
+
     adderButton =
-      group.categories.length > 0 ? (
+      activeCategories.length > 0 ? (
         <button
           className={
             "inline-block" + (groupIsActive ? "" : " cursor-not-allowed!")
