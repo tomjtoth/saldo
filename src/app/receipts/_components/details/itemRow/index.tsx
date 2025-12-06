@@ -3,6 +3,7 @@
 import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
+import { virt } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
 
@@ -38,6 +39,8 @@ export default function ItemRow({
     if (autoFocus) costRef.current?.focus();
   }, [autoFocus]);
 
+  const updatingReceipt = group?.activeReceipt?.id !== -1;
+
   return (
     <>
       <select
@@ -59,11 +62,13 @@ export default function ItemRow({
           }
         }}
       >
-        {group?.categories.map((cat) => (
-          <option key={cat.id} value={cat.id}>
-            {cat.name}
-          </option>
-        ))}
+        {group?.categories.map((cat) =>
+          virt(cat).active || updatingReceipt ? (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ) : null
+        )}
       </select>
 
       <button
