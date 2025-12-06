@@ -1,8 +1,8 @@
 "use server";
 
 import { atomic } from "@/app/_lib/db";
-import { items, itemShares, receipts } from "@/app/_lib/db/schema";
-import { apiInternal, be, err, nullEmptyStrings } from "@/app/_lib/utils";
+import { groups, items, itemShares, receipts } from "@/app/_lib/db/schema";
+import { apiInternal, be, err, nullEmptyStrings, virt } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
   Item,
@@ -10,6 +10,7 @@ import {
   populateReceiptArchivesRecursively,
   Receipt,
 } from "./populateRecursively";
+import { eq } from "drizzle-orm";
 
 type ReceiptAdder = Pick<Receipt, "groupId" | "paidOn" | "paidById"> & {
   items: (Pick<Item, "cost" | "categoryId" | "notes"> & {
@@ -80,6 +81,15 @@ export async function svcAddReceipt(
   return await atomic(
     { operation: "Adding receipt", revisedBy },
     async (tx, revisionId) => {
+      const group = await tx.query.groups.findFirst({
+        columns: { flags: true },
+        where: eq(groups.id, groupId),
+      });
+
+      if (!group) err(404, "group not found");
+      if (!virt(group).active)
+        err(403, "adding new receipts to a disabled group is not allowed");
+
       const [{ receiptId }] = await tx
         .insert(receipts)
         .values({ groupId, revisionId, paidOn, paidById })

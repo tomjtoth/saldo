@@ -97,13 +97,24 @@ export async function svcModReceipt(
 
     async (tx, revisionId) => {
       const fromSrv = await tx.query.receipts.findFirst({
-        with: { items: { with: { itemShares: true } } },
+        with: {
+          items: { with: { itemShares: true } },
+          group: { columns: { flags: true } },
+        },
         where: eq(receipts.id, receiptMod.id),
       });
 
       if (!fromSrv) err(404);
 
-      const { items: srvItems, ...receipt } = fromSrv;
+      if (!virt(fromSrv.group).active)
+        err("Modifying a receipt of a disabled group is not allowed!");
+
+      const {
+        // eslint-disable-next-line @typescript-unused-var
+        group: _discardGroupsHere,
+        items: srvItems,
+        ...receipt
+      } = fromSrv;
 
       let changes = await modEntity(receipt, receiptMod, {
         tx,
