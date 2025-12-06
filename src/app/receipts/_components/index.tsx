@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import Link from "next/link";
 
 import {
@@ -11,6 +11,7 @@ import {
 } from "@/app/_lib/hooks";
 import { useInfiniteScroll } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
+import { appToast, virt } from "@/app/_lib/utils";
 
 import Header from "@/app/_components/header";
 import Scrollers from "./scrollers";
@@ -41,25 +42,41 @@ export default function ReceiptsPage() {
 
   useDebugger({ receiptsListing });
 
+  let adderButton: ReactNode = null;
+
+  if (group) {
+    const groupIsActive = virt(group).active;
+
+    adderButton =
+      group.categories.length > 0 ? (
+        <button
+          className={
+            "inline-block" + (groupIsActive ? "" : " cursor-not-allowed!")
+          }
+          onClick={
+            groupIsActive
+              ? () => dispatch(thunks.setActiveReceipt(-1))
+              : () =>
+                  appToast.error(
+                    "Cannot add new receipts to a disabled group, re-enable it first!"
+                  )
+          }
+        >
+          ➕ <span className="hidden sm:inline-block">Add new...</span>
+        </button>
+      ) : (
+        <Link href={`/groups/${group?.id}/categories`}>
+          🐱{" "}
+          <span className="hidden sm:inline-block">
+            Add/activate at least 1 category first
+          </span>
+        </Link>
+      );
+  }
+
   return (
     <>
-      <Header>
-        {(group?.categories.length ?? 0) > 0 ? (
-          <button
-            className="inline-block"
-            onClick={() => dispatch(thunks.setActiveReceipt(-1))}
-          >
-            ➕ <span className="hidden sm:inline-block">Add new...</span>
-          </button>
-        ) : (
-          <Link href={`/groups/${group?.id}/categories`}>
-            🐱{" "}
-            <span className="hidden sm:inline-block">
-              Add/activate at least 1 category first
-            </span>
-          </Link>
-        )}
-      </Header>
+      <Header>{adderButton}</Header>
 
       <ul className="p-2 flex flex-wrap justify-center items-center gap-2">
         {receiptsListing}
