@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { virt } from "@/app/_lib/utils";
+import { appToast, virt } from "@/app/_lib/utils";
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { Category } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
@@ -15,12 +15,15 @@ export default function CategoryUpdater({
   categoryId: Category["id"];
 }) {
   const dispatch = useAppDispatch();
+  const group = useClientState("group");
   const category = useClientState("category", categoryId)!;
   const usersO1 = useClientState("users[id]");
 
   const [name, setName] = useState(category.name);
   const [description, setDescr] = useState(category.description ?? "");
   const [flags, setFlags] = useState(category.flags);
+
+  const groupIsActive = group && virt(group).active;
 
   return (
     <form
@@ -33,6 +36,11 @@ export default function CategoryUpdater({
       }
       onSubmit={(ev) => {
         ev.preventDefault();
+
+        if (!groupIsActive)
+          return appToast.error(
+            "Updating categories of disabled groups is not allowed!"
+          );
 
         dispatch(
           thunks.modCategory(category, { name, description, flags })
@@ -55,7 +63,9 @@ export default function CategoryUpdater({
         onClick={() => virt({ flags }, setFlags).toggle("active")}
       />
 
-      <button>💾</button>
+      <button className={groupIsActive ? undefined : "cursor-not-allowed!"}>
+        💾
+      </button>
 
       <textarea
         className="col-span-3 resize-none"
