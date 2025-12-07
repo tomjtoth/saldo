@@ -13,30 +13,44 @@ import { Group } from "./getGroups";
 export async function svcCheckUserAccessToGroup(
   userId: User["id"],
   groupId: Group["id"],
-  asAdmin = false
+  opts?: {
+    /**
+     * @default false
+     */
+    userMustBeAdmin?: true;
+    /**
+     * @default true
+     */
+    groupMustBeActive?: false;
+  }
 ) {
+  const asAdmin = opts?.userMustBeAdmin ?? false;
+  const groupMustBeActive = opts?.groupMustBeActive ?? true;
+
   const res = await db
     .select({ x: sql`1` })
     .from(groups)
     .where(
       and(
-        eq(groups.id, groupId),
-        isActive(groups),
-        exists(
-          db
-            .select({ x: sql`1` })
-            .from(memberships)
-            .where(
-              and(
-                ...[
-                  eq(memberships.groupId, groupId),
-                  eq(memberships.userId, userId),
-                  isActive(memberships),
-                  ...(asAdmin ? [isAdmin(memberships)] : []),
-                ]
+        ...[
+          ...(groupMustBeActive ? [isActive(groups)] : []),
+          eq(groups.id, groupId),
+          exists(
+            db
+              .select({ x: sql`1` })
+              .from(memberships)
+              .where(
+                and(
+                  ...[
+                    eq(memberships.groupId, groupId),
+                    eq(memberships.userId, userId),
+                    isActive(memberships),
+                    ...(asAdmin ? [isAdmin(memberships)] : []),
+                  ]
+                )
               )
-            )
-        )
+          ),
+        ]
       )
     );
 

@@ -8,6 +8,7 @@ import { atomic, DbGroup } from "@/app/_lib/db";
 import { groups } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { Group, svcGetGroups } from "./getGroups";
+import { svcCheckUserAccessToGroup } from "./misc";
 
 type GroupModifier = Pick<DbGroup, "id"> &
   Partial<Omit<DbGroup, "id" | "revisionId">>;
@@ -19,12 +20,17 @@ export async function apiModGroup({
   description,
 }: Omit<GroupModifier, "uuid">) {
   return apiInternal(async () => {
-    be.number(id, "id");
+    be.number(id, "group ID");
     be.numberOrUndefined(flags, "flags");
     be.stringOrUndefined(name, "name");
     be.stringNullOrUndefined(description, "description");
 
     const user = await currentUser();
+
+    await svcCheckUserAccessToGroup(user.id, id, {
+      userMustBeAdmin: true,
+      groupMustBeActive: false,
+    });
 
     const data = nullEmptyStrings({
       id,
@@ -44,11 +50,9 @@ export async function svcModGroup(
   return await atomic(
     { operation: "Updating group", revisedBy },
     async (tx, revisionId) => {
-      const group = await tx.query.groups.findFirst({
+      const [group] = await tx.query.groups.findMany({
         where: eq(groups.id, id),
       });
-
-      if (!group) err(404);
 
       await modEntity(group, modifier, {
         tx,

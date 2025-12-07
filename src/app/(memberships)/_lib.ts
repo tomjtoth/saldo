@@ -28,7 +28,7 @@ export async function apiModMembership({
 
     const user = await currentUser();
 
-    await svcCheckUserAccessToGroup(userId, groupId, true);
+    await svcCheckUserAccessToGroup(userId, groupId, { userMustBeAdmin: true });
 
     return await svcModMembership(user.id, { groupId, userId, flags });
   });
