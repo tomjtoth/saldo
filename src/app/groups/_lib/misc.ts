@@ -1,14 +1,46 @@
 "use server";
 
-import { eq, and } from "drizzle-orm";
+import { eq, and, exists, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 import { apiInternal, be, err } from "@/app/_lib/utils";
-import { atomic, db } from "@/app/_lib/db";
+import { atomic, db, DrizzleTx, isActive } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { svcModGroup } from "./modGroup";
 import { Group } from "./getGroups";
+
+export async function svcCheckUserAccessToGroup(
+  userId: User["id"],
+  groupId: Group["id"],
+  tx?: DrizzleTx
+) {
+  const conn = tx ?? db;
+
+  const res = await conn
+    .select({ x: sql`1` })
+    .from(groups)
+    .where(
+      and(
+        eq(groups.id, groupId),
+        isActive(groups),
+        exists(
+          conn
+            .select({ x: sql`1` })
+            .from(memberships)
+            .where(
+              and(
+                eq(memberships.groupId, groupId),
+                eq(memberships.userId, userId),
+                isActive(memberships)
+              )
+            )
+        )
+      )
+    );
+
+  if (res.length === 0) err("access denied");
+}
 
 export async function svcAddMember(groupId: Group["id"], userId: User["id"]) {
   return await atomic(
