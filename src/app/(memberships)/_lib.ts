@@ -3,12 +3,13 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 
 import { atomic, db, DbMembership, modEntity } from "@/app/_lib/db";
-import { apiInternal, err, be } from "@/app/_lib/utils";
+import { apiInternal, be } from "@/app/_lib/utils";
 import { categories, chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser, User } from "../(users)/_lib";
-import { Group, Membership } from "../groups/_lib/getGroups";
+import { Membership } from "../groups/_lib/getGroups";
 import { svcCheckUserAccessToCategory } from "../categories/_lib";
 import { Category } from "../categories/_lib";
+import { svcCheckUserAccessToGroup } from "../groups/_lib";
 
 export type MembershipModifier = Pick<
   DbMembership,
@@ -27,7 +28,7 @@ export async function apiModMembership({
 
     const user = await currentUser();
 
-    if (!(await isAdmin(user.id, groupId))) err(403);
+    await svcCheckUserAccessToGroup(userId, groupId, true);
 
     return await svcModMembership(user.id, { groupId, userId, flags });
   });
@@ -45,14 +46,12 @@ export async function svcModMembership(
   return await atomic(
     { operation: "Updating membership", revisedBy },
     async (tx, revisionId) => {
-      const ms = await tx.query.memberships.findFirst({
+      const [ms] = await tx.query.memberships.findMany({
         where: and(
           eq(memberships.userId, userId),
           eq(memberships.groupId, groupId)
         ),
       });
-
-      if (!ms) err(404);
 
       const res = await modEntity(ms, modifier, {
         tx,
@@ -87,21 +86,6 @@ export async function apiSetDefaultCategory(categoryId: Category["id"]) {
       defaultCategoryId: categoryId,
     });
   });
-}
-
-export async function isAdmin(userId: User["id"], groupId: Group["id"]) {
-  const ms = await db
-    .select({ x: sql`1` })
-    .from(memberships)
-    .where(
-      and(
-        eq(memberships.userId, userId),
-        eq(memberships.groupId, groupId),
-        sql`${memberships.flags} & 2 = 2`
-      )
-    );
-
-  return !!ms;
 }
 
 type TSetUsercolor = {

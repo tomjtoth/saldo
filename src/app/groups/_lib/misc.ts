@@ -4,7 +4,7 @@ import { eq, and, exists, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 import { apiInternal, be, err } from "@/app/_lib/utils";
-import { atomic, db, DrizzleTx, isActive } from "@/app/_lib/db";
+import { atomic, db, isActive, isAdmin } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { svcModGroup } from "./modGroup";
@@ -13,11 +13,9 @@ import { Group } from "./getGroups";
 export async function svcCheckUserAccessToGroup(
   userId: User["id"],
   groupId: Group["id"],
-  tx?: DrizzleTx
+  asAdmin = false
 ) {
-  const conn = tx ?? db;
-
-  const res = await conn
+  const res = await db
     .select({ x: sql`1` })
     .from(groups)
     .where(
@@ -25,14 +23,17 @@ export async function svcCheckUserAccessToGroup(
         eq(groups.id, groupId),
         isActive(groups),
         exists(
-          conn
+          db
             .select({ x: sql`1` })
             .from(memberships)
             .where(
               and(
-                eq(memberships.groupId, groupId),
-                eq(memberships.userId, userId),
-                isActive(memberships)
+                ...[
+                  eq(memberships.groupId, groupId),
+                  eq(memberships.userId, userId),
+                  isActive(memberships),
+                  ...(asAdmin ? [isAdmin(memberships)] : []),
+                ]
               )
             )
         )
