@@ -21,6 +21,5 @@ export const db = drizzle({
   connection: getDbPath(true),
   schema,
   casing: "snake_case",
-  logger: true,
-  // logger: process.env.NODE_ENV === "development" ? true : false,
+  logger: process.env.NODE_ENV === "development",
 });
