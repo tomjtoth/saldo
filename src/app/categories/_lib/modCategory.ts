@@ -6,7 +6,7 @@ import { atomic, modEntity, DbCategory } from "@/app/_lib/db";
 import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { apiInternal, err, is, nullEmptyStrings } from "@/app/_lib/utils";
-import { userMayModCategory } from "./accessChecker";
+import { svcCheckUserAccessToCategory } from "./accessChecker";
 import { svcGetCategories } from "./getCategories";
 
 export type CategoryModifier = Pick<DbCategory, "id"> &
@@ -34,7 +34,7 @@ export async function apiModCategory({
 
     const user = await currentUser();
 
-    await userMayModCategory(user.id, id);
+    await svcCheckUserAccessToCategory(user.id, id);
 
     return await svcModCategory(user.id, data);
   });
@@ -47,11 +47,9 @@ export async function svcModCategory(
   return await atomic(
     { operation: "Updating category", revisedBy },
     async (tx, revisionId) => {
-      const cat = await tx.query.categories.findFirst({
+      const [cat] = await tx.query.categories.findMany({
         where: eq(categories.id, id),
       });
-
-      if (!cat) err(404);
 
       await modEntity(cat, modifier, {
         tx,

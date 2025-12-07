@@ -7,7 +7,7 @@ import { apiInternal, err, be } from "@/app/_lib/utils";
 import { categories, chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser, User } from "../(users)/_lib";
 import { Group, Membership } from "../groups/_lib/getGroups";
-import { userMayModCategory } from "../categories/_lib";
+import { svcCheckUserAccessToCategory } from "../categories/_lib";
 import { Category } from "../categories/_lib";
 
 export type MembershipModifier = Pick<
@@ -74,7 +74,7 @@ export async function apiSetDefaultCategory(categoryId: Category["id"]) {
 
     const { id: userId } = await currentUser();
 
-    await userMayModCategory(userId, categoryId);
+    await svcCheckUserAccessToCategory(userId, categoryId);
 
     const cat = await db.query.categories.findFirst({
       columns: { groupId: true },
