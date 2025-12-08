@@ -33,5 +33,5 @@ export async function svcCheckUserAccessToCategory(
     ),
   });
 
-  if (!res) err(403, "access denied");
+  if (!res) err({ args: { userId, categoryId } });
 }

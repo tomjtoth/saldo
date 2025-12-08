@@ -31,7 +31,7 @@ export const alreadyInProd = async () => {
 };
 
 export async function svcImportV3() {
-  if (await alreadyInProd()) err(403, "already in production");
+  if (await alreadyInProd()) err("already in production");
 
   const read = await parseCSV(process.env.CSV_PATH || "data/saldo-v3.csv");
   const parsed = parseData(read);

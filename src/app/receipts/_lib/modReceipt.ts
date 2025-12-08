@@ -104,7 +104,7 @@ export async function svcModReceipt(
         where: eq(receipts.id, receiptMod.id),
       });
 
-      if (!fromSrv) err(404);
+      if (!fromSrv) err("receipt not found", { args: { receiptMod } });
 
       if (!virt(fromSrv.group).active)
         err("Modifying a receipt of a disabled group is not allowed!");
@@ -224,7 +224,8 @@ export async function svcModReceipt(
         }
       }
 
-      if (changes === 0) err(400, "No changes were made");
+      if (changes === 0)
+        err("No changes were made", { info: "updating receipt" });
 
       return await populateReceiptArchivesRecursively(receipt.id, tx);
     }

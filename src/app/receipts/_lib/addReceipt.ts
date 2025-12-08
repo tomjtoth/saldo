@@ -31,7 +31,7 @@ function validateReceiptData({
   be.number(paidById, "paid by ID");
   be.array(items, "items");
 
-  if (items.length === 0) err(400);
+  if (items.length === 0) err("must have at least 1 item in a receipt");
 
   const safeReceipt = {
     groupId,

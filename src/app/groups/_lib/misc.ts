@@ -54,7 +54,11 @@ export async function svcCheckUserAccessToGroup(
       )
     );
 
-  if (res.length === 0) err("access denied");
+  if (res.length === 0)
+    err({
+      info: "user tried to access group",
+      args: { userId, groupId, opts },
+    });
 }
 
 export async function svcAddMember(groupId: Group["id"], userId: User["id"]) {
@@ -79,7 +83,7 @@ export async function joinGroup(
   const group = await db.query.groups.findFirst({
     where: eq(groups.uuid, uuid),
   });
-  if (!group) err("link expired");
+  if (!group) err("link expired", { args: { uuid } });
 
   const ms = await db.query.memberships.findFirst({
     where: and(
@@ -87,7 +91,7 @@ export async function joinGroup(
       eq(memberships.groupId, group.id)
     ),
   });
-  if (ms) err("already a member");
+  if (ms) err("already a member", { args: { userId, group } });
 
   return await svcAddMember(group.id, userId);
 }

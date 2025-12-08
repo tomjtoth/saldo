@@ -101,7 +101,6 @@ export const be: Be = new Proxy(is, {
 
         if (!res) {
           err(
-            400,
             `${name ? `${name}'s value` : "Value"} "${v}" should be ${method}!`
           );
         }

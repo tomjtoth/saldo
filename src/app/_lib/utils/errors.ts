@@ -7,19 +7,35 @@ export class ErrorWithStatus extends Error {
   }
 }
 
+type Opts = {
+  status?: number;
+  message?: string;
+  info?: string;
+  args?: { [key: string]: unknown };
+};
+
 type Overloads = {
-  (status: number, message?: string): never;
-  (message?: string): never;
+  (opts: Opts): never;
+  (message: string, args?: Omit<Opts, "message">): never;
+  (status: number, args?: Omit<Opts, "status">): never;
 };
 
 export const err: Overloads = (
-  intOrStr?: string | number,
-  message?: string
+  intStrOrOpts: number | string | Opts,
+  maybeOpts?: Opts
 ): never => {
-  if (typeof intOrStr === "string") throw new Error(intOrStr);
+  const opts = typeof intStrOrOpts === "object" ? intStrOrOpts : maybeOpts;
 
-  if (typeof intOrStr === "number")
-    throw new ErrorWithStatus(intOrStr, message);
+  const message =
+    typeof intStrOrOpts === "string"
+      ? intStrOrOpts
+      : opts?.message ?? "access denied";
 
-  throw new Error();
+  const status = typeof intStrOrOpts === "number" ? intStrOrOpts : opts?.status;
+
+  console.error(message);
+  if (opts) console.error(opts);
+
+  if (status) throw new ErrorWithStatus(status, message);
+  throw new Error(message);
 };

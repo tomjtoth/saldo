@@ -23,7 +23,8 @@ export async function apiGetReceipts(
     be.number(groupId, "group ID");
     be.array(knownIds, "receipt IDs");
 
-    if (!knownIds.every(is.number)) err("known ids contain NaN");
+    if (!knownIds.every(is.number))
+      err("known ids contain NaN", { args: { knownIds } });
 
     const user = await currentUser();
 

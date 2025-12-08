@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { atomic, modEntity, DbCategory } from "@/app/_lib/db";
 import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
-import { apiInternal, err, is, nullEmptyStrings } from "@/app/_lib/utils";
+import { apiInternal, be, err, is, nullEmptyStrings } from "@/app/_lib/utils";
 import { svcCheckUserAccessToCategory } from "./accessChecker";
 import { svcGetCategories } from "./getCategories";
 
@@ -19,11 +19,12 @@ export async function apiModCategory({
   description,
 }: CategoryModifier) {
   return apiInternal(async () => {
-    if (
-      !is.number(id) ||
-      (!is.string(name) && !is.string(description) && !is.number(flags))
-    )
-      err();
+    be.number(id, "category ID");
+
+    if (!is.string(name) && !is.string(description) && !is.number(flags))
+      err("name, description or flags must be set", {
+        args: { name, description, flags },
+      });
 
     const data = nullEmptyStrings({
       id,
