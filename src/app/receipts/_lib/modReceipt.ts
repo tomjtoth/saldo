@@ -10,7 +10,7 @@ import {
   modEntity,
 } from "@/app/_lib/db";
 import { items, itemShares, receipts } from "@/app/_lib/db/schema";
-import { apiInternal, err, nullEmptyStrings, virt } from "@/app/_lib/utils";
+import { apiInternal, be, err, nullEmptyStrings, virt } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
   populateReceiptArchivesRecursively,
@@ -30,15 +30,12 @@ function validateReceipt({
   flags,
   items,
 }: ReceiptModifier) {
-  if (
-    typeof id !== "number" ||
-    typeof groupId !== "number" ||
-    typeof paidById !== "number" ||
-    typeof paidOn !== "string" ||
-    typeof flags !== "number" ||
-    !Array.isArray(items)
-  )
-    err(400);
+  be.number(id, "receipt ID");
+  be.number(groupId, "group ID");
+  be.number(paidById, "paidBy ID");
+  be.string(paidOn, "paid on");
+  be.number(flags, "receipt flags");
+  be.array(items, "receipt items");
 
   const safeReceipt = {
     id,
@@ -47,15 +44,12 @@ function validateReceipt({
     paidOn,
     flags,
     items: items.map(({ id, categoryId, flags, cost, notes, itemShares }) => {
-      if (
-        typeof id !== "number" ||
-        typeof categoryId !== "number" ||
-        typeof cost !== "number" ||
-        typeof flags !== "number" ||
-        (notes !== null && typeof notes !== "string") ||
-        !Array.isArray(itemShares)
-      )
-        err(400);
+      be.number(id, "item ID");
+      be.number(categoryId, "item's category ID");
+      be.number(cost, "item cost");
+      be.number(flags, "item flags");
+      be.stringOrNull(notes, "item notes");
+      be.array(itemShares, "item shares");
 
       const safeItem = {
         id,
@@ -64,7 +58,8 @@ function validateReceipt({
         cost,
         notes,
         itemShares: itemShares.map(({ userId, share }) => {
-          if (typeof userId !== "number" || typeof share !== "number") err(400);
+          be.number(userId, "userId of item share");
+          be.number(share, "item share");
 
           const safeItemShare = { userId, share };
 
