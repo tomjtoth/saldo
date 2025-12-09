@@ -133,6 +133,11 @@ export async function apiGenInviteLink(id: Group["id"]) {
 
     const user = await currentUser();
 
+    await svcGetGroupViaUserAccess(user.id, id, {
+      userMustBeAdmin: true,
+      info: "generating invite link",
+    });
+
     return await svcModGroup(user.id, { id, uuid: uuidv4() });
   });
 }
