@@ -110,6 +110,12 @@ export async function apiSetUserColor({
 
     const user = await currentUser();
 
+    if (groupId)
+      await svcGetGroupViaUserAccess(user.id, groupId, {
+        info: "setting user color",
+        args: { color, memberId },
+      });
+
     return await svcSetUserColor(user.id, { color, groupId, memberId });
   });
 }
