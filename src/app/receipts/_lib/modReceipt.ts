@@ -16,6 +16,7 @@ import {
   populateReceiptArchivesRecursively,
   Receipt,
 } from "./populateRecursively";
+import { svcGetGroupViaUserAccess } from "@/app/groups/_lib";
 
 type ReceiptModifier = DbReceipt & {
   items: (DbItem & { itemShares: DbItemShare[] })[];
@@ -83,6 +84,10 @@ export async function apiModReceipt(uncheckedData: ReceiptModifier) {
     const safeReceipt = validateReceipt(uncheckedData);
 
     const user = await currentUser();
+
+    await svcGetGroupViaUserAccess(user.id, safeReceipt.groupId, {
+      info: "modifying receipt",
+    });
 
     return await svcModReceipt(user.id, safeReceipt);
   });
