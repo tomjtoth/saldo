@@ -7,7 +7,7 @@ export class ErrorWithStatus extends Error {
   }
 }
 
-type Opts = {
+export type ErrOpts = {
   status?: number;
   message?: string;
   info?: string;
@@ -15,14 +15,14 @@ type Opts = {
 };
 
 type Overloads = {
-  (opts: Opts): never;
-  (message: string, args?: Omit<Opts, "message">): never;
-  (status: number, args?: Omit<Opts, "status">): never;
+  (opts: ErrOpts): never;
+  (message: string, args?: Omit<ErrOpts, "message">): never;
+  (status: number, args?: Omit<ErrOpts, "status">): never;
 };
 
 export const err: Overloads = (
-  intStrOrOpts: number | string | Opts,
-  maybeOpts?: Opts
+  intStrOrOpts: number | string | ErrOpts,
+  maybeOpts?: ErrOpts
 ): never => {
   const opts = typeof intStrOrOpts === "object" ? intStrOrOpts : maybeOpts;
 
