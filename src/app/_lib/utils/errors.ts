@@ -33,8 +33,11 @@ export const err: Overloads = (
 
   const status = typeof intStrOrOpts === "number" ? intStrOrOpts : opts?.status;
 
-  console.error(message);
-  if (opts) console.error(opts);
+  console.error("\n\tERROR: %s\n", message);
+  if (opts) {
+    if ("message" in opts) delete opts.message;
+    console.error(opts);
+  }
 
   if (status) throw new ErrorWithStatus(status, message);
   throw new Error(message);
