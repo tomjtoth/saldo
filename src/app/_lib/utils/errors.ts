@@ -20,6 +20,8 @@ type Overloads = {
   (status: number, args?: Omit<ErrOpts, "status">): never;
 };
 
+export const ERROR_MESSAGE_FORMAT = "\n\tERROR: %s\n";
+
 export const err: Overloads = (
   intStrOrOpts: number | string | ErrOpts,
   maybeOpts?: ErrOpts
@@ -33,7 +35,7 @@ export const err: Overloads = (
 
   const status = typeof intStrOrOpts === "number" ? intStrOrOpts : opts?.status;
 
-  console.error("\n\tERROR: %s\n", message);
+  console.error(ERROR_MESSAGE_FORMAT, message);
   if (opts) {
     if ("message" in opts) delete opts.message;
     console.error(opts);

@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, Mock, beforeEach, afterEach } from "vitest";
 
-import { be, err, ErrorWithStatus, is, nullEmptyStrings, virt } from ".";
+import {
+  be,
+  err,
+  ERROR_MESSAGE_FORMAT,
+  ErrorWithStatus,
+  is,
+  nullEmptyStrings,
+  virt,
+} from ".";
 
 describe("status", () => {
   it("resolves ACTIVE state correctly", () => {
@@ -112,10 +120,22 @@ describe("validators", () => {
 });
 
 describe("fn err()", () => {
+  let stderr: Mock<{
+    (...data: any[]): void;
+    (message?: any, ...optionalParams: any[]): void;
+  }>;
+
+  beforeEach(() => {
+    stderr = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(vi.restoreAllMocks);
+
   it("throws ErrorWithStatus with correct status and message", () => {
     try {
-      err(404, "Not Found");
+      err(404, { message: "Not Found" });
     } catch (e) {
+      expect(stderr).toHaveBeenCalledWith(ERROR_MESSAGE_FORMAT, "Not Found");
       expect(e).to.be.instanceOf(ErrorWithStatus);
       const ew = e as ErrorWithStatus;
       expect(ew.status).to.equal(404);
@@ -133,12 +153,21 @@ describe("fn err()", () => {
     }
   });
 
-  it("throws plain Error when called without args", () => {
+  it("prints 'access denied' and the passed opts to stderr", () => {
+    const errOpts = {
+      info: "faaf",
+      args: { foo: "bar", life: 42 },
+    };
+
     try {
-      err();
+      err(errOpts);
     } catch (e) {
-      expect(e).to.be.instanceOf(Error);
-      expect((e as Error).message).to.equal("");
+      expect(stderr).toHaveBeenCalledWith(
+        ERROR_MESSAGE_FORMAT,
+        "access denied"
+      );
+
+      expect(stderr).toHaveBeenCalledWith(errOpts);
     }
   });
 });
