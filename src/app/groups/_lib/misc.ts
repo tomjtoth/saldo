@@ -118,6 +118,11 @@ export async function apiRmInviteLink(id: Group["id"]) {
 
     const user = await currentUser();
 
+    await svcGetGroupViaUserAccess(user.id, id, {
+      userMustBeAdmin: true,
+      info: "rm invite link",
+    });
+
     return svcModGroup(user.id, { id, uuid: null });
   });
 }
