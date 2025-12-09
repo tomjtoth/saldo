@@ -8,7 +8,7 @@ import { atomic, DbGroup } from "@/app/_lib/db";
 import { groups } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { Group, svcGetGroups } from "./getGroups";
-import { svcGetGroupViaUserAccess } from "./misc";
+import { svcGetGroupViaUserAccess } from "./access";
 
 type GroupModifier = Pick<DbGroup, "id"> &
   Partial<Omit<DbGroup, "id" | "revisionId">>;

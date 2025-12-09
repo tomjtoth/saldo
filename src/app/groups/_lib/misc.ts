@@ -1,64 +1,15 @@
 "use server";
 
-import { eq, and, exists, sql } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
-import { apiInternal, be, err, ErrOpts } from "@/app/_lib/utils";
-import { atomic, db, isActive, isAdmin } from "@/app/_lib/db";
+import { apiInternal, be, err } from "@/app/_lib/utils";
+import { atomic, db } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { svcModGroup } from "./modGroup";
 import { Group } from "./getGroups";
-
-export async function svcGetGroupViaUserAccess(
-  userId: User["id"],
-  groupId: Group["id"],
-  opts?: Pick<ErrOpts, "info" | "args"> & {
-    /**
-     * @default false
-     */
-    userMustBeAdmin?: true;
-    /**
-     * @default true
-     */
-    groupMustBeActive?: false;
-  }
-) {
-  const userMustBeAdmin = opts?.userMustBeAdmin ?? false;
-  const groupMustBeActive = opts?.groupMustBeActive ?? true;
-
-  const group = await db.query.groups.findFirst({
-    where: and(
-      ...[
-        ...(groupMustBeActive ? [isActive(groups)] : []),
-        eq(groups.id, groupId),
-        exists(
-          db
-            .select({ x: sql`1` })
-            .from(memberships)
-            .where(
-              and(
-                ...[
-                  eq(memberships.groupId, groupId),
-                  eq(memberships.userId, userId),
-                  isActive(memberships),
-                  ...(userMustBeAdmin ? [isAdmin(memberships)] : []),
-                ]
-              )
-            )
-        ),
-      ]
-    ),
-  });
-
-  if (!group)
-    err({
-      info: opts?.info ?? "user accessing group",
-      args: { ...opts?.args, userId, groupId },
-    });
-
-  return group;
-}
+import { svcGetGroupViaUserAccess } from "./access";
 
 export async function svcAddMember(groupId: Group["id"], userId: User["id"]) {
   return await atomic(
