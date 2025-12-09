@@ -26,32 +26,29 @@ export async function svcAddGroup(
   ownerId: User["id"],
   data: Pick<CrGroup, "name" | "description">
 ) {
-  return await atomic(
-    { operation: "creating new group", revisedBy: ownerId },
-    async (tx, revisionId) => {
-      const [{ groupId }] = await tx
-        .insert(groups)
-        .values({
-          ...data,
-          revisionId,
-        })
-        .returning({
-          groupId: groups.id,
-        });
-
-      await tx.insert(memberships).values({
-        userId: ownerId,
-        flags: 3,
-        groupId,
+  return atomic(ownerId, async (tx, revisionId) => {
+    const [{ groupId }] = await tx
+      .insert(groups)
+      .values({
+        ...data,
         revisionId,
+      })
+      .returning({
+        groupId: groups.id,
       });
 
-      const [res] = await svcGetGroups(ownerId, {
-        tx,
-        where: eq(groups.id, groupId),
-      });
+    await tx.insert(memberships).values({
+      userId: ownerId,
+      flags: 3,
+      groupId,
+      revisionId,
+    });
 
-      return res;
-    }
-  );
+    const [res] = await svcGetGroups(ownerId, {
+      tx,
+      where: eq(groups.id, groupId),
+    });
+
+    return res;
+  });
 }

@@ -10,6 +10,7 @@ import {
   populateReceiptArchivesRecursively,
   Receipt,
 } from "./populateRecursively";
+import { svcGetGroupViaUserAccess } from "@/app/groups/_lib";
 
 type ReceiptAdder = Pick<Receipt, "groupId" | "paidOn" | "paidById"> & {
   items: (Pick<Item, "cost" | "categoryId" | "notes"> & {
@@ -30,7 +31,7 @@ function validateReceiptData({
   be.number(paidById, "paid by ID");
   be.array(items, "items");
 
-  if (items.length === 0) err(400);
+  if (items.length === 0) err("must have at least 1 item in a receipt");
 
   const safeReceipt = {
     groupId,
@@ -69,6 +70,10 @@ export async function apiAddReceipt(uncheckedData: Parameters<ValidatorFn>[0]) {
 
     const user = await currentUser();
 
+    await svcGetGroupViaUserAccess(user.id, safeData.groupId, {
+      info: "adding receipt",
+    });
+
     return await svcAddReceipt(user.id, safeData);
   });
 }
@@ -77,48 +82,42 @@ export async function svcAddReceipt(
   revisedBy: User["id"],
   { groupId, paidOn, paidById, items: itemsCli }: ReturnType<ValidatorFn>
 ): Promise<Receipt> {
-  return await atomic(
-    { operation: "Adding receipt", revisedBy },
-    async (tx, revisionId) => {
-      const [{ receiptId }] = await tx
-        .insert(receipts)
-        .values({ groupId, revisionId, paidOn, paidById })
-        .returning({ receiptId: receipts.id });
+  return atomic(revisedBy, async (tx, revisionId) => {
+    const [{ receiptId }] = await tx
+      .insert(receipts)
+      .values({ groupId, revisionId, paidOn, paidById })
+      .returning({ receiptId: receipts.id });
 
-      const itemIds = await tx
-        .insert(items)
-        .values(itemsCli.map((i) => ({ ...i, receiptId, revisionId })))
-        .returning({ id: items.id });
+    const itemIds = await tx
+      .insert(items)
+      .values(itemsCli.map((i) => ({ ...i, receiptId, revisionId })))
+      .returning({ id: items.id });
 
-      const parsedItemShares = itemsCli.reduce(
-        (shares, { itemShares }, idx) => {
-          const filteredItemShares = itemShares.filter(
-            ({ share }) => (share ?? 0) > 0
-          );
-          if (
-            filteredItemShares.length !== 1 ||
-            filteredItemShares[0].userId !== paidById
-          ) {
-            shares.push(
-              ...filteredItemShares.map(({ userId, share }) => ({
-                userId,
-                share,
-                revisionId,
-                itemId: itemIds[idx].id,
-              }))
-            );
-          }
-
-          return shares;
-        },
-        [] as Pick<ItemShare, "revisionId" | "itemId" | "userId" | "share">[]
+    const parsedItemShares = itemsCli.reduce((shares, { itemShares }, idx) => {
+      const filteredItemShares = itemShares.filter(
+        ({ share }) => (share ?? 0) > 0
       );
-
-      if (parsedItemShares.length) {
-        await tx.insert(itemShares).values(parsedItemShares);
+      if (
+        filteredItemShares.length !== 1 ||
+        filteredItemShares[0].userId !== paidById
+      ) {
+        shares.push(
+          ...filteredItemShares.map(({ userId, share }) => ({
+            userId,
+            share,
+            revisionId,
+            itemId: itemIds[idx].id,
+          }))
+        );
       }
 
-      return await populateReceiptArchivesRecursively(receiptId, tx);
+      return shares;
+    }, [] as Pick<ItemShare, "revisionId" | "itemId" | "userId" | "share">[]);
+
+    if (parsedItemShares.length) {
+      await tx.insert(itemShares).values(parsedItemShares);
     }
-  );
+
+    return await populateReceiptArchivesRecursively(receiptId, tx);
+  });
 }

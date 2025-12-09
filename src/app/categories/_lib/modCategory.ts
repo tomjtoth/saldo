@@ -5,8 +5,8 @@ import { eq } from "drizzle-orm";
 import { atomic, modEntity, DbCategory } from "@/app/_lib/db";
 import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
-import { apiInternal, err, is, nullEmptyStrings } from "@/app/_lib/utils";
-import { userMayModCategory } from "./accessChecker";
+import { apiInternal, be, err, is, nullEmptyStrings } from "@/app/_lib/utils";
+import { svcGetCategoryViaUserAccess } from "./access";
 import { svcGetCategories } from "./getCategories";
 
 export type CategoryModifier = Pick<DbCategory, "id"> &
@@ -19,11 +19,13 @@ export async function apiModCategory({
   description,
 }: CategoryModifier) {
   return apiInternal(async () => {
-    if (
-      !is.number(id) ||
-      (!is.string(name) && !is.string(description) && !is.number(flags))
-    )
-      err();
+    be.number(id, "category ID");
+
+    if (!is.string(name) && !is.string(description) && !is.number(flags))
+      err("name, description or flags must be set", {
+        info: "modifying category",
+        args: { name, description, flags },
+      });
 
     const data = nullEmptyStrings({
       id,
@@ -34,7 +36,10 @@ export async function apiModCategory({
 
     const user = await currentUser();
 
-    await userMayModCategory(user.id, id);
+    await svcGetCategoryViaUserAccess(user.id, id, {
+      info: "modifying category",
+      args: { name, description, flags },
+    });
 
     return await svcModCategory(user.id, data);
   });
@@ -44,28 +49,23 @@ export async function svcModCategory(
   revisedBy: User["id"],
   { id, ...modifier }: CategoryModifier
 ) {
-  return await atomic(
-    { operation: "Updating category", revisedBy },
-    async (tx, revisionId) => {
-      const cat = await tx.query.categories.findFirst({
-        where: eq(categories.id, id),
-      });
+  return atomic(revisedBy, async (tx, revisionId) => {
+    const [cat] = await tx.query.categories.findMany({
+      where: eq(categories.id, id),
+    });
 
-      if (!cat) err(404);
+    await modEntity(cat, modifier, {
+      tx,
+      tableName: "categories",
+      revisionId,
+      primaryKeys: { id: true },
+    });
 
-      await modEntity(cat, modifier, {
-        tx,
-        tableName: "categories",
-        revisionId,
-        primaryKeys: { id: true },
-      });
+    const [res] = await svcGetCategories(revisedBy, {
+      tx,
+      where: eq(categories.id, cat.id),
+    });
 
-      const [res] = await svcGetCategories(revisedBy, {
-        tx,
-        where: eq(categories.id, cat.id),
-      });
-
-      return res;
-    }
-  );
+    return res;
+  });
 }

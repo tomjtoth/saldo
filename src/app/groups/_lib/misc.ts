@@ -9,20 +9,18 @@ import { groups, memberships, users } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { svcModGroup } from "./modGroup";
 import { Group } from "./getGroups";
+import { svcGetGroupViaUserAccess } from "./access";
 
 export async function svcAddMember(groupId: Group["id"], userId: User["id"]) {
-  return await atomic(
-    { operation: "adding new member", revisedBy: userId },
-    async (tx, revisionId) => {
-      await tx.update(groups).set({ uuid: null }).where(eq(groups.id, groupId));
+  return atomic(userId, async (tx, revisionId) => {
+    await tx.update(groups).set({ uuid: null }).where(eq(groups.id, groupId));
 
-      return await tx.insert(memberships).values({
-        userId,
-        groupId,
-        revisionId,
-      });
-    }
-  );
+    return await tx.insert(memberships).values({
+      userId,
+      groupId,
+      revisionId,
+    });
+  });
 }
 
 export async function joinGroup(
@@ -32,7 +30,7 @@ export async function joinGroup(
   const group = await db.query.groups.findFirst({
     where: eq(groups.uuid, uuid),
   });
-  if (!group) err("link expired");
+  if (!group) err("link expired", { args: { uuid } });
 
   const ms = await db.query.memberships.findFirst({
     where: and(
@@ -40,7 +38,7 @@ export async function joinGroup(
       eq(memberships.groupId, group.id)
     ),
   });
-  if (ms) err("already a member");
+  if (ms) err("already a member", { args: { userId, group } });
 
   return await svcAddMember(group.id, userId);
 }
@@ -49,12 +47,16 @@ export async function apiSetDefaultGroup(id: Group["id"]) {
   return apiInternal(async () => {
     be.number(id, "group ID");
 
-    const { id: userId } = await currentUser();
+    const user = await currentUser();
+
+    await svcGetGroupViaUserAccess(user.id, id, {
+      info: "setting default group",
+    });
 
     await db
       .update(users)
       .set({ defaultGroupId: id })
-      .where(eq(users.id, userId));
+      .where(eq(users.id, user.id));
   });
 }
 
@@ -63,6 +65,11 @@ export async function apiRmInviteLink(id: Group["id"]) {
     be.number(id, "group ID");
 
     const user = await currentUser();
+
+    await svcGetGroupViaUserAccess(user.id, id, {
+      userMustBeAdmin: true,
+      info: "rm invite link",
+    });
 
     return svcModGroup(user.id, { id, uuid: null });
   });
@@ -73,6 +80,11 @@ export async function apiGenInviteLink(id: Group["id"]) {
     be.number(id, "group ID");
 
     const user = await currentUser();
+
+    await svcGetGroupViaUserAccess(user.id, id, {
+      userMustBeAdmin: true,
+      info: "generating invite link",
+    });
 
     return await svcModGroup(user.id, { id, uuid: uuidv4() });
   });

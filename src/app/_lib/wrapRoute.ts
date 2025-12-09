@@ -65,7 +65,8 @@ function wrapRoute<P extends object = object>(
     const handler = hasOptions ? maybeFn : objOrFn;
 
     try {
-      if (!allowInProd && process.env.NODE_ENV === "production") err(404);
+      if (!allowInProd && process.env.NODE_ENV === "production")
+        err(404, { args: { url: req.url, allowInProd } });
 
       let res: unknown;
       const params = await cx.params;

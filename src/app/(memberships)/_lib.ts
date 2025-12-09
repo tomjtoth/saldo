@@ -3,12 +3,13 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 
 import { atomic, db, DbMembership, modEntity } from "@/app/_lib/db";
-import { apiInternal, err, be } from "@/app/_lib/utils";
-import { categories, chartColors, memberships } from "@/app/_lib/db/schema";
+import { apiInternal, be } from "@/app/_lib/utils";
+import { chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser, User } from "../(users)/_lib";
-import { Group, Membership } from "../groups/_lib/getGroups";
-import { userMayModCategory } from "../categories/_lib";
+import { Membership } from "../groups/_lib/getGroups";
+import { svcGetCategoryViaUserAccess } from "../categories/_lib";
 import { Category } from "../categories/_lib";
+import { svcGetGroupViaUserAccess } from "../groups/_lib";
 
 export type MembershipModifier = Pick<
   DbMembership,
@@ -27,7 +28,11 @@ export async function apiModMembership({
 
     const user = await currentUser();
 
-    if (!(await isAdmin(user.id, groupId))) err(403);
+    await svcGetGroupViaUserAccess(user.id, groupId, {
+      userMustBeAdmin: true,
+      info: "modifying membership",
+      args: { flags },
+    });
 
     return await svcModMembership(user.id, { groupId, userId, flags });
   });
@@ -42,30 +47,25 @@ export async function svcModMembership(
   }: Pick<DbMembership, "groupId" | "userId"> &
     Partial<Pick<DbMembership, "flags" | "defaultCategoryId">>
 ) {
-  return await atomic(
-    { operation: "Updating membership", revisedBy },
-    async (tx, revisionId) => {
-      const ms = await tx.query.memberships.findFirst({
-        where: and(
-          eq(memberships.userId, userId),
-          eq(memberships.groupId, groupId)
-        ),
-      });
+  return atomic(revisedBy, async (tx, revisionId) => {
+    const [ms] = await tx.query.memberships.findMany({
+      where: and(
+        eq(memberships.userId, userId),
+        eq(memberships.groupId, groupId)
+      ),
+    });
 
-      if (!ms) err(404);
+    const res = await modEntity(ms, modifier, {
+      tx,
+      tableName: "memberships",
+      primaryKeys: { userId: true, groupId: true },
+      revisionId,
+      skipArchivalOf: { defaultCategoryId: true },
+      needsToReturn: true,
+    });
 
-      const res = await modEntity(ms, modifier, {
-        tx,
-        tableName: "memberships",
-        primaryKeys: { userId: true, groupId: true },
-        revisionId,
-        skipArchivalOf: { defaultCategoryId: true },
-        needsToReturn: true,
-      });
-
-      return res;
-    }
-  );
+    return res;
+  });
 }
 
 export async function apiSetDefaultCategory(categoryId: Category["id"]) {
@@ -74,34 +74,16 @@ export async function apiSetDefaultCategory(categoryId: Category["id"]) {
 
     const { id: userId } = await currentUser();
 
-    await userMayModCategory(userId, categoryId);
-
-    const cat = await db.query.categories.findFirst({
-      columns: { groupId: true },
-      where: eq(categories.id, categoryId),
+    const cat = await svcGetCategoryViaUserAccess(userId, categoryId, {
+      info: "setting default category",
     });
 
     await svcModMembership(userId, {
       userId,
-      groupId: cat!.groupId,
+      groupId: cat.groupId,
       defaultCategoryId: categoryId,
     });
   });
-}
-
-export async function isAdmin(userId: User["id"], groupId: Group["id"]) {
-  const ms = await db
-    .select({ x: sql`1` })
-    .from(memberships)
-    .where(
-      and(
-        eq(memberships.userId, userId),
-        eq(memberships.groupId, groupId),
-        sql`${memberships.flags} & 2 = 2`
-      )
-    );
-
-  return !!ms;
 }
 
 type TSetUsercolor = {
@@ -124,6 +106,12 @@ export async function apiSetUserColor({
     memberId = memberId ?? null;
 
     const user = await currentUser();
+
+    if (groupId)
+      await svcGetGroupViaUserAccess(user.id, groupId, {
+        info: "setting user color",
+        args: { color, memberId },
+      });
 
     return await svcSetUserColor(user.id, { color, groupId, memberId });
   });

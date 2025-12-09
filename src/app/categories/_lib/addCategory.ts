@@ -7,6 +7,7 @@ import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { apiInternal, be, nullEmptyStrings } from "@/app/_lib/utils";
 import { svcGetCategories } from "./getCategories";
+import { svcGetGroupViaUserAccess } from "@/app/groups/_lib";
 
 export type CategoryAdder = Pick<
   CrCategory,
@@ -27,6 +28,10 @@ export async function apiAddCategory({
 
     const user = await currentUser();
 
+    await svcGetGroupViaUserAccess(user.id, data.groupId, {
+      info: "adding category",
+    });
+
     return await svcAddCategory(user.id, data);
   });
 }
@@ -35,23 +40,20 @@ export async function svcAddCategory(
   revisedBy: User["id"],
   data: CategoryAdder
 ) {
-  return await atomic(
-    { operation: "Creating category", revisedBy },
-    async (tx, revisionId) => {
-      const [{ id }] = await tx
-        .insert(categories)
-        .values({
-          ...data,
-          revisionId,
-        })
-        .returning({ id: categories.id });
+  return atomic(revisedBy, async (tx, revisionId) => {
+    const [{ id }] = await tx
+      .insert(categories)
+      .values({
+        ...data,
+        revisionId,
+      })
+      .returning({ id: categories.id });
 
-      const [res] = await svcGetCategories(revisedBy, {
-        tx,
-        where: eq(categories.id, id),
-      });
+    const [res] = await svcGetCategories(revisedBy, {
+      tx,
+      where: eq(categories.id, id),
+    });
 
-      return res;
-    }
-  );
+    return res;
+  });
 }

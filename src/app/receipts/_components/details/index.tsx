@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { appToast } from "@/app/_lib/utils";
+import { appToast, virt } from "@/app/_lib/utils";
 import { callApi } from "@/app/_lib/utils/apiCalls";
 import { Item } from "../../_lib";
 
@@ -34,6 +34,12 @@ export default function ReceiptDetails() {
   const paidBy = users.find((u) => u.id === receipt.paidById)!;
 
   function submitReceipt() {
+    if (!virt(group).active) {
+      return appToast.error(
+        "Cannot update receipts in a disabled group, re-enable it first!"
+      );
+    }
+
     const zeroCostItems = receipt.items
       .filter((i) => i.cost === 0)
       .map((i) => i.id);

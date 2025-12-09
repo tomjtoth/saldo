@@ -166,7 +166,7 @@ export async function modEntity<
       await q;
     }
   } else if (needsToReturn || (unchangedThrows ?? true)) {
-    err("No changes were made");
+    err("No changes were made", { args: { tableName, entity, modifier } });
   }
 
   return changes;
