@@ -6,7 +6,7 @@ import { atomic, modEntity, DbCategory } from "@/app/_lib/db";
 import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { apiInternal, be, err, is, nullEmptyStrings } from "@/app/_lib/utils";
-import { svcGetCategoryViaUserAccess } from "./accessChecker";
+import { svcGetCategoryViaUserAccess } from "./access";
 import { svcGetCategories } from "./getCategories";
 
 export type CategoryModifier = Pick<DbCategory, "id"> &
