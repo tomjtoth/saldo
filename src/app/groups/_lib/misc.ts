@@ -99,12 +99,16 @@ export async function apiSetDefaultGroup(id: Group["id"]) {
   return apiInternal(async () => {
     be.number(id, "group ID");
 
-    const { id: userId } = await currentUser();
+    const user = await currentUser();
+
+    await svcGetGroupViaUserAccess(user.id, id, {
+      info: "setting default group",
+    });
 
     await db
       .update(users)
       .set({ defaultGroupId: id })
-      .where(eq(users.id, userId));
+      .where(eq(users.id, user.id));
   });
 }
 
