@@ -12,6 +12,10 @@ export const is = {
     return value === null;
   },
 
+  nullOrUndefined(value: unknown): value is null | undefined {
+    return this.null(value) || this.undefined(value);
+  },
+
   boolean(value: unknown): value is boolean {
     return typeof value === "boolean";
   },
