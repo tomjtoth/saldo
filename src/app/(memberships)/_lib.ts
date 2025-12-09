@@ -4,12 +4,12 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 
 import { atomic, db, DbMembership, modEntity } from "@/app/_lib/db";
 import { apiInternal, be } from "@/app/_lib/utils";
-import { categories, chartColors, memberships } from "@/app/_lib/db/schema";
+import { chartColors, memberships } from "@/app/_lib/db/schema";
 import { currentUser, User } from "../(users)/_lib";
 import { Membership } from "../groups/_lib/getGroups";
-import { svcCheckUserAccessToCategory } from "../categories/_lib";
+import { svcGetCategoryViaUserAccess } from "../categories/_lib";
 import { Category } from "../categories/_lib";
-import { svcCheckUserAccessToGroup } from "../groups/_lib";
+import { svcGetGroupViaUserAccess } from "../groups/_lib";
 
 export type MembershipModifier = Pick<
   DbMembership,
@@ -28,7 +28,11 @@ export async function apiModMembership({
 
     const user = await currentUser();
 
-    await svcCheckUserAccessToGroup(userId, groupId, { userMustBeAdmin: true });
+    await svcGetGroupViaUserAccess(user.id, groupId, {
+      userMustBeAdmin: true,
+      info: "modifying membership",
+      args: { flags },
+    });
 
     return await svcModMembership(user.id, { groupId, userId, flags });
   });
@@ -73,16 +77,13 @@ export async function apiSetDefaultCategory(categoryId: Category["id"]) {
 
     const { id: userId } = await currentUser();
 
-    await svcCheckUserAccessToCategory(userId, categoryId);
-
-    const cat = await db.query.categories.findFirst({
-      columns: { groupId: true },
-      where: eq(categories.id, categoryId),
+    const cat = await svcGetCategoryViaUserAccess(userId, categoryId, {
+      info: "setting default category",
     });
 
     await svcModMembership(userId, {
       userId,
-      groupId: cat!.groupId,
+      groupId: cat.groupId,
       defaultCategoryId: categoryId,
     });
   });

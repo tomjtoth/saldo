@@ -6,7 +6,7 @@ import { atomic, modEntity, DbCategory } from "@/app/_lib/db";
 import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { apiInternal, be, err, is, nullEmptyStrings } from "@/app/_lib/utils";
-import { svcCheckUserAccessToCategory } from "./accessChecker";
+import { svcGetCategoryViaUserAccess } from "./accessChecker";
 import { svcGetCategories } from "./getCategories";
 
 export type CategoryModifier = Pick<DbCategory, "id"> &
@@ -23,6 +23,7 @@ export async function apiModCategory({
 
     if (!is.string(name) && !is.string(description) && !is.number(flags))
       err("name, description or flags must be set", {
+        info: "modifying category",
         args: { name, description, flags },
       });
 
@@ -35,7 +36,10 @@ export async function apiModCategory({
 
     const user = await currentUser();
 
-    await svcCheckUserAccessToCategory(user.id, id);
+    await svcGetCategoryViaUserAccess(user.id, id, {
+      info: "modifying category",
+      args: { name, description, flags },
+    });
 
     return await svcModCategory(user.id, data);
   });

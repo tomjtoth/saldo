@@ -3,17 +3,17 @@
 import { eq, and, exists, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
-import { apiInternal, be, err } from "@/app/_lib/utils";
+import { apiInternal, be, err, ErrOpts } from "@/app/_lib/utils";
 import { atomic, db, isActive, isAdmin } from "@/app/_lib/db";
 import { groups, memberships, users } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { svcModGroup } from "./modGroup";
 import { Group } from "./getGroups";
 
-export async function svcCheckUserAccessToGroup(
+export async function svcGetGroupViaUserAccess(
   userId: User["id"],
   groupId: Group["id"],
-  opts?: {
+  opts?: Pick<ErrOpts, "info" | "args"> & {
     /**
      * @default false
      */
@@ -24,41 +24,40 @@ export async function svcCheckUserAccessToGroup(
     groupMustBeActive?: false;
   }
 ) {
-  const asAdmin = opts?.userMustBeAdmin ?? false;
+  const userMustBeAdmin = opts?.userMustBeAdmin ?? false;
   const groupMustBeActive = opts?.groupMustBeActive ?? true;
 
-  const res = await db
-    .select({ x: sql`1` })
-    .from(groups)
-    .where(
-      and(
-        ...[
-          ...(groupMustBeActive ? [isActive(groups)] : []),
-          eq(groups.id, groupId),
-          exists(
-            db
-              .select({ x: sql`1` })
-              .from(memberships)
-              .where(
-                and(
-                  ...[
-                    eq(memberships.groupId, groupId),
-                    eq(memberships.userId, userId),
-                    isActive(memberships),
-                    ...(asAdmin ? [isAdmin(memberships)] : []),
-                  ]
-                )
+  const group = await db.query.groups.findFirst({
+    where: and(
+      ...[
+        ...(groupMustBeActive ? [isActive(groups)] : []),
+        eq(groups.id, groupId),
+        exists(
+          db
+            .select({ x: sql`1` })
+            .from(memberships)
+            .where(
+              and(
+                ...[
+                  eq(memberships.groupId, groupId),
+                  eq(memberships.userId, userId),
+                  isActive(memberships),
+                  ...(userMustBeAdmin ? [isAdmin(memberships)] : []),
+                ]
               )
-          ),
-        ]
-      )
-    );
+            )
+        ),
+      ]
+    ),
+  });
 
-  if (res.length === 0)
+  if (!group)
     err({
-      info: "user tried to access group",
-      args: { userId, groupId, opts },
+      info: opts?.info ?? "user accessing group",
+      args: { ...opts?.args, userId, groupId },
     });
+
+  return group;
 }
 
 export async function svcAddMember(groupId: Group["id"], userId: User["id"]) {

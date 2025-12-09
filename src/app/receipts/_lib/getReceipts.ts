@@ -1,12 +1,9 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
-
 import { db } from "@/app/_lib/db";
-import { memberships } from "@/app/_lib/db/schema";
 import { apiInternal, be, err, is } from "@/app/_lib/utils";
 import { currentUser } from "@/app/(users)/_lib";
-import { Group } from "@/app/groups/_lib";
+import { Group, svcGetGroupViaUserAccess } from "@/app/groups/_lib";
 import {
   populateReceiptArchivesRecursively,
   Receipt,
@@ -28,14 +25,9 @@ export async function apiGetReceipts(
 
     const user = await currentUser();
 
-    const ms = await db.query.memberships.findFirst({
-      where: and(
-        eq(memberships.groupId, groupId),
-        eq(memberships.userId, user.id)
-      ),
+    await svcGetGroupViaUserAccess(user.id, groupId, {
+      info: "getting receipts",
     });
-
-    if (!ms) err(403);
 
     return await svcGetReceipts(groupId, knownIds);
   });

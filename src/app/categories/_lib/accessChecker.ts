@@ -3,17 +3,17 @@
 import { and, eq, exists, sql } from "drizzle-orm";
 
 import { db, isActive } from "@/app/_lib/db";
-import { err } from "@/app/_lib/utils";
+import { err, ErrOpts } from "@/app/_lib/utils";
 import { categories, groups, memberships } from "@/app/_lib/db/schema";
 import { User } from "@/app/(users)/_lib";
 import { Category } from "./getCategories";
 
-export async function svcCheckUserAccessToCategory(
+export async function svcGetCategoryViaUserAccess(
   userId: User["id"],
-  categoryId: Category["id"]
+  categoryId: Category["id"],
+  opts?: Pick<ErrOpts, "info" | "args">
 ) {
-  const res = await db.query.categories.findFirst({
-    columns: { id: true },
+  const category = await db.query.categories.findFirst({
     where: and(
       eq(categories.id, categoryId),
       exists(
@@ -33,5 +33,11 @@ export async function svcCheckUserAccessToCategory(
     ),
   });
 
-  if (!res) err({ args: { userId, categoryId } });
+  if (!category)
+    err({
+      info: opts?.info ?? "user accessing category",
+      args: { ...opts?.args, userId, categoryId },
+    });
+
+  return category;
 }

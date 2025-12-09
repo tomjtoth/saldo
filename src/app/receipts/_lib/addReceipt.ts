@@ -10,7 +10,7 @@ import {
   populateReceiptArchivesRecursively,
   Receipt,
 } from "./populateRecursively";
-import { svcCheckUserAccessToGroup } from "@/app/groups/_lib";
+import { svcGetGroupViaUserAccess } from "@/app/groups/_lib";
 
 type ReceiptAdder = Pick<Receipt, "groupId" | "paidOn" | "paidById"> & {
   items: (Pick<Item, "cost" | "categoryId" | "notes"> & {
@@ -70,7 +70,9 @@ export async function apiAddReceipt(uncheckedData: Parameters<ValidatorFn>[0]) {
 
     const user = await currentUser();
 
-    await svcCheckUserAccessToGroup(user.id, safeData.groupId);
+    await svcGetGroupViaUserAccess(user.id, safeData.groupId, {
+      info: "adding receipt",
+    });
 
     return await svcAddReceipt(user.id, safeData);
   });

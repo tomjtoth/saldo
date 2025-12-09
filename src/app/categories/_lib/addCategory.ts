@@ -7,7 +7,7 @@ import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { apiInternal, be, nullEmptyStrings } from "@/app/_lib/utils";
 import { svcGetCategories } from "./getCategories";
-import { svcCheckUserAccessToGroup } from "@/app/groups/_lib";
+import { svcGetGroupViaUserAccess } from "@/app/groups/_lib";
 
 export type CategoryAdder = Pick<
   CrCategory,
@@ -28,7 +28,9 @@ export async function apiAddCategory({
 
     const user = await currentUser();
 
-    await svcCheckUserAccessToGroup(user.id, data.groupId);
+    await svcGetGroupViaUserAccess(user.id, data.groupId, {
+      info: "adding category",
+    });
 
     return await svcAddCategory(user.id, data);
   });
