@@ -110,7 +110,7 @@ export async function svcModReceipt(
         err("Modifying a receipt of a disabled group is not allowed!");
 
       const {
-        // eslint-disable-next-line @typescript-unused-var
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         group: _discardGroupsHere,
         items: srvItems,
         ...receipt

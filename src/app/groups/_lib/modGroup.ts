@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 
-import { apiInternal, be, err, nullEmptyStrings } from "@/app/_lib/utils";
+import { apiInternal, be, nullEmptyStrings } from "@/app/_lib/utils";
 import { modEntity } from "@/app/_lib/db";
 import { atomic, DbGroup } from "@/app/_lib/db";
 import { groups } from "@/app/_lib/db/schema";
