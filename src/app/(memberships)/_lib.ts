@@ -47,28 +47,25 @@ export async function svcModMembership(
   }: Pick<DbMembership, "groupId" | "userId"> &
     Partial<Pick<DbMembership, "flags" | "defaultCategoryId">>
 ) {
-  return await atomic(
-    { operation: "Updating membership", revisedBy },
-    async (tx, revisionId) => {
-      const [ms] = await tx.query.memberships.findMany({
-        where: and(
-          eq(memberships.userId, userId),
-          eq(memberships.groupId, groupId)
-        ),
-      });
+  return atomic(revisedBy, async (tx, revisionId) => {
+    const [ms] = await tx.query.memberships.findMany({
+      where: and(
+        eq(memberships.userId, userId),
+        eq(memberships.groupId, groupId)
+      ),
+    });
 
-      const res = await modEntity(ms, modifier, {
-        tx,
-        tableName: "memberships",
-        primaryKeys: { userId: true, groupId: true },
-        revisionId,
-        skipArchivalOf: { defaultCategoryId: true },
-        needsToReturn: true,
-      });
+    const res = await modEntity(ms, modifier, {
+      tx,
+      tableName: "memberships",
+      primaryKeys: { userId: true, groupId: true },
+      revisionId,
+      skipArchivalOf: { defaultCategoryId: true },
+      needsToReturn: true,
+    });
 
-      return res;
-    }
-  );
+    return res;
+  });
 }
 
 export async function apiSetDefaultCategory(categoryId: Category["id"]) {

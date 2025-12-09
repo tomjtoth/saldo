@@ -12,18 +12,15 @@ import { Group } from "./getGroups";
 import { svcGetGroupViaUserAccess } from "./access";
 
 export async function svcAddMember(groupId: Group["id"], userId: User["id"]) {
-  return await atomic(
-    { operation: "adding new member", revisedBy: userId },
-    async (tx, revisionId) => {
-      await tx.update(groups).set({ uuid: null }).where(eq(groups.id, groupId));
+  return atomic(userId, async (tx, revisionId) => {
+    await tx.update(groups).set({ uuid: null }).where(eq(groups.id, groupId));
 
-      return await tx.insert(memberships).values({
-        userId,
-        groupId,
-        revisionId,
-      });
-    }
-  );
+    return await tx.insert(memberships).values({
+      userId,
+      groupId,
+      revisionId,
+    });
+  });
 }
 
 export async function joinGroup(

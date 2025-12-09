@@ -32,30 +32,27 @@ const USERS_EXTRAS = {
 export async function svcAddUser(
   userData: Pick<CrUser, "email" | "image" | "name">
 ) {
-  return await atomic(
-    { operation: "Adding new user", revisedBy: -1, deferForeignKeys: true },
-    async (tx, revisionId) => {
-      const [createdRow] = await tx
-        .insert(users)
-        .values({
-          ...userData,
-          revisionId,
-        })
-        .returning();
+  return atomic(-1, async (tx, revisionId) => {
+    const [createdRow] = await tx
+      .insert(users)
+      .values({
+        ...userData,
+        revisionId,
+      })
+      .returning();
 
-      await tx
-        .update(revisions)
-        .set({ createdById: createdRow.id })
-        .where(eq(revisions.id, revisionId));
+    await tx
+      .update(revisions)
+      .set({ createdById: createdRow.id })
+      .where(eq(revisions.id, revisionId));
 
-      const [user] = await tx.query.users.findMany({
-        ...USERS_EXTRAS,
-        where: eq(users.id, createdRow.id),
-      });
+    const [user] = await tx.query.users.findMany({
+      ...USERS_EXTRAS,
+      where: eq(users.id, createdRow.id),
+    });
 
-      return user;
-    }
-  );
+    return user;
+  });
 }
 
 interface ArgsWithSession {

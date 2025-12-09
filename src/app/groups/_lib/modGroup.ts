@@ -49,27 +49,24 @@ export async function svcModGroup(
   revisedBy: User["id"],
   { id, ...modifier }: GroupModifier
 ): Promise<Group> {
-  return await atomic(
-    { operation: "Updating group", revisedBy },
-    async (tx, revisionId) => {
-      const [group] = await tx.query.groups.findMany({
-        where: eq(groups.id, id),
-      });
+  return atomic(revisedBy, async (tx, revisionId) => {
+    const [group] = await tx.query.groups.findMany({
+      where: eq(groups.id, id),
+    });
 
-      await modEntity(group, modifier, {
-        tx,
-        tableName: "groups",
-        primaryKeys: { id: true },
-        revisionId,
-        skipArchivalOf: { uuid: true },
-      });
+    await modEntity(group, modifier, {
+      tx,
+      tableName: "groups",
+      primaryKeys: { id: true },
+      revisionId,
+      skipArchivalOf: { uuid: true },
+    });
 
-      const [res] = await svcGetGroups(revisedBy, {
-        tx,
-        where: eq(groups.id, group.id),
-      });
+    const [res] = await svcGetGroups(revisedBy, {
+      tx,
+      where: eq(groups.id, group.id),
+    });
 
-      return res;
-    }
-  );
+    return res;
+  });
 }

@@ -92,142 +92,137 @@ export async function svcModReceipt(
   revisedBy: User["id"],
   { items: itemMods, ...receiptMod }: ReturnType<typeof validateReceipt>
 ): Promise<Receipt> {
-  return atomic(
-    { revisedBy, operation: "updating receipt" },
+  return atomic(revisedBy, async (tx, revisionId) => {
+    const fromSrv = await tx.query.receipts.findFirst({
+      with: {
+        items: { with: { itemShares: true } },
+        group: { columns: { flags: true } },
+      },
+      where: eq(receipts.id, receiptMod.id),
+    });
 
-    async (tx, revisionId) => {
-      const fromSrv = await tx.query.receipts.findFirst({
-        with: {
-          items: { with: { itemShares: true } },
-          group: { columns: { flags: true } },
-        },
-        where: eq(receipts.id, receiptMod.id),
-      });
+    if (!fromSrv) err("receipt not found", { args: { receiptMod } });
 
-      if (!fromSrv) err("receipt not found", { args: { receiptMod } });
+    if (!virt(fromSrv.group).active)
+      err("Modifying a receipt of a disabled group is not allowed!");
 
-      if (!virt(fromSrv.group).active)
-        err("Modifying a receipt of a disabled group is not allowed!");
+    const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      group: _discardGroupsHere,
+      items: srvItems,
+      ...receipt
+    } = fromSrv;
 
-      const {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        group: _discardGroupsHere,
-        items: srvItems,
-        ...receipt
-      } = fromSrv;
+    let changes = await modEntity(receipt, receiptMod, {
+      tx,
+      tableName: "receipts",
+      revisionId,
+      primaryKeys: { id: true },
+      unchangedThrows: false,
+    });
 
-      let changes = await modEntity(receipt, receiptMod, {
+    // checking what changed in old data first
+    for (const avoidCrashingDebugger of srvItems) {
+      // https://chatgpt.com/share/69121a51-3304-800b-86db-e448eff3ac9e
+      const { itemShares: srvItemShares, ...item } = avoidCrashingDebugger;
+
+      let cliItem = itemMods.find((i) => i.id === item.id);
+
+      // item has been deleted on the client side
+      if (!cliItem) {
+        cliItem = { ...item, itemShares: [] };
+        virt(cliItem).active = false;
+      }
+
+      const { itemShares: cliItemShares, ...itemModifier } = cliItem;
+
+      changes += await modEntity(item, itemModifier, {
         tx,
-        tableName: "receipts",
+        tableName: "items",
         revisionId,
         primaryKeys: { id: true },
         unchangedThrows: false,
       });
 
-      // checking what changed in old data first
-      for (const avoidCrashingDebugger of srvItems) {
-        // https://chatgpt.com/share/69121a51-3304-800b-86db-e448eff3ac9e
-        const { itemShares: srvItemShares, ...item } = avoidCrashingDebugger;
+      for (const oldItemShare of srvItemShares) {
+        let modItemShare = cliItemShares.find(
+          (mod) =>
+            mod.userId === oldItemShare.userId &&
+            itemModifier.id === oldItemShare.itemId
+        );
 
-        let cliItem = itemMods.find((i) => i.id === item.id);
-
-        // item has been deleted on the client side
-        if (!cliItem) {
-          cliItem = { ...item, itemShares: [] };
+        // itemShare has been deleted on the client side: shouldn't occur,
+        // since pre-existing shares simply get 0 value when "deleted"
+        if (!modItemShare) {
+          modItemShare = { ...oldItemShare };
           virt(cliItem).active = false;
         }
 
-        const { itemShares: cliItemShares, ...itemModifier } = cliItem;
-
-        changes += await modEntity(item, itemModifier, {
+        changes += await modEntity(oldItemShare, modItemShare, {
           tx,
-          tableName: "items",
+          tableName: "itemShares",
           revisionId,
-          primaryKeys: { id: true },
-          unchangedThrows: false,
+          primaryKeys: { itemId: true, userId: true },
         });
-
-        for (const oldItemShare of srvItemShares) {
-          let modItemShare = cliItemShares.find(
-            (mod) =>
-              mod.userId === oldItemShare.userId &&
-              itemModifier.id === oldItemShare.itemId
-          );
-
-          // itemShare has been deleted on the client side: shouldn't occur,
-          // since pre-existing shares simply get 0 value when "deleted"
-          if (!modItemShare) {
-            modItemShare = { ...oldItemShare };
-            virt(cliItem).active = false;
-          }
-
-          changes += await modEntity(oldItemShare, modItemShare, {
-            tx,
-            tableName: "itemShares",
-            revisionId,
-            primaryKeys: { itemId: true, userId: true },
-          });
-        }
-
-        const newItemShares = cliItemShares.filter(
-          (mod) =>
-            !srvItemShares.some(
-              // `modItem.id` because client side shares only store `userId` and `share`
-              (old) =>
-                old.itemId === itemModifier.id && old.userId === mod.userId
-            )
-        );
-
-        if (newItemShares.length) {
-          changes += newItemShares.length;
-
-          await tx.insert(itemShares).values(
-            newItemShares.map((nsh) => ({
-              ...nsh,
-              itemId: itemModifier.id,
-              revisionId,
-            }))
-          );
-        }
       }
 
-      // checking if any item was added
-      const newItems = itemMods.filter(
-        (mi) => !srvItems.some((oi) => oi.id === mi.id)
+      const newItemShares = cliItemShares.filter(
+        (mod) =>
+          !srvItemShares.some(
+            // `modItem.id` because client side shares only store `userId` and `share`
+            (old) => old.itemId === itemModifier.id && old.userId === mod.userId
+          )
       );
 
-      for (const avoidCrashingDebugger of newItems) {
-        const {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          id: _discardingClientSidePlaceholderId,
-          itemShares: newItemShares,
-          ...newItem
-        } = avoidCrashingDebugger;
+      if (newItemShares.length) {
+        changes += newItemShares.length;
 
-        const [{ itemId }] = await tx
-          .insert(items)
-          .values([{ ...newItem, revisionId, receiptId: receipt.id }])
-          .returning({ itemId: items.id });
-
-        changes += 1;
-
-        if (newItemShares.length) {
-          changes += newItemShares.length;
-
-          await tx.insert(itemShares).values(
-            newItemShares.map((nsh) => ({
-              ...nsh,
-              itemId,
-              revisionId,
-            }))
-          );
-        }
+        await tx.insert(itemShares).values(
+          newItemShares.map((nsh) => ({
+            ...nsh,
+            itemId: itemModifier.id,
+            revisionId,
+          }))
+        );
       }
-
-      if (changes === 0)
-        err("No changes were made", { info: "updating receipt" });
-
-      return await populateReceiptArchivesRecursively(receipt.id, tx);
     }
-  );
+
+    // checking if any item was added
+    const newItems = itemMods.filter(
+      (mi) => !srvItems.some((oi) => oi.id === mi.id)
+    );
+
+    for (const avoidCrashingDebugger of newItems) {
+      const {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        id: _discardingClientSidePlaceholderId,
+        itemShares: newItemShares,
+        ...newItem
+      } = avoidCrashingDebugger;
+
+      const [{ itemId }] = await tx
+        .insert(items)
+        .values([{ ...newItem, revisionId, receiptId: receipt.id }])
+        .returning({ itemId: items.id });
+
+      changes += 1;
+
+      if (newItemShares.length) {
+        changes += newItemShares.length;
+
+        await tx.insert(itemShares).values(
+          newItemShares.map((nsh) => ({
+            ...nsh,
+            itemId,
+            revisionId,
+          }))
+        );
+      }
+    }
+
+    if (changes === 0)
+      err("No changes were made", { info: "updating receipt" });
+
+    return await populateReceiptArchivesRecursively(receipt.id, tx);
+  });
 }

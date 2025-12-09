@@ -49,26 +49,23 @@ export async function svcModCategory(
   revisedBy: User["id"],
   { id, ...modifier }: CategoryModifier
 ) {
-  return await atomic(
-    { operation: "Updating category", revisedBy },
-    async (tx, revisionId) => {
-      const [cat] = await tx.query.categories.findMany({
-        where: eq(categories.id, id),
-      });
+  return atomic(revisedBy, async (tx, revisionId) => {
+    const [cat] = await tx.query.categories.findMany({
+      where: eq(categories.id, id),
+    });
 
-      await modEntity(cat, modifier, {
-        tx,
-        tableName: "categories",
-        revisionId,
-        primaryKeys: { id: true },
-      });
+    await modEntity(cat, modifier, {
+      tx,
+      tableName: "categories",
+      revisionId,
+      primaryKeys: { id: true },
+    });
 
-      const [res] = await svcGetCategories(revisedBy, {
-        tx,
-        where: eq(categories.id, cat.id),
-      });
+    const [res] = await svcGetCategories(revisedBy, {
+      tx,
+      where: eq(categories.id, cat.id),
+    });
 
-      return res;
-    }
-  );
+    return res;
+  });
 }
