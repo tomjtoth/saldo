@@ -1,17 +1,10 @@
-import { sql, desc, and, eq, SQL } from "drizzle-orm";
-
-import { receipts } from "@/app/_lib/db/schema";
 import { DbGroup, DbReceipt, QueryParamsOf } from "@/app/_lib/db/types";
 import { SELECT_REVISION_INFO } from "@/app/_lib";
 
 export const SELECT_RECEIPTS = {
   with: {
     revision: SELECT_REVISION_INFO,
-    items: {
-      with: {
-        itemShares: true,
-      },
-    },
+    items: { with: { itemShares: true } },
     paidBy: { columns: { id: true, image: true, name: true } },
   },
 } as const satisfies QueryParamsOf<"receipts">;
@@ -21,24 +14,24 @@ export const queryReceipts = (opts?: {
   knownIds?: DbReceipt["id"][];
   getAll?: true;
 }) => {
-  const crit: SQL[] = [
-    ...(opts?.groupId ? [eq(receipts.groupId, opts.groupId)] : []),
-    ...(opts?.knownIds?.length
-      ? [
-          sql`${receipts.id} not in ${sql.raw(
-            "(" + opts.knownIds.join(", ") + ")"
-          )}`,
-        ]
-      : []),
-  ];
-
   return {
     ...SELECT_RECEIPTS,
 
+    where: {
+      groupId: opts?.groupId,
+      ...(opts?.knownIds?.length
+        ? {
+            RAW(rcpt, { sql }) {
+              return sql`${rcpt.id} not in ${sql.raw(
+                `(${opts.knownIds!.join(",")})`
+              )}`;
+            },
+          }
+        : {}),
+    },
+
     ...(opts?.getAll ? {} : { limit: 50 }),
 
-    ...(crit.length ? { where: and(...crit) } : {}),
-
-    orderBy: desc(receipts.paidOn),
+    orderBy: { paidOn: "desc" },
   } as const satisfies QueryParamsOf<"receipts">;
 };
