@@ -3,7 +3,7 @@
 import { and, eq, ne } from "drizzle-orm";
 
 import { db, inChunks } from "@/app/_lib/db";
-import * as schema from "@/app/_lib/db/schema";
+import { schema } from "@/app/_lib/db/relations";
 import { err } from "@/app/_lib/utils";
 import { parseCSV, parseData, TDBData } from "./parsers";
 

@@ -2,6 +2,8 @@ import { defineRelations } from "drizzle-orm";
 
 import * as schema from "@/app/_lib/db/schema";
 
+export { schema };
+
 export const relations = defineRelations(schema, (r) => ({
   archives: {
     revision: r.one.revisions({
