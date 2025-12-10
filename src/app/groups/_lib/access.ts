@@ -1,10 +1,9 @@
 "use server";
 
-import { eq, and, exists, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 import { err, ErrOpts } from "@/app/_lib/utils";
 import { db, isActive, isAdmin } from "@/app/_lib/db";
-import { groups, memberships } from "@/app/_lib/db/schema";
 import { User } from "@/app/(users)/_lib";
 import { Group } from "./getGroups";
 
@@ -26,27 +25,21 @@ export async function svcGetGroupViaUserAccess(
   const groupMustBeActive = opts?.groupMustBeActive ?? true;
 
   const group = await db.query.groups.findFirst({
-    where: and(
-      ...[
-        ...(groupMustBeActive ? [isActive(groups)] : []),
-        eq(groups.id, groupId),
-        exists(
-          db
-            .select({ x: sql`1` })
-            .from(memberships)
-            .where(
-              and(
-                ...[
-                  eq(memberships.groupId, groupId),
-                  eq(memberships.userId, userId),
-                  isActive(memberships),
-                  ...(userMustBeAdmin ? [isAdmin(memberships)] : []),
-                ]
-              )
-            )
-        ),
-      ]
-    ),
+    where: {
+      id: groupId,
+
+      ...(groupMustBeActive ? { RAW: isActive } : {}),
+
+      memberships: {
+        userId,
+
+        RAW: (ms) =>
+          sql.join(
+            [isActive(ms), ...(userMustBeAdmin ? [isAdmin(ms)] : [])],
+            sql` AND `
+          ),
+      },
+    },
   });
 
   if (!group)
