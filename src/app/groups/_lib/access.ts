@@ -51,6 +51,7 @@ export async function svcGetGroupViaUserAccess(
 
   if (!group)
     err({
+      ...opts,
       info: opts?.info ?? "user accessing group",
       args: { ...opts?.args, userId, groupId },
     });
