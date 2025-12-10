@@ -1,17 +1,17 @@
 import { sql } from "drizzle-orm";
 
-import { BalanceData } from "@/app/_lib/db";
+import { BalanceData, Schema } from "@/app/_lib/db";
 
-export const balanceQuery = () =>
+export const balanceQuery = () => (groups: Schema["groups"]) =>
   sql<string>`(
     WITH normalized_shares_and_uids AS (
       SELECT
         paid_on AS "date",
         min(paid_by, paid_to) AS uid1,
         max(paid_by, paid_to) AS uid2,
-        sum(share * iif(paid_by < paid_to, 1, -1)) as share
+        sum(share * iif(paid_by < paid_to, 1, -1)) AS share
       FROM consumption c
-      WHERE "groups"."id" = c.group_id AND paid_by != paid_to
+      WHERE ${groups.id} = c.group_id AND paid_by != paid_to
       GROUP BY paid_on, paid_by, paid_to
       ORDER BY "date"
     ),
@@ -59,7 +59,7 @@ export const balanceQuery = () =>
         FROM data_by_date
       )
     )
-  )`.as("balance");
+  )`;
 
 export function getBalanceParser() {
   const minMaxes: BalanceData["minMaxes"] = {};
