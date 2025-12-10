@@ -161,13 +161,11 @@ export const relations = defineRelations(schema, (r) => ({
     group: r.one.groups({
       from: r.chartColors.groupId,
       to: r.groups.id,
-      optional: false,
     }),
 
     member: r.one.users({
       from: r.chartColors.memberId,
       to: r.users.id,
-      optional: false,
     }),
   },
 
