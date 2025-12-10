@@ -1,11 +1,8 @@
 "use server";
 
-import { eq } from "drizzle-orm";
-
 import { apiInternal, be, nullEmptyStrings } from "@/app/_lib/utils";
 import { modEntity } from "@/app/_lib/db";
 import { atomic, DbGroup } from "@/app/_lib/db";
-import { groups } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { Group, svcGetGroups } from "./getGroups";
 import { svcGetGroupViaUserAccess } from "./access";
@@ -50,9 +47,7 @@ export async function svcModGroup(
   { id, ...modifier }: GroupModifier
 ): Promise<Group> {
   return atomic(revisedBy, async (tx, revisionId) => {
-    const [group] = await tx.query.groups.findMany({
-      where: eq(groups.id, id),
-    });
+    const [group] = await tx.query.groups.findMany({ where: { id } });
 
     await modEntity(group, modifier, {
       tx,
@@ -64,7 +59,7 @@ export async function svcModGroup(
 
     const [res] = await svcGetGroups(revisedBy, {
       tx,
-      where: eq(groups.id, group.id),
+      where: { id: group.id },
     });
 
     return res;
