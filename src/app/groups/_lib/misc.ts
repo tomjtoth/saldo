@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 import { apiInternal, be, err } from "@/app/_lib/utils";
@@ -28,15 +28,12 @@ export async function joinGroup(
   userId: User["id"]
 ) {
   const group = await db.query.groups.findFirst({
-    where: eq(groups.uuid, uuid),
+    where: { uuid },
   });
   if (!group) err("link expired", { args: { uuid } });
 
   const ms = await db.query.memberships.findFirst({
-    where: and(
-      eq(memberships.userId, userId),
-      eq(memberships.groupId, group.id)
-    ),
+    where: { userId, groupId: group.id },
   });
   if (ms) err("already a member", { args: { userId, group } });
 
