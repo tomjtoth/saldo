@@ -1,27 +1,16 @@
-import type { ExtractTablesWithRelations } from "drizzle-orm";
-import { SQLiteTransaction } from "drizzle-orm/sqlite-core";
-import { ResultSet } from "@libsql/client";
-
-import * as schema from "./schema";
+import { db } from "./instance";
+import { schema } from "./relations";
 
 export type Schema = typeof schema;
-export type SchemaTables = {
-  [K in keyof Schema as K extends `${string}Rel` ? never : K]: Schema[K];
-};
 
-export type QueryParamsOf<T extends keyof SchemaTables> = Parameters<
+export type DrizzleTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+export type QueryParamsOf<T extends keyof Schema> = Parameters<
   DrizzleTx["query"][T]["findMany"]
 >[0];
 
-export type DbInsert<T extends keyof SchemaTables> = Schema[T]["$inferInsert"];
-export type DbSelect<T extends keyof SchemaTables> = Schema[T]["$inferSelect"];
-
-export type DrizzleTx = SQLiteTransaction<
-  "async",
-  ResultSet,
-  Schema,
-  ExtractTablesWithRelations<Schema>
->;
+export type DbInsert<T extends keyof Schema> = Schema[T]["$inferInsert"];
+export type DbSelect<T extends keyof Schema> = Schema[T]["$inferSelect"];
 
 export type ConsumptionData = ({
   category: string;
