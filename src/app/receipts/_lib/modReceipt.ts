@@ -1,7 +1,5 @@
 "use server";
 
-import { eq } from "drizzle-orm";
-
 import {
   atomic,
   DbItem,
@@ -9,7 +7,7 @@ import {
   DbReceipt,
   modEntity,
 } from "@/app/_lib/db";
-import { items, itemShares, receipts } from "@/app/_lib/db/schema";
+import { items, itemShares } from "@/app/_lib/db/schema";
 import { apiInternal, be, err, nullEmptyStrings, virt } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
@@ -98,7 +96,7 @@ export async function svcModReceipt(
         items: { with: { itemShares: true } },
         group: { columns: { flags: true } },
       },
-      where: eq(receipts.id, receiptMod.id),
+      where: { id: receiptMod.id },
     });
 
     if (!fromSrv) err("receipt not found", { args: { receiptMod } });
