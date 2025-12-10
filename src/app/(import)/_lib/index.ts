@@ -1,9 +1,7 @@
 "use server";
 
-import { and, eq, ne } from "drizzle-orm";
-
 import { db, inChunks } from "@/app/_lib/db";
-import * as schema from "@/app/_lib/db/schema";
+import { schema } from "@/app/_lib/db/relations";
 import { err } from "@/app/_lib/utils";
 import { parseCSV, parseData, TDBData } from "./parsers";
 
@@ -21,10 +19,7 @@ export type TEntriesInDbOfEachTable = {
 export const alreadyInProd = async () => {
   const user = await db.query.users.findFirst({
     columns: { id: true },
-    where: and(
-      eq(schema.users.id, 1),
-      ne(schema.users.email, "user1@just.imported")
-    ),
+    where: { id: 1, email: { NOT: "user1@just.imported" } },
   });
 
   return !!user;

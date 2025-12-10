@@ -4,10 +4,6 @@ import { sql } from "drizzle-orm";
 import { db } from "./instance";
 import { chartColors, revisions } from "./schema";
 
-export const SQL_RANDOM_COLOR = sql.raw(
-  "printf('%07x', abs(random()) % 0x2000000)"
-);
-
 export async function truncateDb() {
   await db.transaction(async (tx) => {
     await tx.delete(revisions);
@@ -16,13 +12,6 @@ export async function truncateDb() {
 }
 
 type TblCtx<ColName extends string> = { [K in ColName]: SQLiteColumn };
-
-export const orderByLowerName = (table: TblCtx<"name">) =>
-  sql`lower(${table.name})`;
-
-export const colActive = (t: TblCtx<"flags">) => ({
-  active: isActive(t).as("active"),
-});
 
 const bitFlagCheck = (flag: number) => (table: TblCtx<"flags">) =>
   sql<boolean>`${table.flags} & ${sql.raw(flag.toString())} = ${sql.raw(

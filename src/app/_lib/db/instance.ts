@@ -1,6 +1,5 @@
 import { drizzle } from "drizzle-orm/libsql";
-
-import * as schema from "@/app/_lib/db/schema";
+import { relations } from "./relations";
 
 export const getDbPath = (withProtocol = false) => {
   const path: string | undefined =
@@ -19,7 +18,7 @@ export const getDbPath = (withProtocol = false) => {
 
 export const db = drizzle({
   connection: getDbPath(true),
-  schema,
+  relations,
   casing: "snake_case",
   logger: process.env.NODE_ENV === "development",
 });

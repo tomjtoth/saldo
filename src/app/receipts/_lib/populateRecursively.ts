@@ -1,8 +1,5 @@
 "use server";
 
-import { eq } from "drizzle-orm";
-
-import { receipts } from "@/app/_lib/db/schema";
 import { DbReceipt, DrizzleTx } from "@/app/_lib/db/types";
 import {
   ArchivePopulatorFn,
@@ -14,7 +11,7 @@ import { SELECT_RECEIPTS } from "./common";
 const getMany = (receiptId: DbReceipt["id"], tx?: DrizzleTx) =>
   (tx ?? db).query.receipts.findMany({
     ...SELECT_RECEIPTS,
-    where: eq(receipts.id, receiptId),
+    where: { id: receiptId },
   });
 
 export type ReceiptsFromDb = Awaited<ReturnType<typeof getMany>>;

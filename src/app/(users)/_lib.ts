@@ -13,19 +13,18 @@ export type User = Awaited<ReturnType<typeof svcAddUser>>;
 
 const USERS_EXTRAS = {
   extras: {
-    color: sql<string>`
-    printf(
+    color: (users) => sql<string>`printf(
       '#%06x', 
       coalesce(
         (
           SELECT color FROM chart_colors
-          WHERE user_id = "users"."id"
+          WHERE user_id = ${users.id}
           AND group_id IS NULL
           AND member_id IS NULL
         ),
         abs(random()) % 0x1000000
       )
-    )`.as("color"),
+    )`,
   },
 } as const satisfies QueryParamsOf<"users">;
 
@@ -48,7 +47,7 @@ export async function svcAddUser(
 
     const [user] = await tx.query.users.findMany({
       ...USERS_EXTRAS,
-      where: eq(users.id, createdRow.id),
+      where: { id: createdRow.id },
     });
 
     return user;
@@ -91,7 +90,7 @@ export async function currentUser(
 
   let user = await db.query.users.findFirst({
     ...USERS_EXTRAS,
-    where: eq(users.email, email),
+    where: { email },
   });
 
   if (!user) {

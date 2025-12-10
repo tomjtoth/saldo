@@ -1,8 +1,8 @@
 import { and, eq, sql } from "drizzle-orm";
 
 import { err, be } from "../utils";
-import { DrizzleTx, SchemaTables } from "./types";
-import * as schema from "./schema";
+import { DrizzleTx, Schema } from "./types";
+import { schema } from "./relations";
 
 type EntityBase = { revisionId: number };
 
@@ -17,7 +17,7 @@ interface BaseOpts<E, T> {
 
 export async function modEntity<
   E extends EntityBase,
-  T extends keyof SchemaTables,
+  T extends keyof Schema,
   M extends Partial<E>
 >(
   entity: E,
@@ -29,13 +29,13 @@ export async function modEntity<
 
 export async function modEntity<
   E extends EntityBase,
-  T extends keyof SchemaTables,
+  T extends keyof Schema,
   M extends Partial<E>
 >(entity: E, modifier: M, opts: BaseOpts<E, T>): Promise<number>;
 
 export async function modEntity<
   E extends EntityBase,
-  T extends keyof SchemaTables,
+  T extends keyof Schema,
   M extends Partial<E>
 >(
   entity: E,

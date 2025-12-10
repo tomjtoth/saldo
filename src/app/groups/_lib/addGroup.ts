@@ -1,7 +1,5 @@
 "use server";
 
-import { eq } from "drizzle-orm";
-
 import { apiInternal, be, nullEmptyStrings } from "@/app/_lib/utils";
 import { atomic, CrGroup, DbGroup } from "@/app/_lib/db";
 import { groups, memberships } from "@/app/_lib/db/schema";
@@ -44,10 +42,7 @@ export async function svcAddGroup(
       revisionId,
     });
 
-    const [res] = await svcGetGroups(ownerId, {
-      tx,
-      where: eq(groups.id, groupId),
-    });
+    const [res] = await svcGetGroups(ownerId, { tx, where: { id: groupId } });
 
     return res;
   });

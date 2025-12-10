@@ -27,7 +27,7 @@ export function consumptionQuery(opts?: ConsumptionOpts) {
       FROM consumption con
       INNER JOIN categories cat ON con.category_id = cat.id
         -- had to filter to group here, the WHERE clause wouldn't work..
-        AND cat.group_id = "groups"."id"
+        AND cat.group_id = "d0"."id" -- "d0" ~ "id"
       ${whereClause}
       GROUP BY paid_to, cat.id
     ),

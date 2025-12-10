@@ -34,11 +34,11 @@ export async function svcGetConsumption(
   }>(sql`
     SELECT 
       json_group_object(
-        cast("groups"."id" AS TEXT),
+        cast("d0"."id" AS TEXT), 
         ${consumptionQuery({ ...opts, jsonB: true })}
       ) AS serialized
     FROM memberships ms
-    INNER JOIN groups "groups" ON ms.group_id = "groups"."id"
+    INNER JOIN groups "d0" ON ms.group_id = "d0"."id"
     WHERE ms.user_id = ${userId}
   `);
 

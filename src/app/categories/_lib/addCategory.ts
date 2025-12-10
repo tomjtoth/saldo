@@ -1,7 +1,5 @@
 "use server";
 
-import { eq } from "drizzle-orm";
-
 import { atomic, CrCategory } from "@/app/_lib/db";
 import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
@@ -51,7 +49,7 @@ export async function svcAddCategory(
 
     const [res] = await svcGetCategories(revisedBy, {
       tx,
-      where: eq(categories.id, id),
+      where: { id },
     });
 
     return res;

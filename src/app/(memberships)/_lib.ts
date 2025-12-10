@@ -4,7 +4,7 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 
 import { atomic, db, DbMembership, modEntity } from "@/app/_lib/db";
 import { apiInternal, be } from "@/app/_lib/utils";
-import { chartColors, memberships } from "@/app/_lib/db/schema";
+import { chartColors } from "@/app/_lib/db/schema";
 import { currentUser, User } from "../(users)/_lib";
 import { Membership } from "../groups/_lib/getGroups";
 import { svcGetCategoryViaUserAccess } from "../categories/_lib";
@@ -49,10 +49,7 @@ export async function svcModMembership(
 ) {
   return atomic(revisedBy, async (tx, revisionId) => {
     const [ms] = await tx.query.memberships.findMany({
-      where: and(
-        eq(memberships.userId, userId),
-        eq(memberships.groupId, groupId)
-      ),
+      where: { userId, groupId },
     });
 
     const res = await modEntity(ms, modifier, {

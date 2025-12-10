@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
 import { db, getDbPath } from "./instance";
-import * as schema from "./schema";
+import { schema } from "./relations";
 import { DbRevision, DbUser, DrizzleTx } from "./types";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;

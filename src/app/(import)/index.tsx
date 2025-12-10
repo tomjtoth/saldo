@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/app/_lib/db";
-import * as schema from "@/app/_lib/db/schema";
+import { schema } from "../_lib/db/relations";
 import { alreadyInProd } from "./_lib";
 
 import CliImportSection from "./_components";

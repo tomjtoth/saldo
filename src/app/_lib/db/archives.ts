@@ -2,10 +2,10 @@ import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
 import { db } from "./instance";
-import { DbSelect, DrizzleTx, RevisionInfo, SchemaTables } from "./types";
+import { DbSelect, DrizzleTx, RevisionInfo, Schema } from "./types";
 
 type ArchivedTables = Exclude<
-  keyof SchemaTables,
+  keyof Schema,
   "metadata" | "archives" | "chartColors" | "revisions"
 >;
 
