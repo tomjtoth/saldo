@@ -1,9 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
-
 import { atomic, modEntity, DbCategory } from "@/app/_lib/db";
-import { categories } from "@/app/_lib/db/schema";
 import { currentUser, User } from "@/app/(users)/_lib";
 import { apiInternal, be, err, is, nullEmptyStrings } from "@/app/_lib/utils";
 import { svcGetCategoryViaUserAccess } from "./access";
@@ -50,9 +47,7 @@ export async function svcModCategory(
   { id, ...modifier }: CategoryModifier
 ) {
   return atomic(revisedBy, async (tx, revisionId) => {
-    const [cat] = await tx.query.categories.findMany({
-      where: eq(categories.id, id),
-    });
+    const [cat] = await tx.query.categories.findMany({ where: { id } });
 
     await modEntity(cat, modifier, {
       tx,
@@ -61,10 +56,7 @@ export async function svcModCategory(
       primaryKeys: { id: true },
     });
 
-    const [res] = await svcGetCategories(revisedBy, {
-      tx,
-      where: eq(categories.id, cat.id),
-    });
+    const [res] = await svcGetCategories(revisedBy, { tx, where: { id } });
 
     return res;
   });
