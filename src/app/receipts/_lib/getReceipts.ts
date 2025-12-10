@@ -27,6 +27,7 @@ export async function apiGetReceipts(
 
     await svcGetGroupViaUserAccess(user.id, groupId, {
       info: "getting receipts",
+      groupMustBeActive: false,
     });
 
     return await svcGetReceipts(groupId, knownIds);
