@@ -7,6 +7,7 @@ export const relations = defineRelations(schema, (r) => ({
     revision: r.one.revisions({
       from: r.archives.revisionId,
       to: r.revisions.id,
+      optional: false,
     }),
   },
 
@@ -15,6 +16,7 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.revisions.createdById,
       to: r.users.id,
       alias: "createdByUser",
+      optional: false,
     }),
 
     users: r.many.users(),
@@ -38,6 +40,7 @@ export const relations = defineRelations(schema, (r) => ({
     revision: r.one.revisions({
       from: r.users.revisionId,
       to: r.revisions.id,
+      optional: false,
     }),
 
     createdRevisions: r.many.revisions({ alias: "createdByUser" }),
@@ -47,6 +50,7 @@ export const relations = defineRelations(schema, (r) => ({
     defaultGroup: r.one.groups({
       from: r.users.defaultGroupId,
       to: r.groups.id,
+      optional: false,
     }),
 
     itemShares: r.many.itemShares(),
@@ -58,6 +62,7 @@ export const relations = defineRelations(schema, (r) => ({
     revision: r.one.revisions({
       from: r.groups.revisionId,
       to: r.revisions.id,
+      optional: false,
     }),
 
     memberships: r.many.memberships(),
@@ -75,21 +80,25 @@ export const relations = defineRelations(schema, (r) => ({
     revision: r.one.revisions({
       from: r.memberships.revisionId,
       to: r.revisions.id,
+      optional: false,
     }),
 
     user: r.one.users({
       from: r.memberships.userId,
       to: r.users.id,
+      optional: false,
     }),
 
     group: r.one.groups({
       from: r.memberships.groupId,
       to: r.groups.id,
+      optional: false,
     }),
 
     defaultCategory: r.one.categories({
       from: r.memberships.defaultCategoryId,
       to: r.categories.id,
+      optional: false,
     }),
   },
 
@@ -97,16 +106,19 @@ export const relations = defineRelations(schema, (r) => ({
     user: r.one.users({
       from: r.chartColors.userId,
       to: r.users.id,
+      optional: false,
     }),
 
     group: r.one.groups({
       from: r.chartColors.groupId,
       to: r.groups.id,
+      optional: false,
     }),
 
     member: r.one.users({
       from: r.chartColors.memberId,
       to: r.users.id,
+      optional: false,
     }),
   },
 
@@ -114,11 +126,13 @@ export const relations = defineRelations(schema, (r) => ({
     revision: r.one.revisions({
       from: r.categories.revisionId,
       to: r.revisions.id,
+      optional: false,
     }),
 
     group: r.one.groups({
       from: r.categories.groupId,
       to: r.groups.id,
+      optional: false,
     }),
 
     defaultingMemberships: r.many.memberships(),
@@ -130,11 +144,13 @@ export const relations = defineRelations(schema, (r) => ({
     revision: r.one.revisions({
       from: r.receipts.revisionId,
       to: r.revisions.id,
+      optional: false,
     }),
 
     group: r.one.groups({
       from: r.receipts.groupId,
       to: r.groups.id,
+      optional: false,
     }),
 
     items: r.many.items(),
@@ -142,6 +158,7 @@ export const relations = defineRelations(schema, (r) => ({
     paidBy: r.one.users({
       from: r.receipts.paidById,
       to: r.users.id,
+      optional: false,
     }),
   },
 
@@ -149,16 +166,19 @@ export const relations = defineRelations(schema, (r) => ({
     revision: r.one.revisions({
       from: r.items.revisionId,
       to: r.revisions.id,
+      optional: false,
     }),
 
     receipt: r.one.receipts({
       from: r.items.receiptId,
       to: r.receipts.id,
+      optional: false,
     }),
 
     category: r.one.categories({
       from: r.items.categoryId,
       to: r.categories.id,
+      optional: false,
     }),
 
     itemShares: r.many.itemShares(),
@@ -168,16 +188,19 @@ export const relations = defineRelations(schema, (r) => ({
     revision: r.one.revisions({
       from: r.itemShares.revisionId,
       to: r.revisions.id,
+      optional: false,
     }),
 
     user: r.one.users({
       from: r.itemShares.userId,
       to: r.users.id,
+      optional: false,
     }),
 
     item: r.one.items({
       from: r.itemShares.itemId,
       to: r.items.id,
+      optional: false,
     }),
   },
 }));
