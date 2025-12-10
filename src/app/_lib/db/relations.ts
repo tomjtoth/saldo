@@ -21,21 +21,45 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
 
-    users: r.many.users(),
+    users: r.many.users({
+      from: r.revisions.id,
+      to: r.users.revisionId,
+    }),
 
-    groups: r.many.groups(),
+    groups: r.many.groups({
+      from: r.revisions.id,
+      to: r.groups.revisionId,
+    }),
 
-    memberships: r.many.memberships(),
+    memberships: r.many.memberships({
+      from: r.revisions.id,
+      to: r.memberships.revisionId,
+    }),
 
-    categories: r.many.categories(),
+    categories: r.many.categories({
+      from: r.revisions.id,
+      to: r.categories.revisionId,
+    }),
 
-    receipts: r.many.receipts(),
+    receipts: r.many.receipts({
+      from: r.revisions.id,
+      to: r.receipts.revisionId,
+    }),
 
-    items: r.many.items(),
+    items: r.many.items({
+      from: r.revisions.id,
+      to: r.items.revisionId,
+    }),
 
-    itemShares: r.many.itemShares(),
+    itemShares: r.many.itemShares({
+      from: r.revisions.id,
+      to: r.itemShares.revisionId,
+    }),
 
-    archives: r.many.archives(),
+    archives: r.many.archives({
+      from: r.revisions.id,
+      to: r.archives.revisionId,
+    }),
   },
 
   users: {
@@ -45,9 +69,16 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
 
-    createdRevisions: r.many.revisions({ alias: "createdByUser" }),
+    createdRevisions: r.many.revisions({
+      from: r.users.id,
+      to: r.revisions.createdById,
+      alias: "createdByUser",
+    }),
 
-    memberships: r.many.memberships(),
+    memberships: r.many.memberships({
+      from: r.users.id,
+      to: r.memberships.userId,
+    }),
 
     defaultGroup: r.one.groups({
       from: r.users.defaultGroupId,
@@ -55,9 +86,15 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
 
-    itemShares: r.many.itemShares(),
+    itemShares: r.many.itemShares({
+      from: r.users.id,
+      to: r.itemShares.userId,
+    }),
 
-    receipts: r.many.receipts(),
+    receipts: r.many.receipts({
+      from: r.users.id,
+      to: r.receipts.paidById,
+    }),
   },
 
   groups: {
@@ -67,15 +104,25 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
 
-    memberships: r.many.memberships(),
+    memberships: r.many.memberships({
+      from: r.groups.id,
+      to: r.memberships.groupId,
+    }),
 
-    categories: r.many.categories(),
+    categories: r.many.categories({
+      from: r.groups.id,
+      to: r.categories.groupId,
+    }),
 
-    itemShares: r.many.itemShares(),
+    receipts: r.many.receipts({
+      from: r.groups.id,
+      to: r.receipts.groupId,
+    }),
 
-    receipts: r.many.receipts(),
-
-    defaultingUsers: r.many.users(),
+    defaultingUsers: r.many.users({
+      from: r.groups.id,
+      to: r.users.defaultGroupId,
+    }),
   },
 
   memberships: {
@@ -139,7 +186,10 @@ export const relations = defineRelations(schema, (r) => ({
 
     defaultingMemberships: r.many.memberships(),
 
-    items: r.many.items(),
+    items: r.many.items({
+      from: r.categories.id,
+      to: r.items.categoryId,
+    }),
   },
 
   receipts: {
@@ -155,7 +205,10 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
 
-    items: r.many.items(),
+    items: r.many.items({
+      from: r.receipts.id,
+      to: r.items.receiptId,
+    }),
 
     paidBy: r.one.users({
       from: r.receipts.paidById,
@@ -183,7 +236,10 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
 
-    itemShares: r.many.itemShares(),
+    itemShares: r.many.itemShares({
+      from: r.items.id,
+      to: r.itemShares.itemId,
+    }),
   },
 
   itemShares: {
