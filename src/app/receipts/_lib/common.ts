@@ -9,28 +9,29 @@ export const SELECT_RECEIPTS = {
   },
 } as const satisfies QueryParamsOf<"receipts">;
 
-export const queryReceipts = (opts?: {
+export const queryReceipts = ({
+  groupId,
+  knownIds = [],
+  getAll,
+}: {
   groupId?: DbGroup["id"]; // using type Group here would circular reference
   knownIds?: DbReceipt["id"][];
   getAll?: true;
-}) => {
+} = {}) => {
   return {
     ...SELECT_RECEIPTS,
 
     where: {
-      groupId: opts?.groupId,
-      ...(opts?.knownIds?.length
-        ? {
-            RAW(rcpt, { sql }) {
-              return sql`${rcpt.id} not in ${sql.raw(
-                `(${opts.knownIds!.join(",")})`
-              )}`;
-            },
-          }
-        : {}),
+      groupId,
+
+      RAW(rcpt, { sql }) {
+        const arr = sql.raw(`(${knownIds.join(",")})`);
+
+        return sql`${rcpt.id} NOT IN ${arr}`;
+      },
     },
 
-    ...(opts?.getAll ? {} : { limit: 50 }),
+    ...(getAll ? {} : { limit: 50 }),
 
     orderBy: { paidOn: "desc" },
   } as const satisfies QueryParamsOf<"receipts">;
