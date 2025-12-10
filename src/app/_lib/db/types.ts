@@ -9,6 +9,14 @@ export type QueryParamsOf<T extends keyof Schema> = Parameters<
   DrizzleTx["query"][T]["findMany"]
 >[0];
 
+export type WhereClauseOf<T extends keyof Schema> = NonNullable<
+  QueryParamsOf<T>
+> extends infer P
+  ? P extends { where?: infer W }
+    ? W
+    : never
+  : never;
+
 export type DbInsert<T extends keyof Schema> = Schema[T]["$inferInsert"];
 export type DbSelect<T extends keyof Schema> = Schema[T]["$inferSelect"];
 
