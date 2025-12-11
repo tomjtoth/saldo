@@ -6,9 +6,11 @@ import UserAvatar from "@/app/_components/userAvatar";
 import Canceler from "@/app/_components/canceler";
 
 export default function PaidByUserWithAvatar({
+  id,
   userId,
   listOnClick,
 }: {
+  id?: string;
   userId: User["id"];
   listOnClick?: true;
 }) {
@@ -17,6 +19,7 @@ export default function PaidByUserWithAvatar({
 
   return (
     <div
+      {...(id ? { id } : {})}
       className={listOnClick && "cursor-pointer"}
       onClick={listOnClick ? () => nodes.push(Listing) : undefined}
     >
