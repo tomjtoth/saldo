@@ -15,7 +15,7 @@ const invLink = {
 describe("groups", () => {
   describe("while logged in", () => {
     beforeEach(() => {
-      cy.cleanup();
+      cy.populateDb();
       cy.login({ page: "/groups" });
     });
 
@@ -63,7 +63,7 @@ describe("groups", () => {
 
     describe("invitation link", () => {
       it("can be genereated", () => {
-        cy.contains("just you").click();
+        cy.contains("group for users 1-3").click();
 
         invLink.copier.should("not.exist");
         invLink.remover.should("not.exist");
@@ -100,9 +100,8 @@ describe("groups", () => {
     });
 
     it("members can be banned", () => {
-      cy.request("/api/e2e/groups/member-status-can-be-modified");
-      cy.reload();
-      cy.contains("just you").click();
+      const group = "group for users 1-3";
+      cy.contains(group).click();
 
       cy.contains("user2").children().first().click();
       cy.toast('Banning "user2" succeeded!');
@@ -111,13 +110,20 @@ describe("groups", () => {
         .children()
         .first()
         .should("have.class", "bg-red-500");
-      cy.get("#updater").parent().parent().click(1, 1);
-      cy.logout();
 
-      cy.login({ email: "user2@e2e.tests" });
-      cy.visit("/groups");
+      cy.readDb().then(({ response }) => {
+        // user1 is unaffected
+        expect(response[1].some((g) => g.name === group)).to.be.true;
+        expect(response[1].length).to.eq(1);
 
-      cy.contains("you and me").should("not.exist");
+        // user2 had 2
+        expect(response[2].every((g) => g.name !== group)).to.be.true;
+        expect(response[2].length).to.eq(1);
+
+        // user3 had 3 groups and is unaffected
+        expect(response[3].some((g) => g.name === group));
+        expect(response[3].length).to.eq(3);
+      });
     });
   });
 
