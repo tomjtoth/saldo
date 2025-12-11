@@ -1,15 +1,16 @@
 import { and, eq, sql } from "drizzle-orm";
 
 import { err, be } from "../utils";
-import { DrizzleTx, Schema } from "./types";
+import { DbRevision, DbUser, DrizzleTx, Schema } from "./types";
 import { schema } from "./relations";
 
-type EntityBase = { revisionId: number };
+type EntityBase = { revisionId: DbRevision["id"] };
 
 interface BaseOpts<E, T> {
   tx: DrizzleTx;
   tableName: T;
-  revisionId: number;
+  revisionId: DbRevision["id"];
+  revisedById: DbUser["id"];
   primaryKeys: { [PK in keyof E]?: true };
   skipArchivalOf?: { [SA in keyof E]?: true };
   unchangedThrows?: false;
@@ -44,6 +45,7 @@ export async function modEntity<
     tx,
     tableName,
     revisionId,
+    revisedById,
     primaryKeys,
     skipArchivalOf = {},
     unchangedThrows,
@@ -166,7 +168,9 @@ export async function modEntity<
       await q;
     }
   } else if (needsToReturn || (unchangedThrows ?? true)) {
-    err("No changes were made", { args: { tableName, entity, modifier } });
+    err("No changes were made", {
+      args: { revisedById, tableName, entity, modifier },
+    });
   }
 
   return changes;

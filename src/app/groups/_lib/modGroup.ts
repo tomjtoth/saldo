@@ -55,6 +55,7 @@ export async function svcModGroup(
       primaryKeys: { id: true },
       revisionId,
       skipArchivalOf: { uuid: true },
+      revisedById: revisedBy,
     });
 
     const [res] = await svcGetGroups(revisedBy, {
