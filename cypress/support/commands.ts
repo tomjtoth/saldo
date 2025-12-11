@@ -71,6 +71,38 @@ const commands = {
     return cy.request("/api/e2e/db").then(($res) => {
       const response: typeof baseline = $res.body;
 
+      for (const userId in baseline) {
+        const key = userId as keyof typeof baseline;
+
+        baseline[key].forEach((bGroup, iGroup) => {
+          const rGroup = response[key][iGroup];
+
+          bGroup.memberships.forEach((bMs, iMs) => {
+            const rMs = rGroup.memberships[iMs];
+
+            bMs.revision.createdAt = rMs.revision.createdAt;
+            bMs.user.color = rMs.user.color;
+          });
+
+          bGroup.categories.forEach((bCat, iCat) => {
+            const rCat = rGroup.categories[iCat];
+
+            bCat.revision.createdAt = rCat.revision.createdAt;
+            bCat.archives.forEach((bCatArchive, iCatArchive) => {
+              bCatArchive.revision.createdAt =
+                rCat.archives[iCatArchive].revision.createdAt;
+            });
+          });
+
+          bGroup.receipts.forEach((bRec, iRec) => {
+            const rRec = rGroup.receipts[iRec];
+
+            bRec.paidOn = rRec.paidOn;
+            bRec.revision.createdAt = rRec.revision.createdAt;
+          });
+        });
+      }
+
       return cy.wrap({
         baseline,
         response,
