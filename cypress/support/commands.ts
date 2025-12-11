@@ -63,6 +63,12 @@ const commands = {
     cy.request("/api/e2e/db/truncate");
   },
 
+  clickCanceler(idx = 0) {
+    cy.get("div.absolute.top-0.left-0").then(($nodes) =>
+      cy.wrap($nodes[idx]).click(1, 1)
+    );
+  },
+
   populateDb() {
     cy.request("/api/e2e/db/populate");
   },
