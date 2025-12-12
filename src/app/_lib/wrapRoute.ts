@@ -72,7 +72,10 @@ function wrapRoute<P extends object = object>(
 
     try {
       if (!allowInProd && process.env.NODE_ENV === "production")
-        err(404, { args: { url: req.url, allowInProd } });
+        err(404, {
+          info: "attempted access",
+          args: { url: req.url, allowInProd },
+        });
 
       let res: unknown;
       const params = await cx.params;
