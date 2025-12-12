@@ -17,6 +17,10 @@ const USERS: NonNullable<AddUserParams>[] = [
     name: "user3",
     email: "user3@e2e.tests",
   },
+  {
+    name: "user4ever alone",
+    email: "user4@e2e.tests",
+  },
 ];
 
 const CATEGORIES: {

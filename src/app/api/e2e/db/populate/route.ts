@@ -22,7 +22,7 @@ export const GET = wrapRoute({ requireSession: false }, async () => {
     });
 
     // add everyone to user #1's group
-    if (uid != 1) await svcAddMember(1, uid);
+    if (uid !== 1 && uid !== 4) await svcAddMember(1, uid);
     if (uid === 3) await svcAddMember(2, uid);
   }
 
