@@ -72,10 +72,10 @@ describe("receipts", () => {
 
         const date = response[2].groups[0].balance.data.at(-1)!.date;
 
-        u3g1bal.data.push({
+        (u3g1bal.data as any[]).push({
           date,
           "1 vs 2": (u3g1bal.data.at(-1)! as any)["1 vs 2"] + 123,
-        } as any);
+        });
 
         u3g1bal.minMaxes = response[2].groups[0].balance.minMaxes;
         expect(response[2].groups[0].balance).to.deep.eq(u3g1bal);
