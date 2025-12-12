@@ -87,10 +87,10 @@ export async function apiModReceipt(uncheckedData: ReceiptModifier) {
 }
 
 export async function svcModReceipt(
-  revisedBy: User["id"],
+  revisedById: User["id"],
   { items: itemMods, ...receiptMod }: ReturnType<typeof validateReceipt>
 ): Promise<Receipt> {
-  return atomic(revisedBy, async (tx, revisionId) => {
+  return atomic(revisedById, async (tx, revisionId) => {
     const fromSrv = await tx.query.receipts.findFirst({
       with: {
         items: { with: { itemShares: true } },
@@ -117,6 +117,7 @@ export async function svcModReceipt(
       revisionId,
       primaryKeys: { id: true },
       unchangedThrows: false,
+      revisedById,
     });
 
     // checking what changed in old data first
@@ -140,6 +141,7 @@ export async function svcModReceipt(
         revisionId,
         primaryKeys: { id: true },
         unchangedThrows: false,
+        revisedById,
       });
 
       for (const oldItemShare of srvItemShares) {
@@ -161,6 +163,7 @@ export async function svcModReceipt(
           tableName: "itemShares",
           revisionId,
           primaryKeys: { itemId: true, userId: true },
+          revisedById,
         });
       }
 
