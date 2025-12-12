@@ -225,4 +225,7 @@ const commands = {
 
 Cypress.Commands.addAll(commands);
 
+type Unchain<T> = T extends Cypress.Chainable<infer U> ? U : never;
+export type TReadDb = Unchain<ReturnType<typeof cy.readDb>>;
+
 export {};
