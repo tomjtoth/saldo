@@ -20,10 +20,16 @@ interface HandlerContextWithUser<P> extends HandlerContext<P> {
 
 interface OptionsWithUser<P> {
   redirectAs?: (ctx: HandlerContext<P>) => string;
+  /**
+   * @default false
+   */
   allowInProd?: true;
 }
 
 interface Options<P> extends OptionsWithUser<P> {
+  /**
+   * @default true
+   */
   requireSession: false;
 }
 
