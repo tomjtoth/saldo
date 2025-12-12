@@ -1,32 +1,16 @@
 "use server";
 
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { auth, signIn } from "@/auth";
 
-import { atomic, db, CrUser, QueryParamsOf } from "@/app/_lib/db";
+import { atomic, db, CrUser } from "@/app/_lib/db";
 import { revisions, users } from "@/app/_lib/db/schema";
 import { err } from "@/app/_lib/utils";
-import { svcAddGroup } from "../groups/_lib";
+import { svcAddGroup } from "../../groups/_lib";
+import { USERS_EXTRAS } from "./queryOpts";
 
 export type User = Awaited<ReturnType<typeof svcAddUser>>;
-
-const USERS_EXTRAS = {
-  extras: {
-    color: (users) => sql<string>`printf(
-      '#%06x', 
-      coalesce(
-        (
-          SELECT color FROM chart_colors
-          WHERE user_id = ${users.id}
-          AND group_id IS NULL
-          AND member_id IS NULL
-        ),
-        abs(random()) % 0x1000000
-      )
-    )`,
-  },
-} as const satisfies QueryParamsOf<"users">;
 
 export async function svcAddUser(
   userData: Pick<CrUser, "email" | "image" | "name">

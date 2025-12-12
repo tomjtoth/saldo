@@ -59,6 +59,7 @@ export async function svcModMembership(
       revisionId,
       skipArchivalOf: { defaultCategoryId: true },
       needsToReturn: true,
+      revisedById: revisedBy,
     });
 
     return res;

@@ -115,7 +115,11 @@ export default function ReceiptDetails() {
 
           <div className="flex gap-2 items-center">
             {isMultiUser && (
-              <PaidByUserWithAvatar userId={paidBy.id} listOnClick />
+              <PaidByUserWithAvatar
+                id="paid-by"
+                userId={paidBy.id}
+                listOnClick
+              />
             )}
           </div>
         </div>

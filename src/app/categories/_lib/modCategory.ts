@@ -54,6 +54,7 @@ export async function svcModCategory(
       tableName: "categories",
       revisionId,
       primaryKeys: { id: true },
+      revisedById: revisedBy,
     });
 
     const [res] = await svcGetCategories(revisedBy, { tx, where: { id } });

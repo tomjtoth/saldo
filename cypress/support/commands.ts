@@ -63,6 +63,12 @@ const commands = {
     cy.request("/api/e2e/db/truncate");
   },
 
+  clickCanceler(idx = 0) {
+    cy.get("div.absolute.top-0.left-0").then(($nodes) =>
+      cy.wrap($nodes[idx]).click(1, 1)
+    );
+  },
+
   populateDb() {
     cy.request("/api/e2e/db/populate");
   },
@@ -70,6 +76,50 @@ const commands = {
   readDb() {
     return cy.request("/api/e2e/db").then(($res) => {
       const response: typeof baseline = $res.body;
+
+      // syncing random values, like users' color and
+      // revisions' createdAt timestamps,
+      // looking up by IDs
+      baseline.forEach(({ user: bUser, groups: bGroups }) => {
+        const { user: rUser } = response.find((r) => r.user.id === bUser.id)!;
+        bUser.color = rUser.color;
+
+        bGroups.forEach((bGroup) => {
+          const { groups: rGroups } = response.find(
+            (res) => res.user.id === bUser.id
+          )!;
+
+          const rGroup = rGroups.find((g) => g.id === bGroup.id);
+          if (!rGroup) return;
+
+          bGroup.memberships.forEach((bMs) => {
+            const rMs = rGroup.memberships.find(
+              (ms) => ms.userId === bMs.userId
+            );
+            if (!rMs) return;
+
+            bMs.revision.createdAt = rMs.revision.createdAt;
+            bMs.user.color = rMs.user.color;
+          });
+
+          bGroup.categories.forEach((bCat) => {
+            const rCat = rGroup.categories.find((c) => c.id === bCat.id)!;
+
+            bCat.revision.createdAt = rCat.revision.createdAt;
+            bCat.archives.forEach((bCatArchive, iCatArchive) => {
+              bCatArchive.revision.createdAt =
+                rCat.archives[iCatArchive].revision.createdAt;
+            });
+          });
+
+          bGroup.receipts.forEach((bRec) => {
+            const rRec = rGroup.receipts.find((r) => r.id === bRec.id)!;
+
+            bRec.paidOn = rRec.paidOn;
+            bRec.revision.createdAt = rRec.revision.createdAt;
+          });
+        });
+      });
 
       return cy.wrap({
         baseline,
