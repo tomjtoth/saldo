@@ -77,21 +77,33 @@ const commands = {
     return cy.request("/api/e2e/db").then(($res) => {
       const response: typeof baseline = $res.body;
 
-      for (const userId in baseline) {
-        const key = userId as keyof typeof baseline;
+      // syncing random values, like users' color and
+      // revisions' createdAt timestamps,
+      // looking up by IDs
+      baseline.forEach(({ user: bUser, groups: bGroups }) => {
+        const { user: rUser } = response.find((r) => r.user.id === bUser.id)!;
+        bUser.color = rUser.color;
 
-        baseline[key].forEach((bGroup, iGroup) => {
-          const rGroup = response[key][iGroup];
+        bGroups.forEach((bGroup) => {
+          const { groups: rGroups } = response.find(
+            (res) => res.user.id === bUser.id
+          )!;
 
-          bGroup.memberships.forEach((bMs, iMs) => {
-            const rMs = rGroup.memberships[iMs];
+          const rGroup = rGroups.find((g) => g.id === bGroup.id);
+          if (!rGroup) return;
+
+          bGroup.memberships.forEach((bMs) => {
+            const rMs = rGroup.memberships.find(
+              (ms) => ms.userId === bMs.userId
+            );
+            if (!rMs) return;
 
             bMs.revision.createdAt = rMs.revision.createdAt;
             bMs.user.color = rMs.user.color;
           });
 
-          bGroup.categories.forEach((bCat, iCat) => {
-            const rCat = rGroup.categories[iCat];
+          bGroup.categories.forEach((bCat) => {
+            const rCat = rGroup.categories.find((c) => c.id === bCat.id)!;
 
             bCat.revision.createdAt = rCat.revision.createdAt;
             bCat.archives.forEach((bCatArchive, iCatArchive) => {
@@ -100,14 +112,14 @@ const commands = {
             });
           });
 
-          bGroup.receipts.forEach((bRec, iRec) => {
-            const rRec = rGroup.receipts[iRec];
+          bGroup.receipts.forEach((bRec) => {
+            const rRec = rGroup.receipts.find((r) => r.id === bRec.id)!;
 
             bRec.paidOn = rRec.paidOn;
             bRec.revision.createdAt = rRec.revision.createdAt;
           });
         });
-      }
+      });
 
       return cy.wrap({
         baseline,

@@ -113,16 +113,16 @@ describe("groups", () => {
 
       cy.readDb().then(({ response }) => {
         // user1 is unaffected
-        expect(response[1].some((g) => g.name === group)).to.be.true;
-        expect(response[1].length).to.eq(1);
+        expect(response[0].groups[0].name === group).to.be.true;
+        expect(response[0].groups.length).to.eq(1);
 
-        // user2 had 2
-        expect(response[2].every((g) => g.name !== group)).to.be.true;
-        expect(response[2].length).to.eq(1);
+        // user2 had 2, but we banned them during the test
+        expect(response[1].groups.every((g) => g.name !== group)).to.be.true;
+        expect(response[1].groups.length).to.eq(1);
 
         // user3 had 3 groups and is unaffected
-        expect(response[3].some((g) => g.name === group));
-        expect(response[3].length).to.eq(3);
+        expect(response[2].groups.some((g) => g.name === group));
+        expect(response[2].groups.length).to.eq(3);
       });
     });
   });

@@ -15,7 +15,7 @@ describe("categories", () => {
       cy.readDb().then(({ response }) => {
         expect(
           //user #3 has access to 3 groups
-          response[3]
+          response[2].groups
             .filter((g) => g.id !== 1)
             .every((g) => g.categories.every((c) => c.name !== TEST_CATEGORY))
         ).to.be.true;
