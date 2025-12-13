@@ -1,7 +1,6 @@
-import { svcGetGroups } from "@/app/groups/_lib";
-
-import { VDate } from "@/app/_lib/utils";
 import wrapPage from "@/app/_lib/wrapPage";
+import { svcGetGroups } from "@/app/groups/_lib";
+import { VDate } from "@/app/_lib/utils";
 
 import ConsumptionPage from "./_components";
 
