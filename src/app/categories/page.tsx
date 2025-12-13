@@ -5,13 +5,9 @@ import CategoriesPage from "./_components";
 
 export default wrapPage<{ catId?: string }>({
   getData: svcGetGroups,
-
   children({ catId }) {
-    const cidAsNum = Number(catId);
-    return (
-      <CategoriesPage categoryId={isNaN(cidAsNum) ? undefined : cidAsNum} />
-    );
+    const categoryId = Number(catId);
+    return <CategoriesPage {...(isNaN(categoryId) ? {} : { categoryId })} />;
   },
-
   rewritePath: "/categories",
 });
