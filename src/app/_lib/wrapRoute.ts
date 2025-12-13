@@ -18,15 +18,14 @@ interface HandlerContextWithUser<P> extends HandlerContext<P> {
   user: User;
 }
 
-interface OptionsWithUser<P> {
-  redirectAs?: (ctx: HandlerContext<P>) => string;
+interface OptionsWithUser {
   /**
    * @default false
    */
   allowInProd?: true;
 }
 
-interface Options<P> extends OptionsWithUser<P> {
+interface Options extends OptionsWithUser {
   /**
    * @default true
    */
@@ -40,33 +39,29 @@ type Handler<P> = (ctx: HandlerContext<P>) => HandlerReturnType;
 type HandlerWithUser<P> = (ctx: HandlerContextWithUser<P>) => HandlerReturnType;
 
 function wrapRoute<P extends object = object, R = ReturnType<Handler<P>>>(
-  options: Options<P>,
+  options: Options,
   handler: Handler<P>
 ): RouteHandler<P, R>;
 
 function wrapRoute<
   P extends object = object,
   R = ReturnType<HandlerWithUser<P>>
->(options: OptionsWithUser<P>, handler: HandlerWithUser<P>): RouteHandler<P, R>;
+>(options: OptionsWithUser, handler: HandlerWithUser<P>): RouteHandler<P, R>;
 
 function wrapRoute<P extends object = object, R = ReturnType<Handler<P>>>(
   handler: HandlerWithUser<P>
 ): RouteHandler<P, R>;
 
 function wrapRoute<P extends object = object>(
-  objOrFn: OptionsWithUser<P> | Options<P> | HandlerWithUser<P>,
+  objOrFn: OptionsWithUser | Options | HandlerWithUser<P>,
   maybeFn?: Handler<P> | HandlerWithUser<P>
 ) {
   return async (req: NextRequest, cx: RequestContext<P>) => {
     const hasOptions = typeof objOrFn !== "function";
 
-    const {
-      redirectAs,
-      allowInProd = false,
-      ...rest
-    } = hasOptions ? objOrFn : {};
+    const { allowInProd = false, ...rest } = hasOptions ? objOrFn : {};
 
-    const { requireSession = true } = "requireSession" in rest ? rest : {};
+    const requireSession = "requireSession" in rest ? false : true;
 
     const handler = hasOptions ? maybeFn : objOrFn;
 
@@ -81,9 +76,7 @@ function wrapRoute<P extends object = object>(
       const params = await cx.params;
 
       if (requireSession) {
-        const user = await currentUser({
-          redirectTo: redirectAs ? redirectAs({ req, params }) : undefined,
-        });
+        const user = await currentUser();
 
         res = await (handler as HandlerWithUser<P>)({ req, params, user });
       } else {
