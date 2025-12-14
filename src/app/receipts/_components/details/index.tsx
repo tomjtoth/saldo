@@ -98,6 +98,12 @@ export default function ReceiptDetails() {
           "absolute left-1/2 top-1/2 -translate-1/2 w-4/5 h-4/5 " +
           "bg-background rounded border p-2 flex flex-col gap-2 overflow-scroll"
         }
+        onKeyDown={(ev) => {
+          if (ev.ctrlKey && ev.key === "s") {
+            ev.preventDefault();
+            submitReceipt();
+          }
+        }}
       >
         <div className="flex gap-2 flex-wrap justify-between">
           <div className="flex flex-row gap-2 items-center">
@@ -158,9 +164,6 @@ export default function ReceiptDetails() {
                       newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
                     )
                   );
-                } else if (ev.key === "s" && ev.ctrlKey) {
-                  ev.preventDefault();
-                  submitReceipt();
                 }
               }}
             />
