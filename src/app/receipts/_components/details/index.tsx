@@ -145,10 +145,10 @@ export default function ReceiptDetails() {
                 const lastIdx = receipt.items.length - 1;
 
                 if (
-                  ((ev.key === "ArrowUp" || ev.key === "PageUp") &&
-                    rowIdx > 0) ||
-                  ((ev.key === "ArrowDown" || ev.key === "PageDown") &&
-                    rowIdx < lastIdx)
+                  ev.key === "ArrowUp" ||
+                  ev.key === "PageUp" ||
+                  ev.key === "ArrowDown" ||
+                  ev.key === "PageDown"
                 ) {
                   ev.preventDefault();
                   const newIdx = rowIdx + DIFFS[ev.key];
