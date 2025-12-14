@@ -34,6 +34,7 @@ export default function ItemRow({
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
   const [cost, setCost] = useState(item.cost.toFixed(2));
+  const commaHelper = useRef("");
 
   useEffect(() => {
     if (autoFocus) costRef.current?.focus();
@@ -107,7 +108,14 @@ export default function ItemRow({
           }
           value={cost === "0.00" ? "" : cost}
           onChange={(ev) => {
-            const asStr = ev.target.value.replace(",", ".");
+            let asStr = ev.target.value;
+
+            const helper = commaHelper.current;
+            if (helper) {
+              asStr = helper + asStr.at(-1);
+              commaHelper.current = "";
+            }
+
             setCost(asStr);
 
             const asNum = Number(asStr);
@@ -116,7 +124,12 @@ export default function ItemRow({
           }}
           onFocus={() => dispatch(thunks.setFocusedRow(-1))}
           onKeyDown={(ev) => {
-            if (ev.key === "c") {
+            if (ev.key === ",") {
+              const val = costRef.current!.value + ".";
+              if (!cost.includes(".")) commaHelper.current = val;
+
+              ev.preventDefault();
+            } else if (ev.key === "c") {
               ev.preventDefault();
               catRef.current?.focus();
             } else if (
