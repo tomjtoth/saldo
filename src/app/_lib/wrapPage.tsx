@@ -7,8 +7,7 @@ import RootDiv from "@/app/_components/rootDiv";
 
 type WithGID<T = object> = T & { groupId?: string };
 
-interface BaseOptions<T, R = WithGID<T>> {
-  resolveParams?: (params: R) => R & { redirectTo: string };
+interface BaseOptions<T> {
   rewritePath?: string;
   children?: ReactNode | ((cx: WithGID<T>) => ReactNode);
 }
@@ -29,7 +28,6 @@ function wrapPage<T = object>(args: WithData<T>): Signature<T>;
 function wrapPage<T = object>(args: WithoutSession<T>): Signature<T>;
 
 function wrapPage<T = object>({
-  resolveParams,
   rewritePath,
   children,
   ...rest
@@ -37,14 +35,9 @@ function wrapPage<T = object>({
   const pageHandler = async (cx: RequestContext<T>) => {
     const requireSession = "requireSession" in rest ? false : true;
 
-    const resolveCoreParams = ({ groupId }: WithGID) => ({
-      redirectTo: `${groupId ? `/groups/${groupId}` : ""}${rewritePath}`,
-      groupId,
-    });
-
-    const resolver = resolveParams ?? resolveCoreParams;
     const params = await cx.params;
-    const { groupId: resolvedGroupId } = resolver(params);
+    const { groupId: resolvedGroupId } = params;
+
     const gidAsNum = Number(resolvedGroupId);
 
     const user = requireSession

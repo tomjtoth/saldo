@@ -6,7 +6,6 @@ import { auth, signIn } from "@/auth";
 
 import { atomic, db, CrUser } from "@/app/_lib/db";
 import { revisions, users } from "@/app/_lib/db/schema";
-import { err } from "@/app/_lib/utils";
 import { svcAddGroup } from "../../groups/_lib";
 import { USERS_EXTRAS } from "./queryOpts";
 
@@ -38,11 +37,6 @@ export async function svcAddUser(
   });
 }
 
-interface ArgsWithSession {
-  errorCode?: number;
-  redirectTo?: string;
-}
-
 interface ArgsWithoutSession {
   requireSession: false;
 }
@@ -51,20 +45,19 @@ export async function currentUser(
   args: ArgsWithoutSession
 ): Promise<undefined | User>;
 
-export async function currentUser(args?: ArgsWithSession): Promise<User>;
+export async function currentUser(): Promise<User>;
 
 export async function currentUser(
-  args: ArgsWithoutSession | ArgsWithSession = {}
+  args?: ArgsWithoutSession
 ): Promise<undefined | User> {
   const session = await auth();
 
   if (!session) {
-    if ("requireSession" in args) return;
-    else {
-      const { errorCode, redirectTo } = args;
-      if (errorCode) err(errorCode);
-      return await signIn("", { redirectTo });
-    }
+    const requireSession = args?.requireSession ?? true;
+    if (!requireSession) return;
+
+    // left this here since supposedly any path might get a Request-Header: `server function hash` in which case the user is required
+    return await signIn();
   }
 
   // OAuth profiles without an email are disallowed in @/auth.ts

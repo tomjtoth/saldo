@@ -5,6 +5,7 @@ import { Item, Receipt } from "../populateRecursively";
 import { ItemModifier } from "./slices";
 import { callApi } from "@/app/_lib/utils/apiCalls";
 import { User } from "@/app/(users)/_lib";
+import { appToast } from "@/app/_lib/utils";
 
 export const thunksReceipts = {
   setPaidOn: (date: Receipt["paidOn"]) => (dispatch: AppDispatch) => {
@@ -42,9 +43,17 @@ export const thunksReceipts = {
   fetchReceipts:
     (groupId: Group["id"], knownIds: Receipt["id"][]) =>
     async (dispatch: AppDispatch) => {
-      const receipts = await callApi.getReceipts(groupId, knownIds);
+      return appToast.promise("Fetching receipts", async () => {
+        const receipts = await callApi.getReceipts(groupId, knownIds);
 
-      dispatch(csa.addFetchedReceipts({ groupId, receipts }));
+        dispatch(csa.addFetchedReceipts({ groupId, receipts }));
+
+        const toastMessage = receipts.length
+          ? `Got ${receipts.length} receipts more.`
+          : "There are no more receipts in this group.";
+
+        return toastMessage;
+      });
     },
 
   tryFetchingReceipts: () => (dispatch: AppDispatch) => {

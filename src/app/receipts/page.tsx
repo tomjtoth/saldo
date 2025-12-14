@@ -1,6 +1,6 @@
+import wrapPage from "@/app/_lib/wrapPage";
 import { svcGetGroups } from "../groups/_lib";
 
-import wrapPage from "@/app/_lib/wrapPage";
 import ReceiptsPage from "./_components";
 
 export default wrapPage({

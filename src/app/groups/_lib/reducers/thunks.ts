@@ -17,7 +17,7 @@ export const thunksGroups = {
       return appToast.promise(`Updating "${original.name}"`, async () => {
         be.stringWith3ConsecutiveLetters(modifiers.name, "name");
 
-        callApi.modGroup({ id: groupId, ...modifiers }).then((res) => {
+        return callApi.modGroup({ id: groupId, ...modifiers }).then((res) => {
           const ops = appToast.opsDone(original, res);
           dispatch(csa.modGroup(res));
 
@@ -32,7 +32,7 @@ export const thunksGroups = {
       return appToast.promise(`Saving "${name}" to db`, async () => {
         be.stringWith3ConsecutiveLetters(name, "name");
 
-        callApi.addGroup({ name, description }).then((res) => {
+        return callApi.addGroup({ name, description }).then((res) => {
           dispatch(csa.addGroup(res));
         });
       });
