@@ -150,14 +150,9 @@ export default function ReceiptDetails() {
               onKeyDown={(ev) => {
                 const lastIdx = receipt.items.length - 1;
 
-                if (
-                  ev.key === "ArrowUp" ||
-                  ev.key === "PageUp" ||
-                  ev.key === "ArrowDown" ||
-                  ev.key === "PageDown"
-                ) {
+                if (ev.key in DIFFS) {
                   ev.preventDefault();
-                  const newIdx = rowIdx + DIFFS[ev.key];
+                  const newIdx = rowIdx + DIFFS[ev.key as keyof typeof DIFFS];
 
                   dispatch(
                     thunks.setFocusedRow(
