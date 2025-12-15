@@ -57,6 +57,9 @@ const colSR = {
 
 const colSRI = { ...colSR, id };
 
+const cidCore = integer().references(() => categories.id);
+const categoryId = cidCore.notNull();
+
 export const metadata = sqliteTable("metadata", {
   id,
 
@@ -120,7 +123,7 @@ export const memberships = sqliteTable(
 
     userId,
 
-    defaultCategoryId: integer().references(() => categories.id),
+    defaultCategoryId: cidCore,
   },
   (table) => [primaryKey({ columns: [table.groupId, table.userId] })]
 );
@@ -166,9 +169,7 @@ export const items = sqliteTable("items", {
     .notNull()
     .references(() => receipts.id),
 
-  categoryId: integer()
-    .notNull()
-    .references(() => categories.id),
+  categoryId,
 
   cost: floatToInt().notNull(),
 
