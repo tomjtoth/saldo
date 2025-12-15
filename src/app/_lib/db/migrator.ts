@@ -100,6 +100,7 @@ const migrate = (direcionIsUp: boolean) => async () => {
       res.push(migName);
     }
   } catch (err) {
+    console.error(err);
     process.exit(1);
   } finally {
     await exec.sql`VACUUM`;
