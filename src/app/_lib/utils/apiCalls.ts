@@ -1,4 +1,5 @@
-import { apiGetConsumption } from "@/app/(charts)/consumption/_lib/server";
+import { apiGetConsumption } from "@/app/(charts)/consumption/_lib/getConsumption";
+import { apiToggleCategoryVisibility } from "@/app/(charts)/consumption/_lib/toggleCategory";
 import {
   apiModMembership,
   apiSetDefaultCategory,
@@ -32,6 +33,7 @@ const allApiCalls = {
   apiSetDefaultCategory,
   apiSetDefaultGroup,
   apiSetUserColor,
+  apiToggleCategoryVisibility,
 };
 
 type UnwrapApiResult<F> = F extends (
