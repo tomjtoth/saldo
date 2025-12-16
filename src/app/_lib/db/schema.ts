@@ -75,6 +75,8 @@ export const archives = sqliteTable("archives", {
 
   entityPk2: integer().notNull(),
 
+  // TODO: try this as jsonb somehow
+  // https://github.com/drizzle-team/drizzle-orm/issues/1977
   data: text({ mode: "json" }),
 });
 
