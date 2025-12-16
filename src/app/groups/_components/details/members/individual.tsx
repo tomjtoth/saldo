@@ -25,6 +25,8 @@ export default function Individual({
 
   const [flags, setFlags] = useState(ms.flags);
 
+  const memberControl = `${ms.user.name} (${ms.user.email})`;
+
   return (
     <li
       className={
@@ -33,37 +35,38 @@ export default function Individual({
       }
     >
       {virt(ms).admin ? (
-        <span>👮</span>
+        <span className={clientIsAdmin ? "cursor-not-allowed" : undefined}>
+          👮 {memberControl}
+        </span>
+      ) : clientIsAdmin ? (
+        <Slider
+          checked={virt({ flags }).active}
+          onClick={() => {
+            const prevState = flags;
+            const nextState = virt({ flags }, setFlags).toggle("active");
+
+            dispatch(
+              thunks.modMembership(
+                {
+                  groupId: ms.groupId,
+                  userId: ms.user.id,
+                  flags: nextState,
+                },
+
+                `${
+                  virt({ flags: nextState }).active ? "Re-instating" : "Banning"
+                } "${ms.user.name}"`
+              )
+            ).catch(() => {
+              setFlags(prevState);
+            });
+          }}
+        >
+          {memberControl}
+        </Slider>
       ) : (
-        clientIsAdmin && (
-          <Slider
-            checked={virt({ flags }).active}
-            onClick={() => {
-              const prevState = flags;
-              const nextState = virt({ flags }, setFlags).toggle("active");
-
-              dispatch(
-                thunks.modMembership(
-                  {
-                    groupId: ms.groupId,
-                    userId: ms.user.id,
-                    flags: nextState,
-                  },
-
-                  `${
-                    virt({ flags: nextState }).active
-                      ? "Re-instating"
-                      : "Banning"
-                  } "${ms.user.name}"`
-                )
-              ).catch(() => {
-                setFlags(prevState);
-              });
-            }}
-          />
-        )
-      )}{" "}
-      {ms.user.name} ({ms.user.email})
+        memberControl
+      )}
     </li>
   );
 }
