@@ -26,11 +26,13 @@ export type ConsumptionData = {
   [userId: DbUser["id"]]: number;
 };
 
+type Relation = `${DbUser["id"]} vs ${DbUser["id"]}`;
+
 export type BalanceData = {
-  relations: string[];
+  relations: Relation[];
   data: {
     date: number;
-    [relation: string]: number;
+    [relation: Relation]: number;
   }[];
   minMaxes: { [date: number]: { min: number; max: number } };
 };
