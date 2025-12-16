@@ -26,7 +26,9 @@ export default function ConsumptionChart() {
   const filteredConsumptionData = useMemo(
     () =>
       consumption.filter((x) =>
-        user.categoriesHiddenFromConsumption.some((cid) => cid === x.categoryId)
+        user.categoriesHiddenFromConsumption.every(
+          (cid) => cid !== x.categoryId
+        )
       ),
     [consumption, user.categoriesHiddenFromConsumption]
   );
