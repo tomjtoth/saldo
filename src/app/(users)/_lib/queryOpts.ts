@@ -2,10 +2,11 @@ import { sql } from "drizzle-orm";
 
 import { QueryParamsOf } from "@/app/_lib/db";
 
-export const USERS_EXTRAS = {
+export const USERS_SELECT = {
+  with: { categoriesHiddenFromConsumption: { columns: { id: true } } },
   extras: {
     color: (users) => sql<string>`printf(
-      '#%06x', 
+      '#%06x',
       coalesce(
         (
           SELECT color FROM chart_colors
