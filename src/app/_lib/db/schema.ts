@@ -148,6 +148,20 @@ export const categories = sqliteTable("categories", {
   description: text(),
 });
 
+export const categoriesHiddenFromConsumption = sqliteTable(
+  "categories_hidden_from_consumption",
+  {
+    userId,
+
+    // would be defined redundantly, since
+    // categories are available in a single group only
+    // groupId,
+
+    categoryId,
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.categoryId] })]
+);
+
 export const receipts = sqliteTable("receipts", {
   ...colFRI,
 

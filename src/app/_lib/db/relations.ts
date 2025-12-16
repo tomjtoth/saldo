@@ -95,6 +95,11 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.users.id,
       to: r.receipts.paidById,
     }),
+
+    categoriesHiddenFromConsumption: r.many.categories({
+      from: r.users.id.through(r.categoriesHiddenFromConsumption.userId),
+      to: r.categories.id.through(r.categoriesHiddenFromConsumption.categoryId),
+    }),
   },
 
   groups: {
