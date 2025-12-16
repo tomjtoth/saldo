@@ -11,6 +11,7 @@ import { Item } from "../../_lib";
 import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
 import PaidByUserWithAvatar from "../paidByUserWithAvatar";
+import ReceiptClosingDialog from "../closingDialog";
 
 const DIFFS = {
   ArrowUp: -1,
@@ -32,6 +33,14 @@ export default function ReceiptDetails() {
 
   const isMultiUser = users.length > 1;
   const paidBy = users.find((u) => u.id === receipt.paidById)!;
+
+  function closeReceipt() {
+    if (receipt.changes) nodes.push(ReceiptClosingDialog);
+    else {
+      nodes.setNodes([]);
+      dispatch(thunks.setActiveReceipt());
+    }
+  }
 
   function submitReceipt() {
     if (!virt(group).active) {
@@ -87,12 +96,7 @@ export default function ReceiptDetails() {
   }
 
   return (
-    <Canceler
-      onClick={() => {
-        nodes.setNodes([]);
-        dispatch(thunks.setActiveReceipt());
-      }}
-    >
+    <Canceler onClick={closeReceipt}>
       <div
         className={
           "absolute left-1/2 top-1/2 -translate-1/2 w-4/5 h-4/5 " +
