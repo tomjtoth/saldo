@@ -1,3 +1,4 @@
+import { spawn } from "child_process";
 import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
@@ -36,8 +37,12 @@ export async function atomic<T>(
     revisionId % DB_BACKUP_EVERY_N_REVISIONS === 0
   ) {
     const dbPath = getDbPath();
-    const bakFile = sql.raw(`'${dbPath}.at.${revisionId}'`);
-    await db.run(sql`VACUUM INTO ${bakFile}`);
+    const bakFile = `${dbPath}.at.${revisionId}`;
+    await db.run(sql`VACUUM INTO ${sql.raw(`'${bakFile}'`)}`);
+    spawn("xz", ["-9", bakFile], {
+      stdio: "ignore",
+      detached: true,
+    });
   }
 
   return res;
