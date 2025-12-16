@@ -9,7 +9,7 @@ import {
   useClientState,
   useDebugger,
 } from "@/app/_lib/hooks";
-import { useInfiniteScroll } from "../_lib";
+import { useInfiniteScroll } from "../_lib/hook";
 import { thunks } from "@/app/_lib/reducers";
 import { appToast, virt } from "@/app/_lib/utils";
 
