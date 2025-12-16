@@ -5,6 +5,7 @@ import { Receipt } from "@/app/receipts/_lib";
 export interface CliGroup extends Group {
   activeReceipt?: Receipt & {
     focusedIdx?: number;
+    changes: number;
   };
   hasMoreToLoad?: boolean;
   fetchingReceipts?: boolean;

@@ -19,11 +19,13 @@ export type ItemModifier = Pick<Item, "id"> &
 export const sliceReceipts = {
   setPaidOn(rs: CS, { payload }: PayloadAction<Receipt["paidOn"]>) {
     const receipt = getActiveReceipt(rs)!;
+    receipt.changes++;
     receipt.paidOn = payload;
   },
 
   setPaidBy(rs: CS, { payload }: PayloadAction<Receipt["paidById"]>) {
     const receipt = getActiveReceipt(rs)!;
+    receipt.changes++;
     const users = getActiveUsers(rs)!;
     const user = users.find((u) => u.id === payload)!;
 
@@ -33,6 +35,7 @@ export const sliceReceipts = {
 
   addRow(rs: CS, { payload }: PayloadAction<Item["id"] | undefined>) {
     const receipt = getActiveReceipt(rs)!;
+    receipt.changes++;
 
     if (payload !== undefined) {
       const idx = receipt.items.findIndex((i) => i.id === payload);
@@ -55,6 +58,7 @@ export const sliceReceipts = {
 
   rmRow(rs: CS, { payload }: PayloadAction<Item["id"]>) {
     const receipt = getActiveReceipt(rs)!;
+    receipt.changes++;
     const idx = receipt.items.findIndex((i) => i.id === payload);
 
     receipt.items.splice(idx, 1);
@@ -67,6 +71,7 @@ export const sliceReceipts = {
 
   modItem(rs: CS, { payload }: PayloadAction<ItemModifier>) {
     const receipt = getActiveReceipt(rs)!;
+    receipt.changes++;
 
     const item = receipt.items.find((i) => i.id === payload.id)!;
     if (payload.categoryId !== undefined) item.categoryId = payload.categoryId;
@@ -125,10 +130,10 @@ export const sliceReceipts = {
     const group = getActiveGroup(rs)!;
 
     if (typeof payload === "number") {
-      const activeReceipt = group.receipts.find((rcpt) => rcpt.id === payload);
+      const activeReceipt = group.receipts.find((rcpt) => rcpt.id === payload)!;
 
       const detachedClone = deepClone(activeReceipt);
-      group.activeReceipt = detachedClone;
+      group.activeReceipt = { ...detachedClone, changes: 0 };
     } else {
       delete group["activeReceipt"];
     }
