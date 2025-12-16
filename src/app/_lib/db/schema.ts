@@ -43,19 +43,18 @@ const revisionId = integer()
   .notNull()
   .references(() => revisions.id, { onDelete: "cascade" });
 const flags = integer().notNull().default(1);
+const colFR = { flags, revisionId };
+const colFRI = { ...colFR, id };
 
 const userId = integer()
   .notNull()
   .references(() => users.id);
 const gidCore = integer().references(() => groups.id);
 const groupId = gidCore.notNull();
-const colSR = {
-  flags,
-  revisionId,
-  // active,
-};
 
-const colSRI = { ...colSR, id };
+const categoryId = integer()
+  .notNull()
+  .references(() => categories.id);
 
 export const metadata = sqliteTable("metadata", {
   id,
@@ -90,7 +89,7 @@ export const revisions = sqliteTable("revisions", {
 });
 
 export const users = sqliteTable("users", {
-  ...colSRI,
+  ...colFRI,
 
   email: text().notNull().unique(),
 
@@ -102,7 +101,7 @@ export const users = sqliteTable("users", {
 });
 
 export const groups = sqliteTable("groups", {
-  ...colSRI,
+  ...colFRI,
 
   name: text().notNull(),
 
@@ -114,7 +113,7 @@ export const groups = sqliteTable("groups", {
 export const memberships = sqliteTable(
   "memberships",
   {
-    ...colSR,
+    ...colFR,
 
     groupId,
 
@@ -138,7 +137,7 @@ export const chartColors = sqliteTable("chart_colors", {
 });
 
 export const categories = sqliteTable("categories", {
-  ...colSRI,
+  ...colFRI,
 
   groupId,
 
@@ -148,7 +147,7 @@ export const categories = sqliteTable("categories", {
 });
 
 export const receipts = sqliteTable("receipts", {
-  ...colSRI,
+  ...colFRI,
 
   groupId,
 
@@ -160,15 +159,13 @@ export const receipts = sqliteTable("receipts", {
 });
 
 export const items = sqliteTable("items", {
-  ...colSRI,
+  ...colFRI,
 
   receiptId: integer()
     .notNull()
     .references(() => receipts.id),
 
-  categoryId: integer()
-    .notNull()
-    .references(() => categories.id),
+  categoryId,
 
   cost: floatToInt().notNull(),
 
@@ -178,7 +175,7 @@ export const items = sqliteTable("items", {
 export const itemShares = sqliteTable(
   "item_shares",
   {
-    ...colSR,
+    ...colFR,
 
     itemId: integer()
       .notNull()
