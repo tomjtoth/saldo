@@ -23,7 +23,7 @@ export type DbSelect<T extends keyof Schema> = Schema[T]["$inferSelect"];
 export type ConsumptionData = {
   categoryId: DbCategory["id"];
 } & {
-  [userId: string]: DbUser["id"];
+  [userId: DbUser["id"]]: number;
 };
 
 export type BalanceData = {
