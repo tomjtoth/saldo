@@ -11,6 +11,7 @@ import ItemOptions from "./options";
 import ItemOptionsAsModal from "./options/modal";
 
 const RE_ONE_LETTER = /^\p{Letter}$/u;
+const RE_COMMA = /^(.*)(\d)$/;
 
 export default function ItemRow({
   itemId,
@@ -34,7 +35,7 @@ export default function ItemRow({
   const catRef = useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
   const [cost, setCost] = useState(item.cost.toFixed(2));
-  const commaHelper = useRef("");
+  const commaHelper = useRef(false);
 
   useEffect(() => {
     if (autoFocus) costRef.current?.focus();
@@ -110,10 +111,9 @@ export default function ItemRow({
           onChange={(ev) => {
             let asStr = ev.target.value;
 
-            const helper = commaHelper.current;
-            if (helper) {
-              asStr = helper + asStr.at(-1);
-              commaHelper.current = "";
+            if (commaHelper.current) {
+              asStr = asStr.replace(RE_COMMA, "$1.$2");
+              commaHelper.current = false;
             }
 
             setCost(asStr);
@@ -124,10 +124,10 @@ export default function ItemRow({
           }}
           onFocus={() => dispatch(thunks.setFocusedRow(-1))}
           onKeyDown={(ev) => {
-            if (ev.key === ",") {
-              const val = costRef.current!.value + ".";
-              if (!cost.includes(".")) commaHelper.current = val;
-
+            if (ev.key === "," && !cost.includes(".")) {
+              commaHelper.current = true;
+              ev.preventDefault();
+            } else if (ev.key === "-" && cost.length > 0) {
               ev.preventDefault();
             } else if (ev.key === "c") {
               ev.preventDefault();
