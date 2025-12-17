@@ -13,13 +13,6 @@ import ItemRow from "./itemRow";
 import PaidByUserWithAvatar from "../paidByUserWithAvatar";
 import ReceiptClosingDialog from "../closingDialog";
 
-const DIFFS = {
-  ArrowUp: -1,
-  ArrowDown: 1,
-  PageUp: -5,
-  PageDown: 5,
-};
-
 export default function ReceiptDetails() {
   const nodes = useBodyNodes();
   const dispatch = useAppDispatch();
@@ -106,6 +99,16 @@ export default function ReceiptDetails() {
           if (ev.ctrlKey && ev.key === "s") {
             ev.preventDefault();
             submitReceipt();
+          } else if (ev.key === "Escape") {
+            closeReceipt();
+
+            const control = ev.target as
+              | HTMLInputElement
+              | HTMLSelectElement
+              | HTMLTextAreaElement
+              | HTMLDivElement;
+
+            control.blur();
           }
         }}
       >
@@ -145,26 +148,11 @@ export default function ReceiptDetails() {
               : "sm:grid-cols-[min-content_auto_min-content_min-content_min-content]")
           }
         >
-          {receipt.items.map((item, rowIdx) => (
+          {receipt.items.map((item) => (
             <ItemRow
               key={item.id}
               highlighted={zeros.includes(item.id)}
               itemId={item.id}
-              onKeyDown={(ev) => {
-                if (ev.key in DIFFS) {
-                  ev.preventDefault();
-                  const lastIdx = receipt.items.length - 1;
-                  const newIdx = rowIdx + DIFFS[ev.key as keyof typeof DIFFS];
-
-                  dispatch(
-                    thunks.focusRow(
-                      receipt.items[
-                        newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
-                      ].id
-                    )
-                  );
-                }
-              }}
             />
           ))}
 

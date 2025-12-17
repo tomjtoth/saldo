@@ -1,14 +1,38 @@
 "use client";
 
+import { KeyboardEventHandler, RefObject } from "react";
+
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
 
 import Canceler from "@/app/_components/canceler";
-import ItemShareSetter from "../shares/setter";
-import ItemShareAvatar from "../shares/avatar";
+import ItemShareSetter from "./shares/setter";
+import ItemShareAvatar from "./shares/avatar";
 
-export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
+export default function ItemOptions({
+  itemId,
+
+  notesRef,
+  sharesRef,
+  rmRowRef,
+  addRowRef,
+
+  handlers,
+}: {
+  itemId: Item["id"];
+  notesRef?: RefObject<HTMLTextAreaElement | null>;
+  sharesRef?: RefObject<HTMLDivElement | null>;
+  rmRowRef?: RefObject<HTMLButtonElement | null>;
+  addRowRef?: RefObject<HTMLButtonElement | null>;
+
+  handlers?: {
+    notes: KeyboardEventHandler<HTMLTextAreaElement>;
+    shares: KeyboardEventHandler<HTMLDivElement>;
+    rmRow: KeyboardEventHandler<HTMLButtonElement>;
+    addRow: KeyboardEventHandler<HTMLButtonElement>;
+  };
+}) {
   const nodes = useBodyNodes();
   const dispatch = useAppDispatch();
   const users = useClientState("users");
@@ -17,9 +41,7 @@ export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
 
   const showSetter = () => nodes.push(ItemShareSetter, { itemId });
 
-  const item = receipt.items.find((i) => i.id === itemId);
-
-  if (!item) return null;
+  const item = receipt.items.find((i) => i.id === itemId)!;
 
   const isMultiUser = users.length > 1;
   const shares = item.itemShares;
@@ -27,14 +49,16 @@ export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
   return (
     <>
       <textarea
+        ref={notesRef}
+        onKeyDown={handlers?.notes}
         rows={1}
         placeholder="Optional comments..."
-        className="resize-none grow bg-background"
+        className="resize-none grow bg-background min-w-20"
         value={item.notes ?? ""}
         onChange={(ev) =>
           dispatch(
             thunks.modItem({
-              id: item.id,
+              id: itemId,
               notes: ev.target.value,
             })
           )
@@ -44,6 +68,9 @@ export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
       {isMultiUser &&
         (shares.reduce((sum, { share }) => sum + share, 0) > 0 ? (
           <div
+            ref={sharesRef}
+            onKeyDown={handlers?.shares}
+            tabIndex={0}
             className="flex gap-2 cursor-pointer mr-2 mb-2 sm:mb-0 items-center justify-evenly"
             onClick={showSetter}
           >
@@ -54,8 +81,14 @@ export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
             )}
           </div>
         ) : (
-          <button
-            className="bg-background inline-flex items-center gap-2 text-center"
+          <div
+            ref={sharesRef}
+            onKeyDown={handlers?.shares}
+            tabIndex={0}
+            className={
+              "border rounded p-2 cursor-pointer " +
+              "bg-background inline-flex items-center gap-2 text-center"
+            }
             onClick={showSetter}
           >
             <>
@@ -64,14 +97,16 @@ export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
               </span>
               👪
             </>
-          </button>
+          </div>
         ))}
 
       {receipt.items.length > 1 && (
         <button
+          ref={rmRowRef}
+          onKeyDown={handlers?.rmRow}
           className="inline-flex items-center gap-2 bg-background"
           onClick={() => {
-            dispatch(thunks.rmRow(item.id));
+            dispatch(thunks.rmRow(itemId));
             if (nodes.length > 1) nodes.pop();
           }}
         >
@@ -83,9 +118,11 @@ export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
       )}
 
       <button
+        ref={addRowRef}
+        onKeyDown={handlers?.addRow}
         className="inline-flex items-center gap-2 col-start-5 bg-background"
         onClick={() => {
-          dispatch(thunks.addRow(item.id));
+          dispatch(thunks.addRow(itemId));
           if (nodes.length > 1) nodes.pop();
         }}
       >
