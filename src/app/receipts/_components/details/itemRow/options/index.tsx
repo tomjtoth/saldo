@@ -15,20 +15,7 @@ export default function ItemOptions({ itemId }: { itemId: Item["id"] }) {
   const group = useClientState("group");
   const receipt = group!.activeReceipt!;
 
-  function showSetter() {
-    nodes.push(
-      <Canceler
-        key="item-share-setter"
-        className={
-          "z-2" +
-          (nodes.length > 1 ? " backdrop-opacity-100 bg-background/50" : "")
-        }
-        onClick={() => nodes.setNodes(([receipt]) => [receipt])}
-      >
-        <ItemShareSetter {...{ itemId }} />
-      </Canceler>
-    );
-  }
+  const showSetter = () => nodes.push(ItemShareSetter, { itemId });
 
   const item = receipt.items.find((i) => i.id === itemId);
 
