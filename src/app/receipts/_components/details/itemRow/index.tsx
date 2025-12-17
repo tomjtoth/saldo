@@ -7,7 +7,7 @@ import { virt } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
 
-import ItemOptions from "./options";
+import ItemOptions, { ItemOptionsAsModal } from "./options";
 import ItemOptionsAsModal from "./options/modal";
 
 const RE_ONE_LETTER = /^\p{Letter}$/u;
@@ -78,7 +78,7 @@ export default function ItemRow({
 
       <button
         className="sm:hidden"
-        onClick={() => nodes.push(ItemOptionsAsModal, { itemId: item.id })}
+        onClick={() => nodes.push(ItemOptionsAsModal, { itemId })}
       >
         ⚙️
       </button>
