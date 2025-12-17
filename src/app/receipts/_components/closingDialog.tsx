@@ -1,3 +1,4 @@
+import pluralize from "pluralize";
 import { useLayoutEffect, useRef } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
@@ -26,7 +27,8 @@ export default function ReceiptClosingDialog() {
       >
         <h2 className="text-center">Closing receipt</h2>
         <p className="py-2">
-          Any unsaved changes ({receipt.changes}) will be lost..
+          {receipt.changes} unsaved {pluralize("change", receipt.changes)} will
+          be lost..
         </p>
         <div className="flex gap-2 items-center justify-around [&_button]:py-1!">
           <button
