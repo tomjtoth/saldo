@@ -15,24 +15,27 @@ const RE_COMMA = /^(.*)(\d)$/;
 
 export default function ItemRow({
   itemId,
-  autoFocus,
   highlighted,
   onKeyDown: adderKeyDownHandler,
 }: {
   itemId: Item["id"];
-  autoFocus: boolean;
   highlighted: boolean;
   onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 }) {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
-  const group = useClientState("group");
+  const group = useClientState("group")!;
   const users = useClientState("users");
-  const item = group!.activeReceipt!.items.find((i) => i.id === itemId)!;
 
+  const receipt = group.activeReceipt!;
+  const item = receipt.items.find((i) => i.id === itemId)!;
   const isMultiUser = users.length > 1;
+  const autoFocus = itemId === receipt.focusedItemId;
 
-  const catRef = useRef<HTMLSelectElement>(null);
+  const [cost, setCost] = useState(item.cost === 0 ? "" : item.cost.toFixed(2));
+
+  const refs = {
+    category: useRef<HTMLSelectElement>(null);
   const costRef = useRef<HTMLInputElement>(null);
   const [cost, setCost] = useState(item.cost.toFixed(2));
   const commaHelper = useRef(false);

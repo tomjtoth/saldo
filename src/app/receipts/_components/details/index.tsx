@@ -148,19 +148,19 @@ export default function ReceiptDetails() {
           {receipt.items.map((item, rowIdx) => (
             <ItemRow
               key={item.id}
-              autoFocus={rowIdx === receipt.focusedIdx}
               highlighted={zeros.includes(item.id)}
               itemId={item.id}
               onKeyDown={(ev) => {
-                const lastIdx = receipt.items.length - 1;
-
                 if (ev.key in DIFFS) {
                   ev.preventDefault();
+                  const lastIdx = receipt.items.length - 1;
                   const newIdx = rowIdx + DIFFS[ev.key as keyof typeof DIFFS];
 
                   dispatch(
-                    thunks.setFocusedRow(
-                      newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
+                    thunks.focusRow(
+                      receipt.items[
+                        newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
+                      ].id
                     )
                   );
                 }

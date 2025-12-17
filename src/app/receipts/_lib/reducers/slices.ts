@@ -39,13 +39,11 @@ export const sliceReceipts = {
 
     if (payload !== undefined) {
       const idx = receipt.items.findIndex((i) => i.id === payload);
-      receipt.focusedIdx = idx + 1;
-      receipt.items.splice(
-        idx + 1,
-        0,
-        // inherit categoryId from the row above
-        addItem(receipt.items[idx].categoryId)
-      );
+
+      // inherit categoryId from the row above
+      const newItem = addItem(receipt.items[idx].categoryId);
+      receipt.items.splice(idx + 1, 0, newItem);
+      receipt.focusedItemId = newItem.id;
     } else {
       const group = getActiveGroup(rs);
 
@@ -59,14 +57,17 @@ export const sliceReceipts = {
   rmRow(rs: CS, { payload }: PayloadAction<Item["id"]>) {
     const receipt = getActiveReceipt(rs)!;
     receipt.changes++;
-    const idx = receipt.items.findIndex((i) => i.id === payload);
 
+    const idx = receipt.items.findIndex((i) => i.id === payload);
     receipt.items.splice(idx, 1);
+    receipt.focusedItemId = receipt.items[Math.max(0, idx - 1)].id;
   },
 
-  setFocusedRow(rs: CS, { payload }: PayloadAction<number>) {
+  focusRow(rs: CS, { payload }: PayloadAction<Item["id"] | undefined>) {
     const receipt = getActiveReceipt(rs)!;
-    receipt.focusedIdx = payload;
+
+    if (payload) receipt.focusedItemId = payload;
+    else delete receipt.focusedItemId;
   },
 
   modItem(rs: CS, { payload }: PayloadAction<ItemModifier>) {

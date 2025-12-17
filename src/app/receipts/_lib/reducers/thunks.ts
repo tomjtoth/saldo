@@ -24,8 +24,8 @@ export const thunksReceipts = {
     return dispatch(csa.rmRow(rowId));
   },
 
-  setFocusedRow: (index: Item["id"]) => (dispatch: AppDispatch) => {
-    return dispatch(csa.setFocusedRow(index));
+  focusRow: (itemId?: Item["id"]) => (dispatch: AppDispatch) => {
+    return dispatch(csa.focusRow(itemId));
   },
 
   modItem: (modifier: ItemModifier) => {
