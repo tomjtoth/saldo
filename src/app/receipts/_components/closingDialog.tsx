@@ -18,13 +18,8 @@ export default function ReceiptClosingDialog() {
   }, []);
 
   return (
-    <Canceler onClick={nodes.pop}>
-      <div
-        className={
-          "absolute left-1/2 top-1/2 -translate-1/2 p-2 bg-background " +
-          "border rounded"
-        }
-      >
+    <Canceler>
+      <div>
         <h2 className="text-center">Closing receipt</h2>
         <p className="py-2">
           {receipt.changes} unsaved {pluralize("change", receipt.changes)} will

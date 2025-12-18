@@ -91,10 +91,7 @@ export default function ReceiptDetails() {
   return (
     <Canceler onClick={closeReceipt}>
       <div
-        className={
-          "absolute left-1/2 top-1/2 -translate-1/2 w-4/5 h-4/5 " +
-          "bg-background rounded border p-2 flex flex-col gap-2 overflow-scroll"
-        }
+        className="flex flex-col gap-2 overflow-scroll"
         onKeyDown={(ev) => {
           if (ev.ctrlKey && ev.key === "s") {
             ev.preventDefault();

@@ -39,7 +39,7 @@ function EntityAdder({ placeholder, handler }: TEntityAdder) {
   }, []);
 
   return (
-    <Canceler onClick={nodes.pop}>
+    <Canceler>
       <form
         id="entity-adder-form"
         className={

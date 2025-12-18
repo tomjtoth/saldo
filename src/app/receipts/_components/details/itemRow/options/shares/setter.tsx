@@ -29,12 +29,7 @@ export default function ItemShareSetter({ itemId }: { itemId: Item["id"] }) {
       }
       onClick={() => nodes.setNodes(([receipt]) => [receipt])}
     >
-      <div
-        className={
-          "absolute left-1/2 top-1/2 -translate-1/2 max-h-4/5 " +
-          "flex flex-col gap-6 items-center justify-center"
-        }
-      >
+      <div className="flex flex-col gap-6 items-center justify-center">
         <div className="flex gap-2 items-center">
           <Slider checked={verbose} onClick={() => setVerbose(!verbose)}>
             Show calculations
