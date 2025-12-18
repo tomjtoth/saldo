@@ -9,7 +9,7 @@ import { Item } from "@/app/receipts/_lib";
 
 import ItemOptions, { ItemOptionsAsModal } from "./options";
 import useItemRowLogic from "./logic";
-
+import ItemRowZigZag from "./zigZag";
 
 export default function ItemRow({
   itemId,
@@ -38,7 +38,15 @@ export default function ItemRow({
   }, [autoFocus]);
 
   return (
-    <>
+    // this span and its classname `relative` is necessary for the ZigZag
+    <span
+      className={
+        "col-span-6 grid grid-cols-subgrid relative overflow-x-clip" +
+        (disabled ? " *:text-gray-500 *:border-gray-500 *:select-none" : "")
+      }
+    >
+      {disabled && <ItemRowZigZag {...{ itemId }} />}
+
       <select
         ref={categoryRef}
         className="rounded border p-1 min-w-20"
@@ -105,6 +113,6 @@ export default function ItemRow({
           onKeyDown={handlers.cost}
         />
       </form>
-    </>
+    </span>
   );
 }
