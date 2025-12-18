@@ -104,7 +104,7 @@ export default function ItemRow({
         className="inline-flex items-center gap-2"
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (!isNaN(Number(hk.cost))) dispatch(thunks.addRow(itemId));
+          if (!isNaN(Number(hk.cost))) dispatch(thunks.addItem(itemId));
         }}
       >
         €
@@ -121,7 +121,7 @@ export default function ItemRow({
           }
           value={hk.cost === "0.00" ? "" : hk.cost}
           onChange={hk.handlers.costChange}
-          onFocus={() => dispatch(thunks.focusRow())}
+          onFocus={() => dispatch(thunks.focusItem())}
           onKeyDown={hk.handlers.cost}
         />
       </form>

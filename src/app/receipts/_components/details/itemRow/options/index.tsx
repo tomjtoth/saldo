@@ -21,6 +21,7 @@ export default function ItemOptions({
   handlers,
 }: {
   itemId: Item["id"];
+
   notesRef?: RefObject<HTMLTextAreaElement | null>;
   sharesRef?: RefObject<HTMLDivElement | null>;
   rmRowRef?: RefObject<HTMLButtonElement | null>;
@@ -106,7 +107,7 @@ export default function ItemOptions({
           onKeyDown={handlers?.rmRow}
           className="inline-flex items-center gap-2 bg-background"
           onClick={() => {
-            dispatch(thunks.rmRow(itemId));
+            dispatch(thunks.rmItem(itemId));
             if (nodes.length > 1) nodes.pop();
           }}
         >
@@ -122,7 +123,7 @@ export default function ItemOptions({
         onKeyDown={handlers?.addRow}
         className="inline-flex items-center gap-2 col-start-5 bg-background"
         onClick={() => {
-          dispatch(thunks.addRow(itemId));
+          dispatch(thunks.addItem(itemId));
           if (nodes.length > 1) nodes.pop();
         }}
       >

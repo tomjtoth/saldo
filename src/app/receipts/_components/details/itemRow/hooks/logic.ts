@@ -73,7 +73,7 @@ export default function useItemRowLogic(
         const newIdx = itemIdx + DIFFS[ev.key as keyof typeof DIFFS];
 
         dispatch(
-          thunks.focusRow(
+          thunks.focusItem(
             receipt.items[newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx]
               .id
           )
@@ -93,11 +93,11 @@ export default function useItemRowLogic(
       } else if (alt && ev.key === "a") {
         ev.preventDefault();
 
-        dispatch(thunks.addRow(itemId));
+        dispatch(thunks.addItem(itemId));
       } else if (alt && ev.key === "r") {
         ev.preventDefault();
 
-        if (receipt.items.length > 1) dispatch(thunks.rmRow(itemId));
+        if (receipt.items.length > 1) dispatch(thunks.rmItem(itemId));
       }
     },
 

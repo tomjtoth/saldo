@@ -33,7 +33,7 @@ export const sliceReceipts = {
     receipt.paidById = payload;
   },
 
-  addRow(rs: CS, { payload }: PayloadAction<Item["id"] | undefined>) {
+  addItem(rs: CS, { payload }: PayloadAction<Item["id"] | undefined>) {
     const receipt = getActiveReceipt(rs)!;
     receipt.changes++;
 
@@ -54,7 +54,7 @@ export const sliceReceipts = {
     }
   },
 
-  rmRow(rs: CS, { payload }: PayloadAction<Item["id"]>) {
+  rmItem(rs: CS, { payload }: PayloadAction<Item["id"]>) {
     const receipt = getActiveReceipt(rs)!;
     receipt.changes++;
 
@@ -63,7 +63,7 @@ export const sliceReceipts = {
     receipt.focusedItemId = receipt.items[Math.max(0, idx - 1)].id;
   },
 
-  focusRow(rs: CS, { payload }: PayloadAction<Item["id"] | undefined>) {
+  focusItem(rs: CS, { payload }: PayloadAction<Item["id"] | undefined>) {
     const receipt = getActiveReceipt(rs)!;
 
     if (payload) receipt.focusedItemId = payload;

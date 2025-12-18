@@ -16,16 +16,16 @@ export const thunksReceipts = {
     return dispatch(csa.setPaidBy(userId));
   },
 
-  addRow: (afterId?: Item["id"]) => (dispatch: AppDispatch) => {
-    return dispatch(csa.addRow(afterId));
+  addItem: (afterId?: Item["id"]) => (dispatch: AppDispatch) => {
+    return dispatch(csa.addItem(afterId));
   },
 
-  rmRow: (rowId: Item["id"]) => (dispatch: AppDispatch) => {
-    return dispatch(csa.rmRow(rowId));
+  rmItem: (itemId: Item["id"]) => (dispatch: AppDispatch) => {
+    return dispatch(csa.rmItem(itemId));
   },
 
-  focusRow: (itemId?: Item["id"]) => (dispatch: AppDispatch) => {
-    return dispatch(csa.focusRow(itemId));
+  focusItem: (itemId?: Item["id"]) => (dispatch: AppDispatch) => {
+    return dispatch(csa.focusItem(itemId));
   },
 
   modItem: (modifier: ItemModifier) => {
