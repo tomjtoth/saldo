@@ -52,15 +52,16 @@ export default function useItemRowLogic(itemId: Item["id"]) {
   const autoFocus = itemId === receipt.focusedItemId;
   const disabled = !virt(item).active;
 
-  const [caretPos, setCaretPos] = useState(-1);
+  const caretRef = useRef(-1);
   const [cost, setCost] = useState(item.cost === 0 ? "" : item.cost.toFixed(2));
 
   useLayoutEffect(() => {
+    const caretPos = caretRef.current;
     if (caretPos !== -1) {
       costRef.current?.setSelectionRange(caretPos, caretPos, "none");
-      setCaretPos(-1);
+      caretRef.current = -1;
     }
-  }, [caretPos]);
+  });
 
   const handlers: {
     common: KeyboardEventHandler;
@@ -204,7 +205,7 @@ export default function useItemRowLogic(itemId: Item["id"]) {
         const t = ev.currentTarget;
 
         const alreadyMinus = cost.startsWith("-");
-        setCaretPos(t.selectionStart! + (alreadyMinus ? -1 : 1));
+        caretRef.current = t.selectionStart! + (alreadyMinus ? -1 : 1);
 
         // call with customized value
         handlers.costChange({
