@@ -1,19 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
-import {
-  useAppDispatch,
-  useBodyNodes,
-  useClientState,
-  useDebugger,
-} from "@/app/_lib/hooks";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
 
 import ItemOptions, { ItemOptionsAsModal } from "./options";
-import useItemRowLogic from "./hooks/logic";
+import useItemRowLogic from "./logic";
 
 
 export default function ItemRow({
@@ -27,35 +22,28 @@ export default function ItemRow({
   const nodes = useBodyNodes();
   const group = useClientState("group")!;
 
-  const categoryRef = useRef<HTMLSelectElement>(null);
-  const notesRef = useRef<HTMLTextAreaElement>(null);
-  const sharesRef = useRef<HTMLDivElement>(null);
-  const rmRowRef = useRef<HTMLButtonElement>(null);
-  const addRowRef = useRef<HTMLButtonElement>(null);
-  const costRef = useRef<HTMLInputElement>(null);
-
-  const hk = useItemRowLogic(
-    itemId,
-    categoryRef,
-    notesRef,
-    sharesRef,
-    rmRowRef,
-    addRowRef,
-    costRef
-  );
+  const {
+    refs: { categoryRef, costRef, ...refs },
+    handlers,
+    disabled,
+    categoryId,
+    cost,
+    isMultiUser,
+    updatingReceipt,
+    autoFocus,
+  } = useItemRowLogic(itemId);
 
   useEffect(() => {
-    if (hk.autoFocus) costRef.current?.focus();
-  }, [hk.autoFocus]);
-
-  useDebugger({ hk });
+    if (autoFocus) costRef.current?.focus();
+  }, [autoFocus]);
 
   return (
     <>
       <select
         ref={categoryRef}
         className="rounded border p-1 min-w-20"
-        value={hk.categoryId}
+        value={categoryId}
+        disabled={disabled}
         onChange={(ev) =>
           dispatch(
             thunks.modItem({
@@ -64,10 +52,10 @@ export default function ItemRow({
             })
           )
         }
-        onKeyDown={hk.handlers.category}
+        onKeyDown={handlers.category}
       >
         {group.categories.map((cat) =>
-          virt(cat).active || hk.updatingReceipt ? (
+          virt(cat).active || updatingReceipt ? (
             <option key={cat.id} value={cat.id}>
               {cat.name}
             </option>
@@ -78,6 +66,7 @@ export default function ItemRow({
       <button
         className="sm:hidden"
         onClick={() => nodes.push(ItemOptionsAsModal, { itemId })}
+        disabled={disabled}
       >
         ⚙️
       </button>
@@ -85,26 +74,17 @@ export default function ItemRow({
       <div
         className={
           "hidden sm:grid grid-cols-subgrid gap-2 " +
-          (hk.isMultiUser ? "col-span-4" : "col-span-3")
+          (isMultiUser ? "col-span-4" : "col-span-3")
         }
       >
-        <ItemOptions
-          {...{
-            itemId,
-            handlers: hk.handlers,
-            notesRef,
-            rmRowRef,
-            addRowRef,
-            sharesRef,
-          }}
-        />
+        <ItemOptions {...{ itemId, handlers, refs }} />
       </div>
 
       <form
         className="inline-flex items-center gap-2"
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (!isNaN(Number(hk.cost))) dispatch(thunks.addItem(itemId));
+          if (!isNaN(Number(cost))) dispatch(thunks.addItem(itemId));
         }}
       >
         €
@@ -112,17 +92,17 @@ export default function ItemRow({
           ref={costRef}
           type="text"
           inputMode="decimal"
-          step={0.01}
+          disabled={disabled}
           placeholder="cost"
           className={
-            "w-15 no-spinner" +
-            (isNaN(Number(hk.cost)) ? " border-2! border-red-500" : "") +
+            "w-15 " +
+            (isNaN(Number(cost)) ? " border-2! border-red-500" : "") +
             (highlighted ? " bg-amber-500" : "")
           }
-          value={hk.cost === "0.00" ? "" : hk.cost}
-          onChange={hk.handlers.costChange}
+          value={cost === "0.00" ? "" : cost}
+          onChange={handlers.costChange}
           onFocus={() => dispatch(thunks.focusItem())}
-          onKeyDown={hk.handlers.cost}
+          onKeyDown={handlers.cost}
         />
       </form>
     </>

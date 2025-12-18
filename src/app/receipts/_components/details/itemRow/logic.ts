@@ -2,40 +2,47 @@
 
 import {
   KeyboardEventHandler,
-  RefObject,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
-import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
+import {
+  useAppDispatch,
+  useBodyNodes,
+  useClientState,
+  useDebugger,
+} from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
+import { virt } from "@/app/_lib/utils";
 
-import ItemShareSetter from "../options/shares/setter";
-
-const DIFFS = {
-  ArrowUp: -1,
-  ArrowDown: 1,
-  PageUp: -5,
-  PageDown: 5,
-};
+import ItemShareSetter from "./options/shares/setter";
 
 const RE_OTHER_THAN_NUM_CHARS = /^[^\d,.-]$/;
 
-export default function useItemRowLogic(
-  itemId: Item["id"],
-  categoryRef: RefObject<HTMLSelectElement | null>,
-  notesRef: RefObject<HTMLTextAreaElement | null>,
-  sharesRef: RefObject<HTMLDivElement | null>,
-  rmRowRef: RefObject<HTMLButtonElement | null>,
-  addRowRef: RefObject<HTMLButtonElement | null>,
-  costRef: RefObject<HTMLInputElement | null>
-) {
+export default function useItemRowLogic(itemId: Item["id"]) {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
   const group = useClientState("group")!;
   const users = useClientState("users");
+
+  const categoryRef = useRef<HTMLSelectElement>(null);
+  const notesRef = useRef<HTMLTextAreaElement>(null);
+  const sharesRef = useRef<HTMLDivElement>(null);
+  const rmRowRef = useRef<HTMLButtonElement>(null);
+  const addRowRef = useRef<HTMLButtonElement>(null);
+  const costRef = useRef<HTMLInputElement>(null);
+
+  const refs = {
+    categoryRef,
+    notesRef,
+    sharesRef,
+    rmRowRef,
+    addRowRef,
+    costRef,
+  };
 
   const receipt = group.activeReceipt!;
   const updatingReceipt = receipt.id !== -1;
@@ -43,6 +50,7 @@ export default function useItemRowLogic(
   const item = receipt.items[itemIdx];
   const isMultiUser = users.length > 1;
   const autoFocus = itemId === receipt.focusedItemId;
+  const disabled = !virt(item).active;
 
   const [caretPos, setCaretPos] = useState(-1);
   const [cost, setCost] = useState(item.cost === 0 ? "" : item.cost.toFixed(2));
@@ -67,15 +75,25 @@ export default function useItemRowLogic(
     common(ev) {
       const alt = ev.altKey && !ev.ctrlKey;
 
-      if (ev.key in DIFFS) {
+      const navi = {
+        ArrowUp: -1,
+        ArrowDown: 1,
+        PageUp: -5,
+        PageDown: 5,
+      };
+
+      if (ev.key in navi) {
         ev.preventDefault();
-        const lastIdx = receipt.items.length - 1;
-        const newIdx = itemIdx + DIFFS[ev.key as keyof typeof DIFFS];
+
+        const activeItems = receipt.items.filter((i) => virt(i).active);
+        const itemIdx = activeItems.findIndex((i) => i.id === itemId);
+
+        const lastIdx = activeItems.length - 1;
+        const newIdx = itemIdx + navi[ev.key as keyof typeof navi];
 
         dispatch(
           thunks.focusItem(
-            receipt.items[newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx]
-              .id
+            activeItems[newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx].id
           )
         );
       } else if (alt && ev.key === "c") {
@@ -216,28 +234,34 @@ export default function useItemRowLogic(
     },
   };
 
-  return useMemo(
+  const itemRowLogic = useMemo(
     () => ({
       updatingReceipt,
       isMultiUser,
 
-      itemId,
       categoryId: item.categoryId,
+      disabled,
 
       autoFocus,
       cost,
       handlers,
+      refs,
     }),
     [
       updatingReceipt,
       isMultiUser,
 
-      itemId,
       item.categoryId,
+      disabled,
 
       autoFocus,
       cost,
       handlers,
+      refs,
     ]
   );
+
+  useDebugger({ itemId, itemRowLogic });
+
+  return itemRowLogic;
 }

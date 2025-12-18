@@ -12,21 +12,16 @@ import ItemShareAvatar from "./shares/avatar";
 
 export default function ItemOptions({
   itemId,
-
-  notesRef,
-  sharesRef,
-  rmRowRef,
-  addRowRef,
-
+  refs: { notesRef, sharesRef, rmRowRef, addRowRef } = {},
   handlers,
 }: {
   itemId: Item["id"];
-
-  notesRef?: RefObject<HTMLTextAreaElement | null>;
-  sharesRef?: RefObject<HTMLDivElement | null>;
-  rmRowRef?: RefObject<HTMLButtonElement | null>;
-  addRowRef?: RefObject<HTMLButtonElement | null>;
-
+  refs?: {
+    notesRef?: RefObject<HTMLTextAreaElement | null>;
+    sharesRef?: RefObject<HTMLDivElement | null>;
+    rmRowRef?: RefObject<HTMLButtonElement | null>;
+    addRowRef?: RefObject<HTMLButtonElement | null>;
+  };
   handlers?: {
     notes: KeyboardEventHandler<HTMLTextAreaElement>;
     shares: KeyboardEventHandler<HTMLDivElement>;
