@@ -37,7 +37,7 @@ export default function ItemRowZigZag({ itemId }: { itemId: Item["id"] }) {
 
   return (
     <svg
-      className="absolute w-full h-full"
+      className="absolute w-full h-full cursor-pointer"
       viewBox="0 0 100 10"
       preserveAspectRatio="none"
       aria-hidden

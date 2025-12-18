@@ -41,7 +41,8 @@ export default function ItemRow({
     // this span and its classname `relative` is necessary for the ZigZag
     <span
       className={
-        "col-span-6 grid grid-cols-subgrid relative overflow-x-clip" +
+        "grid grid-cols-subgrid relative overflow-x-clip " +
+        (isMultiUser ? "col-span-6" : "col-span-5") +
         (disabled ? " *:text-gray-500 *:border-gray-500 *:select-none" : "")
       }
     >
