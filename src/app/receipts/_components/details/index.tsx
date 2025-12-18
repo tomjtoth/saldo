@@ -181,9 +181,11 @@ export default function ReceiptDetails() {
               className="rounded border p-1 w-15 border-none!"
               readOnly
               value={receipt.items
-                .reduce((sub, { cost }) => {
-                  const asNum = Number(cost);
-                  return sub + (isNaN(asNum) ? 0 : asNum);
+                .reduce((sub, i) => {
+                  const asNum = Number(i.cost);
+                  return (
+                    sub + (virt(i).active ? (isNaN(asNum) ? 0 : asNum) : 0)
+                  );
                 }, 0)
                 .toFixed(2)}
             />
