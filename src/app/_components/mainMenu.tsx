@@ -16,7 +16,7 @@ export default function MainMenu(opts: { tab?: Tabs } = {}) {
   const shadows = " shadow-[0_0_5px,0_0_15px] shadow-amber-500";
 
   return (
-    <Canceler classNamesFor={{ children: { pad: "" } }}>
+    <Canceler classNamesFor={{ children: { padding: false } }}>
       <div className="lg:top-20 lg:left-20 lg:translate-0 flex gap-2 items-stretch">
         <div className="min-w-max flex flex-col p-2 gap-4 items-center border-r">
           <UserAvatar

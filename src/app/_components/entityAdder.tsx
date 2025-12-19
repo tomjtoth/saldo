@@ -42,11 +42,7 @@ function EntityAdder({ placeholder, handler }: TEntityAdder) {
     <Canceler>
       <form
         id="entity-adder-form"
-        className={
-          "absolute top-1/2 left-1/2 -translate-1/2 p-2 " +
-          "rounded border bg-background " +
-          "grid gap-2 grid-cols-[min-width_min-width]"
-        }
+        className="grid gap-2 grid-cols-[min-width_min-width]"
         onSubmit={(ev) => {
           ev.preventDefault();
 

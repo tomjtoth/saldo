@@ -36,8 +36,10 @@ function Listing() {
   const nodes = useBodyNodes();
 
   return (
-    <Canceler>
-      <ul className="flex flex-col gap-4">
+    <Canceler
+      classNamesFor={{ children: { border: false, rounded: false, bg: false } }}
+    >
+      <ul className="flex flex-col gap-4 whitespace-nowrap">
         {users.map((u) => (
           <li
             key={u.id}

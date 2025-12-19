@@ -135,7 +135,10 @@ export function ItemOptionsAsModal({ itemId }: { itemId: Item["id"] }) {
   const nodes = useBodyNodes();
 
   return (
-    <Canceler className="sm:hidden z-2">
+    <Canceler
+      className="sm:hidden z-2"
+      classNamesFor={{ children: { bg: false, border: false, rounded: false } }}
+    >
       <div
         className="flex flex-wrap gap-2 justify-evenly"
         onClick={(ev) => {

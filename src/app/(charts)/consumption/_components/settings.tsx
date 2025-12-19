@@ -1,4 +1,4 @@
-import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
+import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { virt } from "@/app/_lib/utils";
 
@@ -6,19 +6,13 @@ import Canceler from "@/app/_components/canceler";
 import Slider from "@/app/_components/slider";
 
 export default function ConsumptionSettings() {
-  const nodes = useBodyNodes();
   const group = useClientState("group")!;
   const user = useClientState("user")!;
   const dispatch = useAppDispatch();
 
   return (
-    <Canceler onClick={nodes.pop}>
-      <div
-        className={
-          "absolute left-1/2 top-1/2 -translate-1/2 p-2 " +
-          "max-h-4/5 max-w-4/5 overflow-scroll bg-background border rounded"
-        }
-      >
+    <Canceler>
+      <div className="overflow-scroll">
         <p className="text-center">Visibility of categories</p>
         <hr />
         <ul

@@ -3,11 +3,10 @@
 import { MouseEventHandler, ReactNode, useEffect, useState } from "react";
 
 import { useBodyNodes } from "../_lib/hooks";
-import { is } from "../_lib/utils";
 
 const CHILD_CLASSES = {
   center: "*:absolute *:left-1/2 *:top-1/2 *:-translate-1/2",
-  pad: "*:p-2",
+  padding: "*:p-2",
   maxW: "*:max-w-9/10",
   maxH: "*:max-h-9/10",
   bg: "*:bg-background",
@@ -21,7 +20,7 @@ export default function Canceler({
   className = "z-1",
   classNamesFor: {
     blurred: clsBlurred = "backdrop-opacity-100 bg-background/50",
-    children: clsChildren,
+    children: clsChildren = {},
   } = {},
 }: {
   children: ReactNode;
@@ -29,9 +28,7 @@ export default function Canceler({
   className?: string;
   classNamesFor?: {
     blurred?: string;
-    children?: {
-      apply: { [K in keyof typeof CHILD_CLASSES]?: false };
-    };
+    children?: { [K in keyof typeof CHILD_CLASSES]?: false };
   };
 }) {
   const nodes = useBodyNodes();
@@ -43,15 +40,14 @@ export default function Canceler({
   if (className) clsBase += ` ${className}`;
 
   Object.entries(CHILD_CLASSES).forEach(([key, val]) => {
-    const apply =
-      clsChildren?.apply[key as keyof typeof clsChildren.apply] ?? true;
-
+    const apply = clsChildren[key as keyof typeof clsChildren] ?? true;
     clsBase += apply ? ` ${val}` : "";
   });
 
   const [classes, setClasses] = useState(clsBase);
 
   useEffect(() => {
+    // applying effect with delay: *once* after the 1st render
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (clsBlurred) setClasses(`${clsBase} ${clsBlurred}`);
   }, []);

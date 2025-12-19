@@ -18,12 +18,13 @@ export default function CategoryDetails({
   const usersO1 = useClientState("users[id]");
 
   return (
-    <Canceler onClick={nodes.pop}>
+    <Canceler
+      classNamesFor={{ children: { border: false, rounded: false, bg: false } }}
+    >
       <div
         className={
-          "absolute left-1/2 top-1/2 -translate-1/2 " +
-          "max-w-min sm:max-w-full sm:w-4/5 max-h-4/5 " +
-          "overflow-scroll p-2 flex justify-center flex-wrap gap-2"
+          "max-w-min sm:max-w-full sm:w-4/5 " +
+          "overflow-scroll flex justify-center flex-wrap gap-2"
         }
         onClick={(ev) => {
           if (ev.target === ev.currentTarget) nodes.pop();

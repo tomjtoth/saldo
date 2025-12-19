@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { MouseEventHandler, useState } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
@@ -21,13 +21,20 @@ export default function ItemShareSetter({ itemId }: { itemId: Item["id"] }) {
   const item = receipt.items.find((item) => item.id === itemId)!;
   const notPayer = users.find((user) => user.id !== receipt.paidById);
 
+  const hide: MouseEventHandler = (ev) => {
+    if (ev.target === ev.currentTarget) {
+      nodes.set(([receipt]) => [receipt]);
+    }
+  };
+
   return (
     <Canceler
       className={
         "z-2" +
         (nodes.length > 1 ? " backdrop-opacity-100 bg-background/50" : "")
       }
-      onClick={() => nodes.setNodes(([receipt]) => [receipt])}
+      classNamesFor={{ children: { border: false, rounded: false, bg: false } }}
+      onClick={hide}
     >
       <div className="flex flex-col gap-6 items-center justify-center">
         <div className="flex gap-2 items-center">
@@ -36,7 +43,13 @@ export default function ItemShareSetter({ itemId }: { itemId: Item["id"] }) {
           </Slider>
         </div>
 
-        <div className="flex flex-wrap gap-6 items-center justify-evenly overflow-y-scroll">
+        <div
+          className={
+            "flex flex-wrap gap-6 items-center justify-evenly " +
+            "overflow-scroll"
+          }
+          onClick={hide}
+        >
           {users.map((user) => {
             const userShare =
               item.itemShares.find((is) => is.userId === user.id)?.share ?? 0;
