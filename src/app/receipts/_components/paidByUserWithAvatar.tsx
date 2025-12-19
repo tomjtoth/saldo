@@ -36,13 +36,10 @@ function Listing() {
   const nodes = useBodyNodes();
 
   return (
-    <Canceler onClick={nodes.pop}>
-      <ul
-        className={
-          "absolute z-3 left-1/2 top-1/2 -translate-1/2 " +
-          "flex flex-col gap-4"
-        }
-      >
+    <Canceler
+      classNamesFor={{ children: { border: false, rounded: false, bg: false } }}
+    >
+      <ul className="flex flex-col gap-4 whitespace-nowrap">
         {users.map((u) => (
           <li
             key={u.id}

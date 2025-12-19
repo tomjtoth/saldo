@@ -11,7 +11,7 @@ import { v4 as uuid } from "uuid";
 
 type TBodyNodeCx = {
   length: number;
-  setNodes: Dispatch<SetStateAction<ReactNode[]>>;
+  set: Dispatch<SetStateAction<ReactNode[]>>;
 
   push: {
     /**
@@ -35,7 +35,7 @@ type TBodyNodeCx = {
 
 export const BodyNodeCx = createContext<TBodyNodeCx>({
   length: 0,
-  setNodes() {},
+  set() {},
   push() {},
   pop() {},
 });
@@ -52,7 +52,7 @@ export default function BodyNodeProvider({
       return nodes.length;
     },
 
-    setNodes,
+    set: setNodes,
 
     push<T extends object>(
       Node: ReactNode | ((args: T) => ReactNode),
@@ -70,8 +70,7 @@ export default function BodyNodeProvider({
     },
 
     pop() {
-      const len = nodes.length;
-      setNodes(nodes.slice(0, len - 1));
+      setNodes(nodes.slice(0, -1));
     },
   };
 

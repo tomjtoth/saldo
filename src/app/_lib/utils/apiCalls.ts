@@ -1,21 +1,25 @@
-import { apiGetConsumption } from "@/app/(charts)/consumption/_lib/server";
+import {
+  apiGetConsumption,
+  apiToggleCategoryVisibility,
+} from "@/app/(charts)/consumption/_lib";
 import {
   apiModMembership,
   apiSetDefaultCategory,
   apiSetUserColor,
 } from "@/app/(memberships)/_lib";
-import { apiAddCategory } from "@/app/categories/_lib/addCategory";
-import { apiModCategory } from "@/app/categories/_lib/modCategory";
-import { apiAddGroup } from "@/app/groups/_lib/addGroup";
-import { apiModGroup } from "@/app/groups/_lib/modGroup";
+import { apiAddCategory, apiModCategory } from "@/app/categories/_lib";
 import {
+  apiAddGroup,
   apiGenInviteLink,
+  apiModGroup,
   apiRmInviteLink,
   apiSetDefaultGroup,
-} from "@/app/groups/_lib/misc";
-import { apiAddReceipt } from "@/app/receipts/_lib/addReceipt";
-import { apiGetReceipts } from "@/app/receipts/_lib/getReceipts";
-import { apiModReceipt } from "@/app/receipts/_lib/modReceipt";
+} from "@/app/groups/_lib";
+import {
+  apiAddReceipt,
+  apiGetReceipts,
+  apiModReceipt,
+} from "@/app/receipts/_lib";
 
 const allApiCalls = {
   apiAddCategory,
@@ -32,6 +36,7 @@ const allApiCalls = {
   apiSetDefaultCategory,
   apiSetDefaultGroup,
   apiSetUserColor,
+  apiToggleCategoryVisibility,
 };
 
 type UnwrapApiResult<F> = F extends (

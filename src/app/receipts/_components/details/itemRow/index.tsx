@@ -1,69 +1,69 @@
 "use client";
 
-import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
 
-import ItemOptions from "./options";
-import ItemOptionsAsModal from "./options/modal";
-
-const RE_ONE_LETTER = /^\p{Letter}$/u;
+import ItemOptions, { ItemOptionsAsModal } from "./options";
+import useItemRowLogic from "./logic";
+import ItemRowZigZag from "./zigZag";
 
 export default function ItemRow({
   itemId,
-  autoFocus,
   highlighted,
-  onKeyDown: adderKeyDownHandler,
 }: {
   itemId: Item["id"];
-  autoFocus: boolean;
   highlighted: boolean;
-  onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 }) {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
-  const group = useClientState("group");
-  const users = useClientState("users");
-  const item = group!.activeReceipt!.items.find((i) => i.id === itemId)!;
+  const group = useClientState("group")!;
 
-  const isMultiUser = users.length > 1;
-
-  const catRef = useRef<HTMLSelectElement>(null);
-  const costRef = useRef<HTMLInputElement>(null);
-  const [cost, setCost] = useState(item.cost.toFixed(2));
-  const commaHelper = useRef("");
+  const {
+    refs: { categoryRef, costRef, ...refs },
+    handlers,
+    disabled,
+    categoryId,
+    cost,
+    isMultiUser,
+    updatingReceipt,
+    autoFocus,
+  } = useItemRowLogic(itemId);
 
   useEffect(() => {
     if (autoFocus) costRef.current?.focus();
   }, [autoFocus]);
 
-  const updatingReceipt = group?.activeReceipt?.id !== -1;
-
   return (
-    <>
+    // this span and its classname `relative` is necessary for the ZigZag
+    <span
+      className={
+        "grid grid-cols-subgrid relative overflow-x-clip " +
+        (isMultiUser ? "col-span-6" : "col-span-5") +
+        (disabled ? " *:text-gray-500 *:border-gray-500 *:select-none" : "")
+      }
+    >
+      {disabled && <ItemRowZigZag {...{ itemId }} />}
+
       <select
-        ref={catRef}
+        ref={categoryRef}
         className="rounded border p-1 min-w-20"
-        value={item.categoryId}
+        value={categoryId}
+        disabled={disabled}
         onChange={(ev) =>
           dispatch(
             thunks.modItem({
-              id: item.id,
+              id: itemId,
               categoryId: Number(ev.target.value),
             })
           )
         }
-        onKeyDown={(ev) => {
-          if (ev.key === "c") {
-            ev.preventDefault();
-            costRef.current?.focus();
-          }
-        }}
+        onKeyDown={handlers.category}
       >
-        {group?.categories.map((cat) =>
+        {group.categories.map((cat) =>
           virt(cat).active || updatingReceipt ? (
             <option key={cat.id} value={cat.id}>
               {cat.name}
@@ -74,7 +74,8 @@ export default function ItemRow({
 
       <button
         className="sm:hidden"
-        onClick={() => nodes.push(ItemOptionsAsModal, { itemId: item.id })}
+        onClick={() => nodes.push(ItemOptionsAsModal, { itemId })}
+        disabled={disabled}
       >
         ⚙️
       </button>
@@ -85,64 +86,34 @@ export default function ItemRow({
           (isMultiUser ? "col-span-4" : "col-span-3")
         }
       >
-        <ItemOptions {...{ itemId: item.id }} />
+        <ItemOptions {...{ itemId, handlers, refs }} />
       </div>
 
       <form
         className="inline-flex items-center gap-2"
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (!isNaN(Number(cost))) dispatch(thunks.addRow(item.id));
+          if (!isNaN(Number(cost))) dispatch(thunks.addItem(itemId));
         }}
       >
         €
         <input
           ref={costRef}
-          type="number"
-          step={0.01}
+          type="text"
+          inputMode="decimal"
+          disabled={disabled}
           placeholder="cost"
           className={
-            "w-15 no-spinner" +
+            "w-15 " +
             (isNaN(Number(cost)) ? " border-2! border-red-500" : "") +
             (highlighted ? " bg-amber-500" : "")
           }
           value={cost === "0.00" ? "" : cost}
-          onChange={(ev) => {
-            let asStr = ev.target.value;
-
-            const helper = commaHelper.current;
-            if (helper) {
-              asStr = helper + asStr.at(-1);
-              commaHelper.current = "";
-            }
-
-            setCost(asStr);
-
-            const asNum = Number(asStr);
-            if (!isNaN(asNum))
-              dispatch(thunks.modItem({ id: item.id, cost: asNum }));
-          }}
-          onFocus={() => dispatch(thunks.setFocusedRow(-1))}
-          onKeyDown={(ev) => {
-            if (ev.key === ",") {
-              const val = costRef.current!.value + ".";
-              if (!cost.includes(".")) commaHelper.current = val;
-
-              ev.preventDefault();
-            } else if (ev.key === "c") {
-              ev.preventDefault();
-              catRef.current?.focus();
-            } else if (
-              !(ev.ctrlKey && ev.key === "s") &&
-              ev.key.match(RE_ONE_LETTER)
-            ) {
-              // this is necessary in Firefox as it validates number inputs only upon submission...
-
-              ev.preventDefault();
-            } else adderKeyDownHandler(ev);
-          }}
+          onChange={handlers.costChange}
+          onFocus={() => dispatch(thunks.focusItem())}
+          onKeyDown={handlers.cost}
         />
       </form>
-    </>
+    </span>
   );
 }

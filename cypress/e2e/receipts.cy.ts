@@ -3,6 +3,8 @@ describe("receipts", () => {
     beforeEach(() => {
       cy.populateDb();
       cy.login({ page: "/receipts" });
+      cy.toast().click();
+      cy.toast().should("not.exist");
     });
 
     itIsAccessibleViaViewSelector("/receipts");
@@ -44,7 +46,7 @@ describe("receipts", () => {
     it("can be added with items for others", () => {
       cy.contains("Add new...").click();
       cy.get("input[placeholder='cost']").type("123");
-      cy.get("textarea[placeholder='Optional comments...'] + button").click();
+      cy.get("textarea[placeholder='Optional comments...'] + div").click();
       cy.get("input[placeholder='N+1']").then(($nodes) => {
         cy.wrap($nodes[1]).type("1");
         cy.clickCanceler(1);

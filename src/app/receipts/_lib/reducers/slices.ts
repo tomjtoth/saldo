@@ -2,7 +2,7 @@ import { PayloadAction } from "@reduxjs/toolkit";
 
 import { Item, Receipt } from "../populateRecursively";
 import { Group } from "@/app/groups/_lib";
-import { deepClone } from "@/app/_lib/utils";
+import { deepClone, virt } from "@/app/_lib/utils";
 import { CombinedState as CS } from "@/app/_lib/reducers/types";
 import {
   addItem,
@@ -19,11 +19,13 @@ export type ItemModifier = Pick<Item, "id"> &
 export const sliceReceipts = {
   setPaidOn(rs: CS, { payload }: PayloadAction<Receipt["paidOn"]>) {
     const receipt = getActiveReceipt(rs)!;
+    receipt.changes++;
     receipt.paidOn = payload;
   },
 
   setPaidBy(rs: CS, { payload }: PayloadAction<Receipt["paidById"]>) {
     const receipt = getActiveReceipt(rs)!;
+    receipt.changes++;
     const users = getActiveUsers(rs)!;
     const user = users.find((u) => u.id === payload)!;
 
@@ -31,18 +33,17 @@ export const sliceReceipts = {
     receipt.paidById = payload;
   },
 
-  addRow(rs: CS, { payload }: PayloadAction<Item["id"] | undefined>) {
+  addItem(rs: CS, { payload }: PayloadAction<Item["id"] | undefined>) {
     const receipt = getActiveReceipt(rs)!;
+    receipt.changes++;
 
     if (payload !== undefined) {
       const idx = receipt.items.findIndex((i) => i.id === payload);
-      receipt.focusedIdx = idx + 1;
-      receipt.items.splice(
-        idx + 1,
-        0,
-        // inherit categoryId from the row above
-        addItem(receipt.items[idx].categoryId)
-      );
+
+      // inherit categoryId from the row above
+      const newItem = addItem(receipt.items[idx].categoryId);
+      receipt.items.splice(idx + 1, 0, newItem);
+      receipt.focusedItemId = newItem.id;
     } else {
       const group = getActiveGroup(rs);
 
@@ -53,20 +54,30 @@ export const sliceReceipts = {
     }
   },
 
-  rmRow(rs: CS, { payload }: PayloadAction<Item["id"]>) {
+  rmItem(rs: CS, { payload }: PayloadAction<Item["id"]>) {
     const receipt = getActiveReceipt(rs)!;
-    const idx = receipt.items.findIndex((i) => i.id === payload);
+    receipt.changes++;
+    const item = receipt.items.find((i) => i.id === payload)!;
 
-    receipt.items.splice(idx, 1);
+    if (receipt.id === -1 || item.id < 0) {
+      const idx = receipt.items.findIndex((i) => i.id === payload);
+      receipt.items.splice(idx, 1);
+      receipt.focusedItemId = receipt.items[Math.max(0, idx - 1)].id;
+    } else {
+      virt(item).toggle("active");
+    }
   },
 
-  setFocusedRow(rs: CS, { payload }: PayloadAction<number>) {
+  focusItem(rs: CS, { payload }: PayloadAction<Item["id"] | undefined>) {
     const receipt = getActiveReceipt(rs)!;
-    receipt.focusedIdx = payload;
+
+    if (payload) receipt.focusedItemId = payload;
+    else delete receipt.focusedItemId;
   },
 
   modItem(rs: CS, { payload }: PayloadAction<ItemModifier>) {
     const receipt = getActiveReceipt(rs)!;
+    receipt.changes++;
 
     const item = receipt.items.find((i) => i.id === payload.id)!;
     if (payload.categoryId !== undefined) item.categoryId = payload.categoryId;
@@ -125,10 +136,10 @@ export const sliceReceipts = {
     const group = getActiveGroup(rs)!;
 
     if (typeof payload === "number") {
-      const activeReceipt = group.receipts.find((rcpt) => rcpt.id === payload);
+      const activeReceipt = group.receipts.find((rcpt) => rcpt.id === payload)!;
 
       const detachedClone = deepClone(activeReceipt);
-      group.activeReceipt = detachedClone;
+      group.activeReceipt = { ...detachedClone, changes: 0 };
     } else {
       delete group["activeReceipt"];
     }

@@ -1,4 +1,4 @@
-import fs from "fs";
+import { spawn } from "child_process";
 import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
@@ -33,11 +33,16 @@ export async function atomic<T>(
   });
 
   if (
-    process.env.NODE_ENV === "production" &&
+    !process.env.AUTH_URL?.startsWith("https://staging") &&
     revisionId % DB_BACKUP_EVERY_N_REVISIONS === 0
   ) {
     const dbPath = getDbPath();
-    fs.copyFileSync(dbPath, `${dbPath}.at.${revisionId}`);
+    const bakFile = `${dbPath}.at.${revisionId}`;
+    await db.run(sql`VACUUM INTO ${sql.raw(`'${bakFile}'`)}`);
+    spawn("xz", ["-9", bakFile], {
+      stdio: "ignore",
+      detached: true,
+    });
   }
 
   return res;

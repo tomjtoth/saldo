@@ -20,17 +20,19 @@ export type WhereClauseOf<T extends keyof Schema> = NonNullable<
 export type DbInsert<T extends keyof Schema> = Schema[T]["$inferInsert"];
 export type DbSelect<T extends keyof Schema> = Schema[T]["$inferSelect"];
 
-export type ConsumptionData = ({
-  category: string;
+export type ConsumptionData = {
+  categoryId: DbCategory["id"];
 } & {
-  [userId: string]: number;
-})[];
+  [userId: DbUser["id"]]: number;
+};
+
+type Relation = `${DbUser["id"]} vs ${DbUser["id"]}`;
 
 export type BalanceData = {
-  relations: string[];
+  relations: Relation[];
   data: {
     date: number;
-    [relation: string]: number;
+    [relation: Relation]: number;
   }[];
   minMaxes: { [date: number]: { min: number; max: number } };
 };

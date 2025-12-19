@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-import { useBodyNodes } from "@/app/_lib/hooks";
 import { LINKS } from "./viewSelector/listing";
 
 import Canceler from "./canceler";
@@ -13,20 +12,12 @@ import GroupListing from "./groupSelector/listing";
 type Tabs = "personal" | "";
 
 export default function MainMenu(opts: { tab?: Tabs } = {}) {
-  const nodes = useBodyNodes();
-
   const [tab, setTab] = useState<Tabs>(opts.tab ?? "");
   const shadows = " shadow-[0_0_5px,0_0_15px] shadow-amber-500";
 
   return (
-    <Canceler onClick={nodes.pop}>
-      <div
-        className={
-          "absolute block z-2 max-w-9/10 max-h-9/10 " +
-          "top-1/2 lg:top-20 left-1/2 lg:left-20 -translate-1/2 lg:translate-0 " +
-          "bg-background border rounded flex gap-2 items-stretch"
-        }
-      >
+    <Canceler classNamesFor={{ children: { padding: false } }}>
+      <div className="lg:top-20 lg:left-20 lg:translate-0 flex gap-2 items-stretch">
         <div className="min-w-max flex flex-col p-2 gap-4 items-center border-r">
           <UserAvatar
             className={

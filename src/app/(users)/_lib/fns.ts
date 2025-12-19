@@ -7,7 +7,7 @@ import { auth, signIn } from "@/auth";
 import { atomic, db, CrUser } from "@/app/_lib/db";
 import { revisions, users } from "@/app/_lib/db/schema";
 import { svcAddGroup } from "../../groups/_lib";
-import { USERS_EXTRAS } from "./queryOpts";
+import { USERS_SELECT } from "./queryOpts";
 
 export type User = Awaited<ReturnType<typeof svcAddUser>>;
 
@@ -28,12 +28,18 @@ export async function svcAddUser(
       .set({ createdById: createdRow.id })
       .where(eq(revisions.id, revisionId));
 
-    const [user] = await tx.query.users.findMany({
-      ...USERS_EXTRAS,
-      where: { id: createdRow.id },
-    });
+    const [{ categoriesHiddenFromConsumption, ...user }] =
+      await tx.query.users.findMany({
+        ...USERS_SELECT,
+        where: { id: createdRow.id },
+      });
 
-    return user;
+    return {
+      ...user,
+      categoriesHiddenFromConsumption: categoriesHiddenFromConsumption.map(
+        (c) => c.id
+      ),
+    };
   });
 }
 
@@ -65,12 +71,23 @@ export async function currentUser(
   const name = session.user!.name ?? `User #${(await db.$count(users)) + 1}`;
   const image = session.user!.image ?? null;
 
-  let user = await db.query.users.findFirst({
-    ...USERS_EXTRAS,
+  const tmp = await db.query.users.findFirst({
+    ...USERS_SELECT,
     where: { email },
   });
 
-  if (!user) {
+  let user: User;
+
+  if (tmp) {
+    // repeating this 2x separately ensures I see a
+    // more easily readable type definition of User
+    user = {
+      ...tmp,
+      categoriesHiddenFromConsumption: tmp.categoriesHiddenFromConsumption.map(
+        (c) => c.id
+      ),
+    };
+  } else {
     user = await svcAddUser({
       name,
       email,
