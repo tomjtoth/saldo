@@ -28,7 +28,7 @@ export default function ReceiptClosingDialog() {
         <div className="flex gap-2 items-center justify-around [&_button]:py-1!">
           <button
             onClick={() => {
-              nodes.setNodes([]);
+              nodes.set([]);
               dispatch(thunks.setActiveReceipt());
             }}
           >

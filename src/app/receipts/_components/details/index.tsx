@@ -30,7 +30,7 @@ export default function ReceiptDetails() {
   function closeReceipt() {
     if (receipt.changes) nodes.push(ReceiptClosingDialog);
     else {
-      nodes.setNodes([]);
+      nodes.set([]);
       dispatch(thunks.setActiveReceipt());
     }
   }

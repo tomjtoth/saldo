@@ -8,9 +8,11 @@ import { is } from "../_lib/utils";
 const CHILD_CLASSES = {
   center: "*:absolute *:left-1/2 *:top-1/2 *:-translate-1/2",
   pad: "*:p-2",
-  maxes: "*:max-h-9/10 *:max-w-9/10",
+  maxW: "*:max-w-9/10",
+  maxH: "*:max-h-9/10",
   bg: "*:bg-background",
-  border: "*:border *:rounded",
+  border: "*:border",
+  rounded: "*:rounded",
 };
 
 export default function Canceler({
@@ -19,16 +21,16 @@ export default function Canceler({
   className = "z-1",
   classNamesFor: {
     blurred: clsBlurred = "backdrop-opacity-100 bg-background/50",
-    children: clsChildren = {},
+    children: clsChildren,
   } = {},
 }: {
   children: ReactNode;
-  onClick?: MouseEventHandler;
+  onClick?: MouseEventHandler<HTMLDivElement>;
   className?: string;
   classNamesFor?: {
     blurred?: string;
     children?: {
-      [K in keyof typeof CHILD_CLASSES]?: (typeof CHILD_CLASSES)[K];
+      apply: { [K in keyof typeof CHILD_CLASSES]?: false };
     };
   };
 }) {
@@ -41,13 +43,10 @@ export default function Canceler({
   if (className) clsBase += ` ${className}`;
 
   Object.entries(CHILD_CLASSES).forEach(([key, val]) => {
-    const override = clsChildren[key as keyof typeof clsChildren];
+    const apply =
+      clsChildren?.apply[key as keyof typeof clsChildren.apply] ?? true;
 
-    clsBase += is.undefined(override)
-      ? ` ${val}`
-      : override.length > 0
-      ? ` ${override}`
-      : ""; // effectively disabling it
+    clsBase += apply ? ` ${val}` : "";
   });
 
   const [classes, setClasses] = useState(clsBase);
