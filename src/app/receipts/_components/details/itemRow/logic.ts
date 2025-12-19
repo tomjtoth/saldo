@@ -147,7 +147,7 @@ export default function useItemRowLogic(itemId: Item["id"]) {
         t.selectionStart === t.value.length &&
         ev.key === "ArrowRight"
       ) {
-        sharesRef.current?.focus();
+        (isMultiUser ? sharesRef.current : rmRowRef.current)?.focus();
       } else handlers.common(ev);
     },
 
@@ -163,7 +163,7 @@ export default function useItemRowLogic(itemId: Item["id"]) {
 
     rmRow(ev) {
       const navi = {
-        ArrowLeft: sharesRef.current,
+        ArrowLeft: (isMultiUser ? sharesRef : notesRef).current,
         ArrowRight: addRowRef.current,
       };
 
