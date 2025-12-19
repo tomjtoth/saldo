@@ -37,7 +37,7 @@ describe("categories", () => {
 
       cy.toast(`Toggling "${TEST_CATEGORY}" succeeded!`);
       cy.entityToggler().should("have.class", "bg-red-500");
-      cy.entityToggler().parent().should("have.class", "border-red-500");
+      cy.updaterForm().should("have.class", "border-red-500");
     });
 
     describe("can be set as favorit", () => {

@@ -164,7 +164,11 @@ const commands = {
   },
 
   entityToggler() {
-    return cy.get("#updater > div").first();
+    return cy.get("#updater > div > div").first();
+  },
+
+  updaterForm() {
+    return cy.get("#updater");
   },
 
   entityShouldBeFavorit(name: string) {

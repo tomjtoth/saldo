@@ -41,10 +41,7 @@ describe("groups", () => {
 
       cy.toast(`Toggling "${TEST_GROUP}" succeeded!`);
       cy.entityToggler().should("have.class", "bg-red-500");
-      cy.entityToggler()
-        .parent()
-        .parent()
-        .should("have.class", "border-red-500");
+      cy.updaterForm().parent().should("have.class", "border-red-500");
     });
 
     describe("can be set as favorit", () => {
