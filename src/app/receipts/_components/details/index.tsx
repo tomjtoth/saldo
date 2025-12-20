@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { appToast, virt } from "@/app/_lib/utils";
+import { appToast, vf } from "@/app/_lib/utils";
 import { callApi } from "@/app/_lib/utils/apiCalls";
 import { Item } from "../../_lib";
 
@@ -36,7 +36,7 @@ export default function ReceiptDetails() {
   }
 
   function submitReceipt() {
-    if (!virt(group).active) {
+    if (!vf(group).active) {
       return appToast.error(
         "Cannot update receipts in a disabled group, re-enable it first!"
       );
@@ -178,11 +178,10 @@ export default function ReceiptDetails() {
               className="rounded border p-1 w-15 border-none!"
               readOnly
               value={receipt.items
+                .filter(vf.active)
                 .reduce((sub, i) => {
                   const asNum = Number(i.cost);
-                  return (
-                    sub + (virt(i).active ? (isNaN(asNum) ? 0 : asNum) : 0)
-                  );
+                  return sub + (isNaN(asNum) ? 0 : asNum);
                 }, 0)
                 .toFixed(2)}
             />

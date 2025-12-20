@@ -1,7 +1,9 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { Category } from "../_lib";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
 
 import Canceler from "@/app/_components/canceler";
@@ -17,6 +19,11 @@ export default function CategoryDetails({
   const category = useClientState("category", categoryId)!;
   const usersO1 = useClientState("users[id]");
 
+  const archiveActiveStateArr = useMemo(
+    () => category.archives.map(vf.active),
+    [category.archives]
+  );
+
   return (
     <Canceler
       classNamesFor={{ children: { border: false, rounded: false, bg: false } }}
@@ -31,41 +38,46 @@ export default function CategoryDetails({
         }}
       >
         <CategoryUpdater {...{ categoryId }} />
-        {category.archives.map((cat) => (
-          <div
-            key={`${cat.id}-${cat.revisionId}`}
-            className={
-              "p-2 bg-background rounded border-2 cursor-not-allowed " +
-              (virt(cat).active ? "border-green-500" : "border-red-500") +
-              " grid items-center gap-2 grid-cols-[min-width_min-width]"
-            }
-          >
-            <input
-              type="text"
-              className="w-full min-w-25 cursor-not-allowed"
-              defaultValue={cat.name}
-              disabled
-            />
 
-            <Slider checked={virt(cat).active} className="" />
+        {category.archives.map((cat, idx) => {
+          const isActive = archiveActiveStateArr[idx];
 
-            {cat.description && (
-              <textarea
-                className="col-span-2 resize-none cursor-not-allowed"
-                rows={2}
-                defaultValue={cat.description}
+          return (
+            <div
+              key={`${cat.id}-${cat.revisionId}`}
+              className={
+                "p-2 bg-background rounded border-2 cursor-not-allowed " +
+                (isActive ? "border-green-500" : "border-red-500") +
+                " grid items-center gap-2 grid-cols-[min-width_min-width]"
+              }
+            >
+              <input
+                type="text"
+                className="w-full min-w-25 cursor-not-allowed"
+                defaultValue={cat.name}
                 disabled
               />
-            )}
 
-            <div className="col-span-2 text-center">
-              🗓️
-              <sub> {cat.revision.createdAt} </sub>
-              🪪
-              <sub> {usersO1[cat.revision.createdById].name} </sub>
+              <Slider checked={isActive} className="" />
+
+              {cat.description && (
+                <textarea
+                  className="col-span-2 resize-none cursor-not-allowed"
+                  rows={2}
+                  defaultValue={cat.description}
+                  disabled
+                />
+              )}
+
+              <div className="col-span-2 text-center">
+                🗓️
+                <sub> {cat.revision.createdAt} </sub>
+                🪪
+                <sub> {usersO1[cat.revision.createdById].name} </sub>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Canceler>
   );

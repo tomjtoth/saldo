@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { useAppDispatch, useClientState, useDebugger } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { Category } from "../_lib";
-import { appToast, virt } from "@/app/_lib/utils";
+import { appToast, vf } from "@/app/_lib/utils";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
@@ -36,7 +36,7 @@ export default function CategoriesPage(srv: { categoryId?: Category["id"] }) {
 
   useDebugger({ categoriesListing });
 
-  const groupIsActive = group && virt(group).active;
+  const groupIsActive = useMemo(() => group && vf(group).active, [group]);
 
   return (
     <>

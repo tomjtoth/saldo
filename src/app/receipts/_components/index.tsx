@@ -11,7 +11,7 @@ import {
 } from "@/app/_lib/hooks";
 import { useInfiniteScroll } from "../_lib/hook";
 import { thunks } from "@/app/_lib/reducers";
-import { appToast, virt } from "@/app/_lib/utils";
+import { appToast, vf } from "@/app/_lib/utils";
 
 import Header from "@/app/_components/header";
 import Scrollers from "./scrollers";
@@ -30,6 +30,13 @@ export default function ReceiptsPage() {
     if (typeof receipt?.id === "number") nodes.push(ReceiptDetails);
   }, [receipt?.id]);
 
+  const groupIsActive = useMemo(() => group && vf(group).active, [group]);
+
+  const activeCategories = useMemo(
+    () => group?.categories.filter(vf.active) ?? [],
+    [group?.categories]
+  );
+
   const receiptsListing = useMemo(
     () =>
       group?.receipts.map((rcpt) =>
@@ -45,10 +52,6 @@ export default function ReceiptsPage() {
   let adderButton: ReactNode = null;
 
   if (group) {
-    const groupIsActive = virt(group).active;
-
-    const activeCategories = group.categories.filter((c) => virt(c).active);
-
     adderButton =
       activeCategories.length > 0 ? (
         <button
