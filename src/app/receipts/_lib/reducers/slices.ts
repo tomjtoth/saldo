@@ -2,7 +2,7 @@ import { PayloadAction } from "@reduxjs/toolkit";
 
 import { Item, Receipt } from "../populateRecursively";
 import { Group } from "@/app/groups/_lib";
-import { deepClone, virt } from "@/app/_lib/utils";
+import { deepClone, vf } from "@/app/_lib/utils";
 import { CombinedState as CS } from "@/app/_lib/reducers/types";
 import {
   addItem,
@@ -64,7 +64,7 @@ export const sliceReceipts = {
       receipt.items.splice(idx, 1);
       receipt.focusedItemId = receipt.items[Math.max(0, idx - 1)].id;
     } else {
-      virt(item).toggleActive();
+      vf(item).toggleActive();
     }
   },
 

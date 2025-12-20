@@ -16,7 +16,7 @@ import {
 } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 
 import ItemShareSetter from "./options/shares/setter";
 
@@ -50,7 +50,7 @@ export default function useItemRowLogic(itemId: Item["id"]) {
   const item = receipt.items[itemIdx];
   const isMultiUser = users.length > 1;
   const autoFocus = itemId === receipt.focusedItemId;
-  const disabled = useMemo(() => !virt(item).active, [item]);
+  const disabled = useMemo(() => !vf(item).active, [item]);
 
   const caretRef = useRef(-1);
   const [cost, setCost] = useState(item.cost === 0 ? "" : item.cost.toFixed(2));
@@ -86,7 +86,7 @@ export default function useItemRowLogic(itemId: Item["id"]) {
       if (ev.key in navi) {
         ev.preventDefault();
 
-        const activeItems = receipt.items.filter(virt.active);
+        const activeItems = receipt.items.filter(vf.active);
         const itemIdx = activeItems.findIndex((i) => i.id === itemId);
 
         const lastIdx = activeItems.length - 1;

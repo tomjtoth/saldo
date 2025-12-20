@@ -1,6 +1,6 @@
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 
 import Canceler from "@/app/_components/canceler";
 import Slider from "@/app/_components/slider";
@@ -22,7 +22,7 @@ export default function ConsumptionSettings() {
             "2xl:columns-6 2xl:gap-6"
           }
         >
-          {group.categories.filter(virt.active).map((c) => (
+          {group.categories.filter(vf.active).map((c) => (
             <li key={c.id}>
               <Slider
                 className="p-2 cursor-pointer"

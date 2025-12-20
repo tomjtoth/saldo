@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { Group } from "../../_lib";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 import { useClientState, useDebugger } from "@/app/_lib/hooks";
 
 import Canceler from "@/app/_components/canceler";
@@ -18,11 +18,11 @@ export default function GroupDetails({ groupId }: { groupId: Group["id"] }) {
 
   const [flags, setFlags] = useState(group.flags);
 
-  const groupIsActive = useMemo(() => virt(group).active, [group]);
-  const vFlags = useMemo(() => virt({ flags }, setFlags), [flags]);
+  const groupIsActive = useMemo(() => vf(group).active, [group]);
+  const vFlags = useMemo(() => vf({ flags }, setFlags), [flags]);
   const clientIsAdmin = useMemo(
     () =>
-      group.memberships.some((ms) => ms.user.id === user?.id && virt(ms).admin),
+      group.memberships.some((ms) => ms.user.id === user?.id && vf(ms).admin),
     [group.memberships, user?.id]
   );
 

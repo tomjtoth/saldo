@@ -8,7 +8,7 @@ import {
   modEntity,
 } from "@/app/_lib/db";
 import { items, itemShares } from "@/app/_lib/db/schema";
-import { apiInternal, be, err, nullEmptyStrings, virt } from "@/app/_lib/utils";
+import { apiInternal, be, err, nullEmptyStrings, vf } from "@/app/_lib/utils";
 import { currentUser, User } from "@/app/(users)/_lib";
 import {
   populateReceiptArchivesRecursively,
@@ -101,7 +101,7 @@ export async function svcModReceipt(
 
     if (!fromSrv) err("receipt not found", { args: { receiptMod } });
 
-    if (!virt(fromSrv.group).active)
+    if (!vf(fromSrv.group).active)
       err("Modifying a receipt of a disabled group is not allowed!");
 
     const {
@@ -130,7 +130,7 @@ export async function svcModReceipt(
       // item has been deleted on the client side
       if (!cliItem) {
         cliItem = { ...item, itemShares: [] };
-        virt(cliItem).active = false;
+        vf(cliItem).active = false;
       }
 
       const { itemShares: cliItemShares, ...itemModifier } = cliItem;
@@ -155,7 +155,7 @@ export async function svcModReceipt(
         // since pre-existing shares simply get 0 value when "deleted"
         if (!modItemShare) {
           modItemShare = { ...oldItemShare };
-          virt(cliItem).active = false;
+          vf(cliItem).active = false;
         }
 
         changes += await modEntity(oldItemShare, modItemShare, {

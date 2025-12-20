@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
 
@@ -40,7 +40,7 @@ export default function ItemRow({
   const catOptions = useMemo(
     () =>
       group.categories.map((cat) =>
-        updatingReceipt || virt(cat).active ? (
+        updatingReceipt || vf(cat).active ? (
           <option key={cat.id} value={cat.id}>
             {cat.name}
           </option>

@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { Membership } from "@/app/groups/_lib";
 import { thunks } from "@/app/_lib/reducers";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 
 import Slider from "@/app/_components/slider";
 
@@ -26,8 +26,8 @@ export default function Individual({
   const [flags, setFlags] = useState(ms.flags);
 
   const memberControl = `${ms.user.name} (${ms.user.email})`;
-  const vMs = useMemo(() => virt(ms), [ms]);
-  const vFlags = useMemo(() => virt({ flags }, setFlags), [flags]);
+  const vMs = useMemo(() => vf(ms), [ms]);
+  const vFlags = useMemo(() => vf({ flags }, setFlags), [flags]);
 
   return (
     <li
@@ -55,9 +55,9 @@ export default function Individual({
                   flags: next,
                 },
 
-                `${
-                  virt({ flags: next }).active ? "Re-instating" : "Banning"
-                } "${ms.user.name}"`
+                `${vf({ flags: next }).active ? "Re-instating" : "Banning"} "${
+                  ms.user.name
+                }"`
               )
             ).catch(() => {
               setFlags(prev);

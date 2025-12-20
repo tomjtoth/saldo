@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 
 import { Group } from "../_lib";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -22,7 +22,7 @@ export default function GroupEntry({
   const isDefault = useClientState("user")?.defaultGroupId === groupId;
   const group = useClientState("group", groupId)!;
 
-  const isActive = useMemo(() => virt(group).active, [group.flags]);
+  const isActive = useMemo(() => vf(group).active, [group.flags]);
 
   useEffect(() => {
     if (preSelected) nodes.push(GroupDetails, { groupId });

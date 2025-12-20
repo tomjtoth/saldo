@@ -8,47 +8,47 @@ import {
   ErrorWithStatus,
   is,
   nullEmptyStrings,
-  virt,
+  vf,
 } from ".";
 
 describe("status", () => {
   it("resolves ACTIVE state correctly", () => {
-    expect(virt({ flags: 0 }).active).to.be.false;
-    expect(virt({ flags: 1 }).active).to.be.true;
-    expect(virt({ flags: 2 }).active).to.be.false;
-    expect(virt({ flags: 3 }).active).to.be.true;
+    expect(vf({ flags: 0 }).active).to.be.false;
+    expect(vf({ flags: 1 }).active).to.be.true;
+    expect(vf({ flags: 2 }).active).to.be.false;
+    expect(vf({ flags: 3 }).active).to.be.true;
 
-    expect(virt.active({ flags: 0 })).to.be.false;
-    expect(virt.active({ flags: 1 })).to.be.true;
-    expect(virt.active({ flags: 2 })).to.be.false;
-    expect(virt.active({ flags: 3 })).to.be.true;
+    expect(vf.active({ flags: 0 })).to.be.false;
+    expect(vf.active({ flags: 1 })).to.be.true;
+    expect(vf.active({ flags: 2 })).to.be.false;
+    expect(vf.active({ flags: 3 })).to.be.true;
   });
 
   it("resolves ADMIN state correctly", () => {
-    expect(virt({ flags: 0 }).admin).to.be.false;
-    expect(virt({ flags: 1 }).admin).to.be.false;
-    expect(virt({ flags: 2 }).admin).to.be.true;
-    expect(virt({ flags: 3 }).admin).to.be.true;
+    expect(vf({ flags: 0 }).admin).to.be.false;
+    expect(vf({ flags: 1 }).admin).to.be.false;
+    expect(vf({ flags: 2 }).admin).to.be.true;
+    expect(vf({ flags: 3 }).admin).to.be.true;
 
-    expect(virt.admin({ flags: 0 })).to.be.false;
-    expect(virt.admin({ flags: 1 })).to.be.false;
-    expect(virt.admin({ flags: 2 })).to.be.true;
-    expect(virt.admin({ flags: 3 })).to.be.true;
+    expect(vf.admin({ flags: 0 })).to.be.false;
+    expect(vf.admin({ flags: 1 })).to.be.false;
+    expect(vf.admin({ flags: 2 })).to.be.true;
+    expect(vf.admin({ flags: 3 })).to.be.true;
   });
 
   it("sets state correctly via setters", () => {
     const obj = { flags: 0 };
 
-    virt(obj).active = true;
+    vf(obj).active = true;
     expect(obj.flags).to.equal(1);
 
-    virt(obj).admin = true;
+    vf(obj).admin = true;
     expect(obj.flags).to.equal(3);
 
-    virt(obj).active = false;
+    vf(obj).active = false;
     expect(obj.flags).to.equal(2);
 
-    virt(obj).admin = false;
+    vf(obj).admin = false;
     expect(obj.flags).to.equal(0);
   });
 
@@ -56,16 +56,16 @@ describe("status", () => {
     const obj = { flags: 0 };
     let res: number;
 
-    res = virt(obj).toggleActive();
+    res = vf(obj).toggleActive();
     expect(res).to.equal(obj.flags).to.equal(1);
 
-    res = virt(obj).toggleAdmin();
+    res = vf(obj).toggleAdmin();
     expect(res).to.equal(obj.flags).to.equal(3);
 
-    res = virt(obj).toggleActive();
+    res = vf(obj).toggleActive();
     expect(res).to.equal(obj.flags).to.equal(2);
 
-    res = virt(obj).toggleAdmin();
+    res = vf(obj).toggleAdmin();
     expect(res).to.equal(obj.flags).to.equal(0);
   });
 });

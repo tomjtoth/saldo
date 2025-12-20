@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 
 import { Category } from "../_lib";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 import { useBodyNodes, useClientState } from "@/app/_lib/hooks";
 
 import Canceler from "@/app/_components/canceler";
@@ -20,7 +20,7 @@ export default function CategoryDetails({
   const usersO1 = useClientState("users[id]");
 
   const archiveActiveStateArr = useMemo(
-    () => category.archives.map(virt.active),
+    () => category.archives.map(vf.active),
     [category.archives]
   );
 

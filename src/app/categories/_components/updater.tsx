@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { appToast, virt } from "@/app/_lib/utils";
+import { appToast, vf } from "@/app/_lib/utils";
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { Category } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
@@ -23,8 +23,8 @@ export default function CategoryUpdater({
   const [description, setDescr] = useState(category.description ?? "");
   const [flags, setFlags] = useState(category.flags);
 
-  const groupIsActive = useMemo(() => group && virt(group).active, [group]);
-  const vFlags = useMemo(() => virt({ flags }, setFlags), [flags, setFlags]);
+  const groupIsActive = useMemo(() => group && vf(group).active, [group]);
+  const vFlags = useMemo(() => vf({ flags }, setFlags), [flags, setFlags]);
 
   return (
     <form

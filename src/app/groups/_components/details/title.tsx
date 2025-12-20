@@ -3,7 +3,7 @@
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 import { Group } from "../../_lib";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -26,7 +26,7 @@ export default function Title({
   const [name, setName] = useState(group.name);
   const [description, setDescription] = useState(group.description ?? "");
 
-  const vFlags = useMemo(() => virt({ flags }, setFlags), [flags, setFlags]);
+  const vFlags = useMemo(() => vf({ flags }, setFlags), [flags, setFlags]);
 
   function restoreOriginals() {
     setName(group.name);

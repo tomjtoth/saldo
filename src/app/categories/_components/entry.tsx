@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 import { Category } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -25,7 +25,7 @@ export default function CategoryEntry({
 
   const isDefault = defaultId === category.id;
 
-  const isActive = useMemo(() => virt(category).active, [category.flags]);
+  const isActive = useMemo(() => vf(category).active, [category.flags]);
 
   useEffect(() => {
     if (preSelected) nodes.push(CategoryDetails, { categoryId });

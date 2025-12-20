@@ -56,7 +56,11 @@ function inner(entity: Entity, setter?: Dispatch<SetStateAction<number>>) {
   return obj;
 }
 
-export const virt = Object.assign(
+/**
+ * ### virtualFlags
+ * is an extension to DB tables that manipulates one unified integer
+ */
+export const vf = Object.assign(
   inner,
   flags.reduce((acc, f) => {
     acc[f] = (e: Entity) => inner(e)[f];
