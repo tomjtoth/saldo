@@ -17,6 +17,11 @@ describe("status", () => {
     expect(virt({ flags: 1 }).active).to.be.true;
     expect(virt({ flags: 2 }).active).to.be.false;
     expect(virt({ flags: 3 }).active).to.be.true;
+
+    expect(virt.active({ flags: 0 })).to.be.false;
+    expect(virt.active({ flags: 1 })).to.be.true;
+    expect(virt.active({ flags: 2 })).to.be.false;
+    expect(virt.active({ flags: 3 })).to.be.true;
   });
 
   it("resolves ADMIN state correctly", () => {
@@ -24,6 +29,11 @@ describe("status", () => {
     expect(virt({ flags: 1 }).admin).to.be.false;
     expect(virt({ flags: 2 }).admin).to.be.true;
     expect(virt({ flags: 3 }).admin).to.be.true;
+
+    expect(virt.admin({ flags: 0 })).to.be.false;
+    expect(virt.admin({ flags: 1 })).to.be.false;
+    expect(virt.admin({ flags: 2 })).to.be.true;
+    expect(virt.admin({ flags: 3 })).to.be.true;
   });
 
   it("sets state correctly via setters", () => {
