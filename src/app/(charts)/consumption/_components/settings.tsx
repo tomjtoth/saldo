@@ -22,21 +22,17 @@ export default function ConsumptionSettings() {
             "2xl:columns-6 2xl:gap-6"
           }
         >
-          {group.categories.map((c) =>
-            !virt(c).active ? null : (
-              <li key={c.id}>
-                <Slider
-                  className="p-2 cursor-pointer"
-                  checked={!user.categoriesHiddenFromConsumption.includes(c.id)}
-                  onClick={() =>
-                    dispatch(thunks.toggleCategoryVisibility(c.id))
-                  }
-                >
-                  {c.name}
-                </Slider>
-              </li>
-            )
-          )}
+          {group.categories.filter(virt.active).map((c) => (
+            <li key={c.id}>
+              <Slider
+                className="p-2 cursor-pointer"
+                checked={!user.categoriesHiddenFromConsumption.includes(c.id)}
+                onClick={() => dispatch(thunks.toggleCategoryVisibility(c.id))}
+              >
+                {c.name}
+              </Slider>
+            </li>
+          ))}
         </ul>
       </div>
     </Canceler>

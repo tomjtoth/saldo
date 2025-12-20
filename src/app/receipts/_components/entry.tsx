@@ -16,7 +16,7 @@ export default function ReceiptEntry({
   const dispatch = useAppDispatch();
   const usersO1 = useClientState("users[id]");
   const receipt = useClientState("receipt", receiptId)!;
-  const activeItems = receipt.items.filter((item) => virt(item).active);
+  const activeItems = receipt.items.filter(virt.active);
   const activeVsInactiveDiff = activeItems.length - receipt.items.length;
 
   const addedBy =

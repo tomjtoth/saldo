@@ -47,7 +47,7 @@ export default function ReceiptsPage() {
   if (group) {
     const groupIsActive = virt(group).active;
 
-    const activeCategories = group.categories.filter((c) => virt(c).active);
+    const activeCategories = group.categories.filter(virt.active);
 
     adderButton =
       activeCategories.length > 0 ? (

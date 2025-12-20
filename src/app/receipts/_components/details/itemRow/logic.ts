@@ -86,7 +86,7 @@ export default function useItemRowLogic(itemId: Item["id"]) {
       if (ev.key in navi) {
         ev.preventDefault();
 
-        const activeItems = receipt.items.filter((i) => virt(i).active);
+        const activeItems = receipt.items.filter(virt.active);
         const itemIdx = activeItems.findIndex((i) => i.id === itemId);
 
         const lastIdx = activeItems.length - 1;
