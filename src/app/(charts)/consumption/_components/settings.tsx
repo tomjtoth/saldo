@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { vf } from "@/app/_lib/utils";
@@ -9,6 +11,15 @@ export default function ConsumptionSettings() {
   const group = useClientState("group")!;
   const user = useClientState("user")!;
   const dispatch = useAppDispatch();
+
+  const filteredCategories = useMemo(
+    () =>
+      group.categories.filter(
+        (c) =>
+          vf(c).active || group.consumption.some((x) => x.categoryId === c.id)
+      ),
+    [group.categories, group.consumption]
+  );
 
   return (
     <Canceler>
@@ -22,7 +33,7 @@ export default function ConsumptionSettings() {
             "2xl:columns-6 2xl:gap-6"
           }
         >
-          {group.categories.filter(vf.active).map((c) => (
+          {filteredCategories.map((c) => (
             <li key={c.id}>
               <Slider
                 className="p-2 cursor-pointer"
