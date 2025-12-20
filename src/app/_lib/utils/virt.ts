@@ -5,19 +5,17 @@ import { User } from "@/app/(users)/_lib";
 const flags = ["active", "admin"] as const;
 const togglers = flags.map((f) => `toggle${f[0].toUpperCase() + f.slice(1)}`);
 
+type Entity = Pick<User, "flags">;
 type FlagName = (typeof flags)[number];
 type ToggleName<K extends string> = `toggle${Capitalize<K>}`;
 
-type FlagProxyShape = {
+type Inner = {
   [K in FlagName]: boolean;
 } & {
   [K in ToggleName<FlagName>]: () => number;
 };
 
-export function virt(
-  entity: Pick<User, "flags">,
-  setter?: Dispatch<SetStateAction<number>>
-) {
+function inner(entity: Entity, setter?: Dispatch<SetStateAction<number>>) {
   let int = entity.flags;
 
   const getFlag = (bit: number) => (int & (1 << bit)) !== 0;
@@ -29,31 +27,39 @@ export function virt(
     else entity.flags = int;
   };
 
-  const proxy: FlagProxyShape = new Proxy(Object.create(null), {
-    get(_, prop) {
-      let idx = flags.findIndex((f) => f === prop);
-      if (idx > -1) return getFlag(idx);
+  const obj: Inner = Object.create(null);
 
-      idx = togglers.findIndex((f) => f === prop);
-      if (idx > -1)
-        return () => {
-          setFlag(idx, !getFlag(idx));
-          return int;
-        };
-    },
+  flags.forEach((flag, bit) => {
+    Object.defineProperty(obj, flag, {
+      enumerable: true,
+      configurable: false,
 
-    set(_, prop, value) {
-      const idx = flags.findIndex((f) => f === prop);
+      get() {
+        return getFlag(bit);
+      },
 
-      if (idx > -1) {
-        setFlag(idx, value);
+      set(value: boolean) {
+        setFlag(bit, value);
+      },
+    });
 
-        return true;
-      }
-
-      return false;
-    },
+    Object.defineProperty(obj, togglers[bit], {
+      enumerable: true,
+      configurable: false,
+      value() {
+        setFlag(bit, !getFlag(bit));
+        return int;
+      },
+    });
   });
 
-  return proxy;
+  return obj;
 }
+
+export const virt = Object.assign(
+  inner,
+  flags.reduce((acc, f) => {
+    acc[f] = (e: Entity) => inner(e)[f];
+    return acc;
+  }, {} as { [F in FlagName]: (e: Entity) => boolean })
+);
