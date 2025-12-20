@@ -36,7 +36,7 @@ export default function CategoriesPage(srv: { categoryId?: Category["id"] }) {
 
   useDebugger({ categoriesListing });
 
-  const groupIsActive = group && virt(group).active;
+  const groupIsActive = useMemo(() => group && virt(group).active, [group]);
 
   return (
     <>

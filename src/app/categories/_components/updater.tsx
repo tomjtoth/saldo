@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { appToast, virt } from "@/app/_lib/utils";
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
@@ -23,7 +23,8 @@ export default function CategoryUpdater({
   const [description, setDescr] = useState(category.description ?? "");
   const [flags, setFlags] = useState(category.flags);
 
-  const groupIsActive = group && virt(group).active;
+  const groupIsActive = useMemo(() => group && virt(group).active, [group]);
+  const vFlags = useMemo(() => virt({ flags }, setFlags), [flags, setFlags]);
 
   return (
     <form
@@ -31,7 +32,7 @@ export default function CategoryUpdater({
       key={`${category.id}-${category.revisionId}`}
       className={
         "p-2 bg-background rounded border-2 " +
-        (virt({ flags }).active ? "border-green-500" : "border-red-500") +
+        (vFlags.active ? "border-green-500" : "border-red-500") +
         " grid items-center gap-2 grid-cols-[min-width_min-width_min-width]"
       }
       onSubmit={(ev) => {
@@ -58,10 +59,7 @@ export default function CategoryUpdater({
         onChange={(ev) => setName(ev.target.value)}
       />
 
-      <Slider
-        checked={virt({ flags }).active}
-        onClick={() => virt({ flags }, setFlags).toggleActive()}
-      />
+      <Slider checked={vFlags.active} onClick={() => vFlags.toggleActive()} />
 
       <button className={groupIsActive ? undefined : "cursor-not-allowed!"}>
         💾

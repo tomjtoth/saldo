@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Group } from "../../_lib";
 import { virt } from "@/app/_lib/utils";
@@ -15,13 +15,23 @@ import Members from "./members";
 export default function GroupDetails({ groupId }: { groupId: Group["id"] }) {
   const group = useClientState("group", groupId)!;
   const user = useClientState("user");
+
   const [flags, setFlags] = useState(group.flags);
 
-  const clientIsAdmin = group.memberships.some(
-    (ms) => ms.user.id === user?.id && virt(ms).admin
+  const groupIsActive = useMemo(() => virt(group).active, [group]);
+  const vFlags = useMemo(() => virt({ flags }, setFlags), [flags]);
+  const clientIsAdmin = useMemo(
+    () =>
+      group.memberships.some((ms) => ms.user.id === user?.id && virt(ms).admin),
+    [group.memberships, user?.id]
   );
 
-  useDebugger("group details", [user, group.memberships]);
+  useDebugger({
+    groupDetails: {
+      user,
+      memberships: group.memberships,
+    },
+  });
 
   return (
     <Canceler classNamesFor={{ children: { border: false } }}>
@@ -29,7 +39,7 @@ export default function GroupDetails({ groupId }: { groupId: Group["id"] }) {
         className={
           "overflow-scroll border-2 " +
           "flex flex-col items-center gap-2 " +
-          (virt({ flags }).active ? "border-green-500" : "border-red-500")
+          (vFlags.active ? "border-green-500" : "border-red-500")
         }
       >
         <Title {...{ groupId, flags, setFlags, clientIsAdmin }} />
@@ -38,7 +48,7 @@ export default function GroupDetails({ groupId }: { groupId: Group["id"] }) {
 
         <Invitation {...{ groupId, clientIsAdmin }} />
 
-        {virt(group).active && (
+        {groupIsActive && (
           <>
             <h3>
               Categories <SvgLink href={`/groups/${group.id}/categories`} />

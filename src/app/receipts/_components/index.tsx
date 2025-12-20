@@ -30,6 +30,13 @@ export default function ReceiptsPage() {
     if (typeof receipt?.id === "number") nodes.push(ReceiptDetails);
   }, [receipt?.id]);
 
+  const groupIsActive = useMemo(() => group && virt(group).active, [group]);
+
+  const activeCategories = useMemo(
+    () => group?.categories.filter(virt.active) ?? [],
+    [group?.categories]
+  );
+
   const receiptsListing = useMemo(
     () =>
       group?.receipts.map((rcpt) =>
@@ -45,10 +52,6 @@ export default function ReceiptsPage() {
   let adderButton: ReactNode = null;
 
   if (group) {
-    const groupIsActive = virt(group).active;
-
-    const activeCategories = group.categories.filter(virt.active);
-
     adderButton =
       activeCategories.length > 0 ? (
         <button

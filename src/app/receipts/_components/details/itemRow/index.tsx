@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
@@ -37,6 +37,18 @@ export default function ItemRow({
     if (autoFocus) costRef.current?.focus();
   }, [autoFocus]);
 
+  const catOptions = useMemo(
+    () =>
+      group.categories.map((cat) =>
+        updatingReceipt || virt(cat).active ? (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ) : null
+      ),
+    [group.categories, updatingReceipt]
+  );
+
   return (
     // this span and its classname `relative` is necessary for the ZigZag
     <span
@@ -63,13 +75,7 @@ export default function ItemRow({
         }
         onKeyDown={handlers.category}
       >
-        {group.categories.map((cat) =>
-          virt(cat).active || updatingReceipt ? (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ) : null
-        )}
+        {catOptions}
       </select>
 
       <button

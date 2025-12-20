@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { virt } from "@/app/_lib/utils";
@@ -25,6 +25,8 @@ export default function Title({
 
   const [name, setName] = useState(group.name);
   const [description, setDescription] = useState(group.description ?? "");
+
+  const vFlags = useMemo(() => virt({ flags }, setFlags), [flags, setFlags]);
 
   function restoreOriginals() {
     setName(group.name);
@@ -51,10 +53,7 @@ export default function Title({
         onChange={(ev) => setName(ev.target.value)}
       />
 
-      <Slider
-        checked={virt({ flags }).active}
-        onClick={() => virt({ flags }, setFlags).toggleActive()}
-      />
+      <Slider checked={vFlags.active} onClick={() => vFlags.toggleActive()} />
 
       <button>💾</button>
 

@@ -50,7 +50,7 @@ export default function useItemRowLogic(itemId: Item["id"]) {
   const item = receipt.items[itemIdx];
   const isMultiUser = users.length > 1;
   const autoFocus = itemId === receipt.focusedItemId;
-  const disabled = !virt(item).active;
+  const disabled = useMemo(() => !virt(item).active, [item]);
 
   const caretRef = useRef(-1);
   const [cost, setCost] = useState(item.cost === 0 ? "" : item.cost.toFixed(2));

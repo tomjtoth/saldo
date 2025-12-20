@@ -9,7 +9,7 @@ type Entity = Pick<User, "flags">;
 type FlagName = (typeof flags)[number];
 type ToggleName<K extends string> = `toggle${Capitalize<K>}`;
 
-type Inner = {
+type VirtualFlags = {
   [K in FlagName]: boolean;
 } & {
   [K in ToggleName<FlagName>]: () => number;
@@ -27,7 +27,7 @@ function inner(entity: Entity, setter?: Dispatch<SetStateAction<number>>) {
     else entity.flags = int;
   };
 
-  const obj: Inner = Object.create(null);
+  const obj: VirtualFlags = Object.create(null);
 
   flags.forEach((flag, bit) => {
     Object.defineProperty(obj, flag, {
