@@ -64,7 +64,7 @@ export const sliceReceipts = {
       receipt.items.splice(idx, 1);
       receipt.focusedItemId = receipt.items[Math.max(0, idx - 1)].id;
     } else {
-      virt(item).toggle("active");
+      virt(item).toggleActive();
     }
   },
 

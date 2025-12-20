@@ -46,16 +46,16 @@ describe("status", () => {
     const obj = { flags: 0 };
     let res: number;
 
-    res = virt(obj).toggle("active");
+    res = virt(obj).toggleActive();
     expect(res).to.equal(obj.flags).to.equal(1);
 
-    res = virt(obj).toggle("admin");
+    res = virt(obj).toggleAdmin();
     expect(res).to.equal(obj.flags).to.equal(3);
 
-    res = virt(obj).toggle("active");
+    res = virt(obj).toggleActive();
     expect(res).to.equal(obj.flags).to.equal(2);
 
-    res = virt(obj).toggle("admin");
+    res = virt(obj).toggleAdmin();
     expect(res).to.equal(obj.flags).to.equal(0);
   });
 });

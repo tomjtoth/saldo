@@ -53,7 +53,7 @@ export default function Title({
 
       <Slider
         checked={virt({ flags }).active}
-        onClick={() => virt({ flags }, setFlags).toggle("active")}
+        onClick={() => virt({ flags }, setFlags).toggleActive()}
       />
 
       <button>💾</button>

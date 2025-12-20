@@ -43,7 +43,7 @@ export default function Individual({
           checked={virt({ flags }).active}
           onClick={() => {
             const prevState = flags;
-            const nextState = virt({ flags }, setFlags).toggle("active");
+            const nextState = virt({ flags }, setFlags).toggleActive();
 
             dispatch(
               thunks.modMembership(
