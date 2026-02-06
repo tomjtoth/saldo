@@ -13,6 +13,11 @@ import ItemRow from "./itemRow";
 import PaidByUserWithAvatar from "../paidByUserWithAvatar";
 import ReceiptClosingDialog from "../closingDialog";
 
+// TODO:
+// also +1 hotkey for jumping straigt to 1st zero-cost item
+// +1 hotkey for jumping to the date of receipt
+// +1 hotkey to jump to payer selector
+
 export default function ReceiptDetails() {
   const nodes = useBodyNodes();
   const dispatch = useAppDispatch();

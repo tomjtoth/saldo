@@ -2,7 +2,7 @@ import { current, Draft, isDraft, WritableDraft } from "immer";
 import { toast, ToastPromiseParams } from "react-toastify";
 
 import { Category } from "@/app/categories/_lib";
-import { vf } from "./virt";
+import { vf } from "./virtualFlags";
 
 // do not export this from here
 // export * from "./apiCalls";
@@ -10,7 +10,7 @@ export * from "./apiInternal";
 export * from "./datetime";
 export * from "./errors";
 export * from "./validators";
-export * from "./virt";
+export * from "./virtualFlags";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value === 0.5) return [1, 2];
