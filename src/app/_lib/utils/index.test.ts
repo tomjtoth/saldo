@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { describe, it, expect, vi, Mock, beforeEach, afterEach } from "vitest";
 
 import {
