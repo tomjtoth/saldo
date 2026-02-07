@@ -143,7 +143,7 @@ jobs:
 
       - name: Check image size
         run: |
-          TAGS=(${{ needs.pre-deploy.outputs.tags }})
+          TAGS=(${{ env.TAGS }})
           SIZE_BYTES=$(docker image inspect "${TAGS[0]}" --format='{{.Size}}')
           SIZE_MB=$((SIZE_BYTES / 1024 / 1024))
           MAX_SIZE_MB=300
