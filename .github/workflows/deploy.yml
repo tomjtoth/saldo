@@ -164,6 +164,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=shared
 
   gitops:
+    name: Update images in vps/apps/saldo/kustomization.yml
     runs-on: ubuntu-latest
     if: ${{ contains(needs.gen-tags.outputs.tags, ':latest') }}
     needs:
@@ -200,6 +201,7 @@ jobs:
           fi
 
   rel-tag:
+    name: Release new tag to repo
     needs:
       - gen-tags
       - gitops
