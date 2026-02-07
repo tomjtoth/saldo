@@ -185,9 +185,15 @@ jobs:
           KUSTOMIZATION_FILE="apps/saldo/kustomization.yml"
           TAGS=(${{ needs.gen-tags.outputs.tags }})
 
-          # Update newTag in kustomization.yml (adjust the image name as needed)
-          # sed -i "s/newName:.*/newName: ${TAGS[0]}/" "$KUSTOMIZATION_FILE"
-          yq e '(.images[] | select(.name=="IMAGES/PROD")).newName = "'"${TAGS[0]}"'"' -i "$KUSTOMIZATION_FILE"
+
+          # staging always changes
+          yq e '(.images[] | select(.name=="IMAGES/STAGING")).newName = "'"${TAGS[0]}"'"' -i "$KUSTOMIZATION_FILE"
+
+          # prod only if "#deploy" is in HEAD commit message
+          if [[ " $TAGS " == *" :latest "* ]]; then
+            yq e '(.images[] | select(.name=="IMAGES/PROD")).newName = "'"${TAGS[0]}"'"' -i "$KUSTOMIZATION_FILE"
+          fi
+
 
           # Commit and push if there are changes
           if git diff --quiet; then
