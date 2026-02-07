@@ -96,8 +96,12 @@ jobs:
               IMAGE_TAGS+=(tomjtoth/saldo:$tag)
             done
 
-            # write space-delimited tags as the step output
-            echo "tags=${IMAGE_TAGS[*]}" >> $GITHUB_OUTPUT
+            # write newline-delimited tags as the step output
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            for t in "${IMAGE_TAGS[@]}"; do
+              echo "$t" >> $GITHUB_OUTPUT
+            done
+            echo "EOF" >> $GITHUB_OUTPUT
           else
             echo "tags=" >> $GITHUB_OUTPUT
           fi
