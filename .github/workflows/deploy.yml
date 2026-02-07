@@ -208,6 +208,9 @@ jobs:
       - gitops
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Create tag
         run: |
           TAGS=(${{ needs.gen-tags.outputs.tags }})
