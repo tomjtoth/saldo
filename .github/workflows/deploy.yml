@@ -210,10 +210,11 @@ jobs:
     steps:
       - name: Create tag
         run: |
-          TAG=(${{ needs.gen-tags.outputs.tags }})
+          TAGS=(${{ needs.gen-tags.outputs.tags }})
+          TAG=v${TAGS[0]#*:}
 
           # create annotated tag and push it back to the repo
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "v$TAG" -m "Release $TAG"
-          git push origin "v$TAG"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
