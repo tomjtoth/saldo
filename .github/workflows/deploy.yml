@@ -182,10 +182,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Update the image tag in kustomization.yml
           KUSTOMIZATION_FILE="apps/saldo/kustomization.yml"
-
           TAGS=(${{ needs.gen-tags.outputs.tags }})
+
           # Update newTag in kustomization.yml (adjust the image name as needed)
           # sed -i "s/newName:.*/newName: ${TAGS[0]}/" "$KUSTOMIZATION_FILE"
           yq e '(.images[] | select(.name=="IMAGES/PROD")).newName = "'"${TAGS[0]}"'"' -i "$KUSTOMIZATION_FILE"
