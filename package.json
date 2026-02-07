@@ -1,6 +1,6 @@
 {
   "name": "saldo",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
     "dev": "next dev",
     "dev:instrumented": "INSTRUMENT_E2E=1 next dev",
