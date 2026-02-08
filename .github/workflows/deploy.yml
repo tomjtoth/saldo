@@ -205,7 +205,7 @@ jobs:
 
           # prod only if "#deploy" is in HEAD commit message
           if [[ " $TAGS " == *" :latest "* ]]; then
-            K_DIRS+=(.)
+            K_DIRS+=(prod)
             echo "⚠️ will bump the 'latest' tag, too"
           fi
 
