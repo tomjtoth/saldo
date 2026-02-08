@@ -209,7 +209,7 @@ jobs:
             echo "⚠️ will bump the 'latest' tag, too"
           fi
 
-          for dir in K_DIRS; do
+          for dir in ${K_DIRS[@]}; do
             K_FILE=apps/saldo/$dir/kustomization.yml
             yq e '(.images[] | select(.name=="IMAGES/APP")).newName = "'"${TAGS[0]}"'"' -i "$K_FILE"
             git add "$K_FILE"
