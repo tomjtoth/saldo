@@ -22,6 +22,7 @@ RUN npm run build
 
 # ----------------------------
 FROM base AS runner
+RUN apk add --no-cache xz
 WORKDIR /app
 
 # Create app user
