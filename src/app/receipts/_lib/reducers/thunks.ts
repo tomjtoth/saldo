@@ -3,8 +3,9 @@ import { csa } from "@/app/_lib/reducers/slice";
 import { Group } from "@/app/groups/_lib";
 import { Item, Receipt } from "../populateRecursively";
 import { ItemModifier } from "./slices";
-import { apiGetReceipts } from "../getReceipts";
+import { callApi } from "@/app/_lib/utils/apiCalls";
 import { User } from "@/app/(users)/_lib";
+import { appToast } from "@/app/_lib/utils";
 
 export const thunksReceipts = {
   setPaidOn: (date: Receipt["paidOn"]) => (dispatch: AppDispatch) => {
@@ -15,16 +16,16 @@ export const thunksReceipts = {
     return dispatch(csa.setPaidBy(userId));
   },
 
-  addRow: (afterId?: Item["id"]) => (dispatch: AppDispatch) => {
-    return dispatch(csa.addRow(afterId));
+  addItem: (afterId?: Item["id"]) => (dispatch: AppDispatch) => {
+    return dispatch(csa.addItem(afterId));
   },
 
-  rmRow: (rowId: Item["id"]) => (dispatch: AppDispatch) => {
-    return dispatch(csa.rmRow(rowId));
+  rmItem: (itemId: Item["id"]) => (dispatch: AppDispatch) => {
+    return dispatch(csa.rmItem(itemId));
   },
 
-  setFocusedRow: (index: Item["id"]) => (dispatch: AppDispatch) => {
-    return dispatch(csa.setFocusedRow(index));
+  focusItem: (itemId?: Item["id"]) => (dispatch: AppDispatch) => {
+    return dispatch(csa.focusItem(itemId));
   },
 
   modItem: (modifier: ItemModifier) => {
@@ -42,9 +43,17 @@ export const thunksReceipts = {
   fetchReceipts:
     (groupId: Group["id"], knownIds: Receipt["id"][]) =>
     async (dispatch: AppDispatch) => {
-      const receipts = await apiGetReceipts(groupId, knownIds);
+      return appToast.promise("Fetching receipts", async () => {
+        const receipts = await callApi.getReceipts(groupId, knownIds);
 
-      dispatch(csa.addFetchedReceipts({ groupId, receipts }));
+        dispatch(csa.addFetchedReceipts({ groupId, receipts }));
+
+        const toastMessage = receipts.length
+          ? `Got ${receipts.length} receipts more.`
+          : "There are no more receipts in this group.";
+
+        return toastMessage;
+      });
     },
 
   tryFetchingReceipts: () => (dispatch: AppDispatch) => {

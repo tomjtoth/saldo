@@ -1,23 +1,21 @@
 import { sql } from "drizzle-orm";
 
 import { User } from "@/app/(users)/_lib";
-import { users } from "@/app/_lib/db/schema";
+import { Schema } from "@/app/_lib/db";
 
 export function colorsForGroups(userId: User["id"]) {
-  return sql<string>`
-  printf(
-    '#%06x',
-    coalesce(
+  return (users: Schema["users"]) =>
+    sql<string>`printf('#%06x', coalesce(
       (
         SELECT cc.color FROM chart_colors cc
         WHERE cc.user_id = ${userId}
-        AND cc.group_id = "groups"."id"
+        AND cc.group_id = "d0"."id" -- "d0" ~ "groups"
         AND cc.member_id = ${users.id}
       ),
       (
         SELECT cc.color FROM chart_colors cc
         WHERE cc.user_id = ${users.id}
-        AND cc.group_id = "groups"."id"
+        AND cc.group_id = "d0"."id" -- "d0" ~ "groups"
         AND cc.member_id IS NULL
       ),
       (
@@ -28,5 +26,5 @@ export function colorsForGroups(userId: User["id"]) {
       ),
       abs(random()) % 0x1000000
     )
-  )`.as("color");
+  )`;
 }

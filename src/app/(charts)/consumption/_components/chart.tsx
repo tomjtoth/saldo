@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -11,20 +12,33 @@ import {
   Legend,
 } from "recharts";
 
-import { useClientState } from "@/app/_lib/hooks";
+import { useClientState, useDebugger } from "@/app/_lib/hooks";
 
 import ConsumptionTooltip from "./tooltip";
 import ConsumptionLegend from "./legend";
 
 export default function ConsumptionChart() {
   const consumption = useClientState("consumption");
+  const user = useClientState("user")!;
   const users = useClientState("users");
   const categoriesO1 = useClientState("categories[id]");
+
+  const filteredConsumptionData = useMemo(
+    () =>
+      consumption.filter((x) =>
+        user.categoriesHiddenFromConsumption.every(
+          (cid) => cid !== x.categoryId
+        )
+      ),
+    [consumption, user.categoriesHiddenFromConsumption]
+  );
+
+  useDebugger({ filteredConsumptionData });
 
   return (
     <div className=" h-full w-full">
       <ResponsiveContainer>
-        <BarChart data={consumption}>
+        <BarChart data={filteredConsumptionData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="categoryId"

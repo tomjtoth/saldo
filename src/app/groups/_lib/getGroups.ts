@@ -1,15 +1,13 @@
 "use server";
 
-import { eq, exists, and, sql, SQL } from "drizzle-orm";
-
 import {
   ConsumptionData,
   db,
   DrizzleTx,
   getArchivePopulator,
   isActive,
+  WhereClauseOf,
 } from "@/app/_lib/db";
-import { groups, memberships } from "@/app/_lib/db/schema";
 import { sortByName } from "@/app/_lib/utils";
 import { User } from "@/app/(users)/_lib";
 import { SELECT_CATEGORIES } from "@/app/categories/_lib";
@@ -36,7 +34,7 @@ export async function svcGetGroups(
     extras = {},
   }: {
     tx?: DrizzleTx;
-    where?: SQL;
+    where?: WhereClauseOf<"groups">;
     extras?: {
       receipts?: true | { getAll: true };
       consumption?: { from?: string };
@@ -49,9 +47,7 @@ export async function svcGetGroups(
 
     extras: {
       ...("consumption" in extras
-        ? {
-            consumption: consumptionQuery(extras.consumption).as("consumption"),
-          }
+        ? { consumption: consumptionQuery(extras.consumption) }
         : {}),
       ...("balance" in extras ? { balance: balanceQuery() } : {}),
     },
@@ -85,20 +81,12 @@ export async function svcGetGroups(
       },
     },
 
-    where:
-      where ??
-      exists(
-        db
-          .select({ x: sql`1` })
-          .from(memberships)
-          .where(
-            and(
-              eq(memberships.groupId, groups.id),
-              eq(memberships.userId, userId),
-              isActive(memberships)
-            )
-          )
-      ),
+    where: where ?? {
+      memberships: {
+        RAW: isActive,
+        userId,
+      },
+    },
   });
 
   const archivePopulator = await getArchivePopulator(tx);

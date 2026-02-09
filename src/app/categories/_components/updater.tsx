@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-import { virt } from "@/app/_lib/utils";
+import { appToast, vf } from "@/app/_lib/utils";
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
 import { Category } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
@@ -15,6 +15,7 @@ export default function CategoryUpdater({
   categoryId: Category["id"];
 }) {
   const dispatch = useAppDispatch();
+  const group = useClientState("group");
   const category = useClientState("category", categoryId)!;
   const usersO1 = useClientState("users[id]");
 
@@ -22,17 +23,25 @@ export default function CategoryUpdater({
   const [description, setDescr] = useState(category.description ?? "");
   const [flags, setFlags] = useState(category.flags);
 
+  const groupIsActive = useMemo(() => group && vf(group).active, [group]);
+  const vFlags = useMemo(() => vf({ flags }, setFlags), [flags, setFlags]);
+
   return (
     <form
       id="updater"
       key={`${category.id}-${category.revisionId}`}
       className={
         "p-2 bg-background rounded border-2 " +
-        (virt({ flags }).active ? "border-green-500" : "border-red-500") +
+        (vFlags.active ? "border-green-500" : "border-red-500") +
         " grid items-center gap-2 grid-cols-[min-width_min-width_min-width]"
       }
       onSubmit={(ev) => {
         ev.preventDefault();
+
+        if (!groupIsActive)
+          return appToast.error(
+            "Updating categories of disabled groups is not allowed!"
+          );
 
         dispatch(
           thunks.modCategory(category, { name, description, flags })
@@ -50,12 +59,11 @@ export default function CategoryUpdater({
         onChange={(ev) => setName(ev.target.value)}
       />
 
-      <Slider
-        checked={virt({ flags }).active}
-        onClick={() => virt({ flags }, setFlags).toggle("active")}
-      />
+      <Slider checked={vFlags.active} onClick={() => vFlags.toggleActive()} />
 
-      <button>💾</button>
+      <button className={groupIsActive ? undefined : "cursor-not-allowed!"}>
+        💾
+      </button>
 
       <textarea
         className="col-span-3 resize-none"

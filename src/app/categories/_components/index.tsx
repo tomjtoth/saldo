@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useAppDispatch, useClientState, useDebugger } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 import { Category } from "../_lib";
+import { appToast, vf } from "@/app/_lib/utils";
 
 import EntityAdderButton from "@/app/_components/entityAdder";
 import Header from "@/app/_components/header";
@@ -35,12 +36,25 @@ export default function CategoriesPage(srv: { categoryId?: Category["id"] }) {
 
   useDebugger({ categoriesListing });
 
+  const groupIsActive = useMemo(() => group && vf(group).active, [group]);
+
   return (
     <>
       <Header>
         {groups.length > 0 && (
           <EntityAdderButton
             placeholder="Category"
+            className={
+              groupIsActive ? undefined : "cursor-not-allowed! text-gray-500"
+            }
+            onClick={
+              groupIsActive
+                ? undefined
+                : () =>
+                    appToast.error(
+                      "Adding new categories to a disabled group is not allowed!"
+                    )
+            }
             handler={({ name, description }) =>
               dispatch(
                 thunks.addCategory({ groupId: group!.id, name, description })

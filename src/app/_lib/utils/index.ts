@@ -2,12 +2,15 @@ import { current, Draft, isDraft, WritableDraft } from "immer";
 import { toast, ToastPromiseParams } from "react-toastify";
 
 import { Category } from "@/app/categories/_lib";
-import { virt } from "./virt";
+import { vf } from "./virtualFlags";
 
+// do not export this from here
+// export * from "./apiCalls";
+export * from "./apiInternal";
 export * from "./datetime";
 export * from "./errors";
 export * from "./validators";
-export * from "./virt";
+export * from "./virtualFlags";
 
 export function approxFloat(value: number, maxDenominator = 1000) {
   if (value === 0.5) return [1, 2];
@@ -96,7 +99,7 @@ export const appToast = {
   ) {
     const ops = [
       ...(after.name !== before.name ? ["renaming"] : []),
-      ...(virt(after).active !== virt(before).active ? ["toggling"] : []),
+      ...(vf(after).active !== vf(before).active ? ["toggling"] : []),
       ...(after.description !== before.description
         ? ["altering the description of"]
         : []),

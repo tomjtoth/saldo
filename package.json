@@ -1,6 +1,6 @@
 {
   "name": "saldo",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "scripts": {
     "dev": "next dev",
     "dev:instrumented": "INSTRUMENT_E2E=1 next dev",
@@ -40,7 +40,7 @@
     "@libsql/client": "^0.15.11",
     "@reduxjs/toolkit": "^2.8.2",
     "csv-parser": "^3.0.0",
-    "drizzle-orm": "^0.44.7",
+    "drizzle-orm": "^1.0.0-beta.2-7745ed5",
     "luxon": "^3.6.1",
     "next": "^15.5.4",
     "next-auth": "^5.0.0-beta.30",

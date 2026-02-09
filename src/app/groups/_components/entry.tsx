@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import { Group } from "../_lib";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -22,6 +22,8 @@ export default function GroupEntry({
   const isDefault = useClientState("user")?.defaultGroupId === groupId;
   const group = useClientState("group", groupId)!;
 
+  const isActive = useMemo(() => vf(group).active, [group.flags]);
+
   useEffect(() => {
     if (preSelected) nodes.push(GroupDetails, { groupId });
   }, []);
@@ -30,7 +32,7 @@ export default function GroupEntry({
     <div
       className={
         "cursor-pointer select-none p-2 rounded border-2 " +
-        (virt(group).active ? "border-green-500" : "border-red-500")
+        (isActive ? "border-green-500" : "border-red-500")
       }
       onClick={() => nodes.push(GroupDetails, { groupId })}
     >

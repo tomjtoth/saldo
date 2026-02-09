@@ -53,7 +53,8 @@ abstract class TimeMethods extends AnchorMethods {
         }
       });
 
-    if (notParsableFromStr) err("unparsable DateTime string");
+    if (notParsableFromStr)
+      err("unparsable DateTime string", { args: { val } });
 
     const millis = (
       (val as DateTime) ?? DateTime.local(DATETIME_OPTIONS)

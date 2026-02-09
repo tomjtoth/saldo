@@ -1,72 +1,87 @@
 "use client";
 
-import { KeyboardEventHandler, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
+import { vf } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
 import { Item } from "@/app/receipts/_lib";
 
-import ItemOptions from "./options";
-import ItemOptionsAsModal from "./options/modal";
+import ItemOptions, { ItemOptionsAsModal } from "./options";
+import useItemRowLogic from "./logic";
+import ItemRowZigZag from "./zigZag";
 
 export default function ItemRow({
   itemId,
-  autoFocus,
   highlighted,
-  onKeyDown: adderKeyDownHandler,
 }: {
   itemId: Item["id"];
-  autoFocus: boolean;
   highlighted: boolean;
-  onKeyDown: KeyboardEventHandler<HTMLInputElement>;
 }) {
   const dispatch = useAppDispatch();
   const nodes = useBodyNodes();
-  const group = useClientState("group");
-  const users = useClientState("users");
-  const item = group!.activeReceipt!.items.find((i) => i.id === itemId)!;
+  const group = useClientState("group")!;
 
-  const isMultiUser = !!users.length;
-
-  const catRef = useRef<HTMLSelectElement>(null);
-  const costRef = useRef<HTMLInputElement>(null);
-  const [cost, setCost] = useState(item.cost.toFixed(2));
+  const {
+    refs: { categoryRef, costRef, ...refs },
+    handlers,
+    disabled,
+    categoryId,
+    cost,
+    isMultiUser,
+    updatingReceipt,
+    autoFocus,
+  } = useItemRowLogic(itemId);
 
   useEffect(() => {
     if (autoFocus) costRef.current?.focus();
   }, [autoFocus]);
 
+  const catOptions = useMemo(
+    () =>
+      group.categories.map((cat) =>
+        updatingReceipt || vf(cat).active ? (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ) : null
+      ),
+    [group.categories, updatingReceipt]
+  );
+
   return (
-    <>
+    // this span and its classname `relative` is necessary for the ZigZag
+    <span
+      className={
+        "grid grid-cols-subgrid relative overflow-x-clip " +
+        (isMultiUser ? "col-span-6" : "col-span-5") +
+        (disabled ? " *:text-gray-500 *:border-gray-500 *:select-none" : "")
+      }
+    >
+      {disabled && <ItemRowZigZag {...{ itemId }} />}
+
       <select
-        ref={catRef}
+        ref={categoryRef}
         className="rounded border p-1 min-w-20"
-        value={item.categoryId}
+        value={categoryId}
+        disabled={disabled}
         onChange={(ev) =>
           dispatch(
             thunks.modItem({
-              id: item.id,
+              id: itemId,
               categoryId: Number(ev.target.value),
             })
           )
         }
-        onKeyDown={(ev) => {
-          if (ev.key === "c") {
-            ev.preventDefault();
-            costRef.current?.focus();
-          }
-        }}
+        onKeyDown={handlers.category}
       >
-        {group?.categories.map((cat) => (
-          <option key={cat.id} value={cat.id}>
-            {cat.name}
-          </option>
-        ))}
+        {catOptions}
       </select>
 
       <button
         className="sm:hidden"
-        onClick={() => nodes.push(ItemOptionsAsModal, { itemId: item.id })}
+        onClick={() => nodes.push(ItemOptionsAsModal, { itemId })}
+        disabled={disabled}
       >
         ⚙️
       </button>
@@ -77,44 +92,34 @@ export default function ItemRow({
           (isMultiUser ? "col-span-4" : "col-span-3")
         }
       >
-        <ItemOptions {...{ itemId: item.id }} />
+        <ItemOptions {...{ itemId, handlers, refs }} />
       </div>
 
       <form
         className="inline-flex items-center gap-2"
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (!isNaN(Number(cost))) dispatch(thunks.addRow(item.id));
+          if (!isNaN(Number(cost))) dispatch(thunks.addItem(itemId));
         }}
       >
         €
         <input
           ref={costRef}
-          type="number"
+          type="text"
+          inputMode="decimal"
+          disabled={disabled}
           placeholder="cost"
           className={
-            "w-15 no-spinner" +
+            "w-15 " +
             (isNaN(Number(cost)) ? " border-2! border-red-500" : "") +
             (highlighted ? " bg-amber-500" : "")
           }
           value={cost === "0.00" ? "" : cost}
-          onChange={(ev) => {
-            const asStr = ev.target.value.replace(",", ".");
-            setCost(asStr);
-
-            const asNum = Number(asStr);
-            if (!isNaN(asNum))
-              dispatch(thunks.modItem({ id: item.id, cost: asNum }));
-          }}
-          onFocus={() => dispatch(thunks.setFocusedRow(-1))}
-          onKeyDown={(ev) => {
-            if (ev.key === "c") {
-              ev.preventDefault();
-              catRef.current?.focus();
-            } else adderKeyDownHandler(ev);
-          }}
+          onChange={handlers.costChange}
+          onFocus={() => dispatch(thunks.focusItem())}
+          onKeyDown={handlers.cost}
         />
       </form>
-    </>
+    </span>
   );
 }

@@ -4,19 +4,19 @@ import { useState } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { appToast } from "@/app/_lib/utils";
-import { apiAddReceipt, apiModReceipt, Item } from "../../_lib";
+import { appToast, vf } from "@/app/_lib/utils";
+import { callApi } from "@/app/_lib/utils/apiCalls";
+import { Item } from "../../_lib";
 
 import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
 import PaidByUserWithAvatar from "../paidByUserWithAvatar";
+import ReceiptClosingDialog from "../closingDialog";
 
-const DIFFS = {
-  ArrowUp: -1,
-  ArrowDown: 1,
-  PageUp: -5,
-  PageDown: 5,
-};
+// TODO:
+// also +1 hotkey for jumping straigt to 1st zero-cost item
+// +1 hotkey for jumping to the date of receipt
+// +1 hotkey to jump to payer selector
 
 export default function ReceiptDetails() {
   const nodes = useBodyNodes();
@@ -32,7 +32,21 @@ export default function ReceiptDetails() {
   const isMultiUser = users.length > 1;
   const paidBy = users.find((u) => u.id === receipt.paidById)!;
 
+  function closeReceipt() {
+    if (receipt.changes) nodes.push(ReceiptClosingDialog);
+    else {
+      nodes.set([]);
+      dispatch(thunks.setActiveReceipt());
+    }
+  }
+
   function submitReceipt() {
+    if (!vf(group).active) {
+      return appToast.error(
+        "Cannot update receipts in a disabled group, re-enable it first!"
+      );
+    }
+
     const zeroCostItems = receipt.items
       .filter((i) => i.cost === 0)
       .map((i) => i.id);
@@ -55,7 +69,7 @@ export default function ReceiptDetails() {
       appToast.promise(
         "Updating receipt",
 
-        apiModReceipt(receipt).then((res) => {
+        callApi.modReceipt(receipt).then((res) => {
           nodes.pop();
           dispatch(thunks.setActiveReceipt());
           dispatch(thunks.modReceipt(res));
@@ -65,30 +79,40 @@ export default function ReceiptDetails() {
       appToast.promise(
         "Submitting new receipt",
 
-        apiAddReceipt({
-          ...receipt,
-          groupId,
-        }).then((res) => {
-          nodes.pop();
-          dispatch(thunks.setActiveReceipt());
-          dispatch(thunks.addReceipt(res));
-        })
+        callApi
+          .addReceipt({
+            ...receipt,
+            groupId,
+          })
+          .then((res) => {
+            nodes.pop();
+            dispatch(thunks.setActiveReceipt());
+            dispatch(thunks.addReceipt(res));
+          })
       );
     }
   }
 
   return (
-    <Canceler
-      onClick={() => {
-        nodes.setNodes([]);
-        dispatch(thunks.setActiveReceipt());
-      }}
-    >
+    <Canceler onClick={closeReceipt}>
       <div
-        className={
-          "absolute left-1/2 top-1/2 -translate-1/2 w-4/5 h-4/5 " +
-          "bg-background rounded border p-2 flex flex-col gap-2 overflow-scroll"
-        }
+        className="flex flex-col gap-2 overflow-scroll"
+        onKeyDown={(ev) => {
+          if (ev.ctrlKey && ev.key === "s") {
+            ev.preventDefault();
+            submitReceipt();
+          } else if (ev.key === "Escape") {
+            closeReceipt();
+
+            const control = ev.target as
+              | HTMLInputElement
+              | HTMLSelectElement
+              | HTMLTextAreaElement
+              | HTMLDivElement;
+
+            control.blur();
+          }
+        }}
       >
         <div className="flex gap-2 flex-wrap justify-between">
           <div className="flex flex-row gap-2 items-center">
@@ -106,7 +130,11 @@ export default function ReceiptDetails() {
 
           <div className="flex gap-2 items-center">
             {isMultiUser && (
-              <PaidByUserWithAvatar userId={paidBy.id} listOnClick />
+              <PaidByUserWithAvatar
+                id="paid-by"
+                userId={paidBy.id}
+                listOnClick
+              />
             )}
           </div>
         </div>
@@ -122,34 +150,11 @@ export default function ReceiptDetails() {
               : "sm:grid-cols-[min-content_auto_min-content_min-content_min-content]")
           }
         >
-          {receipt.items.map((item, rowIdx) => (
+          {receipt.items.map((item) => (
             <ItemRow
               key={item.id}
-              autoFocus={rowIdx === receipt.focusedIdx}
               highlighted={zeros.includes(item.id)}
               itemId={item.id}
-              onKeyDown={(ev) => {
-                const lastIdx = receipt.items.length - 1;
-
-                if (
-                  ((ev.key === "ArrowUp" || ev.key === "PageUp") &&
-                    rowIdx > 0) ||
-                  ((ev.key === "ArrowDown" || ev.key === "PageDown") &&
-                    rowIdx < lastIdx)
-                ) {
-                  ev.preventDefault();
-                  const newIdx = rowIdx + DIFFS[ev.key];
-
-                  dispatch(
-                    thunks.setFocusedRow(
-                      newIdx < 0 ? 0 : newIdx > lastIdx ? lastIdx : newIdx
-                    )
-                  );
-                } else if (ev.key === "s" && ev.ctrlKey) {
-                  ev.preventDefault();
-                  submitReceipt();
-                }
-              }}
             />
           ))}
 
@@ -159,11 +164,11 @@ export default function ReceiptDetails() {
             className={
               "inline-flex items-center gap-2 " +
               (isMultiUser ? "sm:col-start-5" : "sm:col-start-4") +
-              (!!zeros.length ? " bg-amber-500" : "")
+              (zeros.length > 0 ? " bg-amber-500" : "")
             }
             onClick={submitReceipt}
           >
-            {!!zeros.length ? (
+            {zeros.length > 0 ? (
               <span className="hidden xl:block grow">Save anyways</span>
             ) : (
               <span className="hidden xl:block grow">Save & clear</span>
@@ -178,8 +183,9 @@ export default function ReceiptDetails() {
               className="rounded border p-1 w-15 border-none!"
               readOnly
               value={receipt.items
-                .reduce((sub, { cost }) => {
-                  const asNum = Number(cost);
+                .filter(vf.active)
+                .reduce((sub, i) => {
+                  const asNum = Number(i.cost);
                   return sub + (isNaN(asNum) ? 0 : asNum);
                 }, 0)
                 .toFixed(2)}

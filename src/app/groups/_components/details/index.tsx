@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Group } from "../../_lib";
-import { virt } from "@/app/_lib/utils";
-import { useBodyNodes, useClientState, useDebugger } from "@/app/_lib/hooks";
+import { vf } from "@/app/_lib/utils";
+import { useClientState, useDebugger } from "@/app/_lib/hooks";
 
 import Canceler from "@/app/_components/canceler";
 import SvgLink from "@/app/_components/svgLink";
@@ -13,26 +13,33 @@ import Title from "./title";
 import Members from "./members";
 
 export default function GroupDetails({ groupId }: { groupId: Group["id"] }) {
-  const nodes = useBodyNodes();
   const group = useClientState("group", groupId)!;
   const user = useClientState("user");
+
   const [flags, setFlags] = useState(group.flags);
 
-  const clientIsAdmin = group.memberships.some(
-    (ms) => ms.user.id === user?.id && virt(ms).admin
+  const groupIsActive = useMemo(() => vf(group).active, [group]);
+  const vFlags = useMemo(() => vf({ flags }, setFlags), [flags]);
+  const clientIsAdmin = useMemo(
+    () =>
+      group.memberships.some((ms) => ms.user.id === user?.id && vf(ms).admin),
+    [group.memberships, user?.id]
   );
 
-  useDebugger("group details", [user, group.memberships]);
+  useDebugger({
+    groupDetails: {
+      user,
+      memberships: group.memberships,
+    },
+  });
 
   return (
-    <Canceler onClick={nodes.pop}>
+    <Canceler classNamesFor={{ children: { border: false } }}>
       <div
         className={
-          "absolute left-1/2 top-1/2 -translate-1/2 " +
-          "max-w-min sm:max-w-4/5 max-h-4/5 overflow-scroll " +
-          "bg-background rounded border-2 " +
-          (virt({ flags }).active ? "border-green-500" : "border-red-500") +
-          " p-2 flex flex-col items-center gap-2"
+          "overflow-scroll border-2 " +
+          "flex flex-col items-center gap-2 " +
+          (vFlags.active ? "border-green-500" : "border-red-500")
         }
       >
         <Title {...{ groupId, flags, setFlags, clientIsAdmin }} />
@@ -41,7 +48,7 @@ export default function GroupDetails({ groupId }: { groupId: Group["id"] }) {
 
         <Invitation {...{ groupId, clientIsAdmin }} />
 
-        {virt(group).active && (
+        {groupIsActive && (
           <>
             <h3>
               Categories <SvgLink href={`/groups/${group.id}/categories`} />

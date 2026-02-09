@@ -11,13 +11,16 @@ type TEntityAdder = {
   handler: (data: { name: string; description: string }) => Promise<unknown>;
 };
 
-export default function EntityAdderButton(args: TEntityAdder) {
+export default function EntityAdderButton(
+  args: TEntityAdder & { onClick?: () => void; className?: string }
+) {
   const nodes = useBodyNodes();
 
   return (
     <button
       id="entity-adder-button"
-      onClick={() => nodes.push(EntityAdder, args)}
+      className={args.className}
+      onClick={args.onClick ?? (() => nodes.push(EntityAdder, args))}
     >
       ➕ <span className="hidden sm:inline-block">Add new...</span>
     </button>
@@ -36,14 +39,10 @@ function EntityAdder({ placeholder, handler }: TEntityAdder) {
   }, []);
 
   return (
-    <Canceler onClick={nodes.pop}>
+    <Canceler>
       <form
         id="entity-adder-form"
-        className={
-          "absolute top-1/2 left-1/2 -translate-1/2 p-2 " +
-          "rounded border bg-background " +
-          "grid gap-2 grid-cols-[min-width_min-width]"
-        }
+        className="grid gap-2 grid-cols-[min-width_min-width]"
         onSubmit={(ev) => {
           ev.preventDefault();
 

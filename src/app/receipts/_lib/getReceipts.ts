@@ -1,12 +1,9 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
-
 import { db } from "@/app/_lib/db";
-import { memberships } from "@/app/_lib/db/schema";
-import { be, err, is } from "@/app/_lib/utils";
+import { apiInternal, be, err, is } from "@/app/_lib/utils";
 import { currentUser } from "@/app/(users)/_lib";
-import { Group } from "@/app/groups/_lib";
+import { Group, svcGetGroupViaUserAccess } from "@/app/groups/_lib";
 import {
   populateReceiptArchivesRecursively,
   Receipt,
@@ -19,23 +16,22 @@ export async function apiGetReceipts(
   groupId: Group["id"],
   knownIds: ReceiptIds
 ) {
-  be.number(groupId, "group ID");
-  be.array(knownIds, "receipt IDs");
+  return apiInternal(async () => {
+    be.number(groupId, "group ID");
+    be.array(knownIds, "receipt IDs");
 
-  if (!knownIds.every(is.number)) err("known ids contain NaN");
+    if (!knownIds.every(is.number))
+      err("known ids contain NaN", { args: { knownIds } });
 
-  const user = await currentUser();
+    const user = await currentUser();
 
-  const ms = await db.query.memberships.findFirst({
-    where: and(
-      eq(memberships.groupId, groupId),
-      eq(memberships.userId, user.id)
-    ),
+    await svcGetGroupViaUserAccess(user.id, groupId, {
+      info: "getting receipts",
+      groupMustBeActive: false,
+    });
+
+    return await svcGetReceipts(groupId, knownIds);
   });
-
-  if (!ms) err(403);
-
-  return await svcGetReceipts(groupId, knownIds);
 }
 
 export async function svcGetReceipts(

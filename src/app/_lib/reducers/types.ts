@@ -1,10 +1,12 @@
 import { User } from "@/app/(users)/_lib";
 import { Group } from "@/app/groups/_lib";
-import { Receipt } from "@/app/receipts/_lib";
+import { Item, Receipt } from "@/app/receipts/_lib";
 
+// TODO: refactor receipts related under something similar to `.receipts`
 export interface CliGroup extends Group {
   activeReceipt?: Receipt & {
-    focusedIdx?: number;
+    focusedItemId?: Item["id"];
+    changes: number;
   };
   hasMoreToLoad?: boolean;
   fetchingReceipts?: boolean;

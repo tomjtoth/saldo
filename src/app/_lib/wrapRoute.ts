@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 
 import { err, ErrorWithStatus } from "@/app/_lib/utils";
-import { currentUser } from "../(users)/_lib";
+import { currentUser, User } from "../(users)/_lib";
 
 type RouteHandler<P, R> = (req: NextRequest, ctx: RequestContext<P>) => R;
 
@@ -15,65 +15,68 @@ interface HandlerContext<P> {
 }
 
 interface HandlerContextWithUser<P> extends HandlerContext<P> {
-  user: Awaited<ReturnType<typeof currentUser>>;
+  user: User;
 }
 
-interface Options<P> {
-  redirectAs?: (ctx: HandlerContext<P>) => string;
-  requireSession?: false;
-  onlyDuringDevelopment?: true;
+interface OptionsWithUser {
+  /**
+   * @default false
+   */
+  allowInProd?: true;
+}
+
+interface Options extends OptionsWithUser {
+  /**
+   * @default true
+   */
+  requireSession: false;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type HandlerReturnType = Promise<any>;
 
-type Handler<P, HC = HandlerContext<P>> = (ctx: HC) => HandlerReturnType;
+type Handler<P> = (ctx: HandlerContext<P>) => HandlerReturnType;
 type HandlerWithUser<P> = (ctx: HandlerContextWithUser<P>) => HandlerReturnType;
 
-type Overloads = {
-  <P, R = ReturnType<Handler<P>>>(
-    options: Options<P>,
-    handler: HandlerWithUser<P>
-  ): RouteHandler<P, R>;
+function wrapRoute<P extends object = object, R = ReturnType<Handler<P>>>(
+  options: Options,
+  handler: Handler<P>
+): RouteHandler<P, R>;
 
-  <P, R = ReturnType<Handler<P>>>(
-    options: Options<P>,
-    handler: Handler<P>
-  ): RouteHandler<P, R>;
+function wrapRoute<
+  P extends object = object,
+  R = ReturnType<HandlerWithUser<P>>
+>(options: OptionsWithUser, handler: HandlerWithUser<P>): RouteHandler<P, R>;
 
-  <P, R = ReturnType<Handler<P>>>(handler: HandlerWithUser<P>): RouteHandler<
-    P,
-    R
-  >;
-};
+function wrapRoute<P extends object = object, R = ReturnType<Handler<P>>>(
+  handler: HandlerWithUser<P>
+): RouteHandler<P, R>;
 
-const wrapRoute: Overloads =
-  <P>(
-    optsOrHandler: Options<P> | HandlerWithUser<P>,
-    maybeHandler?: Handler<P> | HandlerWithUser<P>
-  ) =>
-  async (req: NextRequest, cx?: RequestContext<P>) => {
-    const hasOptions = typeof optsOrHandler !== "function";
+function wrapRoute<P extends object = object>(
+  objOrFn: OptionsWithUser | Options | HandlerWithUser<P>,
+  maybeFn?: Handler<P> | HandlerWithUser<P>
+) {
+  return async (req: NextRequest, cx: RequestContext<P>) => {
+    const hasOptions = typeof objOrFn !== "function";
 
-    const { redirectAs } = hasOptions ? optsOrHandler : {};
-    const { requireSession = true, onlyDuringDevelopment = false } = hasOptions
-      ? optsOrHandler
-      : {};
+    const { allowInProd = false, ...rest } = hasOptions ? objOrFn : {};
 
-    const handler = hasOptions ? maybeHandler : optsOrHandler;
+    const requireSession = "requireSession" in rest ? false : true;
+
+    const handler = hasOptions ? maybeFn : objOrFn;
 
     try {
-      if (onlyDuringDevelopment && process.env.NODE_ENV !== "development")
-        err(404);
+      if (!allowInProd && process.env.NODE_ENV === "production")
+        err(404, {
+          info: "attempted access",
+          args: { url: req.url, allowInProd },
+        });
 
       let res: unknown;
-      // TODO: remove this cast
-      const params = (await cx?.params) as P;
+      const params = await cx.params;
 
       if (requireSession) {
-        const user = await currentUser({
-          redirectTo: redirectAs ? redirectAs({ req, params }) : undefined,
-        });
+        const user = await currentUser();
 
         res = await (handler as HandlerWithUser<P>)({ req, params, user });
       } else {
@@ -92,5 +95,6 @@ const wrapRoute: Overloads =
       return new Response(null, { status, statusText: message });
     }
   };
+}
 
 export default wrapRoute;

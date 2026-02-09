@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
-import { virt } from "@/app/_lib/utils";
+import { vf } from "@/app/_lib/utils";
 import { Category } from "../_lib";
 import { thunks } from "@/app/_lib/reducers";
 
@@ -25,6 +25,8 @@ export default function CategoryEntry({
 
   const isDefault = defaultId === category.id;
 
+  const isActive = useMemo(() => vf(category).active, [category.flags]);
+
   useEffect(() => {
     if (preSelected) nodes.push(CategoryDetails, { categoryId });
   }, []);
@@ -33,7 +35,7 @@ export default function CategoryEntry({
     <div
       className={
         "cursor-pointer select-none text-center p-2 rounded border-2 " +
-        (virt(category).active ? "border-green-500" : "border-red-500")
+        (isActive ? "border-green-500" : "border-red-500")
       }
       onClick={() => nodes.push(CategoryDetails, { categoryId })}
     >

@@ -1,4 +1,3 @@
-import { relations } from "drizzle-orm";
 import {
   sqliteTable,
   integer,
@@ -44,19 +43,18 @@ const revisionId = integer()
   .notNull()
   .references(() => revisions.id, { onDelete: "cascade" });
 const flags = integer().notNull().default(1);
+const colFR = { flags, revisionId };
+const colFRI = { ...colFR, id };
 
 const userId = integer()
   .notNull()
   .references(() => users.id);
 const gidCore = integer().references(() => groups.id);
 const groupId = gidCore.notNull();
-const colSR = {
-  flags,
-  revisionId,
-  // active,
-};
 
-const colSRI = { ...colSR, id };
+const categoryId = integer()
+  .notNull()
+  .references(() => categories.id);
 
 export const metadata = sqliteTable("metadata", {
   id,
@@ -77,15 +75,10 @@ export const archives = sqliteTable("archives", {
 
   entityPk2: integer().notNull(),
 
+  // TODO: try this as jsonb somehow
+  // https://github.com/drizzle-team/drizzle-orm/issues/1977
   data: text({ mode: "json" }),
 });
-
-export const archivesRel = relations(archives, ({ one }) => ({
-  revision: one(revisions, {
-    fields: [archives.revisionId],
-    references: [revisions.id],
-  }),
-}));
 
 export const revisions = sqliteTable("revisions", {
   id,
@@ -97,32 +90,8 @@ export const revisions = sqliteTable("revisions", {
     .references(() => users.id),
 });
 
-export const revisionsRel = relations(revisions, ({ one, many }) => ({
-  createdBy: one(users, {
-    fields: [revisions.createdById],
-    references: [users.id],
-    relationName: "createdByUser",
-  }),
-
-  users: many(users),
-
-  groups: many(groups),
-
-  memberships: many(memberships),
-
-  categories: many(categories),
-
-  receipts: many(receipts),
-
-  items: many(items),
-
-  itemShares: many(itemShares),
-
-  archives: many(archives),
-}));
-
 export const users = sqliteTable("users", {
-  ...colSRI,
+  ...colFRI,
 
   email: text().notNull().unique(),
 
@@ -133,28 +102,8 @@ export const users = sqliteTable("users", {
   defaultGroupId: integer().references(() => groups.id),
 });
 
-export const usersRel = relations(users, ({ one, many }) => ({
-  revision: one(revisions, {
-    fields: [users.revisionId],
-    references: [revisions.id],
-  }),
-
-  createdRevisions: many(revisions, { relationName: "createdByUser" }),
-
-  memberships: many(memberships),
-
-  defaultGroup: one(groups, {
-    fields: [users.defaultGroupId],
-    references: [groups.id],
-  }),
-
-  itemShares: many(itemShares),
-
-  receipts: many(receipts),
-}));
-
 export const groups = sqliteTable("groups", {
-  ...colSRI,
+  ...colFRI,
 
   name: text().notNull(),
 
@@ -163,27 +112,10 @@ export const groups = sqliteTable("groups", {
   uuid: text(),
 });
 
-export const groupsRel = relations(groups, ({ one, many }) => ({
-  revision: one(revisions, {
-    fields: [groups.revisionId],
-    references: [revisions.id],
-  }),
-
-  memberships: many(memberships),
-
-  categories: many(categories),
-
-  itemShares: many(itemShares),
-
-  receipts: many(receipts),
-
-  defaultingUsers: many(users),
-}));
-
 export const memberships = sqliteTable(
   "memberships",
   {
-    ...colSR,
+    ...colFR,
 
     groupId,
 
@@ -193,28 +125,6 @@ export const memberships = sqliteTable(
   },
   (table) => [primaryKey({ columns: [table.groupId, table.userId] })]
 );
-
-export const membershipsRel = relations(memberships, ({ one }) => ({
-  revision: one(revisions, {
-    fields: [memberships.revisionId],
-    references: [revisions.id],
-  }),
-
-  user: one(users, {
-    fields: [memberships.userId],
-    references: [users.id],
-  }),
-
-  group: one(groups, {
-    fields: [memberships.groupId],
-    references: [groups.id],
-  }),
-
-  defaultCategory: one(categories, {
-    fields: [memberships.defaultCategoryId],
-    references: [categories.id],
-  }),
-}));
 
 export const chartColors = sqliteTable("chart_colors", {
   id,
@@ -228,25 +138,8 @@ export const chartColors = sqliteTable("chart_colors", {
   color: hexColorAsInt().notNull(),
 });
 
-export const chartColorsRel = relations(chartColors, ({ one }) => ({
-  user: one(users, {
-    fields: [chartColors.userId],
-    references: [users.id],
-  }),
-
-  group: one(groups, {
-    fields: [chartColors.groupId],
-    references: [groups.id],
-  }),
-
-  member: one(users, {
-    fields: [chartColors.memberId],
-    references: [users.id],
-  }),
-}));
-
 export const categories = sqliteTable("categories", {
-  ...colSRI,
+  ...colFRI,
 
   groupId,
 
@@ -255,24 +148,22 @@ export const categories = sqliteTable("categories", {
   description: text(),
 });
 
-export const categoriesRel = relations(categories, ({ one, many }) => ({
-  revision: one(revisions, {
-    fields: [categories.revisionId],
-    references: [revisions.id],
-  }),
+export const categoriesHiddenFromConsumption = sqliteTable(
+  "categories_hidden_from_consumption",
+  {
+    userId,
 
-  group: one(groups, {
-    fields: [categories.groupId],
-    references: [groups.id],
-  }),
+    // would be defined redundantly, since
+    // categories are available in a single group only
+    // groupId,
 
-  defaultingMemberships: many(memberships),
-
-  items: many(items),
-}));
+    categoryId,
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.categoryId] })]
+);
 
 export const receipts = sqliteTable("receipts", {
-  ...colSRI,
+  ...colFRI,
 
   groupId,
 
@@ -283,64 +174,24 @@ export const receipts = sqliteTable("receipts", {
     .references(() => users.id),
 });
 
-export const receiptsRel = relations(receipts, ({ one, many }) => ({
-  revision: one(revisions, {
-    fields: [receipts.revisionId],
-    references: [revisions.id],
-  }),
-
-  group: one(groups, {
-    fields: [receipts.groupId],
-    references: [groups.id],
-  }),
-
-  items: many(items),
-
-  paidBy: one(users, {
-    fields: [receipts.paidById],
-    references: [users.id],
-  }),
-}));
-
 export const items = sqliteTable("items", {
-  ...colSRI,
+  ...colFRI,
 
   receiptId: integer()
     .notNull()
     .references(() => receipts.id),
 
-  categoryId: integer()
-    .notNull()
-    .references(() => categories.id),
+  categoryId,
 
   cost: floatToInt().notNull(),
 
   notes: text(),
 });
 
-export const itemsRel = relations(items, ({ one, many }) => ({
-  revision: one(revisions, {
-    fields: [items.revisionId],
-    references: [revisions.id],
-  }),
-
-  receipt: one(receipts, {
-    fields: [items.receiptId],
-    references: [receipts.id],
-  }),
-
-  category: one(categories, {
-    fields: [items.categoryId],
-    references: [categories.id],
-  }),
-
-  itemShares: many(itemShares),
-}));
-
 export const itemShares = sqliteTable(
   "item_shares",
   {
-    ...colSR,
+    ...colFR,
 
     itemId: integer()
       .notNull()
@@ -352,20 +203,3 @@ export const itemShares = sqliteTable(
   },
   (table) => [primaryKey({ columns: [table.itemId, table.userId] })]
 );
-
-export const itemShareRel = relations(itemShares, ({ one }) => ({
-  revision: one(revisions, {
-    fields: [itemShares.revisionId],
-    references: [revisions.id],
-  }),
-
-  user: one(users, {
-    fields: [itemShares.userId],
-    references: [users.id],
-  }),
-
-  item: one(items, {
-    fields: [itemShares.itemId],
-    references: [items.id],
-  }),
-}));

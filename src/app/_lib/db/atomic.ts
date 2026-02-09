@@ -1,92 +1,49 @@
-import fs from "fs";
+import { spawn } from "child_process";
 import { sql } from "drizzle-orm";
 
 import { VDate } from "../utils";
 import { db, getDbPath } from "./instance";
-import * as schema from "./schema";
-import { DrizzleTx } from "./types";
+import { schema } from "./relations";
+import { DbRevision, DbUser, DrizzleTx } from "./types";
 
 const DB_BACKUP_EVERY_N_REVISIONS = 50;
 
-type AtomicOpts = {
-  operation?: string;
-};
+type Operation<T> = (tx: DrizzleTx, revisionId: DbRevision["id"]) => Promise<T>;
 
-type AtomicWithRevOpts = AtomicOpts & {
-  revisedBy: number;
-  deferForeignKeys?: true;
-};
-
-type AtomicFun<T> = (tx: DrizzleTx) => Promise<T>;
-type AtomicFunWithRevision<T> = (
-  tx: DrizzleTx,
-  revisionId: number
-) => Promise<T>;
-
-type Overloads = {
-  <T>(
-    options: AtomicWithRevOpts,
-    operation: AtomicFunWithRevision<T>
-  ): Promise<T>;
-
-  <T>(options: AtomicOpts, operation: AtomicFun<T>): Promise<T>;
-
-  <T>(operation: AtomicFun<T>): Promise<T>;
-};
-
-export const atomic: Overloads = async <T>(
-  optsOrFn: AtomicOpts | AtomicFun<T>,
-  maybeFn?: AtomicFunWithRevision<T> | AtomicFun<T>
-): Promise<T> => {
-  const isFnOnly = typeof optsOrFn === "function";
-  const opts = isFnOnly ? {} : optsOrFn;
-  const operation = isFnOnly ? optsOrFn : maybeFn!;
-
-  const {
-    revisedBy,
-    deferForeignKeys,
-    operation: opDescription,
-  } = opts as AtomicWithRevOpts;
-
+export async function atomic<T>(
+  revisedById: DbUser["id"],
+  operation: Operation<T>
+): Promise<T> {
   let revisionId = -1;
 
-  try {
-    const res = await db.transaction(async (tx) => {
-      let res: T;
+  const res = await db.transaction(async (tx) => {
+    if (revisedById === -1) await tx.run(sql`PRAGMA defer_foreign_keys = ON`);
 
-      if (revisedBy) {
-        if (deferForeignKeys) await tx.run(sql`PRAGMA defer_foreign_keys = ON`);
+    [{ revisionId }] = await tx
+      .insert(schema.revisions)
+      .values([
+        {
+          createdById: revisedById,
+          createdAt: VDate.timeToStr(),
+        },
+      ])
+      .returning({ revisionId: schema.revisions.id });
 
-        [{ revisionId }] = await tx
-          .insert(schema.revisions)
-          .values([
-            {
-              createdById: revisedBy,
-              createdAt: VDate.timeToStr(),
-            },
-          ])
-          .returning({ revisionId: schema.revisions.id });
+    return operation(tx, revisionId);
+  });
 
-        res = await (operation as AtomicFunWithRevision<T>)(tx, revisionId);
-      } else res = await (operation as AtomicFun<T>)(tx);
-
-      return res;
+  if (
+    !process.env.AUTH_URL?.startsWith("https://staging") &&
+    revisionId % DB_BACKUP_EVERY_N_REVISIONS === 0
+  ) {
+    const dbPath = getDbPath();
+    const bakFile = `${dbPath}.at.${revisionId}`;
+    await db.run(sql`VACUUM INTO ${sql.raw(`'${bakFile}'`)}`);
+    spawn("xz", ["-9", bakFile], {
+      stdio: "ignore",
+      detached: true,
     });
-
-    if (revisionId % DB_BACKUP_EVERY_N_REVISIONS === 0) {
-      const dbPath = getDbPath();
-      fs.copyFileSync(dbPath, `${dbPath}.at.${revisionId}`);
-    }
-
-    console.log(`\n\t${opDescription ?? "Transaction"} succeeded!\n`);
-
-    return res;
-  } catch (err) {
-    console.error(
-      `\n\t${opDescription ?? "Transaction"} failed:`,
-      (err as Error).message,
-      "\n"
-    );
-    throw err;
   }
-};
+
+  return res;
+}

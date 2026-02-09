@@ -6,9 +6,11 @@ import UserAvatar from "@/app/_components/userAvatar";
 import Canceler from "@/app/_components/canceler";
 
 export default function PaidByUserWithAvatar({
+  id,
   userId,
   listOnClick,
 }: {
+  id?: string;
   userId: User["id"];
   listOnClick?: true;
 }) {
@@ -17,6 +19,7 @@ export default function PaidByUserWithAvatar({
 
   return (
     <div
+      {...(id ? { id } : {})}
       className={listOnClick && "cursor-pointer"}
       onClick={listOnClick ? () => nodes.push(Listing) : undefined}
     >
@@ -33,13 +36,10 @@ function Listing() {
   const nodes = useBodyNodes();
 
   return (
-    <Canceler onClick={nodes.pop}>
-      <ul
-        className={
-          "absolute z-3 left-1/2 top-1/2 -translate-1/2 " +
-          "flex flex-col gap-4"
-        }
-      >
+    <Canceler
+      classNamesFor={{ children: { border: false, rounded: false, bg: false } }}
+    >
+      <ul className="flex flex-col gap-4 whitespace-nowrap">
         {users.map((u) => (
           <li
             key={u.id}

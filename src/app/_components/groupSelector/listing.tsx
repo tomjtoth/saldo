@@ -38,7 +38,7 @@ export default function GroupListing() {
         {groups.map((group) => {
           const checked = group.id === groupId;
 
-          // TODO: get `truncate` to work with the below label
+          // TODO: get Tailwind class `truncate` to work with the below label
           return (
             <li key={group.id}>
               <hr />

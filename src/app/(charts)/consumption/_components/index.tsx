@@ -2,16 +2,15 @@
 
 import { useState } from "react";
 
-import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
+import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
 
 import Header from "@/app/_components/header";
+import ConsumptionSettings from "./settings";
 import ConsumptionChart from "./chart";
 
-export default function CliConsumptionPage(srv: {
-  from?: string;
-  to?: string;
-}) {
+export default function ConsumptionPage(srv: { from?: string; to?: string }) {
+  const nodes = useBodyNodes();
   const dispatch = useAppDispatch();
   const consumption = useClientState("consumption");
 
@@ -20,7 +19,7 @@ export default function CliConsumptionPage(srv: {
 
   return (
     <>
-      <Header>
+      <Header className="flex gap-2">
         <form
           className="flex flex-wrap gap-2 items-center justify-left"
           onSubmit={(ev) => {
@@ -49,6 +48,12 @@ export default function CliConsumptionPage(srv: {
           </label>
           <button className="py-1!">fetch</button>
         </form>
+        <button
+          className="py-1!"
+          onClick={() => nodes.push(ConsumptionSettings)}
+        >
+          ⚙️ <span className="hidden sm:inline-block">settings</span>
+        </button>
       </Header>
 
       <div className="p-2 h-full flex flex-col gap-2 items-center">
