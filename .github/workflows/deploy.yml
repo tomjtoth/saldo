@@ -211,7 +211,6 @@ jobs:
               tag=prod
             fi
 
-            echo "  DEBUG: checking $tag"
             K_FILE="apps/saldo/$tag/kustomization.yml"
             if [ -f "$K_FILE" ]; then
               K_FILES+=("$K_FILE")
@@ -240,7 +239,7 @@ jobs:
           fi
 
   rel-tag:
-    name: Release new tag to repo
+    name: Create tag in repo
     needs:
       - gen-tags
       - gitops
