@@ -76,32 +76,33 @@ jobs:
           echo "Found package.json version: $TAG"
 
           if ! git tag --list | grep -qx "v$TAG"; then
-            # every single release should end up in staging
             # publish all semvers "X.Y.Z" + "X.Y" + "X"
-            TAGS=($TAG ${TAG%.*} ${TAG%%.*} staging)
+            TAGS=($TAG ${TAG%.*} ${TAG%%.*})
 
-            # add "latest" if we're deploying to PROD
-            if [[ " ${{ github.event.head_commit.message }} " == *" #deploy "* ]]; then
+            BRANCH=${{ github.ref_name }}
+            if [[ $BRANCH == main ]]; then
               echo "⚠️ adding the **latest** tag"
               TAGS+=(latest)
+            else
+              TAGS+=($BRANCH)
             fi
 
-            # prepend the repo and collect image tags
-            IMAGE_TAGS=()
-            for tag in ${TAGS[@]}; do
-              IMAGE_TAGS+=(tomjtoth/saldo:$tag)
-            done
-
-            # write space-delimited tags as the step output
+            # write multi-line output
             {
               echo 'tags<<EOF'
-              tr ' ' '\n' <<< "${IMAGE_TAGS[@]}"
+              printf 'tomjtoth/saldo:%s\n' "${TAGS[@]}"
               echo 'EOF'
             } >> $GITHUB_OUTPUT
 
-            echo -e "✅ Generated tags:\n${IMAGE_TAGS[*]}"
+            printf '%s\n' \
+              "✅ Generated tags:" \
+              "  ${TAGS[*]}"
           else
             echo "tags=" >> $GITHUB_OUTPUT
+
+            printf '%s\n' \
+              "❌ No tags generated:" \
+              "  v$TAG is already present in repo."
           fi
 
   build-image:
@@ -201,25 +202,37 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           TAGS=(${{ needs.gen-tags.outputs.tags }})
-          K_DIRS=(staging)
 
-          # prod only if "#deploy" is in HEAD commit message
-          if [[ "$TAGS " == *":latest "* ]]; then
-            K_DIRS+=(prod)
-            echo "⚠️ will bump the 'latest' tag, too"
-          fi
+          for tag in ${TAGS[@]}; do
+            # trim repo
+            tag=${tag#*:}
+            
+            # replace
+            if [ $tag == "latest" ]; then
+              tag=prod
+            fi
+            
+            if [ -d $tag ]; then
+              K_FILES+=(apps/saldo/$tag/kustomization.yml)
+              echo "⚠️ bumping $tag"
+            fi
+          done
 
-          for dir in ${K_DIRS[@]}; do
-            K_FILE=apps/saldo/$dir/kustomization.yml
-            yq e '(.images[] | select(.name=="IMAGES/APP")).newName = "'"${TAGS[0]}"'"' -i "$K_FILE"
-            git add "$K_FILE"
+          for k in ${K_FILES[@]}; do
+            yq e '(.images[] | select(.name=="IMAGES/APP")).newName = "'"${TAGS[0]}"'"' -i "$k"
+            git add "$k"
           done
 
           # Commit and push if there are changes
           if git diff --cached --quiet; then
-            echo "No changes to commit"
+            echo "⚠️ No changes to commit"
           else
-            msg="Updated ${#K_DIRS[@]} image(s)"
+            count=${#K_FILES[@]}
+            msg="Updated $count image"
+            if [ $count -gt 1 ]; then
+              msg+=s
+            fi
+
             git commit -m "$msg"
             git push origin main
             echo "✅ $msg"
