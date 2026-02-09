@@ -194,45 +194,40 @@ jobs:
       - name: GitOps in repo `vps`
         run: |
           # Clone the vps repo
-          git clone https://x-access-token:${{ secrets.VPS_REPO_PAT }}@github.com/tomjtoth/vps.git /tmp/vps
+          git clone \
+            https://x-access-token:${{ secrets.VPS_REPO_PAT }}@github.com/tomjtoth/vps.git \
+            /tmp/vps
           cd /tmp/vps
 
-          # Configure git
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           TAGS=(${{ needs.gen-tags.outputs.tags }})
-
-          for tag in ${TAGS[@]}; do
-            # trim repo
-            tag=${tag#*:}
+          for docker_tag in ${TAGS[@]}; do
+            # trim repo from docker_tag
+            tag=${docker_tag#*:}
             
             if [ $tag == "latest" ]; then
               tag=prod
             fi
 
-            K_FILE="apps/saldo/$tag/kustomization.yml"
-            if [ -f "$K_FILE" ]; then
-              K_FILES+=("$K_FILE")
-              echo "⚠️ bumping $tag"
+            K_DIR="apps/saldo/$tag"
+            K_FILE="$K_DIR/kustomization.yml"
+            if [ ! -f "$K_FILE" ]; then
+              continue
             fi
-          done
 
-          for k in "${K_FILES[@]}"; do
-            yq e '(.images[] | select(.name=="IMAGES/APP")).newName = "'"${TAGS[0]}"'"' -i "$k"
-            git add "$k"
+            yq e '(.images[] | select(.name=="IMAGES/APP")).newName = "'"${TAGS[0]}"'"' -i "$K_FILE"
+            git add "$K_FILE"
+
+            echo "⚠️ bumping $tag"
           done
 
           # Commit and push if there are changes
           if git diff --cached --quiet; then
             echo "⚠️ No changes to commit"
           else
-            count=${#K_FILES[@]}
-            msg="Updated $count image"
-            if [ $count -gt 1 ]; then
-              msg+=s
-            fi
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+            msg="Updated image $K_DIR"
             git commit -m "$msg"
             git push origin main
             echo "✅ $msg"
