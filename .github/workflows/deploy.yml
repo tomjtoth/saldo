@@ -207,18 +207,18 @@ jobs:
             # trim repo
             tag=${tag#*:}
             
-            # replace
             if [ $tag == "latest" ]; then
               tag=prod
             fi
-            
-            if [ -d $tag ]; then
-              K_FILES+=(apps/saldo/$tag/kustomization.yml)
+
+            K_FILE="apps/saldo/$tag/kustomization.yml"
+            if [ -f "$K_FILE" ]; then
+              K_FILES+=("$K_FILE")
               echo "⚠️ bumping $tag"
             fi
           done
 
-          for k in ${K_FILES[@]}; do
+          for k in "${K_FILES[@]}"; do
             yq e '(.images[] | select(.name=="IMAGES/APP")).newName = "'"${TAGS[0]}"'"' -i "$k"
             git add "$k"
           done
