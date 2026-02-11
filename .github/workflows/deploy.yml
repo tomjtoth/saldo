@@ -191,13 +191,12 @@ jobs:
       - gen-tags
       - build-image
     steps:
-      - name: GitOps in repo `vps`
+      - name: GitOps in repo `kubernetes`
         run: |
-          # Clone the vps repo
           git clone \
-            https://x-access-token:${{ secrets.VPS_REPO_PAT }}@github.com/tomjtoth/vps.git \
-            /tmp/vps
-          cd /tmp/vps
+            https://x-access-token:${{ secrets.VPS_REPO_PAT }}@github.com/tomjtoth/kubernetes.git \
+            /tmp/kubernetes
+          cd /tmp/kubernetes
 
           TAGS=(${{ needs.gen-tags.outputs.tags }})
           for docker_tag in ${TAGS[@]}; do
