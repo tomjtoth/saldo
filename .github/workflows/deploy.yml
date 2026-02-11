@@ -226,7 +226,7 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-            msg="Updated image $K_DIR"
+            msg="Updated image $K_DIR to ${TAGS[0]#*:}"
             git commit -m "$msg"
             git push origin main
             echo "✅ $msg"
