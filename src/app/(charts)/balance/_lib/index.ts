@@ -1,17 +1,17 @@
 import { sql } from "drizzle-orm";
 
-import { BalanceData, Schema } from "@/app/_lib/db";
+import { BalanceData } from "@/app/_lib/db";
+import { consumptionCTE } from "../../consumption/_lib";
 
-export const balanceQuery = () => (groups: Schema["groups"]) =>
-  sql<string>`(
+export const balanceQuery = sql<string>`(
     WITH normalized_shares_and_uids AS (
       SELECT
         paid_on AS "date",
         min(paid_by, paid_to) AS uid1,
         max(paid_by, paid_to) AS uid2,
         sum(share * iif(paid_by < paid_to, 1, -1)) AS share
-      FROM consumption c
-      WHERE ${groups.id} = c.group_id AND paid_by != paid_to
+      FROM ${consumptionCTE}
+      WHERE paid_by != paid_to
       GROUP BY paid_on, paid_by, paid_to
       ORDER BY "date"
     ),
