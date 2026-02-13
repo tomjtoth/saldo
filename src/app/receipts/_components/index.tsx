@@ -34,17 +34,17 @@ export default function ReceiptsPage() {
 
   const activeCategories = useMemo(
     () => group?.categories.filter(vf.active) ?? [],
-    [group?.categories]
+    [group?.categories],
   );
 
   const receiptsListing = useMemo(
     () =>
       group?.receipts.map((rcpt) =>
-        rcpt.id === -1 ? null : (
+        rcpt.id === -1 || vf(rcpt).template ? null : (
           <ReceiptEntry key={rcpt.id} receiptId={rcpt.id} />
-        )
+        ),
       ),
-    [group?.receipts]
+    [group?.receipts],
   );
 
   useDebugger({ receiptsListing });
@@ -63,7 +63,7 @@ export default function ReceiptsPage() {
               ? () => dispatch(thunks.setActiveReceipt(-1))
               : () =>
                   appToast.error(
-                    "Cannot add new receipts to a disabled group, re-enable it first!"
+                    "Cannot add new receipts to a disabled group, re-enable it first!",
                   )
           }
         >
