@@ -2,11 +2,16 @@ import { Dispatch, SetStateAction } from "react";
 
 import { User } from "@/app/(users)/_lib";
 
-const flags = ["active", "admin"] as const;
-const togglers = flags.map((f) => `toggle${f[0].toUpperCase() + f.slice(1)}`);
+const flags = {
+  active: 0,
+  admin: 1,
+  template: 1,
+} as const;
+
+const flagsEntries = Object.entries(flags);
 
 type Entity = Pick<User, "flags">;
-type FlagName = (typeof flags)[number];
+type FlagName = keyof typeof flags;
 type ToggleName<K extends string> = `toggle${Capitalize<K>}`;
 
 type VirtualFlags = {
@@ -29,7 +34,7 @@ function inner(entity: Entity, setter?: Dispatch<SetStateAction<number>>) {
 
   const obj: VirtualFlags = Object.create(null);
 
-  flags.forEach((flag, bit) => {
+  flagsEntries.forEach(([flag, bit]) => {
     Object.defineProperty(obj, flag, {
       enumerable: true,
       configurable: false,
@@ -43,14 +48,18 @@ function inner(entity: Entity, setter?: Dispatch<SetStateAction<number>>) {
       },
     });
 
-    Object.defineProperty(obj, togglers[bit], {
-      enumerable: true,
-      configurable: false,
-      value() {
-        setFlag(bit, !getFlag(bit));
-        return int;
+    Object.defineProperty(
+      obj,
+      `toggle${flag[0].toUpperCase() + flag.slice(1)}`,
+      {
+        enumerable: true,
+        configurable: false,
+        value() {
+          setFlag(bit, !getFlag(bit));
+          return int;
+        },
       },
-    });
+    );
   });
 
   return obj;
@@ -59,11 +68,18 @@ function inner(entity: Entity, setter?: Dispatch<SetStateAction<number>>) {
 /**
  * ### virtualFlags
  * is an extension to DB tables that manipulates one unified integer
+ * - `.active`
+ * - `.admin`
+ * - `.template`
  */
 export const vf = Object.assign(
   inner,
-  flags.reduce((acc, f) => {
-    acc[f] = (e: Entity) => inner(e)[f];
-    return acc;
-  }, {} as { [F in FlagName]: (e: Entity) => boolean })
+  flagsEntries.reduce(
+    (acc, [flag]) => {
+      const f = flag as keyof typeof flags;
+      acc[f] = (e: Entity) => inner(e)[f];
+      return acc;
+    },
+    {} as { [F in FlagName]: (e: Entity) => boolean },
+  ),
 );
