@@ -8,7 +8,7 @@
       "name": "user1",
       "image": null,
       "defaultGroupId": null,
-      "color": "#bb4a11",
+      "color": "#3806d1",
       "categoriesHiddenFromConsumption": []
     },
     "groups": [
@@ -28,15 +28,15 @@
           "relations": ["1 vs 3", "2 vs 3", "1 vs 2"],
           "data": [
             { "date": 1858, "1 vs 3": -6, "2 vs 3": -14 },
-            { "date": 1861, "1 vs 2": -6.5, "2 vs 3": 2.49 },
-            { "date": 1864, "1 vs 2": -13, "2 vs 3": 7.49 },
-            { "date": 1867, "1 vs 2": -36.5, "2 vs 3": -6.99 }
+            { "date": 1861, "1 vs 2": -6.5, "2 vs 3": -9 },
+            { "date": 1864, "1 vs 2": -13, "2 vs 3": -4 },
+            { "date": 1867, "1 vs 2": -36.5 }
           ],
           "minMaxes": {
             "1858": { "min": -14, "max": -6 },
-            "1861": { "min": -6.5, "max": 2.49 },
-            "1864": { "min": -13, "max": 7.49 },
-            "1867": { "min": -36.5, "max": -6.99 }
+            "1861": { "min": -9, "max": -6.5 },
+            "1864": { "min": -13, "max": -4 },
+            "1867": { "min": -36.5, "max": -36.5 }
           }
         },
         "categories": [
@@ -48,7 +48,7 @@
             "name": "booze 1",
             "description": "anything with alcohol in it 🥴",
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "archives": []
@@ -61,7 +61,7 @@
             "name": "food 1",
             "description": "the vital stuff only",
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "archives": [
@@ -73,7 +73,7 @@
                 "name": "food 1",
                 "description": "the vital stuff only",
                 "revision": {
-                  "createdAt": "2025-12-19 14:09:28",
+                  "createdAt": "2026-02-13 16:27:02",
                   "createdById": 1
                 }
               },
@@ -85,7 +85,7 @@
                 "name": "food 1",
                 "description": "the vital stuff only",
                 "revision": {
-                  "createdAt": "2025-12-19 14:09:28",
+                  "createdAt": "2026-02-13 16:27:02",
                   "createdById": 1
                 }
               }
@@ -99,7 +99,7 @@
             "name": "gas money 1",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "archives": []
@@ -112,7 +112,7 @@
             "name": "soft drinks 1",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 1
             },
             "archives": []
@@ -127,7 +127,7 @@
             "paidOn": "2025-02-10",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "items": [
@@ -196,88 +196,13 @@
           },
           {
             "flags": 1,
-            "revisionId": 31,
-            "id": 6,
-            "groupId": 1,
-            "paidOn": "2025-02-10",
-            "paidById": 3,
-            "revision": {
-              "createdAt": "2025-12-19 14:09:29",
-              "createdById": 2
-            },
-            "items": [
-              {
-                "flags": 1,
-                "revisionId": 31,
-                "id": 16,
-                "receiptId": 6,
-                "categoryId": 5,
-                "cost": 2.99,
-                "notes": "",
-                "itemShares": [
-                  {
-                    "flags": 1,
-                    "revisionId": 31,
-                    "itemId": 16,
-                    "userId": 2,
-                    "share": 1,
-                    "archives": []
-                  }
-                ],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 31,
-                "id": 17,
-                "receiptId": 6,
-                "categoryId": 6,
-                "cost": 22.99,
-                "notes": "split 2-ways",
-                "itemShares": [
-                  {
-                    "flags": 1,
-                    "revisionId": 31,
-                    "itemId": 17,
-                    "userId": 2,
-                    "share": 1,
-                    "archives": []
-                  },
-                  {
-                    "flags": 1,
-                    "revisionId": 31,
-                    "itemId": 17,
-                    "userId": 3,
-                    "share": 1,
-                    "archives": []
-                  }
-                ],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 31,
-                "id": 18,
-                "receiptId": 6,
-                "categoryId": 7,
-                "cost": 45.99,
-                "notes": "",
-                "itemShares": [],
-                "archives": []
-              }
-            ],
-            "paidBy": { "id": 3, "image": null, "name": "user3" },
-            "archives": []
-          },
-          {
-            "flags": 1,
             "revisionId": 28,
             "id": 3,
             "groupId": 1,
             "paidOn": "2025-02-07",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "items": [
@@ -352,7 +277,7 @@
             "paidOn": "2025-02-04",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "items": [
@@ -421,79 +346,13 @@
           },
           {
             "flags": 1,
-            "revisionId": 30,
-            "id": 5,
-            "groupId": 1,
-            "paidOn": "2025-02-04",
-            "paidById": 2,
-            "revision": {
-              "createdAt": "2025-12-19 14:09:29",
-              "createdById": 3
-            },
-            "items": [
-              {
-                "flags": 1,
-                "revisionId": 30,
-                "id": 13,
-                "receiptId": 5,
-                "categoryId": 5,
-                "cost": 2.99,
-                "notes": "",
-                "itemShares": [],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 30,
-                "id": 14,
-                "receiptId": 5,
-                "categoryId": 6,
-                "cost": 22.99,
-                "notes": "split 2-ways",
-                "itemShares": [
-                  {
-                    "flags": 1,
-                    "revisionId": 30,
-                    "itemId": 14,
-                    "userId": 2,
-                    "share": 1,
-                    "archives": []
-                  },
-                  {
-                    "flags": 1,
-                    "revisionId": 30,
-                    "itemId": 14,
-                    "userId": 3,
-                    "share": 1,
-                    "archives": []
-                  }
-                ],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 30,
-                "id": 15,
-                "receiptId": 5,
-                "categoryId": 7,
-                "cost": 45.99,
-                "notes": "",
-                "itemShares": [],
-                "archives": []
-              }
-            ],
-            "paidBy": { "id": 2, "image": null, "name": "user2" },
-            "archives": []
-          },
-          {
-            "flags": 1,
             "revisionId": 26,
             "id": 1,
             "groupId": 1,
             "paidOn": "2025-02-01",
             "paidById": 3,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 1
             },
             "items": [
@@ -574,9 +433,9 @@
               "email": "user1@e2e.tests",
               "name": "user1",
               "image": null,
-              "color": "#30aebe"
+              "color": "#7474d1"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 1 }
+            "revision": { "createdAt": "2026-02-13 16:27:01", "createdById": 1 }
           },
           {
             "flags": 1,
@@ -590,9 +449,9 @@
               "email": "user2@e2e.tests",
               "name": "user2",
               "image": null,
-              "color": "#668f6b"
+              "color": "#044eb8"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 2 }
+            "revision": { "createdAt": "2026-02-13 16:27:01", "createdById": 2 }
           },
           {
             "flags": 1,
@@ -606,9 +465,9 @@
               "email": "user3@e2e.tests",
               "name": "user3",
               "image": null,
-              "color": "#6c2324"
+              "color": "#eb0f5f"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 3 }
+            "revision": { "createdAt": "2026-02-13 16:27:02", "createdById": 3 }
           }
         ]
       }
@@ -623,7 +482,7 @@
       "name": "user2",
       "image": null,
       "defaultGroupId": null,
-      "color": "#57aefc",
+      "color": "#dfb3f8",
       "categoriesHiddenFromConsumption": []
     },
     "groups": [
@@ -643,17 +502,17 @@
           "relations": ["1 vs 3", "2 vs 3", "1 vs 2"],
           "data": [
             { "date": 1858, "1 vs 3": -6, "2 vs 3": -14 },
-            { "date": 1861, "1 vs 2": -6.5, "2 vs 3": 2.49 },
-            { "date": 1864, "1 vs 2": -13, "2 vs 3": 7.49 },
-            { "date": 1867, "1 vs 2": -36.5, "2 vs 3": -6.99 }
+            { "date": 1861, "1 vs 2": -6.5, "2 vs 3": -9 },
+            { "date": 1864, "1 vs 2": -13, "2 vs 3": -4 },
+            { "date": 1867, "1 vs 2": -36.5 }
           ],
           "minMaxes": {
             "1858": { "min": -14, "max": -6 },
-            "1861": { "min": -6.5, "max": 2.49 },
-            "1864": { "min": -13, "max": 7.49 },
-            "1867": { "min": -36.5, "max": -6.99 },
-            "1871": { "min": -49.98, "max": -49.98 },
-            "1881": { "min": -42.99, "max": -42.99 }
+            "1861": { "min": -9, "max": 11.49 },
+            "1864": { "min": -13, "max": -4 },
+            "1867": { "min": -36.5, "max": -2.99 },
+            "1871": { "min": -52.98, "max": -52.98 },
+            "1881": { "min": -45.98, "max": -45.98 }
           }
         },
         "categories": [
@@ -665,7 +524,7 @@
             "name": "booze 1",
             "description": "anything with alcohol in it 🥴",
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "archives": []
@@ -678,7 +537,7 @@
             "name": "food 1",
             "description": "the vital stuff only",
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "archives": [
@@ -690,7 +549,7 @@
                 "name": "food 1",
                 "description": "the vital stuff only",
                 "revision": {
-                  "createdAt": "2025-12-19 14:09:28",
+                  "createdAt": "2026-02-13 16:27:02",
                   "createdById": 1
                 }
               },
@@ -702,7 +561,7 @@
                 "name": "food 1",
                 "description": "the vital stuff only",
                 "revision": {
-                  "createdAt": "2025-12-19 14:09:28",
+                  "createdAt": "2026-02-13 16:27:02",
                   "createdById": 1
                 }
               }
@@ -716,7 +575,7 @@
             "name": "gas money 1",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "archives": []
@@ -729,7 +588,7 @@
             "name": "soft drinks 1",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 1
             },
             "archives": []
@@ -744,7 +603,7 @@
             "paidOn": "2025-02-10",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "items": [
@@ -813,88 +672,13 @@
           },
           {
             "flags": 1,
-            "revisionId": 31,
-            "id": 6,
-            "groupId": 1,
-            "paidOn": "2025-02-10",
-            "paidById": 3,
-            "revision": {
-              "createdAt": "2025-12-19 14:09:29",
-              "createdById": 2
-            },
-            "items": [
-              {
-                "flags": 1,
-                "revisionId": 31,
-                "id": 16,
-                "receiptId": 6,
-                "categoryId": 5,
-                "cost": 2.99,
-                "notes": "",
-                "itemShares": [
-                  {
-                    "flags": 1,
-                    "revisionId": 31,
-                    "itemId": 16,
-                    "userId": 2,
-                    "share": 1,
-                    "archives": []
-                  }
-                ],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 31,
-                "id": 17,
-                "receiptId": 6,
-                "categoryId": 6,
-                "cost": 22.99,
-                "notes": "split 2-ways",
-                "itemShares": [
-                  {
-                    "flags": 1,
-                    "revisionId": 31,
-                    "itemId": 17,
-                    "userId": 2,
-                    "share": 1,
-                    "archives": []
-                  },
-                  {
-                    "flags": 1,
-                    "revisionId": 31,
-                    "itemId": 17,
-                    "userId": 3,
-                    "share": 1,
-                    "archives": []
-                  }
-                ],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 31,
-                "id": 18,
-                "receiptId": 6,
-                "categoryId": 7,
-                "cost": 45.99,
-                "notes": "",
-                "itemShares": [],
-                "archives": []
-              }
-            ],
-            "paidBy": { "id": 3, "image": null, "name": "user3" },
-            "archives": []
-          },
-          {
-            "flags": 1,
             "revisionId": 28,
             "id": 3,
             "groupId": 1,
             "paidOn": "2025-02-07",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "items": [
@@ -969,7 +753,7 @@
             "paidOn": "2025-02-04",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "items": [
@@ -1038,79 +822,13 @@
           },
           {
             "flags": 1,
-            "revisionId": 30,
-            "id": 5,
-            "groupId": 1,
-            "paidOn": "2025-02-04",
-            "paidById": 2,
-            "revision": {
-              "createdAt": "2025-12-19 14:09:29",
-              "createdById": 3
-            },
-            "items": [
-              {
-                "flags": 1,
-                "revisionId": 30,
-                "id": 13,
-                "receiptId": 5,
-                "categoryId": 5,
-                "cost": 2.99,
-                "notes": "",
-                "itemShares": [],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 30,
-                "id": 14,
-                "receiptId": 5,
-                "categoryId": 6,
-                "cost": 22.99,
-                "notes": "split 2-ways",
-                "itemShares": [
-                  {
-                    "flags": 1,
-                    "revisionId": 30,
-                    "itemId": 14,
-                    "userId": 2,
-                    "share": 1,
-                    "archives": []
-                  },
-                  {
-                    "flags": 1,
-                    "revisionId": 30,
-                    "itemId": 14,
-                    "userId": 3,
-                    "share": 1,
-                    "archives": []
-                  }
-                ],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 30,
-                "id": 15,
-                "receiptId": 5,
-                "categoryId": 7,
-                "cost": 45.99,
-                "notes": "",
-                "itemShares": [],
-                "archives": []
-              }
-            ],
-            "paidBy": { "id": 2, "image": null, "name": "user2" },
-            "archives": []
-          },
-          {
-            "flags": 1,
             "revisionId": 26,
             "id": 1,
             "groupId": 1,
             "paidOn": "2025-02-01",
             "paidById": 3,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 1
             },
             "items": [
@@ -1191,9 +909,9 @@
               "email": "user1@e2e.tests",
               "name": "user1",
               "image": null,
-              "color": "#470bc9"
+              "color": "#b430c9"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 1 }
+            "revision": { "createdAt": "2026-02-13 16:27:01", "createdById": 1 }
           },
           {
             "flags": 1,
@@ -1207,9 +925,9 @@
               "email": "user2@e2e.tests",
               "name": "user2",
               "image": null,
-              "color": "#c640e8"
+              "color": "#b35109"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 2 }
+            "revision": { "createdAt": "2026-02-13 16:27:01", "createdById": 2 }
           },
           {
             "flags": 1,
@@ -1223,9 +941,9 @@
               "email": "user3@e2e.tests",
               "name": "user3",
               "image": null,
-              "color": "#40e4f8"
+              "color": "#ea9be4"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 3 }
+            "revision": { "createdAt": "2026-02-13 16:27:02", "createdById": 3 }
           }
         ]
       },
@@ -1244,16 +962,18 @@
         "balance": {
           "relations": ["2 vs 3"],
           "data": [
-            { "date": 1871, "2 vs 3": -49.98 },
-            { "date": 1881, "2 vs 3": -42.99 }
+            { "date": 1861, "2 vs 3": 11.49 },
+            { "date": 1867, "2 vs 3": -2.99 },
+            { "date": 1871, "2 vs 3": -52.98 },
+            { "date": 1881, "2 vs 3": -45.98 }
           ],
           "minMaxes": {
             "1858": { "min": -14, "max": -6 },
-            "1861": { "min": -6.5, "max": 2.49 },
-            "1864": { "min": -13, "max": 7.49 },
-            "1867": { "min": -36.5, "max": -6.99 },
-            "1871": { "min": -49.98, "max": -49.98 },
-            "1881": { "min": -42.99, "max": -42.99 }
+            "1861": { "min": -9, "max": 11.49 },
+            "1864": { "min": -13, "max": -4 },
+            "1867": { "min": -36.5, "max": -2.99 },
+            "1871": { "min": -52.98, "max": -52.98 },
+            "1881": { "min": -45.98, "max": -45.98 }
           }
         },
         "categories": [
@@ -1265,7 +985,7 @@
             "name": "alcohol 2",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "archives": [
@@ -1277,7 +997,7 @@
                 "name": "alcohol 2",
                 "description": null,
                 "revision": {
-                  "createdAt": "2025-12-19 14:09:28",
+                  "createdAt": "2026-02-13 16:27:02",
                   "createdById": 2
                 }
               },
@@ -1289,7 +1009,7 @@
                 "name": "alcohol 2",
                 "description": null,
                 "revision": {
-                  "createdAt": "2025-12-19 14:09:28",
+                  "createdAt": "2026-02-13 16:27:02",
                   "createdById": 2
                 }
               }
@@ -1303,7 +1023,7 @@
             "name": "gas money 2",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "archives": []
@@ -1316,7 +1036,7 @@
             "name": "rent 2",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "archives": []
@@ -1329,7 +1049,7 @@
             "name": "something 2",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "archives": []
@@ -1344,7 +1064,7 @@
             "paidOn": "2025-02-24",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "items": [
@@ -1410,7 +1130,7 @@
             "paidOn": "2025-02-14",
             "paidById": 3,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "items": [
@@ -1476,6 +1196,147 @@
             ],
             "paidBy": { "id": 3, "image": null, "name": "user3" },
             "archives": []
+          },
+          {
+            "flags": 1,
+            "revisionId": 31,
+            "id": 6,
+            "groupId": 2,
+            "paidOn": "2025-02-10",
+            "paidById": 3,
+            "revision": {
+              "createdAt": "2026-02-13 16:27:02",
+              "createdById": 2
+            },
+            "items": [
+              {
+                "flags": 1,
+                "revisionId": 31,
+                "id": 16,
+                "receiptId": 6,
+                "categoryId": 5,
+                "cost": 2.99,
+                "notes": "",
+                "itemShares": [
+                  {
+                    "flags": 1,
+                    "revisionId": 31,
+                    "itemId": 16,
+                    "userId": 2,
+                    "share": 1,
+                    "archives": []
+                  }
+                ],
+                "archives": []
+              },
+              {
+                "flags": 1,
+                "revisionId": 31,
+                "id": 17,
+                "receiptId": 6,
+                "categoryId": 6,
+                "cost": 22.99,
+                "notes": "split 2-ways",
+                "itemShares": [
+                  {
+                    "flags": 1,
+                    "revisionId": 31,
+                    "itemId": 17,
+                    "userId": 2,
+                    "share": 1,
+                    "archives": []
+                  },
+                  {
+                    "flags": 1,
+                    "revisionId": 31,
+                    "itemId": 17,
+                    "userId": 3,
+                    "share": 1,
+                    "archives": []
+                  }
+                ],
+                "archives": []
+              },
+              {
+                "flags": 1,
+                "revisionId": 31,
+                "id": 18,
+                "receiptId": 6,
+                "categoryId": 7,
+                "cost": 45.99,
+                "notes": "",
+                "itemShares": [],
+                "archives": []
+              }
+            ],
+            "paidBy": { "id": 3, "image": null, "name": "user3" },
+            "archives": []
+          },
+          {
+            "flags": 1,
+            "revisionId": 30,
+            "id": 5,
+            "groupId": 2,
+            "paidOn": "2025-02-04",
+            "paidById": 2,
+            "revision": {
+              "createdAt": "2026-02-13 16:27:02",
+              "createdById": 3
+            },
+            "items": [
+              {
+                "flags": 1,
+                "revisionId": 30,
+                "id": 13,
+                "receiptId": 5,
+                "categoryId": 5,
+                "cost": 2.99,
+                "notes": "",
+                "itemShares": [],
+                "archives": []
+              },
+              {
+                "flags": 1,
+                "revisionId": 30,
+                "id": 14,
+                "receiptId": 5,
+                "categoryId": 6,
+                "cost": 22.99,
+                "notes": "split 2-ways",
+                "itemShares": [
+                  {
+                    "flags": 1,
+                    "revisionId": 30,
+                    "itemId": 14,
+                    "userId": 2,
+                    "share": 1,
+                    "archives": []
+                  },
+                  {
+                    "flags": 1,
+                    "revisionId": 30,
+                    "itemId": 14,
+                    "userId": 3,
+                    "share": 1,
+                    "archives": []
+                  }
+                ],
+                "archives": []
+              },
+              {
+                "flags": 1,
+                "revisionId": 30,
+                "id": 15,
+                "receiptId": 5,
+                "categoryId": 7,
+                "cost": 45.99,
+                "notes": "",
+                "itemShares": [],
+                "archives": []
+              }
+            ],
+            "paidBy": { "id": 2, "image": null, "name": "user2" },
+            "archives": []
           }
         ],
         "memberships": [
@@ -1491,9 +1352,9 @@
               "email": "user2@e2e.tests",
               "name": "user2",
               "image": null,
-              "color": "#c91213"
+              "color": "#1c419b"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 2 }
+            "revision": { "createdAt": "2026-02-13 16:27:01", "createdById": 2 }
           },
           {
             "flags": 1,
@@ -1507,9 +1368,9 @@
               "email": "user3@e2e.tests",
               "name": "user3",
               "image": null,
-              "color": "#c654a7"
+              "color": "#e8a803"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 3 }
+            "revision": { "createdAt": "2026-02-13 16:27:02", "createdById": 3 }
           }
         ]
       }
@@ -1524,7 +1385,7 @@
       "name": "user3",
       "image": null,
       "defaultGroupId": null,
-      "color": "#b85ff7",
+      "color": "#01151d",
       "categoriesHiddenFromConsumption": []
     },
     "groups": [
@@ -1544,17 +1405,17 @@
           "relations": ["1 vs 3", "2 vs 3", "1 vs 2"],
           "data": [
             { "date": 1858, "1 vs 3": -6, "2 vs 3": -14 },
-            { "date": 1861, "1 vs 2": -6.5, "2 vs 3": 2.49 },
-            { "date": 1864, "1 vs 2": -13, "2 vs 3": 7.49 },
-            { "date": 1867, "1 vs 2": -36.5, "2 vs 3": -6.99 }
+            { "date": 1861, "1 vs 2": -6.5, "2 vs 3": -9 },
+            { "date": 1864, "1 vs 2": -13, "2 vs 3": -4 },
+            { "date": 1867, "1 vs 2": -36.5 }
           ],
           "minMaxes": {
             "1858": { "min": -14, "max": -6 },
-            "1861": { "min": -6.5, "max": 2.49 },
-            "1864": { "min": -13, "max": 7.49 },
-            "1867": { "min": -36.5, "max": -6.99 },
-            "1871": { "min": -49.98, "max": -49.98 },
-            "1881": { "min": -42.99, "max": -42.99 }
+            "1861": { "min": -9, "max": 11.49 },
+            "1864": { "min": -13, "max": -4 },
+            "1867": { "min": -36.5, "max": -2.99 },
+            "1871": { "min": -52.98, "max": -52.98 },
+            "1881": { "min": -45.98, "max": -45.98 }
           }
         },
         "categories": [
@@ -1566,7 +1427,7 @@
             "name": "booze 1",
             "description": "anything with alcohol in it 🥴",
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "archives": []
@@ -1579,7 +1440,7 @@
             "name": "food 1",
             "description": "the vital stuff only",
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "archives": [
@@ -1591,7 +1452,7 @@
                 "name": "food 1",
                 "description": "the vital stuff only",
                 "revision": {
-                  "createdAt": "2025-12-19 14:09:28",
+                  "createdAt": "2026-02-13 16:27:02",
                   "createdById": 1
                 }
               },
@@ -1603,7 +1464,7 @@
                 "name": "food 1",
                 "description": "the vital stuff only",
                 "revision": {
-                  "createdAt": "2025-12-19 14:09:28",
+                  "createdAt": "2026-02-13 16:27:02",
                   "createdById": 1
                 }
               }
@@ -1617,7 +1478,7 @@
             "name": "gas money 1",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "archives": []
@@ -1630,7 +1491,7 @@
             "name": "soft drinks 1",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 1
             },
             "archives": []
@@ -1645,7 +1506,7 @@
             "paidOn": "2025-02-10",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "items": [
@@ -1714,88 +1575,13 @@
           },
           {
             "flags": 1,
-            "revisionId": 31,
-            "id": 6,
-            "groupId": 1,
-            "paidOn": "2025-02-10",
-            "paidById": 3,
-            "revision": {
-              "createdAt": "2025-12-19 14:09:29",
-              "createdById": 2
-            },
-            "items": [
-              {
-                "flags": 1,
-                "revisionId": 31,
-                "id": 16,
-                "receiptId": 6,
-                "categoryId": 5,
-                "cost": 2.99,
-                "notes": "",
-                "itemShares": [
-                  {
-                    "flags": 1,
-                    "revisionId": 31,
-                    "itemId": 16,
-                    "userId": 2,
-                    "share": 1,
-                    "archives": []
-                  }
-                ],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 31,
-                "id": 17,
-                "receiptId": 6,
-                "categoryId": 6,
-                "cost": 22.99,
-                "notes": "split 2-ways",
-                "itemShares": [
-                  {
-                    "flags": 1,
-                    "revisionId": 31,
-                    "itemId": 17,
-                    "userId": 2,
-                    "share": 1,
-                    "archives": []
-                  },
-                  {
-                    "flags": 1,
-                    "revisionId": 31,
-                    "itemId": 17,
-                    "userId": 3,
-                    "share": 1,
-                    "archives": []
-                  }
-                ],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 31,
-                "id": 18,
-                "receiptId": 6,
-                "categoryId": 7,
-                "cost": 45.99,
-                "notes": "",
-                "itemShares": [],
-                "archives": []
-              }
-            ],
-            "paidBy": { "id": 3, "image": null, "name": "user3" },
-            "archives": []
-          },
-          {
-            "flags": 1,
             "revisionId": 28,
             "id": 3,
             "groupId": 1,
             "paidOn": "2025-02-07",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "items": [
@@ -1870,7 +1656,7 @@
             "paidOn": "2025-02-04",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "items": [
@@ -1939,79 +1725,13 @@
           },
           {
             "flags": 1,
-            "revisionId": 30,
-            "id": 5,
-            "groupId": 1,
-            "paidOn": "2025-02-04",
-            "paidById": 2,
-            "revision": {
-              "createdAt": "2025-12-19 14:09:29",
-              "createdById": 3
-            },
-            "items": [
-              {
-                "flags": 1,
-                "revisionId": 30,
-                "id": 13,
-                "receiptId": 5,
-                "categoryId": 5,
-                "cost": 2.99,
-                "notes": "",
-                "itemShares": [],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 30,
-                "id": 14,
-                "receiptId": 5,
-                "categoryId": 6,
-                "cost": 22.99,
-                "notes": "split 2-ways",
-                "itemShares": [
-                  {
-                    "flags": 1,
-                    "revisionId": 30,
-                    "itemId": 14,
-                    "userId": 2,
-                    "share": 1,
-                    "archives": []
-                  },
-                  {
-                    "flags": 1,
-                    "revisionId": 30,
-                    "itemId": 14,
-                    "userId": 3,
-                    "share": 1,
-                    "archives": []
-                  }
-                ],
-                "archives": []
-              },
-              {
-                "flags": 1,
-                "revisionId": 30,
-                "id": 15,
-                "receiptId": 5,
-                "categoryId": 7,
-                "cost": 45.99,
-                "notes": "",
-                "itemShares": [],
-                "archives": []
-              }
-            ],
-            "paidBy": { "id": 2, "image": null, "name": "user2" },
-            "archives": []
-          },
-          {
-            "flags": 1,
             "revisionId": 26,
             "id": 1,
             "groupId": 1,
             "paidOn": "2025-02-01",
             "paidById": 3,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 1
             },
             "items": [
@@ -2092,9 +1812,9 @@
               "email": "user1@e2e.tests",
               "name": "user1",
               "image": null,
-              "color": "#c87580"
+              "color": "#b4effe"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 1 }
+            "revision": { "createdAt": "2026-02-13 16:27:01", "createdById": 1 }
           },
           {
             "flags": 1,
@@ -2108,9 +1828,9 @@
               "email": "user2@e2e.tests",
               "name": "user2",
               "image": null,
-              "color": "#3880b3"
+              "color": "#3f39db"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 2 }
+            "revision": { "createdAt": "2026-02-13 16:27:01", "createdById": 2 }
           },
           {
             "flags": 1,
@@ -2124,9 +1844,9 @@
               "email": "user3@e2e.tests",
               "name": "user3",
               "image": null,
-              "color": "#f8f9eb"
+              "color": "#b03739"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 3 }
+            "revision": { "createdAt": "2026-02-13 16:27:02", "createdById": 3 }
           }
         ]
       },
@@ -2145,16 +1865,18 @@
         "balance": {
           "relations": ["2 vs 3"],
           "data": [
-            { "date": 1871, "2 vs 3": -49.98 },
-            { "date": 1881, "2 vs 3": -42.99 }
+            { "date": 1861, "2 vs 3": 11.49 },
+            { "date": 1867, "2 vs 3": -2.99 },
+            { "date": 1871, "2 vs 3": -52.98 },
+            { "date": 1881, "2 vs 3": -45.98 }
           ],
           "minMaxes": {
             "1858": { "min": -14, "max": -6 },
-            "1861": { "min": -6.5, "max": 2.49 },
-            "1864": { "min": -13, "max": 7.49 },
-            "1867": { "min": -36.5, "max": -6.99 },
-            "1871": { "min": -49.98, "max": -49.98 },
-            "1881": { "min": -42.99, "max": -42.99 }
+            "1861": { "min": -9, "max": 11.49 },
+            "1864": { "min": -13, "max": -4 },
+            "1867": { "min": -36.5, "max": -2.99 },
+            "1871": { "min": -52.98, "max": -52.98 },
+            "1881": { "min": -45.98, "max": -45.98 }
           }
         },
         "categories": [
@@ -2166,7 +1888,7 @@
             "name": "alcohol 2",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "archives": [
@@ -2178,7 +1900,7 @@
                 "name": "alcohol 2",
                 "description": null,
                 "revision": {
-                  "createdAt": "2025-12-19 14:09:28",
+                  "createdAt": "2026-02-13 16:27:02",
                   "createdById": 2
                 }
               },
@@ -2190,7 +1912,7 @@
                 "name": "alcohol 2",
                 "description": null,
                 "revision": {
-                  "createdAt": "2025-12-19 14:09:28",
+                  "createdAt": "2026-02-13 16:27:02",
                   "createdById": 2
                 }
               }
@@ -2204,7 +1926,7 @@
             "name": "gas money 2",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "archives": []
@@ -2217,7 +1939,7 @@
             "name": "rent 2",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "archives": []
@@ -2230,7 +1952,7 @@
             "name": "something 2",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "archives": []
@@ -2245,7 +1967,7 @@
             "paidOn": "2025-02-24",
             "paidById": 2,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "items": [
@@ -2311,7 +2033,7 @@
             "paidOn": "2025-02-14",
             "paidById": 3,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 2
             },
             "items": [
@@ -2377,6 +2099,147 @@
             ],
             "paidBy": { "id": 3, "image": null, "name": "user3" },
             "archives": []
+          },
+          {
+            "flags": 1,
+            "revisionId": 31,
+            "id": 6,
+            "groupId": 2,
+            "paidOn": "2025-02-10",
+            "paidById": 3,
+            "revision": {
+              "createdAt": "2026-02-13 16:27:02",
+              "createdById": 2
+            },
+            "items": [
+              {
+                "flags": 1,
+                "revisionId": 31,
+                "id": 16,
+                "receiptId": 6,
+                "categoryId": 5,
+                "cost": 2.99,
+                "notes": "",
+                "itemShares": [
+                  {
+                    "flags": 1,
+                    "revisionId": 31,
+                    "itemId": 16,
+                    "userId": 2,
+                    "share": 1,
+                    "archives": []
+                  }
+                ],
+                "archives": []
+              },
+              {
+                "flags": 1,
+                "revisionId": 31,
+                "id": 17,
+                "receiptId": 6,
+                "categoryId": 6,
+                "cost": 22.99,
+                "notes": "split 2-ways",
+                "itemShares": [
+                  {
+                    "flags": 1,
+                    "revisionId": 31,
+                    "itemId": 17,
+                    "userId": 2,
+                    "share": 1,
+                    "archives": []
+                  },
+                  {
+                    "flags": 1,
+                    "revisionId": 31,
+                    "itemId": 17,
+                    "userId": 3,
+                    "share": 1,
+                    "archives": []
+                  }
+                ],
+                "archives": []
+              },
+              {
+                "flags": 1,
+                "revisionId": 31,
+                "id": 18,
+                "receiptId": 6,
+                "categoryId": 7,
+                "cost": 45.99,
+                "notes": "",
+                "itemShares": [],
+                "archives": []
+              }
+            ],
+            "paidBy": { "id": 3, "image": null, "name": "user3" },
+            "archives": []
+          },
+          {
+            "flags": 1,
+            "revisionId": 30,
+            "id": 5,
+            "groupId": 2,
+            "paidOn": "2025-02-04",
+            "paidById": 2,
+            "revision": {
+              "createdAt": "2026-02-13 16:27:02",
+              "createdById": 3
+            },
+            "items": [
+              {
+                "flags": 1,
+                "revisionId": 30,
+                "id": 13,
+                "receiptId": 5,
+                "categoryId": 5,
+                "cost": 2.99,
+                "notes": "",
+                "itemShares": [],
+                "archives": []
+              },
+              {
+                "flags": 1,
+                "revisionId": 30,
+                "id": 14,
+                "receiptId": 5,
+                "categoryId": 6,
+                "cost": 22.99,
+                "notes": "split 2-ways",
+                "itemShares": [
+                  {
+                    "flags": 1,
+                    "revisionId": 30,
+                    "itemId": 14,
+                    "userId": 2,
+                    "share": 1,
+                    "archives": []
+                  },
+                  {
+                    "flags": 1,
+                    "revisionId": 30,
+                    "itemId": 14,
+                    "userId": 3,
+                    "share": 1,
+                    "archives": []
+                  }
+                ],
+                "archives": []
+              },
+              {
+                "flags": 1,
+                "revisionId": 30,
+                "id": 15,
+                "receiptId": 5,
+                "categoryId": 7,
+                "cost": 45.99,
+                "notes": "",
+                "itemShares": [],
+                "archives": []
+              }
+            ],
+            "paidBy": { "id": 2, "image": null, "name": "user2" },
+            "archives": []
           }
         ],
         "memberships": [
@@ -2392,9 +2255,9 @@
               "email": "user2@e2e.tests",
               "name": "user2",
               "image": null,
-              "color": "#04cecb"
+              "color": "#1189ec"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 2 }
+            "revision": { "createdAt": "2026-02-13 16:27:01", "createdById": 2 }
           },
           {
             "flags": 1,
@@ -2408,9 +2271,9 @@
               "email": "user3@e2e.tests",
               "name": "user3",
               "image": null,
-              "color": "#39208f"
+              "color": "#134df6"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 3 }
+            "revision": { "createdAt": "2026-02-13 16:27:02", "createdById": 3 }
           }
         ]
       },
@@ -2429,11 +2292,11 @@
           "data": [],
           "minMaxes": {
             "1858": { "min": -14, "max": -6 },
-            "1861": { "min": -6.5, "max": 2.49 },
-            "1864": { "min": -13, "max": 7.49 },
-            "1867": { "min": -36.5, "max": -6.99 },
-            "1871": { "min": -49.98, "max": -49.98 },
-            "1881": { "min": -42.99, "max": -42.99 }
+            "1861": { "min": -9, "max": 11.49 },
+            "1864": { "min": -13, "max": -4 },
+            "1867": { "min": -36.5, "max": -2.99 },
+            "1871": { "min": -52.98, "max": -52.98 },
+            "1881": { "min": -45.98, "max": -45.98 }
           }
         },
         "categories": [
@@ -2445,7 +2308,7 @@
             "name": "food 3",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "archives": []
@@ -2458,7 +2321,7 @@
             "name": "rent 3",
             "description": null,
             "revision": {
-              "createdAt": "2025-12-19 14:09:28",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "archives": []
@@ -2473,7 +2336,7 @@
             "paidOn": "2025-02-27",
             "paidById": 3,
             "revision": {
-              "createdAt": "2025-12-19 14:09:29",
+              "createdAt": "2026-02-13 16:27:02",
               "createdById": 3
             },
             "items": [
@@ -2528,9 +2391,9 @@
               "email": "user3@e2e.tests",
               "name": "user3",
               "image": null,
-              "color": "#c9cb67"
+              "color": "#4ad3ec"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 3 }
+            "revision": { "createdAt": "2026-02-13 16:27:02", "createdById": 3 }
           }
         ]
       }
@@ -2545,7 +2408,7 @@
       "name": "user4ever alone",
       "image": null,
       "defaultGroupId": null,
-      "color": "#b42206",
+      "color": "#f6e2af",
       "categoriesHiddenFromConsumption": []
     },
     "groups": [
@@ -2572,9 +2435,9 @@
               "email": "user4@e2e.tests",
               "name": "user4ever alone",
               "image": null,
-              "color": "#55b953"
+              "color": "#c4a8c9"
             },
-            "revision": { "createdAt": "2025-12-19 14:09:28", "createdById": 4 }
+            "revision": { "createdAt": "2026-02-13 16:27:02", "createdById": 4 }
           }
         ]
       }
