@@ -55,17 +55,17 @@ export default function BodyNodeProvider({
     set: setNodes,
 
     push<T extends object>(
-      Node: ReactNode | ((args: T) => ReactNode),
-      args?: T
+      NodeOrFn: ReactNode | ((args: T) => ReactNode),
+      args?: T,
     ) {
       setNodes((nodes) =>
         nodes.concat(
-          typeof Node === "function" ? (
-            <Node key={uuid()} {...(args ?? ({} as T))} />
+          typeof NodeOrFn === "function" ? (
+            <NodeOrFn key={uuid()} {...(args ?? ({} as T))} />
           ) : (
-            Node
-          )
-        )
+            NodeOrFn
+          ),
+        ),
       );
     },
 
