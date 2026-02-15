@@ -90,6 +90,7 @@ const RECEIPTS: NonNullable<
   }
 >[] = [
   {
+    flags: 1,
     revisedById: 1,
     groupId: 1,
     paidById: 3,
@@ -120,6 +121,7 @@ const RECEIPTS: NonNullable<
   },
 
   {
+    flags: 1,
     revisedById: 2,
     groupId: 1,
     paidById: 2,
@@ -150,6 +152,7 @@ const RECEIPTS: NonNullable<
   },
 
   {
+    flags: 1,
     revisedById: 2,
     groupId: 1,
     paidById: 2,
@@ -180,6 +183,7 @@ const RECEIPTS: NonNullable<
   },
 
   {
+    flags: 1,
     revisedById: 3,
     groupId: 1,
     paidById: 2,
@@ -212,6 +216,7 @@ const RECEIPTS: NonNullable<
   // group 2
 
   {
+    flags: 1,
     revisedById: 3,
     groupId: 2,
     paidById: 2,
@@ -242,6 +247,7 @@ const RECEIPTS: NonNullable<
   },
 
   {
+    flags: 1,
     revisedById: 2,
     groupId: 2,
     paidById: 3,
@@ -272,6 +278,7 @@ const RECEIPTS: NonNullable<
   },
 
   {
+    flags: 1,
     revisedById: 2,
     groupId: 2,
     paidById: 3,
@@ -302,6 +309,7 @@ const RECEIPTS: NonNullable<
   },
 
   {
+    flags: 1,
     revisedById: 3,
     groupId: 2,
     paidById: 2,
@@ -334,6 +342,7 @@ const RECEIPTS: NonNullable<
   // group 3
 
   {
+    flags: 1,
     revisedById: 3,
     groupId: 3,
     paidById: 3,
