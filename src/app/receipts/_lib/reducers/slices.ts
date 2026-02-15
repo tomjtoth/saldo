@@ -2,7 +2,7 @@ import { PayloadAction } from "@reduxjs/toolkit";
 
 import { Item, Receipt } from "../populateRecursively";
 import { Group } from "@/app/groups/_lib";
-import { deepClone, vf } from "@/app/_lib/utils";
+import { deepClone, VDate, vf } from "@/app/_lib/utils";
 import { CombinedState as CS } from "@/app/_lib/reducers/types";
 import {
   addItem,
@@ -137,6 +137,7 @@ export const sliceReceipts = {
 
     if (typeof payload === "number") {
       const activeReceipt = group.receipts.find((rcpt) => rcpt.id === payload)!;
+      if (payload === -1) activeReceipt.paidOn = VDate.toStrISO();
 
       const detachedClone = deepClone(activeReceipt);
       group.activeReceipt = { ...detachedClone, changes: 0 };
