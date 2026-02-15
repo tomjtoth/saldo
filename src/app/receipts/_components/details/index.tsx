@@ -12,6 +12,7 @@ import Canceler from "@/app/_components/canceler";
 import ItemRow from "./itemRow";
 import PaidByUserWithAvatar from "../paidByUserWithAvatar";
 import ReceiptClosingDialog from "../closingDialog";
+import ReceiptTemplateDialog from "../templateDialog";
 
 // TODO:
 // also +1 hotkey for jumping straigt to 1st zero-cost item
@@ -29,6 +30,10 @@ export default function ReceiptDetails() {
   const groupId = group.id;
   const receipt = group.activeReceipt!;
 
+  const [tempBtnEmoji, tempBtnText] = vf(receipt).template
+    ? ["🧾", " receipt"]
+    : ["💭", " template"];
+
   const isMultiUser = users.length > 1;
   const paidBy = users.find((u) => u.id === receipt.paidById)!;
 
@@ -43,7 +48,7 @@ export default function ReceiptDetails() {
   function submitReceipt() {
     if (!vf(group).active) {
       return appToast.error(
-        "Cannot update receipts in a disabled group, re-enable it first!"
+        "Cannot update receipts in a disabled group, re-enable it first!",
       );
     }
 
@@ -58,7 +63,7 @@ export default function ReceiptDetails() {
       ) {
         setZeros(zeroCostItems);
         return void appToast.error(
-          "Found items with € 0.00 cost. Were these for free?"
+          "Found items with € 0.00 cost. Were these for free?",
         );
       }
     }
@@ -73,7 +78,7 @@ export default function ReceiptDetails() {
           nodes.pop();
           dispatch(thunks.setActiveReceipt());
           dispatch(thunks.modReceipt(res));
-        })
+        }),
       );
     } else {
       appToast.promise(
@@ -88,7 +93,7 @@ export default function ReceiptDetails() {
             nodes.pop();
             dispatch(thunks.setActiveReceipt());
             dispatch(thunks.addReceipt(res));
-          })
+          }),
       );
     }
   }
@@ -127,6 +132,20 @@ export default function ReceiptDetails() {
               paid on
             </label>
           </div>
+
+          <button
+            onClick={() => {
+              if (receipt.id !== -1) {
+                nodes.push(ReceiptTemplateDialog);
+              } else {
+                dispatch(thunks.toggleActiveReceiptTemplate());
+              }
+            }}
+          >
+            {tempBtnEmoji}
+            <span className="hidden lg:inline"> convert to</span>
+            <span className="hidden sm:inline">{tempBtnText}</span>
+          </button>
 
           <div className="flex gap-2 items-center">
             {isMultiUser && (
