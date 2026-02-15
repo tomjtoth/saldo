@@ -108,7 +108,7 @@ export const sliceReceipts = {
 
   addFetchedReceipts(
     rs: CS,
-    { payload }: PayloadAction<{ groupId: Group["id"]; receipts: Receipt[] }>
+    { payload }: PayloadAction<{ groupId: Group["id"]; receipts: Receipt[] }>,
   ) {
     const group = getActiveGroup(rs, payload.groupId)!;
 
@@ -131,7 +131,7 @@ export const sliceReceipts = {
 
   setActiveReceipt(
     rs: CS,
-    { payload }: PayloadAction<Receipt["id"] | undefined>
+    { payload }: PayloadAction<Receipt["id"] | undefined>,
   ) {
     const group = getActiveGroup(rs)!;
 
@@ -143,5 +143,11 @@ export const sliceReceipts = {
     } else {
       delete group["activeReceipt"];
     }
+  },
+
+  toggleActiveReceiptTemplate(rs: CS) {
+    const receipt = getActiveGroup(rs)!.activeReceipt!;
+    vf(receipt).toggleTemplate();
+    receipt.changes++;
   },
 };
