@@ -41,6 +41,8 @@ class VirtualFlags {
 
     if (this.setter) this.setter(next);
     else this.entity.flags = next;
+
+    return next;
   }
 }
 
@@ -60,8 +62,7 @@ for (const [flag, bit] of flagsEntries) {
   Object.defineProperty(VirtualFlags.prototype, togglerName, {
     value(this: VirtualFlags) {
       const current = this.getFlag(bit);
-      this.setFlag(bit, !current);
-      return this.entity.flags;
+      return this.setFlag(bit, !current);
     },
   });
 }
