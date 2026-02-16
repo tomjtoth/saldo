@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import {
   useAppDispatch,
+  useAppSelector,
   useBodyNodes,
   useClientState,
   useDebugger,
@@ -24,6 +25,8 @@ export default function ReceiptsPage() {
   const group = useClientState("group");
   useInfiniteScroll();
 
+  const showSummary = useAppSelector((s) => s.combined.showReceiptItemsSummary);
+
   const receipt = group?.activeReceipt;
 
   useEffect(() => {
@@ -41,10 +44,13 @@ export default function ReceiptsPage() {
     () =>
       group?.receipts.map((rcpt) =>
         rcpt.id === -1 || vf(rcpt).template ? null : (
-          <ReceiptEntry key={rcpt.id} receiptId={rcpt.id} />
+          <ReceiptEntry
+            key={rcpt.id}
+            {...{ showSummary, receiptId: rcpt.id }}
+          />
         ),
       ),
-    [group?.receipts],
+    [group?.receipts, showSummary],
   );
 
   useDebugger({ receiptsListing });
@@ -54,21 +60,38 @@ export default function ReceiptsPage() {
   if (group) {
     adderButton =
       activeCategories.length > 0 ? (
-        <button
-          className={
-            "inline-block" + (groupIsActive ? "" : " cursor-not-allowed!")
-          }
-          onClick={
-            groupIsActive
-              ? () => dispatch(thunks.setActiveReceipt(-1))
-              : () =>
-                  appToast.error(
-                    "Cannot add new receipts to a disabled group, re-enable it first!",
-                  )
-          }
-        >
-          ➕ <span className="hidden sm:inline-block">Add new...</span>
-        </button>
+        <>
+          <button
+            className={
+              "inline-block" + (groupIsActive ? "" : " cursor-not-allowed!")
+            }
+            onClick={
+              groupIsActive
+                ? () => dispatch(thunks.setActiveReceipt(-1))
+                : () =>
+                    appToast.error(
+                      "Cannot add new receipts to a disabled group, re-enable it first!",
+                    )
+            }
+          >
+            ➕ <span className="hidden sm:inline-block">Add new...</span>
+          </button>
+
+          <button
+            className="ml-2"
+            onClick={() => dispatch(thunks.toggleReceiptItemsSummary())}
+          >
+            <span className="relative">
+              🔎
+              <sub className="text-xs -bottom-2 -right-2 absolute ">
+                {showSummary ? "➖" : "➕"}
+              </sub>
+            </span>{" "}
+            <span className="hidden sm:inline-block ml-2">
+              {showSummary ? "Hide" : "Show"} items
+            </span>
+          </button>
+        </>
       ) : (
         <Link href={`/groups/${group?.id}/categories`}>
           🐱{" "}

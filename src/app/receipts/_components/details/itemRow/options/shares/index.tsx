@@ -8,11 +8,13 @@ export default function ItemShareOverview({
   showSetter,
   onKeyDown,
   ref,
+  hideAdderButton,
 }: {
   shares: Item["itemShares"];
   showSetter?: () => void;
   onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
   ref?: RefObject<HTMLDivElement | null>;
+  hideAdderButton?: boolean;
 }) {
   return shares.reduce((sum, { share }) => sum + share, 0) > 0 ? (
     <div
@@ -28,7 +30,7 @@ export default function ItemShareOverview({
         ),
       )}
     </div>
-  ) : (
+  ) : hideAdderButton ? null : (
     <div
       ref={ref}
       onKeyDown={onKeyDown}

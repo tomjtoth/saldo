@@ -7,17 +7,23 @@ import { Receipt } from "../_lib";
 
 import UserAvatar from "@/app/_components/userAvatar";
 import PaidByUserWithAvatar from "./paidByUserWithAvatar";
+import ReceiptItemsSummary from "./summary";
 
 export default function ReceiptEntry({
   receiptId,
+  showSummary,
 }: {
   receiptId: Receipt["id"];
+  showSummary: boolean;
 }) {
   const dispatch = useAppDispatch();
   const usersO1 = useClientState("users[id]");
   const receipt = useClientState("receipt", receiptId)!;
-  const activeItems = receipt.items.filter(vf.active);
-  const activeVsInactiveDiff = activeItems.length - receipt.items.length;
+  const items = receipt.items;
+  const activeItems = items.filter(vf.active);
+  const activeVsInactiveDiff = activeItems.length - items.length;
+
+  const isMultiUser = Object.keys(usersO1).length > 1;
 
   const addedBy =
     usersO1[
@@ -27,7 +33,6 @@ export default function ReceiptEntry({
 
   return (
     <li
-      key={receipt.id}
       onClick={() => dispatch(thunks.setActiveReceipt(receipt.id))}
       className="p-2 shrink-0 border rounded flex w-fit flex-col gap-2 cursor-pointer select-none"
     >
@@ -61,6 +66,8 @@ export default function ReceiptEntry({
           </div>
         )}
       </div>
+
+      {showSummary && <ReceiptItemsSummary {...{ isMultiUser, items }} />}
     </li>
   );
 }
