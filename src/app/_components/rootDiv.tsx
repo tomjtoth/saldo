@@ -58,7 +58,7 @@ export default function RootDiv({
     (name: string, handler: UIEventHandler<HTMLDivElement>) => {
       handlers.current.push({ name, handler });
     },
-    []
+    [],
   );
 
   const rmOnScroll = useCallback((name: string) => {
@@ -71,7 +71,8 @@ export default function RootDiv({
 
   useEffect(() => {
     // rendered on protectedPages
-    if (groups || user) dispatch(thunks.init({ groups, user }));
+    if (groups || user)
+      dispatch(thunks.init({ groups, user, showReceiptItemsSummary: false }));
 
     if (groupId) {
       if (rewritePath) window.history.replaceState(null, "", rewritePath);

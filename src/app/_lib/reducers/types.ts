@@ -17,4 +17,5 @@ export type CombinedState = {
   user?: User;
   groupId?: number;
   groups: CliGroup[];
+  showReceiptItemsSummary: boolean;
 };

@@ -20,6 +20,7 @@ const bitFlagCheck = (flag: number) => (table: TblCtx<"flags">) =>
 
 export const isActive = bitFlagCheck(1);
 export const isAdmin = bitFlagCheck(2);
+export const isTemplate = isAdmin;
 
 const SQLITE_MAX_VARIABLE_NUMBER = 32766;
 

@@ -8,7 +8,7 @@ import { Item } from "@/app/receipts/_lib";
 
 import Canceler from "@/app/_components/canceler";
 import ItemShareSetter from "./shares/setter";
-import ItemShareAvatar from "./shares/avatar";
+import ItemShareOverview from "./shares";
 
 export default function ItemOptions({
   itemId,
@@ -56,45 +56,21 @@ export default function ItemOptions({
             thunks.modItem({
               id: itemId,
               notes: ev.target.value,
-            })
+            }),
           )
         }
       />
 
-      {isMultiUser &&
-        (shares.reduce((sum, { share }) => sum + share, 0) > 0 ? (
-          <div
-            ref={sharesRef}
-            onKeyDown={handlers?.shares}
-            tabIndex={0}
-            className="flex gap-2 cursor-pointer mr-2 mb-2 sm:mb-0 items-center justify-evenly"
-            onClick={showSetter}
-          >
-            {shares.map(({ userId, share }) =>
-              share === 0 ? null : (
-                <ItemShareAvatar key={userId} userId={userId} value={share} />
-              )
-            )}
-          </div>
-        ) : (
-          <div
-            ref={sharesRef}
-            onKeyDown={handlers?.shares}
-            tabIndex={0}
-            className={
-              "border rounded p-2 cursor-pointer " +
-              "bg-background inline-flex items-center gap-2 text-center"
-            }
-            onClick={showSetter}
-          >
-            <>
-              <span className="sm:hidden xl:block whitespace-nowrap">
-                Edit shares
-              </span>
-              👪
-            </>
-          </div>
-        ))}
+      {isMultiUser && (
+        <ItemShareOverview
+          {...{
+            shares,
+            showSetter,
+            ref: sharesRef,
+            onKeyDown: handlers?.shares,
+          }}
+        />
+      )}
 
       {receipt.items.length > 1 && (
         <button

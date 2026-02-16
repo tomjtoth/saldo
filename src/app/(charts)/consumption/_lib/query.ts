@@ -8,6 +8,23 @@ export type ConsumptionOpts = {
   jsonB?: true;
 };
 
+export const consumptionCTE = sql`(
+  SELECT
+    r.group_id,
+    r.paid_on,
+    r.paid_by,
+    coalesce(sh.user_id, r.paid_by) AS paid_to,
+    i.id AS item_id,
+    i.category_id,
+    cost / 100.0 * coalesce(share * 1.0 / sum(share) OVER (PARTITION BY i.id), 1) AS share
+  FROM receipts r
+  INNER JOIN items i ON r.id = i.receipt_id
+  LEFT JOIN item_shares sh ON (sh.item_id = i.id AND sh.flags = 1)
+  WHERE r.group_id = "d0"."id" -- "d0" is an alias for table groups
+  AND r.flags = 1 AND i.flags = 1
+  ORDER BY paid_on
+)`;
+
 export function consumptionQuery(opts?: ConsumptionOpts) {
   const crit: string[] = [];
 
@@ -24,10 +41,8 @@ export function consumptionQuery(opts?: ConsumptionOpts) {
         paid_to AS "uid",
         cat.id AS category_id,
         sum(share) AS total
-      FROM consumption con
+      FROM ${consumptionCTE} con
       INNER JOIN categories cat ON con.category_id = cat.id
-        -- had to filter to group here, the WHERE clause wouldn't work..
-        AND cat.group_id = "d0"."id" -- "d0" ~ "id"
       ${whereClause}
       GROUP BY paid_to, cat.id
     ),

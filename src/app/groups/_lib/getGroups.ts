@@ -40,7 +40,7 @@ export async function svcGetGroups(
       consumption?: { from?: string };
       balance?: true;
     };
-  } = {}
+  } = {},
 ) {
   const arr = await (tx ?? db).query.groups.findMany({
     columns: { revisionId: false },
@@ -49,7 +49,7 @@ export async function svcGetGroups(
       ...("consumption" in extras
         ? { consumption: consumptionQuery(extras.consumption) }
         : {}),
-      ...("balance" in extras ? { balance: balanceQuery() } : {}),
+      ...("balance" in extras ? { balance: balanceQuery } : {}),
     },
 
     with: {
@@ -100,7 +100,7 @@ export async function svcGetGroups(
         "receipts" in group
           ? await populateReceiptArchivesRecursively(
               group.receipts as ReceiptsFromDb,
-              archivePopulator
+              archivePopulator,
             )
           : [];
 
@@ -112,13 +112,13 @@ export async function svcGetGroups(
 
         categories: archivePopulator(
           "categories",
-          group.categories.toSorted(sortByName)
+          group.categories.toSorted(sortByName),
         ),
 
         receipts,
         consumption,
         balance: balanceParser(group),
       };
-    })
+    }),
   );
 }

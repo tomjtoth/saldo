@@ -2,7 +2,7 @@ import { PayloadAction } from "@reduxjs/toolkit";
 
 import { Item, Receipt } from "../populateRecursively";
 import { Group } from "@/app/groups/_lib";
-import { deepClone, vf } from "@/app/_lib/utils";
+import { deepClone, VDate, vf } from "@/app/_lib/utils";
 import { CombinedState as CS } from "@/app/_lib/reducers/types";
 import {
   addItem,
@@ -108,7 +108,7 @@ export const sliceReceipts = {
 
   addFetchedReceipts(
     rs: CS,
-    { payload }: PayloadAction<{ groupId: Group["id"]; receipts: Receipt[] }>
+    { payload }: PayloadAction<{ groupId: Group["id"]; receipts: Receipt[] }>,
   ) {
     const group = getActiveGroup(rs, payload.groupId)!;
 
@@ -131,17 +131,28 @@ export const sliceReceipts = {
 
   setActiveReceipt(
     rs: CS,
-    { payload }: PayloadAction<Receipt["id"] | undefined>
+    { payload }: PayloadAction<Receipt["id"] | undefined>,
   ) {
     const group = getActiveGroup(rs)!;
 
     if (typeof payload === "number") {
       const activeReceipt = group.receipts.find((rcpt) => rcpt.id === payload)!;
+      if (payload === -1) activeReceipt.paidOn = VDate.toStrISO();
 
       const detachedClone = deepClone(activeReceipt);
       group.activeReceipt = { ...detachedClone, changes: 0 };
     } else {
       delete group["activeReceipt"];
     }
+  },
+
+  toggleActiveReceiptTemplate(rs: CS) {
+    const receipt = getActiveGroup(rs)!.activeReceipt!;
+    vf(receipt).toggleTemplate();
+    receipt.changes++;
+  },
+
+  toggleReceiptItemsSummary(rs: CS) {
+    rs.showReceiptItemsSummary = !rs.showReceiptItemsSummary;
   },
 };

@@ -19,6 +19,7 @@ const eslintConfig = [
       "**/pwa/index.tsx",
       "coverage",
       "cypress",
+      "**/*.test.ts",
     ],
   },
 ];

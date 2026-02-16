@@ -2,68 +2,82 @@ import { Dispatch, SetStateAction } from "react";
 
 import { User } from "@/app/(users)/_lib";
 
-const flags = ["active", "admin"] as const;
-const togglers = flags.map((f) => `toggle${f[0].toUpperCase() + f.slice(1)}`);
+const flags = {
+  active: 0,
+  admin: 1,
+  template: 1,
+} as const;
+
+const flagsEntries = Object.entries(flags);
 
 type Entity = Pick<User, "flags">;
-type FlagName = (typeof flags)[number];
+type FlagName = keyof typeof flags;
 type ToggleName<K extends string> = `toggle${Capitalize<K>}`;
 
-type VirtualFlags = {
+type VirtualFlagsShape = {
   [K in FlagName]: boolean;
 } & {
   [K in ToggleName<FlagName>]: () => number;
 };
 
-function inner(entity: Entity, setter?: Dispatch<SetStateAction<number>>) {
-  let int = entity.flags;
+class VirtualFlags {
+  static getFlag(entity: Entity, bit: number) {
+    return (entity.flags & (1 << bit)) !== 0;
+  }
 
-  const getFlag = (bit: number) => (int & (1 << bit)) !== 0;
+  constructor(
+    protected entity: Entity,
+    private setter?: Dispatch<SetStateAction<number>>,
+  ) {}
 
-  const setFlag = (bit: number, value: boolean) => {
-    int = value ? int | (1 << bit) : int & ~(1 << bit);
+  protected getFlag(bit: number) {
+    return VirtualFlags.getFlag(this.entity, bit);
+  }
 
-    if (setter) setter(int);
-    else entity.flags = int;
-  };
+  protected setFlag(bit: number, value: boolean) {
+    const next = value
+      ? this.entity.flags | (1 << bit)
+      : this.entity.flags & ~(1 << bit);
 
-  const obj: VirtualFlags = Object.create(null);
+    if (this.setter) this.setter(next);
+    else this.entity.flags = next;
 
-  flags.forEach((flag, bit) => {
-    Object.defineProperty(obj, flag, {
-      enumerable: true,
-      configurable: false,
-
-      get() {
-        return getFlag(bit);
-      },
-
-      set(value: boolean) {
-        setFlag(bit, value);
-      },
-    });
-
-    Object.defineProperty(obj, togglers[bit], {
-      enumerable: true,
-      configurable: false,
-      value() {
-        setFlag(bit, !getFlag(bit));
-        return int;
-      },
-    });
-  });
-
-  return obj;
+    return next;
+  }
 }
 
-/**
- * ### virtualFlags
- * is an extension to DB tables that manipulates one unified integer
- */
-export const vf = Object.assign(
-  inner,
-  flags.reduce((acc, f) => {
-    acc[f] = (e: Entity) => inner(e)[f];
-    return acc;
-  }, {} as { [F in FlagName]: (e: Entity) => boolean })
-);
+for (const [flag, bit] of flagsEntries) {
+  Object.defineProperty(VirtualFlags.prototype, flag, {
+    get(this: VirtualFlags) {
+      return this.getFlag(bit);
+    },
+    set(this: VirtualFlags, value: boolean) {
+      this.setFlag(bit, value);
+    },
+    enumerable: true,
+  });
+
+  const togglerName = `toggle${flag[0].toUpperCase()}${flag.slice(1)}`;
+
+  Object.defineProperty(VirtualFlags.prototype, togglerName, {
+    value(this: VirtualFlags) {
+      const current = this.getFlag(bit);
+      return this.setFlag(bit, !current);
+    },
+  });
+}
+
+function createVF(...params: ConstructorParameters<typeof VirtualFlags>) {
+  return new VirtualFlags(...params) as VirtualFlags & VirtualFlagsShape;
+}
+
+type MappableMethods = {
+  [K in FlagName]: (entity: Entity) => boolean;
+};
+
+const mappableMethods = flagsEntries.reduce((acc, [flag, bit]) => {
+  acc[flag as FlagName] = (entity: Entity) => VirtualFlags.getFlag(entity, bit);
+  return acc;
+}, {} as MappableMethods);
+
+export const vf = Object.assign(createVF, mappableMethods);
