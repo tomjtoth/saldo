@@ -151,4 +151,8 @@ export const sliceReceipts = {
     vf(receipt).toggleTemplate();
     receipt.changes++;
   },
+
+  toggleReceiptItemsSummary(rs: CS) {
+    rs.showReceiptItemsSummary = !rs.showReceiptItemsSummary;
+  },
 };
