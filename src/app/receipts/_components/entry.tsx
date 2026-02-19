@@ -34,7 +34,7 @@ export default function ReceiptEntry({
   return (
     <li
       onClick={() => dispatch(thunks.setActiveReceipt(receipt.id))}
-      className="p-2 shrink-0 border rounded flex w-fit flex-col gap-2 cursor-pointer select-none"
+      className="p-2 border rounded flex flex-col gap-2 cursor-pointer select-none"
     >
       <div className="flex gap-5 justify-between items-center">
         <b>{receipt.paidOn}</b>
@@ -46,7 +46,12 @@ export default function ReceiptEntry({
           € {activeItems.reduce((sub, { cost }) => sub + cost, 0).toFixed(2)}
         </b>
 
-        <div>
+        <div
+          onClick={(ev) => {
+            ev.stopPropagation();
+            dispatch(thunks.toggleReceiptItemsSummary(receiptId));
+          }}
+        >
           🛒
           <sup className="lg:hidden">{activeItems.length}</sup>
           <span className="hidden lg:inline-block">

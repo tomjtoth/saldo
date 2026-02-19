@@ -8,7 +8,6 @@ import {
   useAppSelector,
   useBodyNodes,
   useClientState,
-  useDebugger,
 } from "@/app/_lib/hooks";
 import { useInfiniteScroll } from "../_lib/hook";
 import { thunks } from "@/app/_lib/reducers";
@@ -16,7 +15,7 @@ import { appToast, vf } from "@/app/_lib/utils";
 
 import Header from "@/app/_components/header";
 import Scrollers from "./scrollers";
-import ReceiptEntry from "./entry";
+import ReceiptsMainListing from "./listing";
 import ReceiptDetails from "./details";
 
 export default function ReceiptsPage() {
@@ -25,7 +24,9 @@ export default function ReceiptsPage() {
   const group = useClientState("group");
   useInfiniteScroll();
 
-  const showSummary = useAppSelector((s) => s.combined.showReceiptItemsSummary);
+  const showSummary = useAppSelector(
+    (s) => (-1) in s.combined.showReceiptItemsSummary,
+  );
 
   const receipt = group?.activeReceipt;
 
@@ -39,21 +40,6 @@ export default function ReceiptsPage() {
     () => group?.categories.filter(vf.active) ?? [],
     [group?.categories],
   );
-
-  const receiptsListing = useMemo(
-    () =>
-      group?.receipts.map((rcpt) =>
-        rcpt.id === -1 || vf(rcpt).template ? null : (
-          <ReceiptEntry
-            key={rcpt.id}
-            {...{ showSummary, receiptId: rcpt.id }}
-          />
-        ),
-      ),
-    [group?.receipts, showSummary],
-  );
-
-  useDebugger({ receiptsListing });
 
   let adderButton: ReactNode = null;
 
@@ -79,7 +65,7 @@ export default function ReceiptsPage() {
 
           <button
             className="ml-2"
-            onClick={() => dispatch(thunks.toggleReceiptItemsSummary())}
+            onClick={() => dispatch(thunks.toggleReceiptItemsSummary(-1))}
           >
             <span className="relative">
               🔎
@@ -106,9 +92,7 @@ export default function ReceiptsPage() {
     <>
       <Header>{adderButton}</Header>
 
-      <ul className="p-2 flex flex-wrap justify-center items-center gap-2">
-        {receiptsListing}
-      </ul>
+      <ReceiptsMainListing />
 
       <Scrollers />
     </>
