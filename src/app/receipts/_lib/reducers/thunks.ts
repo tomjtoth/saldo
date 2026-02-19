@@ -69,7 +69,8 @@ export const thunksReceipts = {
       dispatch(csa.toggleActiveReceiptTemplate());
   },
 
-  toggleReceiptItemsSummary: () => {
-    return (dispatch: AppDispatch) => dispatch(csa.toggleReceiptItemsSummary());
+  toggleReceiptItemsSummary: (id: Receipt["id"]) => {
+    return (dispatch: AppDispatch) =>
+      dispatch(csa.toggleReceiptItemsSummary(id));
   },
 };

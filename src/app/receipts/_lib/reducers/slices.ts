@@ -152,7 +152,9 @@ export const sliceReceipts = {
     receipt.changes++;
   },
 
-  toggleReceiptItemsSummary(rs: CS) {
-    rs.showReceiptItemsSummary = !rs.showReceiptItemsSummary;
+  toggleReceiptItemsSummary(rs: CS, { payload }: PayloadAction<Receipt["id"]>) {
+    if (payload in rs.showReceiptItemsSummary)
+      delete rs.showReceiptItemsSummary[payload];
+    else rs.showReceiptItemsSummary[payload] = true;
   },
 };

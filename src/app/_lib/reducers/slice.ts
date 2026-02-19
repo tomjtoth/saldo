@@ -8,7 +8,10 @@ import { sliceConsumption } from "@/app/(charts)/consumption/_lib/reducers";
 
 export const slice = createSlice({
   name: "combined",
-  initialState: { groups: [], showReceiptItemsSummary: false } as CombinedState,
+  initialState: {
+    groups: [],
+    showReceiptItemsSummary: {},
+  } as CombinedState,
 
   reducers: {
     init(rs, { payload }: PayloadAction<CombinedState>) {
