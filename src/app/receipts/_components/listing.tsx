@@ -32,39 +32,33 @@ export default function ReceiptsMainListing() {
       byMonth.get(month)!.push(rcpt);
     }
 
-    return Array.from(byMonth).map(([month, receipts]) => {
-      let classes = "*:mb-2 *:py-2 *:break-inside-avoid columns-1";
-      const len = receipts.length;
+    return Array.from(byMonth).map(([month, receipts]) => (
+      <Fragment key={month}>
+        <h4 className="text-center text-5xl border rounded w-full my-2 py-2">
+          {month}
+          <span className="hidden sm:not-so-hidden">
+            TODO: some more metrics here
+          </span>
+        </h4>
 
-      // at least 2 whole rows
-      if (len > 1 + 3 * 1) classes += " md:columns-2";
-      if (len > 1 + 3 * 2) classes += " lg:columns-3";
-      if (len > 1 + 3 * 3) classes += " xl:columns-4";
-      if (len > 1 + 3 * 4) classes += " 2xl:columns-5";
-
-      return (
-        <Fragment key={month}>
-          <h4 className="text-center text-5xl border rounded w-full my-2 py-2">
-            {month}
-            <span className="hidden sm:not-so-hidden">
-              TODO: some more metrics here
-            </span>
-          </h4>
-
-          <ul className={classes}>
-            {receipts.map((rcpt) => (
-              <ReceiptEntry
-                key={rcpt.id}
-                {...{
-                  showSummary: shownSummaries[-1] || shownSummaries[rcpt.id],
-                  receiptId: rcpt.id,
-                }}
-              />
-            ))}
-          </ul>
-        </Fragment>
-      );
-    });
+        <ul
+          className={
+            "*:mb-4 *:py-2 *:break-inside-avoid columns-1 " +
+            "md:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5"
+          }
+        >
+          {receipts.map((rcpt) => (
+            <ReceiptEntry
+              key={rcpt.id}
+              {...{
+                showSummary: shownSummaries[-1] || shownSummaries[rcpt.id],
+                receiptId: rcpt.id,
+              }}
+            />
+          ))}
+        </ul>
+      </Fragment>
+    ));
   }, [group?.receipts, shownSummaries]);
 
   useDebugger({ receiptsListing: memoizedList });
