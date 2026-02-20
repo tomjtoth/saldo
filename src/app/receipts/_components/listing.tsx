@@ -43,8 +43,8 @@ export default function ReceiptsMainListing() {
 
         <ul
           className={
-            "*:mb-4 *:py-2 *:break-inside-avoid columns-1 " +
-            "md:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5"
+            "*:mb-4 *:py-2 *:break-inside-avoid columns-2 " +
+            "lg:columns-3 xl:columns-4 2xl:columns-5"
           }
         >
           {receipts.map((rcpt) => (

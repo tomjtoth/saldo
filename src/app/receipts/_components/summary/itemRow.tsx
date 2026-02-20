@@ -13,18 +13,18 @@ export default function ItemRowSummary({
   const cats = useClientState("categories[id]");
 
   return (
-    <li
-      className={"grid gap-2 " + (isMultiUser ? "grid-cols-4" : "grid-cols-3")}
-    >
-      <div>{cats[item.categoryId].name}</div>
+    <li className={"flex gap-2 justify-between"}>
+      <div className="truncate">{cats[item.categoryId].name}</div>
 
-      <p className="truncate max-w-25 sm:max-w-50">{item.notes}</p>
+      <p className="truncate hidden sm:block ">{item.notes}</p>
 
       {isMultiUser && (
         <ItemShareOverview shares={item.itemShares} hideAdderButton />
       )}
 
-      <div className="text-right col-start-4">€ {item.cost.toFixed(2)}</div>
+      <div className="text-right col-start-4 whitespace-nowrap">
+        € {item.cost.toFixed(2)}
+      </div>
     </li>
   );
 }
