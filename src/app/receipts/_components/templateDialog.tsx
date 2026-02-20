@@ -29,7 +29,7 @@ export default function ReceiptTemplateDialog() {
           </p>
         ) : (
           <p>
-            Converting this receipt to a <b>template</b> will remove it along
+            Converting this receipt to a <b>template</b> will cause it along
             with all its items to be{" "}
             <b>excluded from balance and consumption</b> data.
           </p>
@@ -42,8 +42,6 @@ export default function ReceiptTemplateDialog() {
             onClick={() => {
               nodes.pop();
               dispatch(thunks.toggleActiveReceiptTemplate());
-
-              // TODO
             }}
           >
             OK
