@@ -19,9 +19,8 @@ export default function ReceiptsMainListing() {
     const byMonth = new Map<string, Receipt[]>();
 
     for (const rcpt of group?.receipts ?? []) {
-      // TODO: stop inserting the -1 id dummy into receipts...
       // "add" it only on clicking the add new :D
-      if (rcpt.id === -1 || vf(rcpt).template) continue;
+      if (vf(rcpt).template) continue;
 
       const month = rcpt.paidOn.slice(0, 7);
 

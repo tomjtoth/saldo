@@ -1,7 +1,6 @@
 import { Group } from "@/app/groups/_lib";
 import { Item } from "../populateRecursively";
 import { Category } from "@/app/categories/_lib";
-import { VDate } from "@/app/_lib/utils";
 import { CombinedState as CS } from "@/app/_lib/reducers/types";
 
 // this provides the key prop to React during `items.map( ... )`
@@ -42,32 +41,6 @@ export const getActiveReceipt = (rs: CS) => getActiveGroup(rs)?.activeReceipt;
 export const sortReceipts = (groups: Group[]) =>
   groups.forEach((group) =>
     group.receipts.sort(({ paidOn: a }, { paidOn: b }) =>
-      b < a ? -1 : b > a ? 1 : 0
-    )
+      b < a ? -1 : b > a ? 1 : 0,
+    ),
   );
-
-export function addEmptyReceipts(data: CS) {
-  if (data.user) {
-    for (const group of data.groups) {
-      group.receipts.push({
-        id: -1,
-        paidOn: VDate.toStrISO(),
-        paidById: data.user.id,
-        paidBy: data.user,
-        flags: 1,
-        groupId: group.id,
-        revision: { createdAt: VDate.timeToStr(), createdById: data.user.id },
-        revisionId: -1,
-        archives: [],
-        items: [
-          addItem(
-            getDefaultCategory(
-              { ...data, groupId: data.groupId ? data.groupId : -1 },
-              group.id
-            )
-          ),
-        ],
-      });
-    }
-  }
-}
