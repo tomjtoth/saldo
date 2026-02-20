@@ -7,6 +7,7 @@ export interface CliGroup extends Group {
   activeReceipt?: Receipt & {
     focusedItemId?: Item["id"];
     changes: number;
+    wasTemplate: boolean;
   };
   hasMoreToLoad?: boolean;
   fetchingReceipts?: boolean;

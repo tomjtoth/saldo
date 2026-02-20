@@ -151,6 +151,7 @@ export const sliceReceipts = {
           archives: [],
           items: [addItem(getDefaultCategory(rs, group.id))],
           changes: 0,
+          wasTemplate: false,
         };
       } else {
         const receipt = group.receipts.find((rcpt) => rcpt.id === payload)!;
@@ -158,8 +159,16 @@ export const sliceReceipts = {
         group.activeReceipt = {
           ...deepClone(receipt),
           changes: 0,
+          wasTemplate: false,
         };
-        vf(group.activeReceipt).template = false;
+
+        const vfRec = vf(group.activeReceipt);
+
+        if (vfRec.template) {
+          vfRec.template = false;
+          group.activeReceipt.wasTemplate = true;
+          group.activeReceipt.paidOn = VDate.toStrISO();
+        }
       }
     } else {
       delete group["activeReceipt"];
