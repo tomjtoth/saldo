@@ -22,7 +22,7 @@ export default function ReceiptsTemplateListing() {
       <ul
         className={
           "*:mb-4 *:py-2 *:break-inside-avoid columns-2 " +
-          "lg:columns-3 xl:columns-4 2xl:columns-5"
+          "lg:columns-3 xl:columns-4 2xl:columns-5 3xl:columns-6"
         }
       >
         {templates.map((rcpt) => (

@@ -55,8 +55,8 @@ export default function ReceiptEntry({
           }}
         >
           🛒
-          <sup className="lg:hidden">{activeItems.length}</sup>
-          <span className="hidden lg:inline-block">
+          <sup className="md:hidden">{activeItems.length}</sup>
+          <span className="hidden md:inline-block">
             <sup>
               {receipt.items.length}
               {activeVsInactiveDiff !== 0 && ` (${activeVsInactiveDiff})`}
@@ -68,8 +68,8 @@ export default function ReceiptEntry({
         {addedBy.id !== receipt.paidBy.id && (
           <div>
             <UserAvatar userId={addedBy.id} className="w-8" />
-            <span className="hidden xl:inline-block ml-2">{addedBy.name}</span>
-            <span className="hidden lg:inline-block ml-2">added</span>
+            <span className="hidden lg:inline-block ml-2">{addedBy.name}</span>
+            <span className="hidden md:inline-block ml-2">added</span>
           </div>
         )}
       </div>
