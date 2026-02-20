@@ -136,11 +136,40 @@ export const sliceReceipts = {
     const group = getActiveGroup(rs)!;
 
     if (typeof payload === "number") {
-      const activeReceipt = group.receipts.find((rcpt) => rcpt.id === payload)!;
-      if (payload === -1) activeReceipt.paidOn = VDate.toStrISO();
+      if (payload === -1) {
+        const user = rs.user!;
 
-      const detachedClone = deepClone(activeReceipt);
-      group.activeReceipt = { ...detachedClone, changes: 0 };
+        group.activeReceipt = {
+          id: -1,
+          paidOn: VDate.toStrISO(),
+          paidById: user.id,
+          paidBy: user,
+          flags: 1,
+          groupId: group.id,
+          revision: { createdAt: VDate.timeToStr(), createdById: user.id },
+          revisionId: -1,
+          archives: [],
+          items: [addItem(getDefaultCategory(rs, group.id))],
+          changes: 0,
+          wasTemplate: false,
+        };
+      } else {
+        const receipt = group.receipts.find((rcpt) => rcpt.id === payload)!;
+
+        group.activeReceipt = {
+          ...deepClone(receipt),
+          changes: 0,
+          wasTemplate: false,
+        };
+
+        const vfRec = vf(group.activeReceipt);
+
+        if (vfRec.template) {
+          vfRec.template = false;
+          group.activeReceipt.wasTemplate = true;
+          group.activeReceipt.paidOn = VDate.toStrISO();
+        }
+      }
     } else {
       delete group["activeReceipt"];
     }

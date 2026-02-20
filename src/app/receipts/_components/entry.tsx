@@ -47,6 +47,8 @@ export default function ReceiptEntry({
         </b>
 
         <div
+          className={showSummary ? "cursor-zoom-out" : "cursor-zoom-in"}
+          title={showSummary ? "hide items" : "show items"}
           onClick={(ev) => {
             ev.stopPropagation();
             dispatch(thunks.toggleReceiptItemsSummary(receiptId));

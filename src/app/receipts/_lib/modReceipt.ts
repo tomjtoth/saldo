@@ -88,7 +88,7 @@ export async function apiModReceipt(uncheckedData: ReceiptModifier) {
 
 export async function svcModReceipt(
   revisedById: User["id"],
-  { items: itemMods, ...receiptMod }: ReturnType<typeof validateReceipt>
+  { items: itemMods, ...receiptMod }: ReturnType<typeof validateReceipt>,
 ): Promise<Receipt> {
   return atomic(revisedById, async (tx, revisionId) => {
     const fromSrv = await tx.query.receipts.findFirst({
@@ -148,7 +148,7 @@ export async function svcModReceipt(
         let modItemShare = cliItemShares.find(
           (mod) =>
             mod.userId === oldItemShare.userId &&
-            itemModifier.id === oldItemShare.itemId
+            itemModifier.id === oldItemShare.itemId,
         );
 
         // itemShare has been deleted on the client side: shouldn't occur,
@@ -164,6 +164,7 @@ export async function svcModReceipt(
           revisionId,
           primaryKeys: { itemId: true, userId: true },
           revisedById,
+          unchangedThrows: false,
         });
       }
 
@@ -171,8 +172,9 @@ export async function svcModReceipt(
         (mod) =>
           !srvItemShares.some(
             // `modItem.id` because client side shares only store `userId` and `share`
-            (old) => old.itemId === itemModifier.id && old.userId === mod.userId
-          )
+            (old) =>
+              old.itemId === itemModifier.id && old.userId === mod.userId,
+          ),
       );
 
       if (newItemShares.length) {
@@ -183,14 +185,14 @@ export async function svcModReceipt(
             ...nsh,
             itemId: itemModifier.id,
             revisionId,
-          }))
+          })),
         );
       }
     }
 
     // checking if any item was added
     const newItems = itemMods.filter(
-      (mi) => !srvItems.some((oi) => oi.id === mi.id)
+      (mi) => !srvItems.some((oi) => oi.id === mi.id),
     );
 
     for (const avoidCrashingDebugger of newItems) {
@@ -216,7 +218,7 @@ export async function svcModReceipt(
             ...nsh,
             itemId,
             revisionId,
-          }))
+          })),
         );
       }
     }

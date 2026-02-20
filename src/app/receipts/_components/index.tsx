@@ -17,6 +17,7 @@ import Header from "@/app/_components/header";
 import Scrollers from "./scrollers";
 import ReceiptsMainListing from "./listing";
 import ReceiptDetails from "./details";
+import ReceiptsTemplateListing from "./templateListing";
 
 export default function ReceiptsPage() {
   const dispatch = useAppDispatch();
@@ -91,6 +92,8 @@ export default function ReceiptsPage() {
   return (
     <>
       <Header>{adderButton}</Header>
+
+      <ReceiptsTemplateListing />
 
       <ReceiptsMainListing />
 
