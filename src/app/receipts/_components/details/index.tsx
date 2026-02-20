@@ -28,11 +28,13 @@ export default function ReceiptDetails() {
   const [zeros, setZeros] = useState<Item["id"][]>([]);
 
   const groupId = group.id;
-  const receipt = group.activeReceipt!;
+  const { wasTemplate, ...receipt } = group.activeReceipt!;
 
-  const [tempBtnEmoji, tempBtnText] = vf(receipt).template
-    ? ["🧾", " receipt"]
-    : ["💭", " template"];
+  const isTemplate = vf(receipt).template;
+
+  const [tempBtnEmoji, tempBtnText] = isTemplate
+    ? ["💭", " template"]
+    : ["🧾", " receipt"];
 
   const isMultiUser = users.length > 1;
   const paidBy = users.find((u) => u.id === receipt.paidById)!;
@@ -68,9 +70,11 @@ export default function ReceiptDetails() {
       }
     }
 
-    const updating = receipt.id !== -1;
+    const isBasedOnTemplate = wasTemplate && !isTemplate;
+    const addingNewReceipt = receipt.id === -1 || isBasedOnTemplate;
+    const updatingReceipt = !addingNewReceipt;
 
-    if (updating) {
+    if (updatingReceipt) {
       appToast.promise(
         "Updating receipt",
 
@@ -87,6 +91,7 @@ export default function ReceiptDetails() {
         callApi
           .addReceipt({
             ...receipt,
+            ...(isBasedOnTemplate ? { id: -1 } : {}),
             groupId,
           })
           .then((res) => {
@@ -133,19 +138,23 @@ export default function ReceiptDetails() {
             </label>
           </div>
 
-          <button
-            onClick={() => {
-              if (receipt.id !== -1) {
-                nodes.push(ReceiptTemplateDialog);
-              } else {
-                dispatch(thunks.toggleActiveReceiptTemplate());
-              }
-            }}
-          >
-            {tempBtnEmoji}
-            <span className="hidden lg:inline"> convert to</span>
-            <span className="hidden sm:inline">{tempBtnText}</span>
-          </button>
+          {(wasTemplate || receipt.id === -1) && (
+            <button
+              onClick={() => {
+                if (receipt.id !== -1) {
+                  nodes.push(ReceiptTemplateDialog);
+                } else {
+                  dispatch(thunks.toggleActiveReceiptTemplate());
+                }
+              }}
+            >
+              {tempBtnEmoji}
+              <span className="hidden lg:inline">
+                {wasTemplate && isTemplate ? " updating" : " create as"}
+              </span>
+              <span className="hidden sm:inline">{tempBtnText}</span>
+            </button>
+          )}
 
           <div className="flex gap-2 items-center">
             {isMultiUser && (
