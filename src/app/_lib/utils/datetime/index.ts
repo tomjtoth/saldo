@@ -32,7 +32,7 @@ abstract class AnchorMethods {
     (global ?? window).__SALDO_DATETIME_ANCHOR__ = DateTime.fromFormat(
       anchor,
       DATE_FORMAT,
-      DATETIME_OPTIONS
+      DATETIME_OPTIONS,
     ).toMillis();
   }
 }
@@ -45,7 +45,7 @@ abstract class TimeMethods extends AnchorMethods {
         const parsed = DateTime.fromFormat(
           val as string,
           fmt,
-          DATETIME_OPTIONS
+          DATETIME_OPTIONS,
         );
         if (parsed.isValid) {
           val = parsed;
@@ -68,8 +68,8 @@ abstract class TimeMethods extends AnchorMethods {
       val !== undefined && val instanceof DateTime
         ? val
         : typeof val === "number"
-        ? DateTime.fromMillis(val * 1000 + this.anchor, DATETIME_OPTIONS)
-        : DateTime.local(DATETIME_OPTIONS);
+          ? DateTime.fromMillis(val * 1000 + this.anchor, DATETIME_OPTIONS)
+          : DateTime.local(DATETIME_OPTIONS);
 
     return asDate.toFormat(fmt);
   }
@@ -86,19 +86,37 @@ export abstract class VDate extends TimeMethods {
     return this.timeToStr(val, fmt);
   }
 
+  /**
+   * used when assigning values to `<input>` tags explicitly
+   * @param val
+   * @returns
+   */
   static toStrISO(val?: number | DateTime) {
     return this.toStr(val, ISO_DATE_FMT);
   }
 
-  static nMonthsAgo(months: number) {
-    const date = DateTime.local(DATETIME_OPTIONS)
-      .minus({ months })
-      .set({ day: 1 });
+  /**
+   * convienence wrapper to alter dates
+   * @param builderFn takes the datetime from `now` or the optional `dtStr`
+   * @param dtStr optional date used as base
+   * @returns string
+   */
+  static toBuiltStr(
+    builderFn: (datetime: DateTime) => DateTime,
+    dtStr?: string,
+  ) {
+    const dt = builderFn(
+      dtStr ? this.parseFrom(dtStr) : DateTime.local(DATETIME_OPTIONS),
+    );
 
-    return this.toStr(date);
+    return this.toStr(dt);
+  }
+
+  static parseFrom(val: string) {
+    return DateTime.fromFormat(val, DATE_FORMAT, DATETIME_OPTIONS);
   }
 
   static couldBeParsedFrom(val: string) {
-    return DateTime.fromFormat(val, DATE_FORMAT, DATETIME_OPTIONS).isValid;
+    return this.parseFrom(val).isValid;
   }
 }
