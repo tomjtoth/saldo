@@ -8,7 +8,9 @@ let from: string;
 
 export default wrapPage({
   getData(userId) {
-    from = VDate.nMonthsAgo(3);
+    from = VDate.toBuiltStr((date) =>
+      date.minus({ months: 3 }).set({ day: 1 }),
+    );
     return svcGetGroups(userId, { extras: { consumption: { from } } });
   },
   children: () => <ConsumptionPage {...{ from }} />,

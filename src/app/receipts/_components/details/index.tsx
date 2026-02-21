@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useAppDispatch, useBodyNodes, useClientState } from "@/app/_lib/hooks";
 import { thunks } from "@/app/_lib/reducers";
-import { appToast, vf } from "@/app/_lib/utils";
+import { appToast, VDate, vf } from "@/app/_lib/utils";
 import { callApi } from "@/app/_lib/utils/apiCalls";
 import { Item } from "../../_lib";
 
@@ -74,15 +74,26 @@ export default function ReceiptDetails() {
     const addingNewReceipt = receipt.id === -1 || isBasedOnTemplate;
     const updatingReceipt = !addingNewReceipt;
 
+    const adjustedTemplatePaidOn = isTemplate
+      ? {
+          paidOn: VDate.toBuiltStr(
+            (date) => date.plus({ years: 100 }),
+            receipt.paidOn,
+          ),
+        }
+      : {};
+
     if (updatingReceipt) {
       appToast.promise(
         "Updating receipt",
 
-        callApi.modReceipt(receipt).then((res) => {
-          nodes.pop();
-          dispatch(thunks.setActiveReceipt());
-          dispatch(thunks.modReceipt(res));
-        }),
+        callApi
+          .modReceipt({ ...receipt, ...adjustedTemplatePaidOn })
+          .then((res) => {
+            nodes.pop();
+            dispatch(thunks.setActiveReceipt());
+            dispatch(thunks.modReceipt(res));
+          }),
       );
     } else {
       appToast.promise(
@@ -92,6 +103,7 @@ export default function ReceiptDetails() {
           .addReceipt({
             ...receipt,
             ...(isBasedOnTemplate ? { id: -1 } : {}),
+            ...adjustedTemplatePaidOn,
             groupId,
           })
           .then((res) => {

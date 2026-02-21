@@ -24,7 +24,7 @@ export default function PaidByUserWithAvatar({
       onClick={listOnClick ? () => nodes.push(Listing) : undefined}
     >
       <span className="hidden sm:inline-block mr-2">paid by</span>
-      <span className="hidden lg:inline-block mr-2">{user?.name}</span>
+      <span className="hidden md:inline-block mr-2">{user?.name}</span>
       <UserAvatar userId={userId} className="w-10" />
     </div>
   );

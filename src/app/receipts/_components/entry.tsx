@@ -1,7 +1,7 @@
 import pluralize from "pluralize";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
-import { vf } from "@/app/_lib/utils";
+import { VDate, vf } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
 import { Receipt } from "../_lib";
 
@@ -37,7 +37,14 @@ export default function ReceiptEntry({
       className="p-2 border rounded flex flex-col gap-2 cursor-pointer select-none"
     >
       <div className="flex gap-5 justify-between items-center">
-        <b>{receipt.paidOn}</b>
+        <b>
+          {vf(receipt).template
+            ? VDate.toBuiltStr(
+                (date) => date.minus({ years: 100 }),
+                receipt.paidOn,
+              )
+            : receipt.paidOn}
+        </b>
         <PaidByUserWithAvatar userId={receipt.paidById} />
       </div>
 
@@ -55,8 +62,8 @@ export default function ReceiptEntry({
           }}
         >
           🛒
-          <sup className="lg:hidden">{activeItems.length}</sup>
-          <span className="hidden lg:inline-block">
+          <sup className="md:hidden">{activeItems.length}</sup>
+          <span className="hidden md:inline-block">
             <sup>
               {receipt.items.length}
               {activeVsInactiveDiff !== 0 && ` (${activeVsInactiveDiff})`}
@@ -68,8 +75,8 @@ export default function ReceiptEntry({
         {addedBy.id !== receipt.paidBy.id && (
           <div>
             <UserAvatar userId={addedBy.id} className="w-8" />
-            <span className="hidden xl:inline-block ml-2">{addedBy.name}</span>
-            <span className="hidden lg:inline-block ml-2">added</span>
+            <span className="hidden lg:inline-block ml-2">{addedBy.name}</span>
+            <span className="hidden md:inline-block ml-2">added</span>
           </div>
         )}
       </div>

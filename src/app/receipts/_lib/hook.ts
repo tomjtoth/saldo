@@ -23,11 +23,13 @@ export function useInfiniteScroll() {
       !group?.fetchingReceipts &&
       (rootDivH < window.innerHeight || group?.debounceReceiptsFetching === 1)
     ) {
+      const ids = group!.receipts.map((r) => r.id);
+
       dispatch(
-        thunks.fetchReceipts(
-          groupId!,
-          group!.receipts.map(({ id }) => id)
-        )
+        thunks.fetchReceipts(groupId!, {
+          max: Math.max(...ids),
+          min: Math.min(...ids),
+        }),
       );
     }
 
