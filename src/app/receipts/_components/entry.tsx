@@ -1,7 +1,7 @@
 import pluralize from "pluralize";
 
 import { useAppDispatch, useClientState } from "@/app/_lib/hooks";
-import { vf } from "@/app/_lib/utils";
+import { VDate, vf } from "@/app/_lib/utils";
 import { thunks } from "@/app/_lib/reducers";
 import { Receipt } from "../_lib";
 
@@ -37,7 +37,14 @@ export default function ReceiptEntry({
       className="p-2 border rounded flex flex-col gap-2 cursor-pointer select-none"
     >
       <div className="flex gap-5 justify-between items-center">
-        <b>{receipt.paidOn}</b>
+        <b>
+          {vf(receipt).template
+            ? VDate.toBuiltStr(
+                (date) => date.minus({ years: 100 }),
+                receipt.paidOn,
+              )
+            : receipt.paidOn}
+        </b>
         <PaidByUserWithAvatar userId={receipt.paidById} />
       </div>
 
