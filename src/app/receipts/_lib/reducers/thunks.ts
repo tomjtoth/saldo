@@ -6,7 +6,6 @@ import { ItemModifier } from "./slices";
 import { callApi } from "@/app/_lib/utils/apiCalls";
 import { User } from "@/app/(users)/_lib";
 import { appToast } from "@/app/_lib/utils";
-import { KnownIdBounds } from "../common";
 
 export const thunksReceipts = {
   setPaidOn: (date: Receipt["paidOn"]) => (dispatch: AppDispatch) => {
@@ -42,7 +41,7 @@ export const thunksReceipts = {
   },
 
   fetchReceipts:
-    (groupId: Group["id"], knownIds: KnownIdBounds) =>
+    (groupId: Group["id"], knownIds: Receipt["id"][]) =>
     async (dispatch: AppDispatch) => {
       return appToast.promise("Fetching receipts", async () => {
         const receipts = await callApi.getReceipts(groupId, knownIds);

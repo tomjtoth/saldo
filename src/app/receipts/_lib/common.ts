@@ -9,16 +9,13 @@ export const SELECT_RECEIPTS = {
   },
 } as const satisfies QueryParamsOf<"receipts">;
 
-export type KnownIdBounds = { min: DbReceipt["id"]; max: DbReceipt["id"] };
-
 export const queryReceipts = ({
   groupId,
-  knownIds,
+  knownIds = [],
   getAll,
 }: {
-  // NOTE: using type Group here would circular reference
-  groupId?: DbGroup["id"];
-  knownIds?: KnownIdBounds;
+  groupId?: DbGroup["id"]; // using type Group here would circular reference
+  knownIds?: DbReceipt["id"][];
   getAll?: true;
 } = {}) => {
   return {
@@ -27,9 +24,11 @@ export const queryReceipts = ({
     where: {
       groupId,
 
-      ...(knownIds
-        ? { OR: [{ id: { lt: knownIds.min } }, { id: { gt: knownIds.max } }] }
-        : {}),
+      RAW(rcpt, { sql }) {
+        const arr = sql.raw(`(${knownIds.join(",")})`);
+
+        return sql`${rcpt.id} NOT IN ${arr}`;
+      },
     },
 
     ...(getAll ? {} : { limit: 50 }),
