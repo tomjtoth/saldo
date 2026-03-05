@@ -1,20 +1,27 @@
 "use server";
 
 import { db } from "@/app/_lib/db";
-import { apiInternal, be } from "@/app/_lib/utils";
+import { apiInternal, be, err, is } from "@/app/_lib/utils";
 import { currentUser } from "@/app/(users)/_lib";
 import { Group, svcGetGroupViaUserAccess } from "@/app/groups/_lib";
-import { populateReceiptArchivesRecursively } from "./populateRecursively";
-import { KnownIdBounds, queryReceipts } from "./common";
+import {
+  populateReceiptArchivesRecursively,
+  Receipt,
+} from "./populateRecursively";
+import { queryReceipts } from "./common";
+
+type ReceiptIds = Receipt["id"][];
 
 export async function apiGetReceipts(
   groupId: Group["id"],
-  { min, max }: KnownIdBounds,
+  knownIds: ReceiptIds
 ) {
   return apiInternal(async () => {
     be.number(groupId, "group ID");
-    be.number(min, "knownIds.min");
-    be.number(max, "knownIds.max");
+    be.array(knownIds, "receipt IDs");
+
+    if (!knownIds.every(is.number))
+      err("known ids contain NaN", { args: { knownIds } });
 
     const user = await currentUser();
 
@@ -23,16 +30,16 @@ export async function apiGetReceipts(
       groupMustBeActive: false,
     });
 
-    return await svcGetReceipts(groupId, { min, max });
+    return await svcGetReceipts(groupId, knownIds);
   });
 }
 
 export async function svcGetReceipts(
   groupId: Group["id"],
-  knownIds: KnownIdBounds,
+  knownIds: ReceiptIds = []
 ) {
   const res = await db.query.receipts.findMany(
-    queryReceipts({ knownIds, groupId }),
+    queryReceipts({ knownIds, groupId })
   );
 
   return await populateReceiptArchivesRecursively(res);

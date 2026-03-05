@@ -1,6 +1,6 @@
 {
   "name": "saldo",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "scripts": {
     "dev": "next dev",
     "dev:instrumented": "INSTRUMENT_E2E=1 next dev",
@@ -13,7 +13,7 @@
     "pree2e": "rm -rf .nyc_output coverage",
     "e2e": "cypress open --e2e",
     "pree2e:headless": "if [ -f e2e.db ]; then rm e2e.db; fi",
-    "e2e:headless": "INSTRUMENT_E2E=1 MIGRATE=1 DB_PATH=e2e.db start-server-and-test dev http://localhost:3000 \"cypress run --e2e --spec '**/receipts.cy.ts,**/*.cy.ts'\"",
+    "e2e:headless": "INSTRUMENT_E2E=1 MIGRATE=1 DB_PATH=e2e.db start-server-and-test dev http://localhost:3000 \"cypress run --e2e --spec '**/*.cy.ts'\"",
     "build": "next build --no-lint",
     "start": "next start"
   },
@@ -71,7 +71,7 @@
     "@vitest/coverage-v8": "^4.0.6",
     "babel-plugin-istanbul": "^7.0.1",
     "cypress": "^15.5.0",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-next": "16.0.1",
     "jsdom": "^27.1.0",
     "madge": "^8.0.0",

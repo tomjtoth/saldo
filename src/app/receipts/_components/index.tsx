@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 
 import {
@@ -29,6 +29,13 @@ export default function ReceiptsPage() {
     (s) => (-1) in s.combined.showReceiptItemsSummary,
   );
 
+  const receipts = group?.receipts ?? [];
+  const someReceiptsAreDeleted = !receipts.every(vf.active);
+
+  const showDeletedReceipts = useAppSelector(
+    (s) => s.combined.showDeletedReceipts,
+  );
+
   const receipt = group?.activeReceipt;
 
   useEffect(() => {
@@ -42,56 +49,73 @@ export default function ReceiptsPage() {
     [group?.categories],
   );
 
-  let adderButton: ReactNode = null;
-
-  if (group) {
-    adderButton =
-      activeCategories.length > 0 ? (
-        <>
-          <button
-            className={
-              "inline-block" + (groupIsActive ? "" : " cursor-not-allowed!")
-            }
-            onClick={
-              groupIsActive
-                ? () => dispatch(thunks.setActiveReceipt(-1))
-                : () =>
-                    appToast.error(
-                      "Cannot add new receipts to a disabled group, re-enable it first!",
-                    )
-            }
-          >
-            ➕ <span className="hidden sm:inline-block">Add new...</span>
-          </button>
-
-          <button
-            className="ml-2"
-            onClick={() => dispatch(thunks.toggleReceiptItemsSummary(-1))}
-          >
-            <span className="relative">
-              🔎
-              <sub className="text-xs -bottom-2 -right-2 absolute ">
-                {showSummary ? "➖" : "➕"}
-              </sub>
-            </span>{" "}
-            <span className="hidden sm:inline-block ml-2">
-              {showSummary ? "Hide" : "Show"} items
-            </span>
-          </button>
-        </>
-      ) : (
-        <Link href={`/groups/${group?.id}/categories`}>
-          🐱{" "}
-          <span className="hidden sm:inline-block">
-            Add/activate at least 1 category first
-          </span>
-        </Link>
-      );
-  }
-
   return (
     <>
-      <Header>{adderButton}</Header>
+      <Header>
+        {activeCategories.length > 0 ? (
+          <>
+            <button
+              className={
+                "inline-block" + (groupIsActive ? "" : " cursor-not-allowed!")
+              }
+              onClick={
+                groupIsActive
+                  ? () => dispatch(thunks.setActiveReceipt(-1))
+                  : () =>
+                      appToast.error(
+                        "Cannot add new receipts to a disabled group, re-enable it first!",
+                      )
+              }
+            >
+              ➕ <span className="hidden sm:inline-block">Add new...</span>
+            </button>
+
+            {receipts.length > 0 && (
+              <>
+                <button
+                  className="ml-2"
+                  onClick={() => dispatch(thunks.toggleReceiptItemsSummary(-1))}
+                >
+                  <span className="relative">
+                    🔎
+                    <sub className="text-xs -bottom-2 -right-2 absolute ">
+                      {showSummary ? "➖" : "➕"}
+                    </sub>
+                  </span>{" "}
+                  <span className="hidden sm:inline-block ml-2">
+                    {showSummary ? "Hide" : "Show"} items
+                  </span>
+                </button>
+
+                {someReceiptsAreDeleted && (
+                  <button
+                    className="ml-2 "
+                    onClick={() =>
+                      dispatch(thunks.toggleDeletedReceiptsVisibility())
+                    }
+                  >
+                    <span className="relative">
+                      🗑️<sub className="absolute -bottom-1 -right-2">🧾</sub>
+                    </span>
+
+                    <span className="max-sm:hidden ml-2">
+                      {showDeletedReceipts ? "Hide" : "Show"}{" "}
+                      <span className="max-md:hidden">deleted</span> receipts
+                    </span>
+                  </button>
+                )}
+              </>
+            )}
+          </>
+        ) : (
+          <Link href={`/groups/${group?.id}/categories`}>
+            🐱{" "}
+            <span className="hidden sm:inline-block">
+              Add/activate at least 1 category first
+            </span>
+          </Link>
+        )}
+      </Header>
 
       <ReceiptsTemplateListing />
 

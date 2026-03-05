@@ -181,9 +181,19 @@ export const sliceReceipts = {
     receipt.changes++;
   },
 
+  togglActiveReceiptActiveState(rs: CS) {
+    const receipt = getActiveGroup(rs)!.activeReceipt!;
+    vf(receipt).toggleActive();
+    receipt.changes++;
+  },
+
   toggleReceiptItemsSummary(rs: CS, { payload }: PayloadAction<Receipt["id"]>) {
     if (payload in rs.showReceiptItemsSummary)
       delete rs.showReceiptItemsSummary[payload];
     else rs.showReceiptItemsSummary[payload] = true;
+  },
+
+  toggleDeletedReceiptsVisibility(rs: CS) {
+    rs.showDeletedReceipts = !rs.showDeletedReceipts;
   },
 };

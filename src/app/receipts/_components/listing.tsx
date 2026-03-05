@@ -15,12 +15,17 @@ export default function ReceiptsMainListing() {
     (s) => s.combined.showReceiptItemsSummary,
   );
 
+  const showDeletedReceipts = useAppSelector(
+    (s) => s.combined.showDeletedReceipts,
+  );
+
   const memoizedList = useMemo(() => {
     const byMonth = new Map<string, Receipt[]>();
 
     for (const rcpt of group?.receipts ?? []) {
+      const vRec = vf(rcpt);
       // "add" it only on clicking the add new :D
-      if (vf(rcpt).template) continue;
+      if (vRec.template || (!showDeletedReceipts && !vRec.active)) continue;
 
       const month = rcpt.paidOn.slice(0, 7);
 
@@ -58,7 +63,7 @@ export default function ReceiptsMainListing() {
         </ul>
       </Fragment>
     ));
-  }, [group?.receipts, shownSummaries]);
+  }, [group?.receipts, shownSummaries, showDeletedReceipts]);
 
   useDebugger({ receiptsListing: memoizedList });
 
