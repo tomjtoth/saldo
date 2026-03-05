@@ -11,6 +11,7 @@ export const slice = createSlice({
   initialState: {
     groups: [],
     showReceiptItemsSummary: {},
+    showDeletedReceipts: false,
   } as CombinedState,
 
   reducers: {

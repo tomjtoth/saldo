@@ -19,4 +19,5 @@ export type CombinedState = {
   groupId?: number;
   groups: CliGroup[];
   showReceiptItemsSummary: Record<Receipt["id"], true>;
+  showDeletedReceipts?: boolean;
 };

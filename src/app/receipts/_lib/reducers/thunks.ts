@@ -69,8 +69,18 @@ export const thunksReceipts = {
       dispatch(csa.toggleActiveReceiptTemplate());
   },
 
+  toggleActiveReceiptActiveState: () => {
+    return (dispatch: AppDispatch) =>
+      dispatch(csa.togglActiveReceiptActiveState());
+  },
+
   toggleReceiptItemsSummary: (id: Receipt["id"]) => {
     return (dispatch: AppDispatch) =>
       dispatch(csa.toggleReceiptItemsSummary(id));
+  },
+
+  toggleDeletedReceiptsVisibility: () => {
+    return (dispatch: AppDispatch) =>
+      dispatch(csa.toggleDeletedReceiptsVisibility());
   },
 };
