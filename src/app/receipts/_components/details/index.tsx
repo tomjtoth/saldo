@@ -13,6 +13,7 @@ import ItemRow from "./itemRow";
 import PaidByUserWithAvatar from "../paidByUserWithAvatar";
 import ReceiptClosingDialog from "../closingDialog";
 import ReceiptTemplateDialog from "../templateDialog";
+import Slider from "@/app/_components/slider";
 
 // TODO:
 // also +1 hotkey for jumping straigt to 1st zero-cost item
@@ -30,7 +31,11 @@ export default function ReceiptDetails() {
   const groupId = group.id;
   const { wasTemplate, ...receipt } = group.activeReceipt!;
 
-  const isTemplate = vf(receipt).template;
+  const isNewReceipt = receipt.id === -1;
+
+  const vReceipt = vf(receipt);
+  const isTemplate = vReceipt.template;
+  const isActive = vReceipt.active;
 
   const [tempBtnEmoji, tempBtnText] = isTemplate
     ? ["💭", " template"]
@@ -118,7 +123,10 @@ export default function ReceiptDetails() {
   return (
     <Canceler onClick={closeReceipt}>
       <div
-        className="flex flex-col gap-2 overflow-scroll"
+        className={
+          "flex flex-col gap-2 overflow-scroll " +
+          (isNewReceipt ? "" : isActive ? "border-green-500" : "border-red-500")
+        }
         onKeyDown={(ev) => {
           if (ev.ctrlKey && ev.key === "s") {
             ev.preventDefault();
@@ -166,6 +174,13 @@ export default function ReceiptDetails() {
               </span>
               <span className="hidden sm:inline">{tempBtnText}</span>
             </button>
+          )}
+
+          {!isNewReceipt && (
+            <Slider
+              checked={isActive}
+              onClick={() => dispatch(thunks.toggleActiveReceiptActiveState())}
+            />
           )}
 
           <div className="flex gap-2 items-center">
