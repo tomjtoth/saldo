@@ -22,6 +22,13 @@ const eslintConfig = [
       "**/*.test.ts",
     ],
   },
+
+  // TODO: rm this once fixed: https://github.com/vercel/next.js/issues/89764
+  {
+    settings: {
+      react: { version: "19" }, // Avoids auto-detection crash
+    },
+  },
 ];
 
 export default eslintConfig;
