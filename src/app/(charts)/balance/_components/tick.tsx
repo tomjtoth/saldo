@@ -1,10 +1,10 @@
 "use client";
 
-import { TickItemTextProps } from "recharts/types/polar/PolarAngleAxis";
+import { XAxisTickContentProps } from "recharts";
 
 import { VDate } from "@/app/_lib/utils";
 
-export default function BalanceTick({ x, y, payload }: TickItemTextProps) {
+export default function BalanceTick({ x, y, payload }: XAxisTickContentProps) {
   return (
     <text
       x={x}
